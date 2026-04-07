@@ -136,7 +136,9 @@ export default function TenantsPage() {
       cidade: formData.cidade,
       estado: formData.estado,
       primaryColor: formData.primaryColor,
-      brandName: formData.name
+      nome: formData.name,
+      foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800",
+      biografia: `Mandato de ${formData.name} em ${formData.cidade}/${formData.estado}.`
     })
 
     const result = await createTenantWithOwner({

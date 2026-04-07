@@ -39,5 +39,11 @@ export default async function LandingPage({ params }: { params: { tenant: string
     bairros
   };
 
-  return <LandingContent tenant={tenant} initialData={initialData} />;
+  console.time(`renderPage:${slug}`);
+  const result = (
+    <LandingContent tenant={tenant} initialData={initialData} />
+  );
+  console.timeEnd(`renderPage:${slug}`);
+  
+  return result;
 }

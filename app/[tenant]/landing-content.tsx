@@ -81,7 +81,19 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   const [isScrolled, setIsScrolled] = useState(false)
   
   // Use config from tenant if available, otherwise fallback to mock
-  const config = tenant?.config ? JSON.parse(tenant.config) : initialData.config
+  let config = initialData.config;
+  try {
+    if (tenant?.config) {
+      config = JSON.parse(tenant.config);
+    }
+  } catch (e) {
+    console.error("Error parsing tenant config:", e);
+  }
+  
+  // Safe access to essential properties
+  const displayNome = config?.nome || config?.brandName || tenant?.name || "Vereador"
+  const displayFoto = config?.foto || initialData.config.foto
+
   const { projetosLei, leisAprovadas, publicacoes, indicacoes, bairros } = initialData
 
   // Supporter form state
@@ -163,10 +175,10 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
             {/* Logo/Name */}
             <Link href={`/${tenant?.slug || 'vereador'}`} className="flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-primary-foreground font-bold shadow-lg">
-                {config.nome.charAt(0)}
+                {displayNome.charAt(0)}
               </div>
               <span className="font-outfit font-black text-sm md:text-lg text-white uppercase tracking-tight">
-                {config.nome.split(' (')[0]}
+                {displayNome.split(' (')[0]}
               </span>
             </Link>
 
@@ -274,7 +286,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
               <div className="h-1 w-20 bg-accent mb-8 mx-auto lg:mx-0" />
 
               <p className="text-xl font-outfit text-white/80 leading-relaxed max-w-xl mx-auto lg:mx-0 mb-10">
-                Liderança, transparência e compromisso real. {config.nome.split(' (')[0]} está transformando o mandato legislativo em um centro de resultados para nossa gente.
+                Liderança, transparência e compromisso real. {displayNome.split(' (')[0]} está transformando o mandato legislativo em um centro de resultados para nossa gente.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
@@ -325,8 +337,8 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
                 >
                   <div className="absolute inset-0 bg-linear-to-t from-[#0A192F] via-transparent to-transparent z-10 opacity-60" />
                   <Image
-                    src={config.foto}
-                    alt={config.nome}
+                    src={displayFoto}
+                    alt={displayNome}
                     fill
                     className="object-cover rounded-b-[4rem] rounded-t-[10rem] grayscale-[0.2] hover:grayscale-0 transition-all duration-700 shadow-2xl"
                     priority

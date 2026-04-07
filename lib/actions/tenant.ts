@@ -8,9 +8,11 @@ import { headers } from "next/headers";
 
 export async function getTenantBySlug(slug: string) {
   try {
+    console.time(`getTenantBySlug:${slug}`);
     const result = await db.query.tenant.findFirst({
       where: eq(tenant.slug, slug),
     });
+    console.timeEnd(`getTenantBySlug:${slug}`);
     return result;
   } catch (error) {
     console.error("Error fetching tenant:", error);
