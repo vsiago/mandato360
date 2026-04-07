@@ -24,37 +24,48 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const menuItems = [
-  { href: "/dashboard", label: "Dashboard", shortLabel: "Home", icon: LayoutDashboard },
-  { href: "/dashboard/eleitores", label: "Eleitores", shortLabel: "Eleitores", icon: Users },
-  { href: "/dashboard/demandas", label: "Demandas da População", shortLabel: "Demandas", icon: MessageSquareText },
-  { href: "/dashboard/assessores", label: "Assessores", shortLabel: "Equipe", icon: UserCog },
-  { href: "/dashboard/mapa-politico", label: "Mapa Político", shortLabel: "Mapa", icon: Map },
-  { href: "/dashboard/base-eleitoral", label: "Base Eleitoral", shortLabel: "Base", icon: PieChart },
-  { href: "/dashboard/mapa-eleitoral", label: "Mapa Eleitoral", shortLabel: "Eleitoral", icon: MapPin },
-  { href: "/dashboard/liderancas", label: "Lideranças", shortLabel: "Lideres", icon: Crown },
-  { href: "/dashboard/projetos-lei", label: "Projetos de Lei", shortLabel: "Projetos", icon: FileText },
-  { href: "/dashboard/indicacoes", label: "Indicações", shortLabel: "Indicações", icon: FileCheck },
-  { href: "/dashboard/leis-aprovadas", label: "Leis Aprovadas", shortLabel: "Leis", icon: Scale },
-  { href: "/dashboard/publicacoes", label: "Publicações do Mandato", shortLabel: "Posts", icon: Newspaper },
-  { href: "/dashboard/landing-page", label: "Landing Page do Vereador", shortLabel: "Site", icon: Globe },
-  { href: "/dashboard/relatorios", label: "Relatórios", shortLabel: "Relatórios", icon: BarChart3 },
-  { href: "/dashboard/configuracoes", label: "Configurações", shortLabel: "Config", icon: Settings },
-]
+export function getMenuWithTenant(tenant: string) {
+  return [
+    { href: `/${tenant}/dashboard`, label: "Dashboard", shortLabel: "Home", icon: LayoutDashboard },
+    { href: `/${tenant}/dashboard/eleitores`, label: "Eleitores", shortLabel: "Eleitores", icon: Users },
+    { href: `/${tenant}/dashboard/demandas`, label: "Demandas da População", shortLabel: "Demandas", icon: MessageSquareText },
+    { href: `/${tenant}/dashboard/assessores`, label: "Assessores", shortLabel: "Equipe", icon: UserCog },
+    { href: `/${tenant}/dashboard/mapa-politico`, label: "Mapa Político", shortLabel: "Mapa", icon: Map },
+    { href: `/${tenant}/dashboard/base-eleitoral`, label: "Base Eleitoral", shortLabel: "Base", icon: PieChart },
+    { href: `/${tenant}/dashboard/mapa-eleitoral`, label: "Mapa Eleitoral", shortLabel: "Eleitoral", icon: MapPin },
+    { href: `/${tenant}/dashboard/liderancas`, label: "Lideranças", shortLabel: "Lideres", icon: Crown },
+    { href: `/${tenant}/dashboard/projetos-lei`, label: "Projetos de Lei", shortLabel: "Projetos", icon: FileText },
+    { href: `/${tenant}/dashboard/indicacoes`, label: "Indicações", shortLabel: "Indicações", icon: FileCheck },
+    { href: `/${tenant}/dashboard/leis-aprovadas`, label: "Leis Aprovadas", shortLabel: "Leis", icon: Scale },
+    { href: `/${tenant}/dashboard/publicacoes`, label: "Publicações do Mandato", shortLabel: "Posts", icon: Newspaper },
+    { href: `/${tenant}/dashboard/landing-page`, label: "Landing Page do Vereador", shortLabel: "Site", icon: Globe },
+    { href: `/${tenant}/dashboard/relatorios`, label: "Relatórios", shortLabel: "Relatórios", icon: BarChart3 },
+    { href: `/${tenant}/dashboard/configuracoes`, label: "Configurações", shortLabel: "Config", icon: Settings },
+  ]
+}
 
-// Items shown in bottom bar (mobile) - first 4 + "Outros"
-const MOBILE_VISIBLE_COUNT = 4
-const mobileVisibleItems = menuItems.slice(0, MOBILE_VISIBLE_COUNT)
-const mobileHiddenItems = menuItems.slice(MOBILE_VISIBLE_COUNT)
+// This was outside and caused errors
+
+import { useParams } from "next/navigation"
+import { authClient } from "@/lib/auth-client"
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const params = useParams()
+  const tenant = (params.tenant as string) || "vereador"
+  const { data: session } = authClient.useSession()
+  
+  const menuItems = getMenuWithTenant(tenant)
+  const MOBILE_VISIBLE_COUNT = 4
+  const mobileVisibleItems = menuItems.slice(0, MOBILE_VISIBLE_COUNT)
+  const mobileHiddenItems = menuItems.slice(MOBILE_VISIBLE_COUNT)
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Check if current page is in "Outros" menu
   const isOthersActive = mobileHiddenItems.some(
-    (item) => pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))
+    (item) => pathname === item.href || (item.href !== `/${tenant}/dashboard` && pathname.startsWith(item.href))
   )
 
   // Close dropdown when clicking outside
@@ -121,13 +132,19 @@ export function AppSidebar() {
           {/* Footer */}
           <div className="border-t border-sidebar-border p-3">
             <div className="flex items-center gap-3 rounded-xl bg-muted/50 px-3 py-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-                JS
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground uppercase">
+                {session?.user?.name?.[0] || 'U'}
               </div>
               <div className="flex-1 truncate">
-                <p className="text-sm font-medium text-foreground">Joao da Silva</p>
-                <p className="text-xs text-muted-foreground">Vereador - PSD</p>
+                <p className="text-sm font-medium text-foreground">{session?.user?.name || 'Carregando...'}</p>
+                <p className="text-xs text-muted-foreground uppercase">{(session?.user as any)?.role || 'Acesso'}</p>
               </div>
+              <button 
+                onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login" } } })}
+                className="text-xs text-red-500 hover:underline"
+              >
+                Sair
+              </button>
             </div>
           </div>
         </div>
