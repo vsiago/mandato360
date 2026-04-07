@@ -12,6 +12,12 @@ import { notFound } from "next/navigation";
 
 export default async function LandingPage({ params }: { params: { tenant: string } }) {
   const { tenant: slug } = await params;
+
+  // Ignore system assets and reserved words that might be caught by the dynamic route
+  const isAsset = slug.includes(".") || slug === "favicon.ico" || slug === "master";
+  if (isAsset) {
+    return notFound();
+  }
   
   // Try to fetch real tenant data
   const tenant = await getTenantBySlug(slug);

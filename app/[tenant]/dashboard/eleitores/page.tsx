@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { Eye, Pencil, Search } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Eye, Pencil, Search, Loader2 } from "lucide-react"
+import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -20,13 +21,45 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { eleitores, demandas } from "@/lib/mock-data"
-import type { Eleitor } from "@/lib/mock-data"
+import { getEleitoresByTenant, updateEleitor } from "@/lib/actions/eleitores"
+import { toast } from "sonner"
+
+interface Eleitor {
+  id: string
+  nome: string
+  email: string
+  telefone: string
+  bairro: string
+  dataCadastro: string
+  totalSolicitacoes: number
+  statusRelacionamento: string
+  observacoes: string
+  demandas?: any[]
+}
 
 export default function EleitoresPage() {
+  const params = useParams()
+  const tenantSlug = params.tenant as string
+  
+  const [eleitores, setEleitores] = useState<Eleitor[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [selectedEleitor, setSelectedEleitor] = useState<Eleitor | null>(null)
   const [editingEleitor, setEditingEleitor] = useState<Eleitor | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const fetchEleitores = async () => {
+    setIsLoading(true)
+    const data = await getEleitoresByTenant(tenantSlug)
+    setEleitores(data as any)
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    if (tenantSlug) {
+      fetchEleitores()
+    }
+  }, [tenantSlug])
 
   const filteredEleitores = eleitores.filter(
     (e) =>
@@ -35,8 +68,29 @@ export default function EleitoresPage() {
       e.email.toLowerCase().includes(search.toLowerCase())
   )
 
-  const getEleitorDemandas = (eleitorId: string) => {
-    return demandas.filter((d) => d.eleitorId === eleitorId)
+  const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!editingEleitor) return
+    
+    setIsUpdating(true)
+    const formData = new FormData(e.currentTarget)
+    const updatedData = {
+      nome: formData.get("nome") as string,
+      telefone: formData.get("telefone") as string,
+      email: formData.get("email") as string,
+      bairro: formData.get("bairro") as string,
+      observacoes: formData.get("observacoes") as string,
+    }
+
+    const res = await updateEleitor(editingEleitor.id, updatedData)
+    if (res.success) {
+      toast.success("Eleitor atualizado com sucesso!")
+      setEditingEleitor(null)
+      fetchEleitores()
+    } else {
+      toast.error(res.error || "Erro ao atualizar")
+    }
+    setIsUpdating(false)
   }
 
   return (
@@ -64,62 +118,76 @@ export default function EleitoresPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead className="hidden sm:table-cell">Telefone</TableHead>
-                  <TableHead className="hidden lg:table-cell">Email</TableHead>
-                  <TableHead className="hidden md:table-cell">Bairro</TableHead>
-                  <TableHead className="hidden xl:table-cell">Data Cadastro</TableHead>
-                  <TableHead className="text-center hidden sm:table-cell">Solicitacoes</TableHead>
-                  <TableHead className="text-right">Acoes</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredEleitores.map((eleitor) => (
-                  <TableRow key={eleitor.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{eleitor.nome}</p>
-                        <p className="text-xs text-muted-foreground sm:hidden">{eleitor.bairro}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">{eleitor.telefone}</TableCell>
-                    <TableCell className="hidden lg:table-cell">{eleitor.email}</TableCell>
-                    <TableCell className="hidden md:table-cell">{eleitor.bairro}</TableCell>
-                    <TableCell className="hidden xl:table-cell">
-                      {new Date(eleitor.dataCadastro).toLocaleDateString('pt-BR')}
-                    </TableCell>
-                    <TableCell className="text-center hidden sm:table-cell">{eleitor.totalSolicitacoes}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1 md:gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 md:h-9 md:w-9"
-                          onClick={() => setSelectedEleitor(eleitor)}
-                        >
-                          <Eye className="h-4 w-4" />
-                          <span className="sr-only">Visualizar</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 md:h-9 md:w-9"
-                          onClick={() => setEditingEleitor(eleitor)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                          <span className="sr-only">Editar</span>
-                        </Button>
-                      </div>
-                    </TableCell>
+          {isLoading ? (
+            <div className="flex py-20 items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead className="hidden sm:table-cell">Telefone</TableHead>
+                    <TableHead className="hidden lg:table-cell">Email</TableHead>
+                    <TableHead className="hidden md:table-cell">Bairro</TableHead>
+                    <TableHead className="hidden xl:table-cell">Data Cadastro</TableHead>
+                    <TableHead className="text-center hidden sm:table-cell">Solicitacoes</TableHead>
+                    <TableHead className="text-right">Acoes</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredEleitores.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+                        Nenhum eleitor encontrado.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredEleitores.map((eleitor) => (
+                      <TableRow key={eleitor.id}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{eleitor.nome}</p>
+                            <p className="text-xs text-muted-foreground sm:hidden">{eleitor.bairro}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">{eleitor.telefone}</TableCell>
+                        <TableCell className="hidden lg:table-cell">{eleitor.email}</TableCell>
+                        <TableCell className="hidden md:table-cell">{eleitor.bairro}</TableCell>
+                        <TableCell className="hidden xl:table-cell">
+                          {new Date(eleitor.dataCadastro).toLocaleDateString('pt-BR')}
+                        </TableCell>
+                        <TableCell className="text-center hidden sm:table-cell">{eleitor.totalSolicitacoes}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1 md:gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 md:h-9 md:w-9"
+                              onClick={() => setSelectedEleitor(eleitor)}
+                            >
+                              <Eye className="h-4 w-4" />
+                              <span className="sr-only">Visualizar</span>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 md:h-9 md:w-9"
+                              onClick={() => setEditingEleitor(eleitor)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Editar</span>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -171,10 +239,10 @@ export default function EleitoresPage() {
               <div>
                 <p className="mb-3 text-sm font-medium text-muted-foreground">Historico de Solicitacoes</p>
                 <div className="space-y-2">
-                  {getEleitorDemandas(selectedEleitor.id).length === 0 ? (
+                  {!selectedEleitor.demandas || selectedEleitor.demandas.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Nenhuma solicitacao registrada.</p>
                   ) : (
-                    getEleitorDemandas(selectedEleitor.id).map((demanda) => (
+                    selectedEleitor.demandas.map((demanda) => (
                       <div
                         key={demanda.id}
                         className="rounded-xl bg-muted/50 p-4"
@@ -204,33 +272,33 @@ export default function EleitoresPage() {
             <DialogDescription>Atualize as informacoes do eleitor</DialogDescription>
           </DialogHeader>
           {editingEleitor && (
-            <form className="space-y-4">
+            <form onSubmit={handleUpdate} className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-foreground">Nome</label>
-                <Input defaultValue={editingEleitor.nome} className="mt-1" />
+                <Input name="nome" defaultValue={editingEleitor.nome} className="mt-1" required />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground">Telefone</label>
-                <Input defaultValue={editingEleitor.telefone} className="mt-1" />
+                <Input name="telefone" defaultValue={editingEleitor.telefone} className="mt-1" />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground">Email</label>
-                <Input defaultValue={editingEleitor.email} className="mt-1" />
+                <Input name="email" defaultValue={editingEleitor.email} className="mt-1" />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground">Bairro</label>
-                <Input defaultValue={editingEleitor.bairro} className="mt-1" />
+                <Input name="bairro" defaultValue={editingEleitor.bairro} className="mt-1" required />
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground">Observações</label>
-                <Input defaultValue={editingEleitor.observacoes || ""} className="mt-1" />
+                <Input name="observacoes" defaultValue={editingEleitor.observacoes || ""} className="mt-1" />
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" type="button" onClick={() => setEditingEleitor(null)}>
+                <Button variant="outline" type="button" onClick={() => setEditingEleitor(null)} disabled={isUpdating}>
                   Cancelar
                 </Button>
-                <Button type="button" onClick={() => setEditingEleitor(null)}>
-                  Salvar
+                <Button type="submit" disabled={isUpdating}>
+                  {isUpdating ? "Salvando..." : "Salvar"}
                 </Button>
               </div>
             </form>

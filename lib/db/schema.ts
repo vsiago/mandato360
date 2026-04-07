@@ -1,4 +1,10 @@
-import { pgTable, text, timestamp, boolean, uuid, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, uuid, integer, pgEnum } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+
+export const relacaoStatusEnum = pgEnum("relacao_status", ["apoiador", "simpatizante", "neutro", "problema"]);
+export const demandaStatusEnum = pgEnum("demanda_status", ["novo", "analise", "encaminhado", "resolvido"]);
+export const legislativoStatusEnum = pgEnum("legislativo_status", ["tramitando", "aprovado", "rejeitado", "arquivado", "pendente", "concluido"]);
+export const liderancaTipoEnum = pgEnum("lideranca_tipo", ["lider_comunitario", "religioso", "comerciante", "sindico", "presidente_associacao", "outro"]);
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -68,3 +74,80 @@ export const tenantMember = pgTable("tenant_member", {
     role: text("role").$type<"owner" | "admin" | "staff">().default("staff"),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
+
+// Dashboard Tables
+export const eleitor = pgTable("eleitor", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	tenantId: uuid("tenantId").notNull().references(() => tenant.id),
+	nome: text("nome").notNull(),
+	email: text("email"),
+	telefone: text("telefone"),
+	bairro: text("bairro").notNull(),
+	statusRelacionamento: relacaoStatusEnum("status_relacionamento").default("neutro").notNull(),
+	observacoes: text("observacoes"),
+	createdAt: timestamp("createdAt").defaultNow().notNull(),
+	updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export const demanda = pgTable("demanda", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	tenantId: uuid("tenantId").notNull().references(() => tenant.id),
+	eleitorId: uuid("eleitorId").notNull().references(() => eleitor.id),
+	assessorId: text("assessorId").references(() => user.id),
+	tipo: text("tipo").notNull(),
+	descricao: text("descricao").notNull(),
+	status: demandaStatusEnum("status").default("novo").notNull(),
+	data: timestamp("data").defaultNow().notNull(),
+});
+
+export const lideranca = pgTable("lideranca", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	tenantId: uuid("tenantId").notNull().references(() => tenant.id),
+	nome: text("nome").notNull(),
+	telefone: text("telefone"),
+	bairro: text("bairro"),
+	tipo: liderancaTipoEnum("tipo").notNull(),
+	influenciaEstimada: text("influencia_estimada"),
+	anotacoes: text("anotacoes"),
+});
+
+export const legislativo = pgTable("legislativo", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	tenantId: uuid("tenantId").notNull().references(() => tenant.id),
+	tipo: text("tipo", { enum: ["projeto_lei", "indicacao", "lei_aprovada"] }).notNull(),
+	numero: text("numero"),
+	titulo: text("titulo").notNull(),
+	descricao: text("descricao"),
+	status: legislativoStatusEnum("status").notNull(),
+	data: timestamp("data").notNull(),
+});
+
+export const publicacao = pgTable("publicacao", {
+	id: uuid("id").primaryKey().defaultRandom(),
+	tenantId: uuid("tenantId").notNull().references(() => tenant.id),
+	titulo: text("titulo").notNull(),
+	conteudo: text("conteudo").notNull(),
+	imagemUrl: text("imagem_url"),
+	data: timestamp("data").defaultNow().notNull(),
+});
+
+// Relations
+export const tenantRelations = relations(tenant, ({ many }) => ({
+    members: many(tenantMember),
+    eleitores: many(eleitor),
+    demandas: many(demanda),
+    liderancas: many(lideranca),
+    legislativo: many(legislativo),
+    publicacoes: many(publicacao),
+}));
+
+export const eleitorRelations = relations(eleitor, ({ one, many }) => ({
+	tenant: one(tenant, { fields: [eleitor.tenantId], references: [tenant.id] }),
+	demandas: many(demanda),
+}));
+
+export const demandaRelations = relations(demanda, ({ one }) => ({
+	tenant: one(tenant, { fields: [demanda.tenantId], references: [tenant.id] }),
+	eleitor: one(eleitor, { fields: [demanda.eleitorId], references: [eleitor.id] }),
+	assessor: one(user, { fields: [demanda.assessorId], references: [user.id] }),
+}));

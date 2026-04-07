@@ -28,6 +28,9 @@ export default async function Home() {
   }
 
   // Fallback if no tenant found
-  // You might want to redirect to a "Create Tenant" page or similar
+  if (session.user.role === "admin") {
+    redirect("/master/tenants")
+  }
+  
   redirect("/login") 
 }
