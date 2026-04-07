@@ -4,61 +4,41 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Clean white background with subtle warmth */
-  --background: oklch(0.995 0.002 350);
-  --foreground: oklch(0.25 0.02 350);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.02 350);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.02 350);
-  
-  /* Primary: Navy Blue #1E3A8A */
-  --primary: oklch(0.35 0.12 250);
-  --primary-foreground: oklch(0.99 0 0);
-  
-  /* Secondary: Soft Gold tint */
-  --secondary: oklch(0.95 0.05 80);
-  --secondary-foreground: oklch(0.4 0.1 80);
-  
-  /* Muted: Soft gray with blue undertone */
-  --muted: oklch(0.96 0.01 250);
-  --muted-foreground: oklch(0.5 0.05 250);
-  
-  /* Accent: Gold/Amber #F59E0B */
-  --accent: oklch(0.7 0.18 80);
-  --accent-foreground: oklch(0.2 0.05 80);
-  
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  
-  /* Clean borders */
-  --border: oklch(0.92 0.005 350);
-  --input: oklch(0.94 0.005 350);
-  --ring: oklch(0.62 0.22 350);
-  
-  /* Charts using brand colors */
-  --chart-1: oklch(0.62 0.22 350);
-  --chart-2: oklch(0.48 0.18 350);
-  --chart-3: oklch(0.7 0.15 350);
-  --chart-4: oklch(0.55 0.2 25);
-  --chart-5: oklch(0.65 0.12 180);
-  
-  --radius: 0.625rem;
-  
-  /* Sidebar: Clean white with subtle border */
-  --sidebar: oklch(1 0 0);
-  --sidebar-foreground: oklch(0.25 0.02 350);
-  --sidebar-primary: oklch(0.62 0.22 350);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.97 0.02 350);
-  --sidebar-accent-foreground: oklch(0.25 0.02 350);
-  --sidebar-border: oklch(0.92 0.005 350);
-  --sidebar-ring: oklch(0.62 0.22 350);
-  
-  --success: oklch(0.6 0.15 145);
-  --success-foreground: oklch(0.99 0 0);
-  --warning: oklch(0.75 0.15 80);
-  --warning-foreground: oklch(0.2 0.02 80);
+  --background: #FAFBFC;
+  --foreground: #0A1628;
+  --card: #FFFFFF;
+  --card-foreground: #0A1628;
+  --popover: #FFFFFF;
+  --popover-foreground: #0A1628;
+  --primary: #0F2B5B;
+  --primary-foreground: #FFFFFF;
+  --secondary: #0D9F6E;
+  --secondary-foreground: #FFFFFF;
+  --muted: #F1F4F8;
+  --muted-foreground: #4B5C72;
+  --accent: #E6F7F0;
+  --accent-foreground: #0F2B5B;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #0F2B5B;
+  --radius: 0.75rem;
+
+  /* Sidebar: Adapted for the navy theme */
+  --sidebar: #0F2B5B;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #0D9F6E;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: rgba(255, 255, 255, 0.1);
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #0D9F6E;
+
+  --success: #0D9F6E;
+  --success-foreground: #FFFFFF;
+  --warning: #F59E0B;
+  --warning-foreground: #FFFFFF;
 }
 
 .dark {
