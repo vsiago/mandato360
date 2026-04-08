@@ -47,6 +47,37 @@ function EditorInner() {
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] -mx-6 -my-6 overflow-hidden bg-white dark:bg-stone-950">
 
+            {/* ─── Unsaved changes banner ─── */}
+            {isDirty && (
+                <div className="shrink-0 px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between gap-3 animate-in slide-in-from-top-1 duration-300">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-500" />
+                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
+                            Alterações não salvas — salve para aplicar no site
+                        </span>
+                    </div>
+                    <Button
+                        size="sm"
+                        onClick={save}
+                        disabled={saving}
+                        className="rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white h-7 px-4"
+                    >
+                        {saving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Save className="h-3 w-3 mr-1" />}
+                        {saving ? "Salvando..." : "Salvar Agora"}
+                    </Button>
+                </div>
+            )}
+
+            {/* Saved banner */}
+            {saved && !isDirty && (
+                <div className="shrink-0 px-4 py-2 bg-green-500/10 border-b border-green-500/20 flex items-center gap-2 animate-in slide-in-from-top-1 duration-300">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-xs font-medium text-green-700 dark:text-green-400">
+                        Salvo com sucesso! As alterações já estão no ar.
+                    </span>
+                </div>
+            )}
+
             {/* ─── Main layout ─── */}
             <div className="flex flex-1 min-h-0">
 
@@ -208,7 +239,15 @@ function EditorInner() {
                          ) : selectedSection ? (
                             <ContentEditorPanel />
                          ) : (
-                            <div className="p-8 text-center opacity-40">Selecione uma seção</div>
+                            <div className="flex flex-col items-center justify-center h-full px-6 text-center bg-white dark:bg-stone-950">
+                                <div className="h-14 w-14 rounded-2xl flex items-center justify-center mb-4 bg-emerald-500/5 border border-emerald-500/10 shadow-sm">
+                                    <Sparkles className="h-6 w-6 text-emerald-500/50" />
+                                </div>
+                                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 uppercase tracking-tighter">Selecione uma seção</p>
+                                <p className="text-[10px] text-stone-400 mt-1 max-w-48 leading-relaxed font-medium">
+                                    Clique em uma seção na barra lateral para editar seu conteúdo e propriedades.
+                                </p>
+                            </div>
                          )
                     )}
                 </div>
@@ -242,30 +281,67 @@ function EditorInner() {
     )
 }
 
-const DEFAULT_CONFIG: SiteConfig = {
-    slug: "vereador",
-    name: "Dr. Adriano Lima",
-    tagline: "Compromisso com Itaguaí",
-    description: "Trabalhando pela transparência e inovação política.",
-    heroBadge: "Mandato Participativo",
-    heroImageUrl: "/site/hero.png",
-    heroHeadline: "Por uma Itaguaí de",
-    heroHighlight: "Resultados",
-    ctaText: "Solicitar Demanda",
-    colors: { primary: "#0F2B5B", secondary: "#0D9F6E" },
-    contact: { phone: "(21) 99999-8888", whatsapp: "(21) 99999-8888", address: "Câmara Municipal", email: "contato@mandato.com.br", instagram: "@vereador" },
-    perfil: { name: "Dr. Adriano Lima", bio: "Médico e gestor público focado em resultados reais.", role: "Vereador Titular", imageUrl: "/vereador-modelo.png" },
-    logoUrl: "",
-    avatarUrl: "",
-    trustBadges: [{ text: "15 Projetos de Lei", icon: "Check" }, { text: "100% Presença", icon: "Check" }],
-    categories: [],
-    projetos: [
-        { id: "1", name: "Modernização da Saúde", description: "Implementação do prontuário digital em todos os postos de saúde.", image: "", categoryId: "1", slug: "saude" },
-        { id: "2", name: "Educação Tecnológica", description: "Novos laboratórios de robótica nas escolas municipais.", image: "", categoryId: "1", slug: "educacao" }
-    ],
-    faq: [{ id: "1", question: "Como envio uma demanda?", answer: "Você pode clicar no botão 'Solicitar Demanda' e preencher o formulário." }],
-    beforeAfter: [{ id: "1", title: "Infraestrutura Bairro X", before: "/site/antes.jpg", after: "/site/depois.jpg" }],
-    theme: "neutro" as ThemeId
+/* ─── Build SiteConfig from tenant DB row ─── */
+function buildConfigFromTenant(tenant: any): SiteConfig {
+    // If tenant has a full config JSON, use it (merging DB-level fields as ultimate source of truth for media)
+    if (tenant.config) {
+        try {
+            const parsed = JSON.parse(tenant.config) as SiteConfig
+            // Always ensure slug matches
+            parsed.slug = tenant.slug
+            // Merge DB-level photo fields (these are the canonical source after save)
+            if (tenant.fotoPerfilUrl && parsed.perfil) {
+                parsed.perfil.imageUrl = tenant.fotoPerfilUrl
+            }
+            if (tenant.logoUrl) {
+                parsed.logoUrl = tenant.logoUrl
+            }
+            return parsed
+        } catch (e) {
+            console.error("Failed to parse tenant config JSON:", e)
+        }
+    }
+
+    // No config JSON — build from individual DB columns
+    return {
+        slug: tenant.slug,
+        name: tenant.name || "Vereador",
+        tagline: "Mandato Participativo",
+        description: "Trabalhando pela transparência e inovação política.",
+        heroBadge: "Mandato Participativo",
+        heroImageUrl: "",
+        heroHeadline: "Por uma cidade de",
+        heroHighlight: "Resultados",
+        ctaText: "Solicitar Demanda",
+        colors: {
+            primary: tenant.primaryColor || "#0F2B5B",
+            secondary: tenant.secondaryColor || "#0D9F6E",
+        },
+        contact: {
+            phone: "",
+            whatsapp: "",
+            address: "",
+            email: "",
+            instagram: "",
+        },
+        perfil: {
+            name: tenant.name || "Vereador",
+            bio: tenant.biografia || "",
+            role: "Vereador",
+            imageUrl: tenant.fotoPerfilUrl || "",
+        },
+        logoUrl: tenant.logoUrl || "",
+        avatarUrl: "",
+        trustBadges: [
+            { text: "Compromisso com a Cidade", icon: "Check" },
+            { text: "Transparência Total", icon: "Check" },
+        ],
+        categories: [],
+        projetos: [],
+        faq: [],
+        beforeAfter: [],
+        theme: "neutro" as ThemeId,
+    }
 }
 
 export default function EditarSitePage() {
@@ -273,33 +349,44 @@ export default function EditarSitePage() {
     const slug = params.tenant as string
     const [data, setData] = useState<SiteConfig | null>(null)
     const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         getTenantBySlug(slug).then(tenant => {
-            if (tenant?.config) {
-                try {
-                    setData(JSON.parse(tenant.config))
-                } catch (e) {
-                    setData(DEFAULT_CONFIG)
-                }
-            } else if (tenant) {
-                setData({
-                    ...DEFAULT_CONFIG,
-                    slug: tenant.slug,
-                    name: tenant.name,
-                    colors: { 
-                        primary: tenant.primaryColor || DEFAULT_CONFIG.colors.primary, 
-                        secondary: tenant.secondaryColor || DEFAULT_CONFIG.colors.secondary 
-                    },
-                    perfil: { ...DEFAULT_CONFIG.perfil, name: tenant.name, bio: tenant.biografia || DEFAULT_CONFIG.perfil.bio, imageUrl: tenant.fotoPerfilUrl || DEFAULT_CONFIG.perfil.imageUrl }
-                })
+            if (!tenant) {
+                setError("Mandato não encontrado.")
+                setLoading(false)
+                return
             }
+            setData(buildConfigFromTenant(tenant))
+            setLoading(false)
+        }).catch(err => {
+            console.error("Error loading tenant:", err)
+            setError("Erro ao carregar dados do mandato.")
             setLoading(false)
         })
     }, [slug])
 
+    if (error) {
+        return (
+            <div className="flex h-[60vh] items-center justify-center">
+                <div className="text-center space-y-3">
+                    <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto" />
+                    <p className="text-sm text-stone-500 font-medium">{error}</p>
+                </div>
+            </div>
+        )
+    }
+
     if (loading || !data) {
-        return <div className="flex h-[60vh] items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-emerald-500" /></div>
+        return (
+            <div className="flex h-[60vh] items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="animate-spin h-8 w-8 text-emerald-500" />
+                    <p className="text-sm text-stone-400 font-medium">Carregando editor visual...</p>
+                </div>
+            </div>
+        )
     }
 
     return (

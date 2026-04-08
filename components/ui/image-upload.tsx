@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
-import { ImagePlus, Loader2, X } from "lucide-react"
+import { ImagePlus, Loader2, X, Upload, RefreshCw } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { uploadImageAction } from "@/lib/actions/upload"
@@ -52,18 +52,45 @@ export function ImageUpload({ value, onChange, disabled, className }: ImageUploa
     }
 
     return (
-        <div className={cn("relative group w-full h-32 rounded-xl border-2 border-dashed border-emerald-500/10 bg-emerald-500/5 hover:bg-emerald-500/10 transition-all flex flex-col items-center justify-center overflow-hidden", className)}>
+        <div className={cn(
+            "relative group w-full rounded-xl border-2 border-dashed transition-all overflow-hidden",
+            value 
+                ? "border-stone-200 dark:border-stone-700"
+                : "border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/30",
+            isUploading && "pointer-events-none opacity-70",
+            className
+        )}
+        style={{ minHeight: value ? undefined : '8rem' }}
+        >
             {value ? (
                 <>
                     <img src={value} alt="Upload preview" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    {/* Hover overlay with replace and remove options */}
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
+                        <button
+                            type="button"
+                            onClick={(e) => { 
+                                e.stopPropagation()
+                                if (!isUploading) fileInputRef.current?.click()
+                            }}
+                            className="flex items-center gap-1.5 px-3 py-2 bg-white/95 hover:bg-white text-stone-700 rounded-lg text-[10px] font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
+                            disabled={disabled || isUploading}
+                        >
+                            {isUploading ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                                <RefreshCw className="h-3.5 w-3.5" />
+                            )}
+                            {isUploading ? "Enviando..." : "Trocar"}
+                        </button>
                         <button
                             type="button"
                             onClick={(e) => { e.stopPropagation(); onChange(""); }}
-                            className="p-2 bg-red-500/90 text-white rounded-full hover:bg-red-600 transition-colors"
+                            className="flex items-center gap-1.5 px-3 py-2 bg-red-500/90 hover:bg-red-600 text-white rounded-lg text-[10px] font-bold shadow-lg transition-all hover:scale-105 active:scale-95"
                             disabled={disabled || isUploading}
                         >
-                            <X className="h-4 w-4" />
+                            <X className="h-3.5 w-3.5" />
+                            Remover
                         </button>
                     </div>
                 </>
