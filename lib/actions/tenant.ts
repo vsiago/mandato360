@@ -69,8 +69,30 @@ export async function createTenant(data: {
   ownerPassword: string;
 }) {
   try {
+    console.time("createTenantWithOwner:auth");
+    const authResult = await auth.api.signUpEmail({
+      body: {
+        email: data.ownerEmail,
+        password: data.ownerPassword,
+        name: data.ownerName,
+      },
+      headers: await headers()
+    }).catch(err => {
+      console.error("Better Auth Error:", err);
+      // Extrair mensagem de erro amigável se disponível
+      const msg = err.message || "Erro ao criar usuário proprietário.";
+      throw new Error(msg);
+    });
+    console.timeEnd("createTenantWithOwner:auth");
+
+    if (!authResult || !authResult.user) {
+      throw new Error("Falha ao criar usuário proprietário.");
+    }
+
+    // 2. Create Tenant and Membership in a single transaction
+    console.time("createTenantWithOwner:db");
     return await db.transaction(async (tx) => {
-      // 1. Create Tenant
+      // Create Tenant
       const [newTenant] = await tx.insert(tenant).values({
         name: data.name,
         slug: data.slug,
@@ -83,32 +105,16 @@ export async function createTenant(data: {
         updatedAt: new Date(),
       }).returning();
 
-      // 2. Create User via Better Auth
-      // Note: Since this is an admin action, we use the internal API
-      const result = await auth.api.signUpEmail({
-        body: {
-          email: data.ownerEmail,
-          password: data.ownerPassword,
-          name: data.ownerName,
-        },
-        headers: await headers()
-      }).catch(err => {
-        console.error("Better Auth Error:", err);
-        throw new Error(err.message || "Erro ao criar usuário proprietário.");
-      });
-
-      if (!result || !result.user) {
-        throw new Error("Falha ao criar usuário proprietário.");
-      }
-
-      // 3. Create Tenant Membership as Owner
+      // Create Tenant Membership as Owner
       await tx.insert(tenantMember).values({
         tenantId: newTenant.id,
-        userId: result.user.id,
+        userId: authResult.user.id,
         role: "owner",
       });
 
-      return { success: true, data: { tenant: newTenant, user: result.user } };
+      return { success: true, data: { tenant: newTenant, user: authResult.user } };
+    }).finally(() => {
+        console.timeEnd("createTenantWithOwner:db");
     });
   } catch (error: any) {
     console.error("Error creating tenant and owner:", error);

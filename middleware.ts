@@ -14,8 +14,13 @@ export default async function middleware(request: NextRequest) {
 		session = await auth.api.getSession({
 			headers: request.headers,
 		});
-	} catch (error) {
-		console.error("Middleware Auth Error (Transient):", error);
+	} catch (error: any) {
+		console.error("Middleware Auth Error (Transient):", {
+            message: error.message,
+            code: error.code,
+            status: error.status,
+            pathname
+        });
 		// Allow request to proceed on transient DB errors
 		// Protection will still happen via Layout/Page server checks
 		return NextResponse.next();

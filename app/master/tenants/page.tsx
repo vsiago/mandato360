@@ -7,6 +7,7 @@ import {
   Search, 
   Building2, 
   ChevronRight, 
+  ChevronLeft,
   ExternalLink,
   Globe,
   MoreVertical,

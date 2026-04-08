@@ -1,115 +1,109 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
+import { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
 import { 
-  Send, 
-  CheckCircle2, 
-  MapPin, 
-  Phone, 
-  Mail, 
-  User, 
-  Menu, 
-  X,
-  Globe, 
-  Heart,
-  FileText,
-  Scale,
-  ChevronRight,
+  Building2,
   Users,
-  MessageSquare,
-  Share2,
-  Calendar,
-  TrendingUp,
-  Newspaper,
-  ExternalLink,
+  Stethoscope,
+  GraduationCap,
+  HardHat,
+  HeartHandshake,
   ArrowRight,
-  LifeBuoy
-} from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+  Star,
+  MapPin,
+  ChevronDown,
+  Menu,
+  X,
+  User,
+  Heart,
+  Phone,
+  MoveRight,
+  ArrowLeftRight,
+  CheckCircle2,
+  LifeBuoy,
+  FileText,
+  Send,
+  Mail
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+  DialogDescription,
+} from '@/components/ui/dialog'
 import { submitSupporterAction, submitRequestAction } from "@/lib/actions/forms"
 import { toast } from "sonner"
 
-// Format date consistently to avoid hydration mismatch
+// MOCK DATA for sections not in DB yet
+const initialAchievements = [
+  { icon: HardHat, title: 'Obras', desc: 'Pavimentação e nova infraestrutura nos bairros.' },
+  { icon: Stethoscope, title: 'Saúde', desc: 'Reforma de postos e ampliação do atendimento.' },
+  { icon: GraduationCap, title: 'Educação', desc: 'Melhoria nas escolas e merenda de qualidade.' },
+  { icon: HeartHandshake, title: 'Social', desc: 'Apoio contínuo às famílias em vulnerabilidade.' },
+]
+
+const beforeAfterItems = [
+  {
+    area: 'Infraestrutura',
+    before: { image: '/site/antes.jpg', title: 'Antiga Realidade' },
+    after: { image: '/site/depois.jpg', title: 'Transformação em Curso' },
+  },
+]
+
+const testimonials = [
+  {
+    name: 'Maria da Conceição',
+    text: 'A mudança no nosso bairro é visível. O trabalho sério faz toda a diferença.',
+  },
+  {
+    name: 'João Pedro',
+    text: 'O atendimento na saúde melhorou muito. Sinto que agora temos voz.',
+  },
+]
+
+// HELPER: Format date
 function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  const day = String(date.getUTCDate()).padStart(2, '0')
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const year = date.getUTCFullYear()
-  return `${day}/${month}/${year}`
+    const date = new Date(dateString)
+    return new Intl.DateTimeFormat('pt-BR').format(date)
 }
 
-const tiposSolicitacao = [
-  'Iluminacao Publica',
-  'Coleta de Lixo',
-  'Buracos na Via',
-  'Saude',
-  'Seguranca',
-  'Transporte',
-  'Outros',
-]
-
-const navLinks = [
-  { id: 'inicio', label: 'Inicio' },
-  { id: 'historia', label: 'Historia' },
-  { id: 'projetos', label: 'Projetos' },
-  { id: 'contato', label: 'Contato' },
-]
-
 export default function LandingContent({ tenant, initialData }: { tenant: any, initialData: any }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [supportOpen, setSupportOpen] = useState(false)
+  const [requestOpen, setRequestOpen] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  
-  // Use config from tenant if available, otherwise fallback to mock
-  let config = initialData.config;
-  try {
-    if (tenant?.config) {
-      config = JSON.parse(tenant.config);
-    }
-  } catch (e) {
-    console.error("Error parsing tenant config:", e);
+
+  // MODEL DATA
+  const modelConfig = {
+    nome: "Dr. Adriano Lima",
+    tagline: "Compromisso Real com Itaguaí",
+    foto: "/vereador-modelo.png",
+    biografia: "Médico e gestor público, Dr. Adriano Lima dedica-se a transformar a política de Itaguaí através da inovação e transparência total.",
+    primaryColor: "#0F2B5B", // Navy
+    secondaryColor: "#0D9F6E", // Emerald
+    email: "contato@adrianolima.com.br",
+    whatsapp: "(21) 99999-8888",
+    endereco: "Câmara Municipal, Gabinete 12"
   }
+
+  const isModel = !tenant || tenant.slug === "vereador"
+  const primaryColor = isModel ? modelConfig.primaryColor : (tenant?.primaryColor || "#0F2B5B")
+  const secondaryColor = isModel ? modelConfig.secondaryColor : (tenant?.secondaryColor || "#0D9F6E")
+  const displayNome = isModel ? modelConfig.nome : (tenant?.name || "Vereador")
+  const displayBio = isModel ? modelConfig.biografia : (tenant?.biografia || "Trabalhando por você.")
+  const displayFoto = isModel ? "/vereador-modelo.png" : (tenant?.fotoPerfilUrl || "/vereador-modelo.png")
   
-  // Brand identity from new columns with fallback to config/mock
-  const primaryColor = tenant?.primaryColor || config?.primaryColor || "#0F2B5B"
-  const secondaryColor = tenant?.secondaryColor || config?.secondaryColor || "#0D9F6E"
-  const displayNome = tenant?.name || config?.nome || config?.brandName || "Vereador"
-  const displayFoto = tenant?.fotoPerfilUrl || config?.foto || initialData.config.foto
-  const displayLogo = tenant?.logoUrl || config?.logo || null
-  const displayBio = tenant?.biografia || config?.biografia || initialData.config.biografia
+  const { projetosLei = [], leisAprovadas = [], publicacoes = [], indicacoes = [] } = initialData || {}
 
-  const { projetosLei, leisAprovadas, publicacoes, indicacoes, bairros } = initialData
-
-  // Supporter form state
-  const [isSupporterFormOpen, setIsSupporterFormOpen] = useState(false)
-  const [supporterSuccess, setSupporterSuccess] = useState(false)
-  const [isSubmittingSupporter, setIsSubmittingSupporter] = useState(false)
-
-  // Request form state
-  const [isRequestFormOpen, setIsRequestFormOpen] = useState(false)
-  const [requestSuccess, setRequestSuccess] = useState(false)
-  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false)
-
+  // Sticky Header Effect
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
@@ -118,432 +112,504 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' })
-    }
-    setIsMenuOpen(false)
+  function scrollTo(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    setMenuOpen(false)
   }
 
-  async function handleSupporterSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleFormSubmit(e: React.FormEvent<HTMLFormElement>, type: 'supporter' | 'request') {
     e.preventDefault()
-    setIsSubmittingSupporter(true)
+    setLoading(true)
     const formData = new FormData(e.currentTarget)
     const data = Object.fromEntries(formData.entries())
     
-    const result = await submitSupporterAction(data)
+    const action = type === 'supporter' ? submitSupporterAction : submitRequestAction
+    const result = await action(data)
+    
+    setLoading(false)
     if (result.success) {
-      setSupporterSuccess(true)
-      toast.success("Apoio registrado!")
+      setSubmitted(true)
+      toast.success(type === 'supporter' ? "Apoio registrado!" : "Solicitação enviada!")
     } else {
-      toast.error("Erro ao registrar apoio.")
+      toast.error("Erro ao processar.")
     }
-    setIsSubmittingSupporter(false)
-  }
-
-  async function handleRequestSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setIsSubmittingRequest(true)
-    const formData = new FormData(e.currentTarget)
-    const data = Object.fromEntries(formData.entries())
-
-    const result = await submitRequestAction(data)
-    if (result.success) {
-      setRequestSuccess(true)
-      toast.success("Solicitação enviada!")
-    } else {
-      toast.error("Erro ao enviar solicitação.")
-    }
-    setIsSubmittingRequest(false)
-  }
-
-  const closeSupporterForm = () => {
-    setIsSupporterFormOpen(false)
-    setSupporterSuccess(false)
-  }
-
-  const closeRequestForm = () => {
-    setIsRequestFormOpen(false)
-    setRequestSuccess(false)
   }
 
   return (
     <div 
-      className="min-h-screen bg-background font-sans selection:bg-primary/10"
-      style={{
-        // @ts-ignore
-        "--primary": primaryColor,
-        "--secondary": secondaryColor,
-        "--ring": primaryColor,
-      }}
+        className="min-h-screen bg-gray-50 font-sans selection:bg-primary selection:text-white overflow-x-hidden"
+        style={{
+            // @ts-ignore
+            "--primary": primaryColor,
+            "--secondary": secondaryColor,
+        }}
     >
-      {/* Floating Header - Agency Style */}
-      <header className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[95%] max-w-7xl rounded-full border border-white/10 ${
-        isScrolled ? "bg-[#0A192F]/90 backdrop-blur-agency shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-3 px-2" : "bg-transparent py-4 px-2"
-      }`}>
-        <div className="mx-auto px-6 md:px-12">
-          <div className="flex h-16 items-center justify-between md:h-20">
-            {/* Logo/Name */}
-            <Link href={`/${tenant?.slug || 'vereador'}`} className="flex items-center gap-2">
-              {displayLogo ? (
-                <img src={displayLogo} alt="Logo" className="h-10 w-auto object-contain" />
-              ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-primary-foreground font-bold shadow-lg">
-                    {displayNome.charAt(0)}
-                </div>
-              )}
-              <span className="font-outfit font-black text-sm md:text-lg text-white uppercase tracking-tight">
-                {displayNome.split(' (')[0]}
-              </span>
-            </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
-                  className={`text-sm font-medium transition-colors hover:text-accent ${
-                    isScrolled ? 'text-white' : 'text-white/90 hover:text-white'
-                  }`}
-                >
-                  {link.label}
-                </button>
-              ))}
-            </nav>
-
-            {/* CTA Button */}
-            <div className="flex items-center gap-3">
-              <Button 
-                onClick={() => setIsSupporterFormOpen(true)}
-                className="hidden sm:flex rounded-full bg-linear-to-r from-accent to-orange-500 hover:to-orange-600 border-0 text-primary-foreground font-bold shadow-[0_10px_20px_rgba(245,158,11,0.3)] hover:shadow-[0_15px_30px_rgba(245,158,11,0.4)] transition-all duration-300 hover:-translate-y-0.5"
-                size="sm"
-              >
-                <Heart className="mr-2 h-4 w-4 fill-current" />
-                Ser Apoiador
-              </Button>
-              
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className={`md:hidden p-2 rounded-lg transition-colors ${
-                  isScrolled ? 'text-white hover:bg-white/10' : 'text-white hover:bg-white/10'
-                }`}
-              >
-                {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </button>
+      {/* ── HEADER ─────────────────────────────────────────────── */}
+      <header
+        className={`fixed top-0 inset-x-0 z-50 h-16 transition-all duration-300 border-b ${isScrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-sm border-gray-100 py-2'
+          : 'bg-transparent border-transparent py-4'
+          }`}
+      >
+        <div className="mx-auto max-w-7xl px-4 md:px-6 h-full flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-black text-lg transition-all shadow-lg ${isScrolled ? 'bg-primary text-white' : 'bg-white text-primary'}`}>
+              {displayNome.charAt(0)}
             </div>
+            <div className="flex flex-col justify-center">
+              <span className={`text-base font-bold leading-tight ${isScrolled ? 'text-gray-900' : 'text-white drop-shadow-sm'}`}>
+                {displayNome}
+              </span>
+              <span className={`text-[10px] font-black uppercase tracking-widest leading-tight ${isScrolled ? 'text-gray-400' : 'text-white/70 drop-shadow-sm'}`}>
+                Mandato Participativo
+              </span>
+            </div>
+          </div>
+
+          <nav className="hidden lg:flex items-center gap-8">
+            {['realizacoes', 'transformacao', 'depoimentos', 'contato'].map((id) => (
+              <button
+                key={id}
+                onClick={() => scrollTo(id)}
+                className={`text-sm font-bold uppercase tracking-tight transition-colors hover:text-secondary ${isScrolled ? 'text-gray-600' : 'text-white/80'}`}
+              >
+                {id === 'realizacoes' ? 'Realizações' : id === 'transformacao' ? 'Transformação' : id === 'depoimentos' ? 'Depoimentos' : 'Contato'}
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-3 md:gap-4">
+            <Button
+              onClick={() => setSupportOpen(true)}
+              className={`rounded-full px-6 font-bold shadow-md transition-all hidden sm:flex h-10 ${isScrolled ? 'bg-primary text-white hover:bg-primary/90' : 'bg-secondary text-white hover:bg-secondary/90'}`}
+            >
+              Quero Apoiar
+            </Button>
+            <button
+              className={`p-2 rounded-full transition-colors lg:hidden ${isScrolled ? 'text-gray-900 hover:bg-gray-100' : 'text-white hover:bg-white/20'}`}
+              onClick={() => setMenuOpen(!menuOpen)}
+            >
+              {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="md:hidden bg-[#0A192F]/95 backdrop-blur-agency border-t border-white/10 rounded-b-4xl overflow-hidden"
-          >
-            <nav className="container mx-auto px-8 py-10 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  onClick={() => scrollToSection(link.id)}
-                  className="text-left py-4 px-4 rounded-xl text-white/80 font-outfit uppercase tracking-widest text-xs font-black hover:bg-white/5 transition-all"
-                >
-                  {link.label}
-                </button>
-              ))}
-              <Button 
-                onClick={() => {
-                  setIsSupporterFormOpen(true)
-                  setIsMenuOpen(false)
-                }}
-                className="mt-2"
+        {/* Mobile menu dropdown */}
+        {menuOpen && (
+          <div className="absolute top-16 left-0 right-0 bg-white border-b border-gray-100 shadow-xl flex flex-col p-4 gap-2 animate-in slide-in-from-top-2">
+            {['realizacoes', 'transformacao', 'depoimentos', 'contato'].map((id) => (
+              <button
+                key={id}
+                onClick={() => scrollTo(id)}
+                className="text-left py-3 px-4 rounded-xl text-gray-700 font-bold hover:bg-gray-50 hover:text-primary transition-colors capitalize text-sm"
               >
-                <Heart className="mr-2 h-4 w-4" />
-                Ser Apoiador
-              </Button>
-            </nav>
-          </motion.div>
+                {id === 'realizacoes' ? 'Realizações' : id === 'transformacao' ? 'Transformação' : id === 'depoimentos' ? 'Depoimentos' : 'Contato'}
+              </button>
+            ))}
+            <Button
+              onClick={() => { setSupportOpen(true); setMenuOpen(false) }}
+              className="mt-2 bg-primary text-white font-bold rounded-xl h-12"
+            >
+              Quero Apoiar o Mandato
+            </Button>
+          </div>
         )}
       </header>
 
-      {/* Hero Section */}
-      <section id="inicio" className="relative min-h-screen flex items-center overflow-hidden bg-[#0A192F]">
-        <div className="absolute inset-0 bg-linear-to-br from-[#0A192F] via-[#112240] to-[#0A192F]" />
-        <div className="absolute inset-0 bg-grain pointer-events-none" />
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.15 }}
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0v60M0 30h60' stroke='%23ffffff' stroke-width='1' fill='none' opacity='0.2' /%3E%3C/svg%3E")`,
-          }} 
-        />
+      {/* ── HERO SECTION ────────────────────────── */}
+      <section className="relative min-h-[100dvh] flex flex-col justify-center bg-primary overflow-hidden pt-16">
 
-        <div className="mx-auto px-6 md:px-12 max-w-7xl relative z-10 pt-44 lg:pt-32">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-20 items-center">
-            <motion.div 
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-center lg:text-left"
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-sm shadow-2xl">
-                <div className="h-2 w-2 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs font-outfit uppercase tracking-[0.3em] text-white/70 italic">
-                  Mandato Participativo / Itaguaí
-                </span>
-              </div>
+        {/* Background Layers */}
+        <div className="absolute inset-0 bg-linear-to-br from-primary via-primary/90 to-primary/80 z-0" />
+        {/* Abstract Pattern */}
+        <div className="absolute inset-0 opacity-10 bg-[url('/site/hero.png')] bg-cover bg-center mix-blend-overlay blur-sm z-0 pointer-events-none" />
 
-              <h1 className="text-5xl font-outfit font-extrabold text-white leading-[1.1] tracking-tighter sm:text-7xl lg:text-7xl mb-8 max-w-4xl">
-                {displayNome}
-              </h1>
-              
-              <div className="h-1 w-20 bg-accent mb-8 mx-auto lg:mx-0" />
+        {/* Candidate Image */}
+        <div className="absolute inset-0 z-0 flex justify-end pointer-events-none overflow-hidden">
+          {/* Gradient mask on left side */}
+          <div className="absolute inset-0 bg-linear-to-r from-primary via-primary/70 to-transparent w-[100%] md:w-[70%] z-10" />
+          <div className="absolute inset-y-0 right-[-15%] sm:right-0 w-[140%] sm:w-full md:w-[60%] lg:w-[50%] flex items-end opacity-100">
+            <Image
+              src={displayFoto}
+              alt={displayNome}
+              fill
+              priority
+              className="object-cover object-[55%_top] md:object-top-right drop-shadow-2xl"
+            />
+          </div>
+        </div>
 
-              <p className="text-xl font-outfit text-white/80 leading-relaxed max-w-xl mx-auto lg:mx-0 mb-10">
-                {displayBio}
-              </p>
+        {/* Content */}
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 md:px-8 py-12 flex flex-col">
+          <div className="max-w-2xl flex flex-col items-start gap-6 md:gap-8">
 
-              <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
-                <Button 
-                  size="xl" 
-                  className="rounded-full bg-accent text-primary-foreground hover:bg-accent/90 px-10 shadow-[0_20px_50px_rgba(245,158,11,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-accent/40"
-                  onClick={() => setIsSupporterFormOpen(true)}
-                >
-                  Junte-se ao Movimento
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-                
-                <Button 
-                  size="xl" 
-                  variant="ghost"
-                  className="rounded-full border border-white/20 text-white hover:bg-white/10 px-10 backdrop-blur-agency transition-all duration-300"
-                  onClick={() => scrollToSection('servicos')}
-                >
-                  Nossos Serviços
-                </Button>
-              </div>
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/20 shadow-sm">
+              <MapPin className="h-3.5 w-3.5 text-white" />
+              <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                Itaguaí • Mandato Transparente
+              </span>
+            </div>
 
-              <div className="mt-16 flex flex-wrap justify-center lg:justify-start gap-10 text-white/40 border-t border-white/10 pt-8">
-                {[
-                  { label: "Projetos", val: projetosLei.length },
-                  { label: "Leis", val: leisAprovadas.length },
-                  { label: "Bairros", val: 12 },
-                  { label: "Fidelidade", val: "94%" }
-                ].map((stat, i) => (
-                  <div key={i} className="flex flex-col">
-                    <span className="text-2xl font-outfit font-black text-white/90">{stat.val}</span>
-                    <span className="text-[10px] font-outfit uppercase tracking-[0.4em]">{stat.label}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+            <h1 className="text-5xl sm:text-7xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter drop-shadow-md">
+              {displayNome.split(' ')[0]}<br />
+              <span className="text-secondary">{displayNome.split(' ').slice(1).join(' ')}</span>
+            </h1>
 
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              className="relative group"
-            >
-              <div className="absolute -inset-10 bg-accent/15 rounded-full blur-[100px] opacity-40 group-hover:opacity-60 transition-opacity duration-1000" />
-              <div className="relative aspect-4/5 sm:aspect-square lg:aspect-4/5 max-w-lg mx-auto overflow-visible">
-                <motion.div 
-                  whileHover={{ y: -10 }}
-                  className="relative h-full w-full"
-                >
-                  <div className="absolute inset-0 bg-linear-to-t from-[#0A192F] via-transparent to-transparent z-10 opacity-60" />
-                  <Image
-                    src={displayFoto}
-                    alt={displayNome}
-                    fill
-                    className="object-cover rounded-b-[4rem] rounded-t-[10rem] grayscale-[0.2] hover:grayscale-0 transition-all duration-700 shadow-2xl"
-                    priority
-                  />
-                </motion.div>
-                <div className="absolute bottom-12 -right-6 lg:-right-16 bg-white p-6 rounded-3xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-20 max-w-50 border border-white/10">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="bg-primary/10 p-2 rounded-lg text-primary">
-                      <TrendingUp className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-bold text-slate-800">Resultado</span>
-                  </div>
-                  <p className="text-xs text-slate-500 font-medium">
-                    +500 atendimentos realizados este mês em Itaguaí.
+            <p className="text-lg md:text-xl text-white/80 font-medium leading-relaxed max-w-md drop-shadow-sm">
+              {displayBio}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mt-2">
+              <Button
+                onClick={() => setRequestOpen(true)}
+                className="bg-secondary text-white hover:bg-secondary/90 hover:scale-105 active:scale-95 transition-all font-black text-lg px-8 py-8 rounded-2xl shadow-xl w-full sm:w-auto"
+              >
+                Solicitar Demanda
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button
+                onClick={() => scrollTo('realizacoes')}
+                variant="outline"
+                className="border-2 border-white/20 text-white bg-white/5 hover:bg-white/10 font-bold text-lg px-8 py-8 rounded-2xl w-full sm:w-auto transition-colors"
+              >
+                Ver Projetos
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Animated Scroll Indicator */}
+        <div className="absolute bottom-8 inset-x-0 flex justify-center z-20 pointer-events-none">
+          <div className="flex flex-col items-center gap-2 text-white/40 animate-bounce">
+            <span className="text-[10px] font-black uppercase tracking-widest">Descer</span>
+            <ChevronDown className="h-4 w-4" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── SEÇÃO 1: REALIZAÇÕES ─────────────────────────────── */}
+      <section id="realizacoes" className="py-24 bg-white relative">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+            <div className="max-w-2xl">
+              <span className="text-secondary font-black uppercase tracking-widest text-xs mb-4 block">Resultado do Trabalho</span>
+              <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
+                Realizações por Itaguaí
+              </h2>
+            </div>
+            <div className="h-1.5 w-24 bg-primary rounded-full hidden md:block" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(projetosLei.length > 0 ? projetosLei.slice(0, 4) : initialAchievements).map((item: any, i: number) => (
+              <div key={i} className="group p-8 rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 border border-transparent hover:border-primary/10 flex flex-col items-start gap-6">
+                <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-inner">
+                  {item.icon ? <item.icon className="h-7 w-7" /> : <FileText className="h-7 w-7" />}
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-gray-900 mb-2 leading-tight">
+                    {item.titulo || item.title}
+                  </h3>
+                  <p className="text-gray-500 leading-relaxed text-sm line-clamp-3">
+                    {item.descricao || item.desc}
                   </p>
                 </div>
               </div>
-            </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Forms and Dialogs would go here (same as original but with Server Actions) */}
-      <Dialog open={isSupporterFormOpen} onOpenChange={setIsSupporterFormOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-[#0A192F] border-white/10 text-white rounded-[2rem] overflow-hidden">
-          {supporterSuccess ? (
-            <div className="py-10 text-center">
-              <div className="h-20 w-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-6">
-                <CheckCircle2 className="h-10 w-10 text-accent" />
+      {/* ── SEÇÃO 2: ANTES / DEPOIS ───────────────────────────── */}
+      <section id="transformacao" className="py-24 bg-gray-50 border-y border-gray-100 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16 flex flex-col items-center gap-4">
+            <span className="text-secondary font-black uppercase tracking-widest text-xs">Nosso Compromisso</span>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
+                Transformação em Realidade
+            </h2>
+          </div>
+
+          <div className="flex flex-col gap-16">
+            {beforeAfterItems.map((item, i) => (
+              <div key={i} className="flex flex-col gap-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-3 w-3 rounded-full bg-secondary" />
+                  <h3 className="text-2xl font-black text-gray-800 uppercase tracking-tighter">{item.area}</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Before */}
+                  <div className="relative rounded-[2.5rem] overflow-hidden aspect-video shadow-md group">
+                    <Image src={item.before.image} alt="Antes" fill className="object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-8">
+                      <span className="bg-red-500 text-white text-[10px] font-black uppercase w-fit px-4 py-1.5 rounded-full mb-3">Como era</span>
+                      <p className="text-white font-black text-xl drop-shadow-md">{item.before.title}</p>
+                    </div>
+                  </div>
+
+                  {/* After */}
+                  <div className="relative rounded-[2.5rem] overflow-hidden aspect-video shadow-2xl group border-4 border-white">
+                    <Image src={item.after.image} alt="Depois" fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
+                    <div className="absolute inset-0 bg-linear-to-t from-secondary/80 via-transparent to-transparent flex flex-col justify-end p-8">
+                      <span className="bg-green-500 text-white text-[10px] font-black uppercase w-fit px-4 py-1.5 rounded-full mb-3 shadow-lg">Como está ficando</span>
+                      <p className="text-white font-black text-xl drop-shadow-md">{item.after.title}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h2 className="text-2xl font-outfit font-black mb-4">MUITO OBRIGADO!</h2>
-              <p className="text-white/60 mb-8 px-6">Seu apoio foi registrado. Nossa equipe entrará em contato em breve.</p>
-              <Button onClick={closeSupporterForm} className="bg-accent text-primary-foreground font-bold rounded-full px-10">
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SEÇÃO 3: DEPOIMENTOS ───────────────────────────────── */}
+      <section id="depoimentos" className="py-24 bg-white relative overflow-hidden">
+        {/* Decorativo BG */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-50 pointer-events-none" />
+
+        <div className="mx-auto max-w-7xl px-5 md:px-8 relative z-10">
+          <div className="mb-16">
+            <span className="text-secondary font-black uppercase tracking-widest text-xs mb-4 block">Voz do Povo</span>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
+              O que dizem sobre<br />nosso trabalho
+            </h2>
+          </div>
+
+          <div className="flex overflow-x-auto gap-6 pb-12 snap-x snap-mandatory hide-scrollbars -mx-5 px-5 md:mx-0 md:px-0">
+            {testimonials.map((t, i) => (
+              <div key={i} className="snap-center sm:snap-start shrink-0 w-[85vw] sm:w-[400px] bg-white border border-gray-100 rounded-[2.5rem] p-10 shadow-sm hover:shadow-2xl hover:border-primary/5 transition-all duration-500 flex flex-col gap-8">
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star key={star} className="h-5 w-5 text-secondary fill-secondary" />
+                  ))}
+                </div>
+                <blockquote className="text-gray-600 text-lg leading-relaxed flex-1 italic font-medium">
+                  "{t.text}"
+                </blockquote>
+                <div className="flex items-center gap-4 mt-auto">
+                  <div className="h-12 w-12 rounded-2xl overflow-hidden relative bg-gray-100 shrink-0 border border-gray-100">
+                    <User className="absolute inset-0 m-auto text-gray-300 h-6 w-6" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-black text-gray-900">{t.name}</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Cidadão de Itaguaí</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SEÇÃO 4: CTA FINAL ─────────────────────────────────── */}
+      <section id="contato" className="relative py-32 overflow-hidden flex flex-col items-center justify-center text-center px-5 isolate">
+        <div className="absolute inset-0 bg-primary z-0" />
+        <div className="absolute inset-0 opacity-20 bg-[url('/site/depois.jpg')] bg-cover bg-center mix-blend-overlay z-0 pointer-events-none blur-sm" />
+
+        <div className="relative z-10 max-w-3xl flex flex-col items-center gap-8">
+          <div className="h-20 w-20 rounded-3xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-2xl">
+            <Heart className="h-10 w-10 text-white fill-white/20" />
+          </div>
+
+          <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tighter text-balance leading-tight drop-shadow-lg">
+            Participe do nosso<br />mandato participativo
+          </h2>
+
+          <div className="flex flex-col sm:flex-row gap-4 mt-4 w-full justify-center">
+            <Button
+                onClick={() => setSupportOpen(true)}
+                className="bg-secondary text-white hover:bg-secondary/90 font-black text-xl px-12 py-8 rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all"
+            >
+                Quero Apoiar
+            </Button>
+            <Button
+                onClick={() => setRequestOpen(true)}
+                variant="outline"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/20 font-black text-xl px-12 py-8 rounded-2xl shadow-2xl transition-all"
+            >
+                Enviar Demanda
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ─────────────────────────────────────────────── */}
+      <footer className="bg-gray-900 py-20 text-white/50 border-t border-white/5">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 border-b border-white/5 pb-20 mb-12">
+            <div className="md:col-span-2 flex flex-col gap-6 items-start">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-white text-xl font-black shadow-lg">
+                  {displayNome.charAt(0)}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-2xl font-black text-white leading-tight tracking-tighter uppercase">{displayNome}</span>
+                  <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Mandato Dr. Adriano Lima</span>
+                </div>
+              </div>
+              <p className="max-w-sm text-sm leading-relaxed">
+                Trabalhando com ética, transparência e tecnologia para transformar Itaguaí em uma referência de gestão pública para o povo.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <span className="text-white font-black tracking-widest text-xs uppercase">Mapa do Site</span>
+              <ul className="flex flex-col gap-4">
+                {['Realizações', 'Transformação', 'Depoimentos'].map((link, i) => (
+                  <li key={i}>
+                    <button
+                      onClick={() => scrollTo(link.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))}
+                      className="text-sm font-bold hover:text-secondary transition-colors"
+                    >
+                      {link}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <span className="text-white font-black tracking-widest text-xs uppercase">Canais Diretos</span>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center gap-3 text-sm font-bold">
+                    <Phone className="h-4 w-4 text-secondary" />
+                    <span>(21) 99999-8888</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm font-bold">
+                    <Mail className="h-4 w-4 text-secondary" />
+                    <span>contato@mandato.com.br</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm font-bold">
+                    <MapPin className="h-4 w-4 text-secondary" />
+                    <span>Itaguaí, Rio de Janeiro</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-xs font-bold uppercase tracking-widest">
+            <span>© 2026 Mandato Participativo {displayNome}</span>
+            <Link href="/login" className="hover:text-white transition-colors flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/5">
+              Portal do Assessor <MoveRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </div>
+      </footer>
+
+      {/* ── MODAIS ────────────────────────────────────────── */}
+      
+      {/* APOIO */}
+      <Dialog open={supportOpen} onOpenChange={(v) => { setSupportOpen(v); if (!v) setSubmitted(false) }}>
+        <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden rounded-[2.5rem] border-0 shadow-2xl gap-0">
+          {!submitted ? (
+            <>
+              <div className="bg-primary px-8 pt-10 pb-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <Star className="w-32 h-32" />
+                </div>
+                <div className="relative z-10 flex flex-col gap-2">
+                  <DialogTitle className="text-3xl font-black leading-tight tracking-tighter uppercase">
+                    Quero apoiar o<br />mandato!
+                  </DialogTitle>
+                  <DialogDescription className="text-white/60 text-sm font-bold">
+                    Cadastre-se para participar das ações.
+                  </DialogDescription>
+                </div>
+              </div>
+
+              <form onSubmit={(e) => handleFormSubmit(e, 'supporter')} className="px-8 py-10 flex flex-col gap-5 bg-white">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="nome" className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nome completo</Label>
+                  <Input id="nome" name="nome" placeholder="Ex: Carlos Silva" className="h-14 bg-gray-50 border-transparent rounded-2xl focus-visible:ring-primary focus-visible:bg-white font-bold" required />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="telefone" className="text-[10px] font-black text-gray-400 uppercase tracking-widest">WhatsApp</Label>
+                  <Input id="telefone" name="telefone" placeholder="(21) 99999-9999" className="h-14 bg-gray-50 border-transparent rounded-2xl focus-visible:ring-primary focus-visible:bg-white font-bold" required />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <Label htmlFor="email" className="text-[10px] font-black text-gray-400 uppercase tracking-widest">E-mail</Label>
+                    <Input id="email" name="email" type="email" placeholder="seu@email.com" className="h-14 bg-gray-50 border-transparent rounded-2xl focus-visible:ring-primary focus-visible:bg-white font-bold" required />
+                </div>
+
+                <Button type="submit" disabled={loading} className="w-full mt-4 h-16 bg-primary text-white hover:bg-primary/90 font-black text-lg rounded-2xl transition-all shadow-xl uppercase tracking-widest">
+                  {loading ? <LifeBuoy className="animate-spin h-6 w-6" /> : 'Confirmar Apoio'}
+                </Button>
+              </form>
+            </>
+          ) : (
+            <div className="p-12 flex flex-col items-center justify-center text-center bg-white">
+              <div className="h-24 w-24 bg-green-50 rounded-full flex items-center justify-center mb-6 text-green-500 shadow-inner">
+                <CheckCircle2 className="h-12 w-12" />
+              </div>
+              <h3 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tighter">Muito Obrigado!</h3>
+              <p className="text-gray-500 font-medium leading-relaxed mb-10">
+                Seu apoio foi registrado. Juntos somos mais fortes por Itaguaí.
+              </p>
+              <Button onClick={() => setSupportOpen(false)} className="w-full h-14 bg-gray-100 text-gray-900 hover:bg-gray-200 font-black rounded-2xl uppercase tracking-widest">
                 Fechar
               </Button>
             </div>
-          ) : (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-3xl font-outfit font-black text-white uppercase tracking-tight">Ser Apoiador</DialogTitle>
-                <DialogDescription className="text-white/60">
-                   Junte-se ao time que está transformando Itaguaí com transparência e trabalho.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleSupporterSubmit} className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nome" className="text-white/80">Nome Completo</Label>
-                  <Input name="nome" required className="bg-white/5 border-white/10 text-white" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telefone" className="text-white/80">Telefone / WhatsApp</Label>
-                  <Input name="telefone" required className="bg-white/5 border-white/10 text-white" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white/80">E-mail</Label>
-                  <Input name="email" type="email" required className="bg-white/5 border-white/10 text-white" />
-                </div>
-                <div className="space-y-2">
-                   <Label className="text-white/80">Bairro</Label>
-                   <Select name="bairro">
-                      <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                        <SelectValue placeholder="Selecione seu bairro" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-[#0A192F] border-white/10 text-white">
-                        {bairros.map((b: string) => (
-                           <SelectItem key={b} value={b}>{b}</SelectItem>
-                        ))}
-                      </SelectContent>
-                   </Select>
-                </div>
-                <Button type="submit" disabled={isSubmittingSupporter} className="w-full bg-accent text-primary-foreground font-black py-6 rounded-xl hover:bg-accent/90 mt-4 h-auto text-lg uppercase tracking-widest shadow-xl">
-                  {isSubmittingSupporter ? <Loader2 className="h-6 w-6 animate-spin" /> : "Confirmar Apoio"}
-                </Button>
-              </form>
-            </>
           )}
         </DialogContent>
       </Dialog>
 
-
-      {/* Request Form Dialog */}
-      <Dialog open={isRequestFormOpen} onOpenChange={setIsRequestFormOpen}>
-        <DialogContent className="sm:max-w-[600px] bg-[#112240] border-white/10 text-white rounded-[2rem] overflow-hidden max-h-[90vh] overflow-y-auto">
-          {requestSuccess ? (
-            <div className="py-10 text-center">
-              <div className="h-20 w-20 rounded-full bg-accent/20 flex items-center justify-center mx-auto mb-6">
-                <Send className="h-10 w-10 text-accent" />
+      {/* DEMANDA */}
+      <Dialog open={requestOpen} onOpenChange={(v) => { setRequestOpen(v); if (!v) setSubmitted(false) }}>
+        <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden rounded-[2.5rem] border-0 shadow-2xl gap-0">
+          {!submitted ? (
+            <>
+              <div className="bg-secondary px-8 pt-10 pb-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <HeartHandshake className="w-32 h-32" />
+                </div>
+                <div className="relative z-10 flex flex-col gap-2">
+                  <DialogTitle className="text-3xl font-black leading-tight tracking-tighter uppercase">
+                    Enviar Demanda
+                  </DialogTitle>
+                  <DialogDescription className="text-white/60 text-sm font-bold">
+                    Relate um problema no seu bairro.
+                  </DialogDescription>
+                </div>
               </div>
-              <h2 className="text-2xl font-outfit font-black mb-4">DEMANDA ENVIADA!</h2>
-              <p className="text-white/60 mb-8 px-6">Sua solicitação foi registrada no protocolo de gabinete. Acompanhe em seu e-mail.</p>
-              <Button onClick={closeRequestForm} className="bg-accent text-primary-foreground font-bold rounded-full px-10">
-                Entendido
+
+              <form onSubmit={(e) => handleFormSubmit(e, 'request')} className="px-8 py-10 flex flex-col gap-5 bg-white">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="nome" className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Seu Nome</Label>
+                  <Input id="nome" name="nome" placeholder="Ex: Carlos Silva" className="h-12 bg-gray-50 border-transparent rounded-xl focus-visible:ring-secondary font-bold" required />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="telefone" className="text-[10px] font-black text-gray-400 uppercase tracking-widest">WhatsApp</Label>
+                  <Input id="telefone" name="telefone" placeholder="(21) 99999-9999" className="h-12 bg-gray-50 border-transparent rounded-xl focus-visible:ring-secondary font-bold" required />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="descricao" className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Descrição</Label>
+                  <Textarea id="descricao" name="descricao" placeholder="O que está acontecendo?" className="bg-gray-50 border-transparent rounded-xl focus-visible:ring-secondary min-h-[100px] font-bold" required />
+                </div>
+
+                <Button type="submit" disabled={loading} className="w-full mt-4 h-16 bg-secondary text-white hover:bg-secondary/90 font-black text-lg rounded-2xl shadow-xl uppercase tracking-widest">
+                  {loading ? <LifeBuoy className="animate-spin h-6 w-6" /> : 'Enviar Protocolo'}
+                </Button>
+              </form>
+            </>
+          ) : (
+            <div className="p-12 flex flex-col items-center justify-center text-center bg-white">
+              <div className="h-24 w-24 bg-green-50 rounded-full flex items-center justify-center mb-6 text-green-500 shadow-inner">
+                <CheckCircle2 className="h-12 w-12" />
+              </div>
+              <h3 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tighter">Recebido!</h3>
+              <p className="text-gray-500 font-medium leading-relaxed mb-10">
+                Sua demanda foi enviada ao gabinete digital.
+              </p>
+              <Button onClick={() => setRequestOpen(false)} className="w-full h-14 bg-gray-100 text-gray-900 hover:bg-gray-200 font-black rounded-2xl uppercase tracking-widest">
+                Fechar
               </Button>
             </div>
-          ) : (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-3xl font-outfit font-black text-white uppercase tracking-tight">Solicitar Atendimento</DialogTitle>
-                <DialogDescription className="text-white/60">
-                   Descreva sua necessidade ou sugestão para o bairro. Nossa assessoria técnica irá analisar o caso.
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleRequestSubmit} className="space-y-4 py-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nome" className="text-white/80">Nome Completo</Label>
-                    <Input name="nome" required className="bg-white/5 border-white/10 text-white" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="telefone" className="text-white/80">WhatsApp</Label>
-                    <Input name="telefone" required className="bg-white/5 border-white/10 text-white" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white/80">E-mail</Label>
-                  <Input name="email" type="email" required className="bg-white/5 border-white/10 text-white" />
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                   <div className="space-y-2">
-                      <Label className="text-white/80">Bairro</Label>
-                      <Select name="bairro">
-                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                          <SelectValue placeholder="Onde?" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-[#112240] border-white/10 text-white">
-                          {bairros.map((b: string) => (
-                             <SelectItem key={b} value={b}>{b}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                   </div>
-                   <div className="space-y-2">
-                      <Label className="text-white/80">Tipo de Solicitação</Label>
-                      <Select name="tipo">
-                        <SelectTrigger className="bg-white/5 border-white/10 text-white">
-                          <SelectValue placeholder="Assunto" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-[#112240] border-white/10 text-white">
-                          {tiposSolicitacao.map((t) => (
-                             <SelectItem key={t} value={t}>{t}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="descricao" className="text-white/80">Descrição Detalhada</Label>
-                  <Textarea name="descricao" required className="bg-white/5 border-white/10 text-white min-h-[120px]" placeholder="Conte-nos o que está acontecendo..." />
-                </div>
-                <Button type="submit" disabled={isSubmittingRequest} className="w-full bg-accent text-primary-foreground font-black py-6 rounded-xl hover:bg-accent/90 mt-4 h-auto text-lg uppercase tracking-widest shadow-xl border-0">
-                  {isSubmittingRequest ? <Loader2 className="h-6 w-6 animate-spin" /> : "Enviar Protocolo"}
-                </Button>
-              </form>
-            </>
           )}
         </DialogContent>
       </Dialog>
-      
-      {/* Rest of the UI remains mostly the same, but using 'config' instead of 'configuracaoVereador' */}
-      {/* (Truncated for brevity, normally I'd include the full premium sections here) */}
-      {/* I'll include the key stats and sections to maintain the premium feel */}
-      
-      {/* Legislative Stats Section */}
-      <section id="indicadores" className="py-32 bg-[#0A192F] text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-grain opacity-5" />
-        <div className="mx-auto px-6 md:px-12 max-w-7xl relative z-10">
-          <div className="max-w-4xl mx-auto text-center mb-20">
-            <span className="text-xs font-outfit uppercase tracking-[0.4em] text-accent font-black mb-4 block">Transparência em Dados</span>
-            <h2 className="text-4xl md:text-5xl font-outfit font-extrabold tracking-tighter mb-6">Trabalho Legislativo de Alto Impacto</h2>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            <div className="text-center p-8 bg-white/5 rounded-3xl backdrop-blur-sm border border-white/10">
-              <FileText className="h-8 w-8 text-accent mx-auto mb-4" />
-              <p className="text-4xl font-black">{projetosLei.length}</p>
-              <p className="text-xs text-white/40 uppercase tracking-widest">Projetos</p>
-            </div>
-            {/* Repeat for other stats... */}
-          </div>
-        </div>
-      </section>
 
     </div>
   )
-}
-
-function Label({ children, htmlFor, className }: any) {
-    return <label htmlFor={htmlFor} className={`block text-sm font-medium ${className}`}>{children}</label>
-}
-
-function Loader2({ className }: any) {
-    return <LifeBuoy className={`animate-spin ${className}`} />
 }
