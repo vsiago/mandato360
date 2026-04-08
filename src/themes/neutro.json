@@ -1,0 +1,69 @@
+{
+  "id": "neutro",
+  "nome": "Neutro",
+  "descricao": "Clean, moderno e confiável. O padrão do mercado.",
+  "emoji": "⚪",
+  "preview": "#F8F9FA",
+
+  "colors": {
+    "light": {
+      "primary": "#0F172A",
+      "secondary": "#64748B",
+      "accent": "#2563EB",
+      "background": "#FFFFFF",
+      "surface": "#F8FAFC",
+      "text": "#0F172A",
+      "textMuted": "#64748B",
+      "border": "#E2E8F0"
+    },
+    "dark": {
+      "primary": "#F8FAFC",
+      "secondary": "#94A3B8",
+      "accent": "#3B82F6",
+      "background": "#0F172A",
+      "surface": "#1E293B",
+      "text": "#F8FAFC",
+      "textMuted": "#94A3B8",
+      "border": "#334155"
+    }
+  },
+  "typography": {
+    "heading": "Inter",
+    "body": "Inter",
+    "headingWeight": "700",
+    "bodyWeight": "400"
+  },
+  "buttons": {
+    "style": "rounded",
+    "shadow": false,
+    "borderWidth": 1
+  },
+  "cards": {
+    "shadow": "sm",
+    "border": true,
+    "borderRadius": "12px",
+    "backdrop": false
+  },
+  "animations": {
+    "hoverScale": false,
+    "fadeIn": true,
+    "staggerChildren": false,
+    "duration": "fast"
+  },
+  "spacing": {
+    "sectionPadding": "80px 0",
+    "cardPadding": "24px",
+    "borderRadius": "12px",
+    "gap": "16px"
+  },
+  "cssVariables": {
+    "--theme-radius": "12px",
+    "--theme-font-heading": "'Inter', sans-serif",
+    "--theme-font-body": "'Inter', sans-serif",
+    "--theme-shadow": "0 1px 2px rgba(0,0,0,0.05)",
+    "--theme-transition": "200ms ease",
+    "--theme-btn-radius": "8px",
+    "--theme-section-py": "80px",
+    "--theme-card-py": "24px"
+  }
+}

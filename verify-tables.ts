@@ -1,9 +1,10 @@
+import 'dotenv/config';
 import { db } from './lib/db';
 import { sql } from 'drizzle-orm';
 
 async function verify() {
-  const result = await db.execute(sql`SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'`);
-  console.log("Tables in database:", result.rows.map((r: any) => r.table_name));
+  const result = await db.execute(sql`SELECT column_name FROM information_schema.columns WHERE table_name = 'session'`);
+  console.log("Columns in 'session' table:", result.map((r: any) => r.column_name));
   process.exit(0);
 }
 

@@ -180,3 +180,34 @@ export async function deleteTenant(id: string) {
     return { success: false, error: "Erro ao excluir mandato." };
   }
 }
+
+export async function updateTenantSiteAction(slug: string, configData: any) {
+  try {
+    const isModel = slug === "vereador";
+    if (isModel) {
+      return { success: false, error: "O vereador modelo não pode ser editado." };
+    }
+
+    const [updated] = await db.update(tenant)
+      .set({
+        config: JSON.stringify(configData),
+        primaryColor: configData.colors?.primary,
+        secondaryColor: configData.colors?.secondary,
+        biografia: configData.perfil?.bio,
+        fotoPerfilUrl: configData.perfil?.imageUrl,
+        logoUrl: configData.logoUrl,
+        updatedAt: new Date(),
+      })
+      .where(eq(tenant.slug, slug))
+      .returning();
+
+    if (!updated) {
+      return { success: false, error: "Mandato não encontrado." };
+    }
+
+    return { success: true, data: updated };
+  } catch (error: any) {
+    console.error("Error updating tenant site config:", error);
+    return { success: false, error: "Erro ao salvar configurações do site." };
+  }
+}

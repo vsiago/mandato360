@@ -21,6 +21,7 @@ import {
   UserCog,
   Map,
   PieChart,
+  Palette,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -39,6 +40,7 @@ export function getMenuWithTenant(tenant: string) {
     { href: `/${tenant}/dashboard/leis-aprovadas`, label: "Leis Aprovadas", shortLabel: "Leis", icon: Scale },
     { href: `/${tenant}/dashboard/publicacoes`, label: "Publicações do Mandato", shortLabel: "Posts", icon: Newspaper },
     { href: `/${tenant}/dashboard/landing-page`, label: "Landing Page do Vereador", shortLabel: "Site", icon: Globe },
+    { href: `/${tenant}/dashboard/editar-site`, label: "Editar Site Visual", shortLabel: "Editor", icon: Palette },
     { href: `/${tenant}/dashboard/relatorios`, label: "Relatórios", shortLabel: "Relatórios", icon: BarChart3 },
     { href: `/${tenant}/dashboard/configuracoes`, label: "Configurações", shortLabel: "Config", icon: Settings },
   ]
