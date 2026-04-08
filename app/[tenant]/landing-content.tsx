@@ -90,9 +90,13 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
     console.error("Error parsing tenant config:", e);
   }
   
-  // Safe access to essential properties
-  const displayNome = config?.nome || config?.brandName || tenant?.name || "Vereador"
-  const displayFoto = config?.foto || initialData.config.foto
+  // Brand identity from new columns with fallback to config/mock
+  const primaryColor = tenant?.primaryColor || config?.primaryColor || "#0F2B5B"
+  const secondaryColor = tenant?.secondaryColor || config?.secondaryColor || "#0D9F6E"
+  const displayNome = tenant?.name || config?.nome || config?.brandName || "Vereador"
+  const displayFoto = tenant?.fotoPerfilUrl || config?.foto || initialData.config.foto
+  const displayLogo = tenant?.logoUrl || config?.logo || null
+  const displayBio = tenant?.biografia || config?.biografia || initialData.config.biografia
 
   const { projetosLei, leisAprovadas, publicacoes, indicacoes, bairros } = initialData
 
@@ -165,7 +169,15 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div 
+      className="min-h-screen bg-background font-sans selection:bg-primary/10"
+      style={{
+        // @ts-ignore
+        "--primary": primaryColor,
+        "--secondary": secondaryColor,
+        "--ring": primaryColor,
+      }}
+    >
       {/* Floating Header - Agency Style */}
       <header className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[95%] max-w-7xl rounded-full border border-white/10 ${
         isScrolled ? "bg-[#0A192F]/90 backdrop-blur-agency shadow-[0_20px_50px_rgba(0,0,0,0.5)] py-3 px-2" : "bg-transparent py-4 px-2"
@@ -174,9 +186,13 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
           <div className="flex h-16 items-center justify-between md:h-20">
             {/* Logo/Name */}
             <Link href={`/${tenant?.slug || 'vereador'}`} className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-primary-foreground font-bold shadow-lg">
-                {displayNome.charAt(0)}
-              </div>
+              {displayLogo ? (
+                <img src={displayLogo} alt="Logo" className="h-10 w-auto object-contain" />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-primary-foreground font-bold shadow-lg">
+                    {displayNome.charAt(0)}
+                </div>
+              )}
               <span className="font-outfit font-black text-sm md:text-lg text-white uppercase tracking-tight">
                 {displayNome.split(' (')[0]}
               </span>
@@ -280,13 +296,13 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
               </div>
 
               <h1 className="text-5xl font-outfit font-extrabold text-white leading-[1.1] tracking-tighter sm:text-7xl lg:text-7xl mb-8 max-w-4xl">
-                A voz de <span className="text-accent underline decoration-white/20 underline-offset-8">Itaguaí</span> na Câmara.
+                {displayNome}
               </h1>
               
               <div className="h-1 w-20 bg-accent mb-8 mx-auto lg:mx-0" />
 
               <p className="text-xl font-outfit text-white/80 leading-relaxed max-w-xl mx-auto lg:mx-0 mb-10">
-                Liderança, transparência e compromisso real. {displayNome.split(' (')[0]} está transformando o mandato legislativo em um centro de resultados para nossa gente.
+                {displayBio}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">

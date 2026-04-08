@@ -62,7 +62,12 @@ export const tenant = pgTable("tenant", {
     id: uuid("id").primaryKey().defaultRandom(),
     slug: text("slug").notNull().unique(), // e.g., "joao-silva"
     name: text("name").notNull(),
-    config: text("config"), // JSON configuration for landing page
+    primaryColor: text("primary_color").default("#0F2B5B").notNull(),
+    secondaryColor: text("secondary_color").default("#0D9F6E").notNull(),
+    fotoPerfilUrl: text("foto_perfil_url"),
+    biografia: text("biografia"),
+    logoUrl: text("logo_url"),
+    config: text("config"), // JSON configuration for landing page (fallback/legacy)
     createdAt: timestamp("createdAt").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
