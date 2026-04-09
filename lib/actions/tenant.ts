@@ -138,7 +138,26 @@ export async function updateTenant(id: string, data: {
     fotoPerfilUrl?: string;
     biografia?: string;
     logoUrl?: string;
-    config?: string 
+    config?: string;
+    heroHeadline?: string;
+    heroHighlight?: string;
+    heroBadge?: string;
+    heroImageUrl?: string;
+    heroDescription?: string;
+    heroCtaText?: string;
+    tagline?: string;
+    partido?: string;
+    cidade?: string;
+    cargo?: string;
+    whatsapp?: string;
+    telefone?: string;
+    email?: string;
+    instagram?: string;
+    endereco?: string;
+    showLeis?: boolean;
+    showIndicacoes?: boolean;
+    showAgenda?: boolean;
+    destaques?: { text: string; icon?: string }[];
 }) {
   try {
     const result = await db.update(tenant)

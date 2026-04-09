@@ -1,36 +1,29 @@
-import { DashboardStats } from "@/components/dashboard/dashboard-stats"
-import { DashboardCharts } from "@/components/dashboard/dashboard-charts"
-import { RecentDemandas } from "@/components/dashboard/recent-demandas"
-import { TermometroMandato } from "@/components/dashboard/termometro-mandato"
-import { RadarProblemas } from "@/components/dashboard/radar-problemas"
-import { RankingAssessores } from "@/components/dashboard/ranking-assessores"
+import { getTenantBySlug } from "@/lib/actions/tenant"
+import { getDashboardStats, getLeadsByFunil, getProjetosStatusChart, getUpcomingAgenda, getRecentLeads } from "@/lib/actions/dashboard-stats"
+import { notFound } from "next/navigation"
+import { DashboardContent } from "./dashboard-content"
 
-export default function DashboardPage() {
+export default async function DashboardPage({ params }: { params: { tenant: string } }) {
+  const { tenant: slug } = await params
+  const tenantData = await getTenantBySlug(slug)
+  if (!tenantData) return notFound()
+
+  const [stats, funilData, projetosChart, agenda, recentLeads] = await Promise.all([
+    getDashboardStats(tenantData.id),
+    getLeadsByFunil(tenantData.id),
+    getProjetosStatusChart(tenantData.id),
+    getUpcomingAgenda(tenantData.id, 5),
+    getRecentLeads(tenantData.id, 5),
+  ])
+
   return (
-    <div className="p-4 md:p-6 lg:p-8">
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Visao geral do seu mandato
-        </p>
-      </div>
-
-      <DashboardStats />
-
-      {/* Termometro e Radar */}
-      <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <TermometroMandato />
-        <RadarProblemas />
-        <RankingAssessores />
-      </div>
-      
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <DashboardCharts />
-      </div>
-
-      <div className="mt-8">
-        <RecentDemandas />
-      </div>
-    </div>
+    <DashboardContent
+      tenantName={tenantData.name}
+      stats={stats}
+      funilData={funilData}
+      projetosChart={projetosChart}
+      agenda={agenda}
+      recentLeads={recentLeads}
+    />
   )
 }

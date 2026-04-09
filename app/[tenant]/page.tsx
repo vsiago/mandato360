@@ -1,49 +1,38 @@
 import { getTenantBySlug } from "@/lib/actions/tenant";
+import { getLegislativo } from "@/lib/actions/legislativo";
+import { getAgendasPublicas } from "@/lib/actions/agenda";
 import LandingContent from "./landing-content";
-import { 
-  configuracaoVereador, 
-  projetosLei, 
-  leisAprovadas, 
-  publicacoes, 
-  indicacoes, 
-  bairros 
-} from "@/lib/mock-data";
 import { notFound } from "next/navigation";
 
 export default async function LandingPage({ params }: { params: { tenant: string } }) {
   const { tenant: slug } = await params;
 
-  // Ignore system assets and reserved words that might be caught by the dynamic route
+  // Ignore system assets and reserved words
   const isAsset = slug.includes(".") || slug === "favicon.ico" || slug === "master";
   if (isAsset) {
     return notFound();
   }
   
-  // Try to fetch real tenant data
   const tenant = await getTenantBySlug(slug);
   
-  // If no tenant found in DB, and it's not the mock-demo "vereador", we could 404
-  // But for now, let's fallback to mock data if slug is "vereador" or not found
   if (!tenant && slug !== "vereador") {
-    // In production, we might want to return notFound()
-    // return notFound();
+    // Allow demo slug "vereador" even without DB
   }
 
-  // Combine real data with mocks for now
+  // Fetch real data from DB
+  const [projetosLei, indicacoes, agenda] = tenant ? await Promise.all([
+    getLegislativo(tenant.id, "projeto_lei"),
+    getLegislativo(tenant.id, "indicacao"),
+    getAgendasPublicas(tenant.id),
+  ]) : [[], [], []];
+
   const initialData = {
-    config: configuracaoVereador,
-    projetosLei,
-    leisAprovadas,
-    publicacoes,
-    indicacoes,
-    bairros
+    projetosLei: projetosLei.filter((p: any) => p.visivelLanding !== false),
+    indicacoes: indicacoes.filter((i: any) => i.visivelLanding !== false),
+    agenda,
   };
 
-  console.time(`renderPage:${slug}`);
-  const result = (
+  return (
     <LandingContent tenant={tenant} initialData={initialData} />
   );
-  console.timeEnd(`renderPage:${slug}`);
-  
-  return result;
 }

@@ -2,75 +2,113 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { usePathname } from "next/navigation"
+import { usePathname, useParams } from "next/navigation"
 import { useState, useRef, useEffect } from "react"
 import {
   LayoutDashboard,
-  Users,
-  MessageSquareText,
-  FileText,
-  FileCheck,
-  Scale,
-  Newspaper,
+  ChevronDown,
   Globe,
-  BarChart3,
-  Settings,
-  MoreHorizontal,
+  Sparkles,
+  Scale,
+  FileCheck,
+  User,
+  CalendarDays,
+  UserPlus,
+  Palette,
   MapPin,
   Crown,
   UserCog,
-  Map,
-  PieChart,
-  Palette,
+  ClipboardList,
+  BarChart3,
+  Settings,
+  MoreHorizontal,
+  Lock,
+  Megaphone,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { authClient } from "@/lib/auth-client"
 
-export function getMenuWithTenant(tenant: string) {
-  return [
-    { href: `/${tenant}/dashboard`, label: "Dashboard", shortLabel: "Home", icon: LayoutDashboard },
-    { href: `/${tenant}/dashboard/eleitores`, label: "Eleitores", shortLabel: "Eleitores", icon: Users },
-    { href: `/${tenant}/dashboard/demandas`, label: "Demandas da População", shortLabel: "Demandas", icon: MessageSquareText },
-    { href: `/${tenant}/dashboard/assessores`, label: "Assessores", shortLabel: "Equipe", icon: UserCog },
-    { href: `/${tenant}/dashboard/mapa-politico`, label: "Mapa Político", shortLabel: "Mapa", icon: Map },
-    { href: `/${tenant}/dashboard/base-eleitoral`, label: "Base Eleitoral", shortLabel: "Base", icon: PieChart },
-    { href: `/${tenant}/dashboard/mapa-eleitoral`, label: "Mapa Eleitoral", shortLabel: "Eleitoral", icon: MapPin },
-    { href: `/${tenant}/dashboard/liderancas`, label: "Lideranças", shortLabel: "Lideres", icon: Crown },
-    { href: `/${tenant}/dashboard/projetos-lei`, label: "Projetos de Lei", shortLabel: "Projetos", icon: FileText },
-    { href: `/${tenant}/dashboard/indicacoes`, label: "Indicações", shortLabel: "Indicações", icon: FileCheck },
-    { href: `/${tenant}/dashboard/leis-aprovadas`, label: "Leis Aprovadas", shortLabel: "Leis", icon: Scale },
-    { href: `/${tenant}/dashboard/publicacoes`, label: "Publicações do Mandato", shortLabel: "Posts", icon: Newspaper },
-    { href: `/${tenant}/dashboard/landing-page`, label: "Landing Page do Vereador", shortLabel: "Site", icon: Globe },
-    { href: `/${tenant}/dashboard/editar-site`, label: "Editar Site Visual", shortLabel: "Editor", icon: Palette },
-    { href: `/${tenant}/dashboard/relatorios`, label: "Relatórios", shortLabel: "Relatórios", icon: BarChart3 },
-    { href: `/${tenant}/dashboard/configuracoes`, label: "Configurações", shortLabel: "Config", icon: Settings },
-  ]
+interface MenuItem {
+  href: string
+  label: string
+  shortLabel: string
+  icon: any
 }
 
-// This was outside and caused errors
+interface MenuGroup {
+  label: string
+  icon: any
+  items: MenuItem[]
+}
 
-import { useParams } from "next/navigation"
-import { authClient } from "@/lib/auth-client"
+function getMenuStructure(tenant: string): { home: MenuItem; groups: MenuGroup[]; settings: MenuItem } {
+  return {
+    home: { href: `/${tenant}/dashboard`, label: "Dashboard", shortLabel: "Home", icon: LayoutDashboard },
+    groups: [
+      {
+        label: "Público",
+        icon: Megaphone,
+        items: [
+          { href: `/${tenant}/dashboard/publico/hero`, label: "Hero & Destaques", shortLabel: "Hero", icon: Sparkles },
+          { href: `/${tenant}/dashboard/publico/leis`, label: "Leis / Projetos de Lei", shortLabel: "Leis", icon: Scale },
+          { href: `/${tenant}/dashboard/publico/indicacoes`, label: "Indicações Legislativas", shortLabel: "Indicações", icon: FileCheck },
+          { href: `/${tenant}/dashboard/publico/quem-sou`, label: "Quem Sou", shortLabel: "Perfil", icon: User },
+          { href: `/${tenant}/dashboard/publico/agenda`, label: "Agenda Pública", shortLabel: "Agenda", icon: CalendarDays },
+          { href: `/${tenant}/dashboard/publico/leads`, label: "Leads / Contatos", shortLabel: "Leads", icon: UserPlus },
+          { href: `/${tenant}/dashboard/editar-site`, label: "Editar Site Visual", shortLabel: "Editor", icon: Palette },
+        ],
+      },
+      {
+        label: "Privado",
+        icon: Lock,
+        items: [
+          { href: `/${tenant}/dashboard/bairros`, label: "Bairros", shortLabel: "Bairros", icon: MapPin },
+          { href: `/${tenant}/dashboard/liderancas`, label: "Lideranças", shortLabel: "Líderes", icon: Crown },
+          { href: `/${tenant}/dashboard/assessores`, label: "Assessores", shortLabel: "Equipe", icon: UserCog },
+          { href: `/${tenant}/dashboard/pesquisas`, label: "Pesquisas", shortLabel: "Pesquisas", icon: ClipboardList },
+          { href: `/${tenant}/dashboard/relatorios`, label: "Relatórios", shortLabel: "Relatórios", icon: BarChart3 },
+        ],
+      },
+    ],
+    settings: { href: `/${tenant}/dashboard/configuracoes`, label: "Configurações", shortLabel: "Config", icon: Settings },
+  }
+}
+
+// Flatten for mobile
+function getAllItems(tenant: string): MenuItem[] {
+  const m = getMenuStructure(tenant)
+  return [m.home, ...m.groups.flatMap(g => g.items), m.settings]
+}
 
 export function AppSidebar() {
   const pathname = usePathname()
   const params = useParams()
   const tenant = (params.tenant as string) || "vereador"
   const { data: session } = authClient.useSession()
-  
-  const menuItems = getMenuWithTenant(tenant)
+  const menu = getMenuStructure(tenant)
+
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ "Público": true, "Privado": true })
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups(prev => ({ ...prev, [label]: !prev[label] }))
+  }
+
+  const isActive = (href: string) => {
+    if (href === `/${tenant}/dashboard`) return pathname === href
+    return pathname.startsWith(href)
+  }
+
+  // Mobile
+  const allItems = getAllItems(tenant)
   const MOBILE_VISIBLE_COUNT = 4
-  const mobileVisibleItems = menuItems.slice(0, MOBILE_VISIBLE_COUNT)
-  const mobileHiddenItems = menuItems.slice(MOBILE_VISIBLE_COUNT)
+  const mobileVisibleItems = [allItems[0], allItems[1], allItems[2], allItems[allItems.length - 1]]
+  const mobileHiddenItems = allItems.filter(item => !mobileVisibleItems.includes(item))
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // Check if current page is in "Outros" menu
-  const isOthersActive = mobileHiddenItems.some(
-    (item) => pathname === item.href || (item.href !== `/${tenant}/dashboard` && pathname.startsWith(item.href))
-  )
+  const isOthersActive = mobileHiddenItems.some(item => isActive(item.href))
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -81,7 +119,6 @@ export function AppSidebar() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // Close dropdown on route change
   useEffect(() => {
     setIsDropdownOpen(false)
   }, [pathname])
@@ -105,30 +142,87 @@ export function AppSidebar() {
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto px-3 py-4">
-            <ul className="space-y-0.5">
-              {menuItems.map((item) => {
-                const isActive = pathname === item.href || 
-                  (item.href !== "/dashboard" && pathname.startsWith(item.href))
-                const Icon = item.icon
+            {/* Dashboard Home */}
+            <Link
+              href={menu.home.href}
+              className={cn(
+                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 mb-1",
+                isActive(menu.home.href)
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <LayoutDashboard className={cn("h-5 w-5 shrink-0", isActive(menu.home.href) && "text-primary")} />
+              <span className="truncate">{menu.home.label}</span>
+            </Link>
 
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                        isActive
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      )}
-                    >
-                      <Icon className={cn("h-5 w-5 shrink-0", isActive && "text-primary")} />
-                      <span className="truncate">{item.label}</span>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
+            {/* Groups */}
+            {menu.groups.map((group) => {
+              const GroupIcon = group.icon
+              const isOpen = openGroups[group.label] !== false
+              const hasActiveChild = group.items.some(item => isActive(item.href))
+
+              return (
+                <div key={group.label} className="mt-3">
+                  <button
+                    onClick={() => toggleGroup(group.label)}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-wider transition-all",
+                      hasActiveChild ? "text-primary" : "text-muted-foreground/70 hover:text-muted-foreground"
+                    )}
+                  >
+                    <GroupIcon className="h-3.5 w-3.5" />
+                    <span className="flex-1 text-left">{group.label}</span>
+                    <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", isOpen && "rotate-180")} />
+                  </button>
+
+                  <div className={cn(
+                    "overflow-hidden transition-all duration-200",
+                    isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                  )}>
+                    <ul className="space-y-0.5 mt-1">
+                      {group.items.map((item) => {
+                        const Icon = item.icon
+                        const active = isActive(item.href)
+
+                        return (
+                          <li key={item.href}>
+                            <Link
+                              href={item.href}
+                              className={cn(
+                                "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ml-1",
+                                active
+                                  ? "bg-primary/10 text-primary"
+                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                              )}
+                            >
+                              <Icon className={cn("h-4.5 w-4.5 shrink-0", active && "text-primary")} />
+                              <span className="truncate">{item.label}</span>
+                            </Link>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              )
+            })}
+
+            {/* Settings */}
+            <div className="mt-4 pt-3 border-t border-sidebar-border">
+              <Link
+                href={menu.settings.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                  isActive(menu.settings.href)
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <Settings className={cn("h-5 w-5 shrink-0", isActive(menu.settings.href) && "text-primary")} />
+                <span className="truncate">{menu.settings.label}</span>
+              </Link>
+            </div>
           </nav>
 
           {/* Footer */}
@@ -156,8 +250,7 @@ export function AppSidebar() {
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur-lg md:hidden safe-area-bottom select-none">
         <div className="flex h-16 items-stretch justify-around">
           {mobileVisibleItems.map((item) => {
-            const isActive = pathname === item.href || 
-              (item.href !== "/dashboard" && pathname.startsWith(item.href))
+            const active = isActive(item.href)
             const Icon = item.icon
 
             return (
@@ -167,16 +260,14 @@ export function AppSidebar() {
                 className={cn(
                   "flex flex-1 flex-col items-center justify-center gap-1 px-1 text-[10px] font-medium transition-all duration-150",
                   "active:scale-95",
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  active ? "text-primary" : "text-muted-foreground"
                 )}
               >
                 <div className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-xl transition-all",
-                  isActive && "bg-primary/10"
+                  active && "bg-primary/10"
                 )}>
-                  <Icon className={cn("h-5 w-5", isActive && "text-primary")} />
+                  <Icon className={cn("h-5 w-5", active && "text-primary")} />
                 </div>
                 <span className="truncate">{item.shortLabel}</span>
               </Link>
@@ -190,9 +281,7 @@ export function AppSidebar() {
               className={cn(
                 "flex flex-1 flex-col items-center justify-center gap-1 px-1 text-[10px] font-medium transition-all duration-150",
                 "active:scale-95",
-                isOthersActive || isDropdownOpen
-                  ? "text-primary"
-                  : "text-muted-foreground"
+                isOthersActive || isDropdownOpen ? "text-primary" : "text-muted-foreground"
               )}
             >
               <div className={cn(
@@ -206,11 +295,10 @@ export function AppSidebar() {
 
             {/* Dropdown menu - opens upward */}
             {isDropdownOpen && (
-              <div className="absolute bottom-full right-0 mb-2 w-56 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl animate-in slide-in-from-bottom-2 fade-in-0 duration-200">
+              <div className="absolute bottom-full right-0 mb-2 w-56 max-h-80 overflow-y-auto overflow-hidden rounded-2xl border border-border bg-card shadow-2xl animate-in slide-in-from-bottom-2 fade-in-0 duration-200">
                 <div className="p-2">
                   {mobileHiddenItems.map((item) => {
-                    const isActive = pathname === item.href || 
-                      (item.href !== "/dashboard" && pathname.startsWith(item.href))
+                    const active = isActive(item.href)
                     const Icon = item.icon
 
                     return (
@@ -219,12 +307,12 @@ export function AppSidebar() {
                         href={item.href}
                         className={cn(
                           "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
-                          isActive
+                          active
                             ? "bg-primary/10 text-primary"
                             : "text-foreground active:bg-muted"
                         )}
                       >
-                        <Icon className={cn("h-5 w-5 shrink-0", isActive && "text-primary")} />
+                        <Icon className={cn("h-5 w-5 shrink-0", active && "text-primary")} />
                         <span>{item.label}</span>
                       </Link>
                     )

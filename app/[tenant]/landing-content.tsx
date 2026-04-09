@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { 
@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { submitSupporterAction, submitRequestAction } from "@/lib/actions/forms"
+import { createLead } from "@/lib/actions/leads"
 import { toast } from "sonner"
 import { cn } from '@/lib/utils'
 import { getTheme, generateThemeCSS } from "@/src/themes"
@@ -60,17 +61,33 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   const themeCSSVars = generateThemeCSS(activeTheme, "light")
 
   // Data from initialData (DB)
-  const { projetosLei = [], leisAprovadas = [], publicacoes = [], indicacoes = [] } = initialData || {}
+  const { projetosLei = [], indicacoes = [], agenda = [] } = initialData || {}
 
   // Lists: prefer config if it has content, else use DB fallbacks
   const displayProjetos = (config?.projetos && config.projetos.length > 0) 
     ? config.projetos.slice(0, 6) 
     : projetosLei.slice(0, 6).map((p: any) => ({ name: p.titulo, description: p.descricao, image: "" }))
 
-  const displayTrustBadges = config?.trustBadges || []
+  const displayIndicacoes = indicacoes.slice(0, 6)
+  const displayAgenda = agenda.slice(0, 6)
+  const displayTrustBadges = config?.trustBadges || (tenant?.destaques || []).map((d: any) => ({ text: d.text || d }))
   const displayFAQ = config?.faq || []
   const displayBeforeAfter = config?.beforeAfter || []
-  const displayContact = config?.contact || {}
+  const displayContact = config?.contact || {
+    phone: tenant?.telefone,
+    whatsapp: tenant?.whatsapp,
+    email: tenant?.email || tenant?.emailContato,
+    instagram: tenant?.instagram,
+    address: tenant?.endereco,
+  }
+  const showLeis = tenant?.showLeis ?? true
+  const showIndicacoes = tenant?.showIndicacoes ?? true
+  const showAgenda = tenant?.showAgenda ?? true
+
+  // Lead capture state
+  const [leadForm, setLeadForm] = useState({ nome: "", telefone: "", bairro: "" })
+  const [leadSubmitting, setLeadSubmitting] = useState(false)
+  const [leadSubmitted, setLeadSubmitted] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20)
@@ -230,7 +247,121 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         </div>
       </section>
 
-      {/* PERFIL */}
+      {/* INDICAÇÕES LEGISLATIVAS */}
+      {showIndicacoes && displayIndicacoes.length > 0 && (
+        <section className="py-24 bg-gray-50 border-t border-gray-100">
+          <div className="mx-auto max-w-7xl px-8">
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16">Indicações <span style={{ color: primaryColor }} className="italic">Legislativas</span></h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayIndicacoes.map((ind: any, i: number) => (
+                <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider" style={{ backgroundColor: `${secondaryColor}15`, color: secondaryColor }}>
+                      {ind.tipo === 'indicacao' ? 'Indicação' : ind.tipo}
+                    </span>
+                    <span className="text-[10px] font-bold text-gray-400">{ind.numero || ''}</span>
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900 mb-2">{ind.titulo}</h3>
+                  {ind.descricao && <p className="text-sm text-gray-500 line-clamp-3">{ind.descricao}</p>}
+                  <p className="text-[10px] text-gray-400 mt-3">{ind.data ? new Date(ind.data).toLocaleDateString('pt-BR') : ''}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* AGENDA PÚBLICA */}
+      {showAgenda && displayAgenda.length > 0 && (
+        <section className="py-24 bg-white border-t border-gray-100">
+          <div className="mx-auto max-w-7xl px-8">
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16">Agenda <span style={{ color: primaryColor }} className="italic">Pública</span></h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayAgenda.map((event: any, i: number) => (
+                <div key={i} className="bg-gray-50 rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all flex gap-4">
+                  <div className="flex flex-col items-center justify-center h-16 w-16 rounded-2xl text-center shrink-0" style={{ backgroundColor: `${primaryColor}10` }}>
+                    <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: primaryColor }}>
+                      {new Date(event.dataEvento).toLocaleDateString('pt-BR', { month: 'short' })}
+                    </span>
+                    <span className="text-2xl font-black leading-none" style={{ color: primaryColor }}>
+                      {new Date(event.dataEvento).getDate()}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{event.titulo}</h3>
+                    {event.local && <p className="text-sm text-gray-500 mt-1 flex items-center gap-1"><MapPin className="h-3 w-3" />{event.local}</p>}
+                    <p className="text-xs text-gray-400 mt-1">{new Date(event.dataEvento).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CTA - CAPTURA DE LEAD */}
+      <section className="py-20 relative" style={{ backgroundColor: primaryColor }}>
+        <div className="absolute inset-0 bg-linear-to-br from-black/20 to-transparent z-0" />
+        <div className="relative z-10 mx-auto max-w-3xl px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-4">Quer fazer parte da mudança?</h2>
+          <p className="text-white/70 mb-8 text-lg">Deixe seus dados e fique por dentro das ações do mandato</p>
+          {leadSubmitted ? (
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+              <CheckCircle2 className="h-12 w-12 text-white mx-auto mb-4" />
+              <p className="text-white font-bold text-xl">Obrigado pelo contato!</p>
+              <p className="text-white/60 text-sm mt-2">Em breve entraremos em contato com você.</p>
+            </div>
+          ) : (
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <input
+                  type="text"
+                  placeholder="Seu nome"
+                  value={leadForm.nome}
+                  onChange={(e) => setLeadForm(prev => ({ ...prev, nome: e.target.value }))}
+                  className="rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-white placeholder:text-white/40 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-white/30"
+                />
+                <input
+                  type="text"
+                  placeholder="Seu telefone"
+                  value={leadForm.telefone}
+                  onChange={(e) => setLeadForm(prev => ({ ...prev, telefone: e.target.value }))}
+                  className="rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-white placeholder:text-white/40 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-white/30"
+                />
+                <input
+                  type="text"
+                  placeholder="Seu bairro"
+                  value={leadForm.bairro}
+                  onChange={(e) => setLeadForm(prev => ({ ...prev, bairro: e.target.value }))}
+                  className="rounded-xl bg-white/10 border border-white/20 px-4 py-3 text-white placeholder:text-white/40 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-white/30"
+                />
+              </div>
+              <Button
+                className="mt-4 w-full md:w-auto px-12 py-6 rounded-xl font-black text-lg shadow-xl hover:scale-105 active:scale-95 transition-all"
+                style={{ backgroundColor: secondaryColor }}
+                disabled={leadSubmitting}
+                onClick={async () => {
+                  if (!leadForm.nome) { toast.error('Preencha seu nome'); return }
+                  setLeadSubmitting(true)
+                  try {
+                    if (tenant?.id) {
+                      await createLead({ tenantId: tenant.id, nome: leadForm.nome, telefone: leadForm.telefone, bairroNome: leadForm.bairro, origem: 'landing_cta', funil: 'novo' })
+                    }
+                    setLeadSubmitted(true)
+                    toast.success('Cadastro realizado!')
+                  } catch { toast.error('Erro ao cadastrar') }
+                  finally { setLeadSubmitting(false) }
+                }}
+              >
+                <Send className="h-5 w-5 mr-2" />
+                {leadSubmitting ? 'Enviando...' : 'Quero Participar'}
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* PERFIL */
       <section id="perfil" className="py-24 bg-gray-50">
         <div className="mx-auto max-w-7xl px-8">
            <div className="grid lg:grid-cols-2 gap-16 items-center">

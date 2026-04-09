@@ -10,15 +10,14 @@ export default async function DashboardLayout({
   params: { tenant: string }
 }) {
   const { tenant: slug } = await params
-  const tenant = await getTenantBySlug(slug)
+  const tenantData = await getTenantBySlug(slug)
 
-  if (!tenant) {
+  if (!tenantData) {
     return notFound()
   }
 
-  const config = tenant.config ? JSON.parse(tenant.config) : {}
-  const primaryColor = config.primaryColor || "#0F2B5B"
-  const secondaryColor = config.secondaryColor || "#0D9F6E"
+  const primaryColor = tenantData.primaryColor || "#0F2B5B"
+  const secondaryColor = tenantData.secondaryColor || "#0D9F6E"
 
   return (
     <div 
