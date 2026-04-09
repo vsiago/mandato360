@@ -15,6 +15,7 @@ export default async function Home() {
     redirect("/login")
   }
 
+
   // Find the first tenant the user belongs to
   const member = await db
     .select({ slug: tenant.slug })

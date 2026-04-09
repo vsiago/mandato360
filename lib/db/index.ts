@@ -4,23 +4,31 @@ import * as schema from "./schema";
 
 const rawUrl = process.env.DATABASE_URL || "";
 
-// Supabase Connection Pooler (Transaction Mode) uses port 6543
-// We ensure the port is 6543 and sslmode is require if using the pooler
+// Ensure sslmode=require for Supabase
 let connectionString = rawUrl;
 if (rawUrl.includes("supabase.co") || rawUrl.includes("supabase.net")) {
-    if (!connectionString.includes(":6543")) {
-        connectionString = connectionString.replace(":5432", ":6543");
-    }
     if (!connectionString.includes("sslmode=")) {
         connectionString += (connectionString.includes("?") ? "&" : "?") + "sslmode=require";
     }
 }
 
-// For query purposes
-const client = postgres(connectionString, {
-    prepare: false, // Required for poolers
-    idle_timeout: 30, // Increase idle timeout
-    max: 20, // Increase max connections for concurrent actions + middleware
-    connect_timeout: 20, // 20s timeout to handle DB waking up (cold starts)
-});
+// For connection pooling in Next.js development
+const globalForPostgres = globalThis as unknown as {
+	postgres: ReturnType<typeof postgres> | undefined;
+};
+
+// Connection stability adjustments for multi-environments
+export const client =
+	globalForPostgres.postgres ??
+	postgres(connectionString, {
+		prepare: false, // Required for poolers
+		idle_timeout: 60, // Keep connections alive longer to reduce handshake overhead
+		max: 10, // Lower max connections to prevent Supabase pool exhaustion
+		connect_timeout: 15, // Faster feedback on connection failure
+	});
+
+if (process.env.NODE_ENV !== "production") {
+	globalForPostgres.postgres = client;
+}
+
 export const db = drizzle(client, { schema });

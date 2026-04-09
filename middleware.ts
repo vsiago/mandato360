@@ -1,4 +1,3 @@
-import { auth } from "@/lib/auth";
 import { type NextRequest, NextResponse } from "next/server";
 
 export default async function middleware(request: NextRequest) {
@@ -15,19 +14,33 @@ export default async function middleware(request: NextRequest) {
 		return NextResponse.next();
 	}
 
+	// Optimized session check: skip DB query if no session cookie exists
+	const sessionCookie = request.cookies.get("better-auth.session-token") || 
+						  request.cookies.get("better-auth.session_token");
+	
+	const sessionToken = sessionCookie?.value;
+
+	if (!sessionToken) {
+		if (pathname.includes("/dashboard") || pathname.startsWith("/master")) {
+			return NextResponse.redirect(new URL("/login", request.url));
+		}
+		return NextResponse.next();
+	}
+
 	let session = null;
 	try {
-		// Race against a timeout to prevent middleware from hanging
-		const sessionPromise = auth.api.getSession({
-			headers: request.headers,
+        const url = new URL("/api/auth/get-session", request.url).toString();
+		const res = await fetch(url, {
+			headers: { cookie: request.headers.get("cookie") || "" },
 		});
-		const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000));
-		session = await Promise.race([sessionPromise, timeoutPromise]);
-	} catch (error: any) {
-		// Silently handle transient DB errors — page-level auth will catch these
-		if (process.env.NODE_ENV === "development") {
-			console.warn(`[Middleware] Auth transient error on ${pathname}: ${error.message}`);
+		if (res.ok) {
+			session = await res.json();
 		}
+	} catch (error: any) {
+		if (process.env.NODE_ENV === "development") {
+			console.error(`[Middleware] Unexpected error on ${pathname}:`, error.message);
+		}
+		// Fallback to page-level auth
 		return NextResponse.next();
 	}
 
