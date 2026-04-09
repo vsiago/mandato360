@@ -139,7 +139,7 @@ export function TenantSidebar({ tenant }: { tenant: TenantData }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-4" aria-label="Navegação do mandato">
+      <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-4 scrollbar-quiet" aria-label="Navegação do mandato">
         {/* Home */}
         <Link
           href={menu.home.href}

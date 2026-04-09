@@ -49,7 +49,7 @@ export function MasterSidebar({ user }: { user: any }) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex flex-1 flex-col gap-1 px-3 py-6" aria-label="Navegação Master">
+      <nav className="flex flex-1 flex-col gap-1 px-3 py-6 scrollbar-quiet" aria-label="Navegação Master">
         {navItems.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href
           return (
