@@ -8,11 +8,9 @@ import { headers } from "next/headers";
 
 export async function getTenantBySlug(slug: string) {
   try {
-    console.time(`getTenantBySlug:${slug}`);
     const result = await db.query.tenant.findFirst({
       where: eq(tenant.slug, slug),
     });
-    console.timeEnd(`getTenantBySlug:${slug}`);
     return result;
   } catch (error) {
     console.error("Error fetching tenant:", error);
@@ -69,7 +67,6 @@ export async function createTenant(data: {
   ownerPassword: string;
 }) {
   try {
-    console.time("createTenantWithOwner:auth");
     const authResult = await auth.api.signUpEmail({
       body: {
         email: data.ownerEmail,
@@ -83,14 +80,12 @@ export async function createTenant(data: {
       const msg = err.message || "Erro ao criar usuário proprietário.";
       throw new Error(msg);
     });
-    console.timeEnd("createTenantWithOwner:auth");
 
     if (!authResult || !authResult.user) {
       throw new Error("Falha ao criar usuário proprietário.");
     }
 
     // 2. Create Tenant and Membership in a single transaction
-    console.time("createTenantWithOwner:db");
     return await db.transaction(async (tx) => {
       // Create Tenant
       const [newTenant] = await tx.insert(tenant).values({
@@ -113,8 +108,6 @@ export async function createTenant(data: {
       });
 
       return { success: true, data: { tenant: newTenant, user: authResult.user } };
-    }).finally(() => {
-        console.timeEnd("createTenantWithOwner:db");
     });
   } catch (error: any) {
     console.error("Error creating tenant and owner:", error);

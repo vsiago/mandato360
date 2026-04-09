@@ -361,7 +361,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         </div>
       </section>
 
-      {/* PERFIL */
+      {/* PERFIL */}
       <section id="perfil" className="py-24 bg-gray-50">
         <div className="mx-auto max-w-7xl px-8">
            <div className="grid lg:grid-cols-2 gap-16 items-center">
