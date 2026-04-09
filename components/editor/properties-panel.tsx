@@ -98,21 +98,15 @@ export function PropertiesPanel() {
                                         {([
                                             {
                                                 name: "Escuro",
-                                                sectionGradient: { angle: 180, stops: [{ color: "#0F2B5B", position: 0, opacity: 100 }, { color: "#000000", position: 100, opacity: 60 }] },
-                                                overlay: { angle: 270, stops: [{ color: "#0F2B5B", position: 0, opacity: 90 }, { color: "#0F2B5B", position: 100, opacity: 0 }] },
-                                                preview: "linear-gradient(180deg, #0F2B5B 0%, #000000 100%)"
+                                                sectionGradient: { angle: 90, stops: [{ color: data.colors?.primary || "#0F2B5B", position: 0, opacity: 100 }, { color: "#000000", position: 100, opacity: 80 }] },
+                                                overlay: { angle: 90, stops: [{ color: data.colors?.primary || "#0F2B5B", position: 0, opacity: 100 }, { color: data.colors?.primary || "#0F2B5B", position: 50, opacity: 100 }, { color: data.colors?.primary || "#0F2B5B", position: 100, opacity: 0 }] },
+                                                preview: `linear-gradient(90deg, ${data.colors?.primary || "#0F2B5B"} 0%, #000000 100%)`
                                             },
                                             {
                                                 name: "Esmeralda",
-                                                sectionGradient: { angle: 135, stops: [{ color: "#065F46", position: 0, opacity: 100 }, { color: "#0D9F6E", position: 100, opacity: 60 }] },
-                                                overlay: { angle: 270, stops: [{ color: "#065F46", position: 0, opacity: 80 }, { color: "#065F46", position: 100, opacity: 0 }] },
-                                                preview: "linear-gradient(135deg, #065F46 0%, #0D9F6E 100%)"
-                                            },
-                                            {
-                                                name: "Limpo",
-                                                sectionGradient: null,
-                                                overlay: null,
-                                                preview: "white"
+                                                sectionGradient: { angle: 90, stops: [{ color: data.colors?.secondary || "#0D9F6E", position: 0, opacity: 100 }, { color: "#064E3B", position: 100, opacity: 80 }] },
+                                                overlay: { angle: 90, stops: [{ color: data.colors?.secondary || "#0D9F6E", position: 0, opacity: 100 }, { color: data.colors?.secondary || "#0D9F6E", position: 50, opacity: 100 }, { color: data.colors?.secondary || "#0D9F6E", position: 100, opacity: 0 }] },
+                                                preview: `linear-gradient(90deg, ${data.colors?.secondary || "#0D9F6E"} 0%, #064E3B 100%)`
                                             },
                                         ] as { name: string; sectionGradient: Gradient | null; overlay: Gradient | null; preview: string }[]).map((preset, i) => (
                                             <button
@@ -153,7 +147,40 @@ export function PropertiesPanel() {
                                                 key={opt.id}
                                                 onClick={() => {
                                                     const s = { positionX: 50, positionY: 20, zoom: 1, ...data.heroImageSettings } as HeroImageSettings
-                                                    updateField('heroImageSettings', { ...s, layout: opt.id as any })
+                                                    const isCenter = opt.id === 'center'
+                                                    
+                                                    // 1. Update Layout
+                                                    const newSettings: HeroImageSettings = { 
+                                                        ...s, 
+                                                        layout: opt.id as any,
+                                                        // 2. Adjust Overlay for orientation
+                                                        overlay: s.overlay ? {
+                                                            ...s.overlay,
+                                                            angle: isCenter ? 0 : 90,
+                                                            stops: isCenter 
+                                                                ? [
+                                                                    { color: s.overlay.stops[0].color, position: 0, opacity: 100 },
+                                                                    { color: s.overlay.stops[0].color, position: 100, opacity: 0 }
+                                                                  ]
+                                                                : [
+                                                                    { color: s.overlay.stops[0].color, position: 0, opacity: 100 },
+                                                                    { color: s.overlay.stops[0].color, position: 50, opacity: 100 },
+                                                                    { color: s.overlay.stops[0].color, position: 100, opacity: 0 }
+                                                                  ]
+                                                        } : undefined
+                                                    }
+                                                    updateField('heroImageSettings', newSettings)
+
+                                                    // 3. Adjust Background Gradient for orientation
+                                                    const sectionStyle = getSectionStyle('hero')
+                                                    if (sectionStyle?.background === 'gradient' && sectionStyle.gradient) {
+                                                        updateSectionStyle('hero', {
+                                                            gradient: {
+                                                                ...sectionStyle.gradient,
+                                                                angle: isCenter ? 0 : 90
+                                                            }
+                                                        })
+                                                    }
                                                 }}
                                                 className={cn(
                                                     "flex-1 py-2.5 rounded-xl text-[10px] font-bold border transition-all uppercase tracking-tighter shadow-sm",

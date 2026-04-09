@@ -371,6 +371,33 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
         resultsTitle: "Transformando a Cidade",
         faqTitle: "Perguntas Frequentes",
         contactTitle: "Entre em Contato",
+        sectionStyles: {
+            hero: {
+                background: 'gradient',
+                gradient: {
+                    angle: 90,
+                    stops: [
+                        { color: tenant.primaryColor || "#0F2B5B", position: 0, opacity: 100 },
+                        { color: "#000000", position: 100, opacity: 80 }
+                    ]
+                }
+            }
+        },
+        heroImageSettings: {
+            positionX: 50,
+            positionY: 20,
+            zoom: 1,
+            layout: 'left',
+            overlayEnabled: true,
+            overlay: {
+                angle: 90,
+                stops: [
+                    { color: tenant.primaryColor || "#0F2B5B", position: 0, opacity: 100 },
+                    { color: tenant.primaryColor || "#0F2B5B", position: 50, opacity: 100 },
+                    { color: tenant.primaryColor || "#0F2B5B", position: 100, opacity: 0 }
+                ]
+            }
+        },
     }
 
     // If tenant has a full config JSON, use it (merging DB-level fields as ultimate source of truth for media)
