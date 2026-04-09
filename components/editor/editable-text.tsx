@@ -40,8 +40,9 @@ export function EditableText({
     return (
         <Component
             className={cn(
-                "relative transition-all cursor-text outline-none",
+                "relative transition-all cursor-text outline-none inline-block min-w-[2ch]",
                 isSelected ? "ring-2 ring-blue-500 ring-offset-2 z-20" : "hover:bg-blue-500/10",
+                !value && "opacity-50 border border-dashed border-white/30 px-2 py-1 rounded min-h-[1.5em]",
                 className
             )}
             style={{ ...style, ...cssStyles }}
@@ -63,7 +64,7 @@ export function EditableText({
                 }
             }}
         >
-            {value}
+            {value || "Digite algo..."}
         </Component>
     )
 }

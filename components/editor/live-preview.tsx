@@ -25,7 +25,7 @@ export function LivePreview() {
 
     const activeTheme = getTheme((data.theme as any) || "neutro")
     const themeCSSVars = generateThemeCSS(activeTheme, "light")
-    const resolvedHeroImageUrl = data.heroImageUrl || "/site/hero.png"
+    const resolvedHeroImageUrl = data.heroImageUrl || "/avatar-vereador.png"
 
     return (
         <div
@@ -44,30 +44,36 @@ export function LivePreview() {
             {/* ─── Hero ─── */}
             <EditableSection sectionId="hero" label="Topo (Hero)">
                 <div className="relative w-full">
-                    <nav className="absolute top-0 left-0 right-0 z-50 bg-transparent">
-                        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 @lg:py-6">
-                            {data.logoUrl ? (
-                                <img src={data.logoUrl} alt={data.name || "Logo"} className="h-12 @lg:h-16 w-auto object-contain" />
-                            ) : (
-                                <EditableText
-                                    fieldPath="name"
-                                    elementId="nav-name"
-                                    sectionId="hero"
-                                    as="span"
-                                    className="font-bold text-white text-lg @lg:text-2xl"
-                                    style={{ fontFamily: 'var(--theme-font-heading)' }}
-                                />
-                            )}
-                            <div className="hidden @lg:flex items-center gap-8">
-                                {["Início", "Projetos", "Sobre", "Contato"].map((item) => (
-                                    <span key={item} className="text-sm font-bold text-white hover:text-white/80 cursor-default transition-colors">{item}</span>
-                                ))}
-                                <Button size="sm" className="bg-white text-[var(--tenant-primary)] hover:bg-slate-50 font-bold rounded-(--theme-btn-radius) px-6 shadow-sm">
-                                    Quero Apoiar
-                                </Button>
+                    <header className="absolute top-0 inset-x-0 z-50 h-16 transition-all duration-300 border-b bg-transparent border-transparent">
+                        <div className="mx-auto max-w-7xl px-6 h-full flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                {data.logoUrl ? (
+                                    <img src={data.logoUrl} alt={data.name || "Logo"} className="h-10 w-auto object-contain" />
+                                ) : (
+                                    <>
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl font-black transition-all bg-white text-[var(--tenant-primary)]">
+                                            {(data.name || "Vereador").charAt(0)}
+                                        </div>
+                                        <EditableText
+                                            fieldPath="name"
+                                            elementId="nav-name"
+                                            sectionId="hero"
+                                            as="span"
+                                            className="text-base font-bold text-white drop-shadow-sm"
+                                        />
+                                    </>
+                                )}
                             </div>
+                            <nav className="hidden lg:flex items-center gap-8">
+                                {["Projetos", "Perfil", "Contato"].map((item) => (
+                                    <span key={item} className="text-sm font-bold uppercase tracking-tight text-white/80 hover:text-[var(--tenant-secondary)] cursor-default transition-colors">{item}</span>
+                                ))}
+                            </nav>
+                            <Button className="rounded-full px-6 font-bold shadow-md transition-all h-10 bg-[var(--tenant-secondary)] text-white hover:bg-[var(--tenant-secondary)]/90">
+                                Quero Apoiar
+                            </Button>
                         </div>
-                    </nav>
+                    </header>
 
                 <section
                     className={cn(
@@ -136,20 +142,21 @@ export function LivePreview() {
 
                     <div className={cn("relative z-10 mx-auto max-w-7xl px-6 w-full", data.heroImageSettings?.layout === 'center' && "flex flex-col justify-center items-center")}>
                         <div className={cn("space-y-8", data.heroImageSettings?.layout === 'center' ? "max-w-3xl @lg:max-w-4xl flex flex-col items-center text-center" : "max-w-xl @lg:max-w-2xl")}>
-                            <EditableText
-                                fieldPath="heroBadge"
-                                elementId="hero-badge"
-                                sectionId="hero"
-                                as="div"
-                                className={cn("inline-flex items-center gap-2 rounded-(--theme-btn-radius) border border-white/20 bg-white/20 backdrop-blur-md px-4 py-1.5 text-[9px] @md:text-xs font-bold uppercase tracking-widest text-white shadow-sm")}
-                            >
-                                <HeartHandshake className="h-3.5 w-3.5 inline mr-1" />{data.heroBadge}
-                            </EditableText>
+                            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/20 w-fit">
+                                <HeartHandshake className="h-3.5 w-3.5 text-white" />
+                                <EditableText
+                                    fieldPath="heroBadge"
+                                    elementId="hero-badge"
+                                    sectionId="hero"
+                                    as="span"
+                                    className="text-[10px] font-black text-white uppercase tracking-widest"
+                                />
+                            </div>
 
-                            <h1 className="text-5xl @md:text-6xl @lg:text-7xl font-sans tracking-tight text-white leading-[1.05]" style={{ fontFamily: 'var(--theme-font-heading)' }}>
+                            <h1 className="text-5xl md:text-8xl font-black text-white leading-tight tracking-tighter" style={{ fontFamily: 'var(--theme-font-heading)' }}>
                                 <EditableText fieldPath="heroHeadline" elementId="hero-headline" sectionId="hero" as="span" />
                                 {" "}
-                                <EditableText fieldPath="heroHighlight" elementId="hero-highlight" sectionId="hero" as="span" className="font-light italic" style={{ color: 'var(--tenant-secondary)' }} />.
+                                <EditableText fieldPath="heroHighlight" elementId="hero-highlight" sectionId="hero" as="span" style={{ color: 'var(--tenant-secondary)' }} />
                             </h1>
 
                             <EditableText
@@ -158,14 +165,14 @@ export function LivePreview() {
                                 sectionId="hero"
                                 as="p"
                                 multiline
-                                className={cn("text-lg @md:text-xl text-white/90 leading-relaxed font-light", data.heroImageSettings?.layout === 'center' ? "max-w-2xl mx-auto" : "max-w-xl")}
+                                className={cn("text-xl text-white/80 font-medium", data.heroImageSettings?.layout === 'center' ? "max-w-2xl mx-auto" : "max-w-xl")}
                             />
 
-                            <div className={cn("flex flex-col @sm:flex-row gap-4 pt-4", data.heroImageSettings?.layout === 'center' && "justify-center w-full")}>
-                                <Button size="lg" className="h-14 bg-white hover:bg-slate-50 text-[var(--tenant-primary)] text-lg font-bold px-10 rounded-(--theme-btn-radius) shadow-xl shadow-black/10 transition-all">
+                            <div className={cn("flex flex-col sm:flex-row gap-4 mt-2", data.heroImageSettings?.layout === 'center' && "justify-center w-full")}>
+                                <Button className="bg-[var(--tenant-secondary)] hover:bg-[var(--tenant-secondary)]/90 text-white font-black text-xl px-12 py-8 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all w-fit">
                                     Solicitar Demanda
                                 </Button>
-                                <Button size="lg" variant="ghost" className="h-14 w-full @sm:w-auto text-white bg-white/10 hover:bg-white/20 backdrop-blur-md font-bold px-8 rounded-full border border-white/20 shadow-sm transition-all flex items-center justify-center gap-3">
+                                <Button variant="outline" className="border-2 border-white/20 text-white hover:bg-white/10 bg-white/5 font-bold text-lg px-8 py-8 rounded-2xl w-fit">
                                     Ver Projetos
                                 </Button>
                             </div>

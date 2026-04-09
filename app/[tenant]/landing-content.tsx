@@ -43,7 +43,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   const heroBadge = config?.heroBadge || "Mandato Participativo"
   const heroHeadline = config?.heroHeadline || "Por uma cidade de"
   const heroHighlight = config?.heroHighlight || "Resultados"
-  const heroImageUrl = config?.heroImageUrl || ""
+  const heroImageUrl = config?.heroImageUrl || "/avatar-vereador.png"
   const heroDescription = config?.description || "Trabalhando pela transparência e inovação política."
   const displayTagline = config?.tagline || "Mandato Participativo"
   const logoUrl = config?.logoUrl || tenant?.logoUrl || ""
@@ -189,7 +189,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
               <HeartHandshake className="h-3.5 w-3.5 text-white" />
               <span className="text-[10px] font-black text-white uppercase tracking-widest">{heroBadge}</span>
             </div>
-            <h1 className="text-5xl md:text-8xl font-black text-white leading-tight tracking-tighter">
+            <h1 className="text-5xl md:text-8xl font-black text-white leading-tight tracking-tighter" style={{ fontFamily: 'var(--theme-font-heading)' }}>
                 {heroHeadline} <span style={{ color: secondaryColor }}>{heroHighlight}</span>
             </h1>
             <p className={cn("text-xl text-white/80 font-medium", heroLayout === 'center' ? "max-w-2xl" : "max-w-xl")}>{heroDescription}</p>

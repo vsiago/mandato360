@@ -283,27 +283,7 @@ function EditorInner() {
 
 /* ─── Build SiteConfig from tenant DB row ─── */
 function buildConfigFromTenant(tenant: any): SiteConfig {
-    // If tenant has a full config JSON, use it (merging DB-level fields as ultimate source of truth for media)
-    if (tenant.config) {
-        try {
-            const parsed = JSON.parse(tenant.config) as SiteConfig
-            // Always ensure slug matches
-            parsed.slug = tenant.slug
-            // Merge DB-level photo fields (these are the canonical source after save)
-            if (tenant.fotoPerfilUrl && parsed.perfil) {
-                parsed.perfil.imageUrl = tenant.fotoPerfilUrl
-            }
-            if (tenant.logoUrl) {
-                parsed.logoUrl = tenant.logoUrl
-            }
-            return parsed
-        } catch (e) {
-            console.error("Failed to parse tenant config JSON:", e)
-        }
-    }
-
-    // No config JSON — build from individual DB columns
-    return {
+    const defaultConfig: SiteConfig = {
         slug: tenant.slug,
         name: tenant.name || "Vereador",
         tagline: "Mandato Participativo",
@@ -342,6 +322,30 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
         beforeAfter: [],
         theme: "neutro" as ThemeId,
     }
+
+    // If tenant has a full config JSON, use it (merging DB-level fields as ultimate source of truth for media)
+    if (tenant.config) {
+        try {
+            const parsed = JSON.parse(tenant.config) as Partial<SiteConfig>
+            return {
+                ...defaultConfig,
+                ...parsed,
+                slug: tenant.slug, // Always ensure slug matches
+                colors: { ...defaultConfig.colors, ...parsed.colors },
+                contact: { ...defaultConfig.contact, ...parsed.contact },
+                perfil: { 
+                    ...defaultConfig.perfil, 
+                    ...parsed.perfil,
+                    imageUrl: tenant.fotoPerfilUrl || parsed.perfil?.imageUrl || "" // DB takes precedence if exists
+                },
+                logoUrl: tenant.logoUrl || parsed.logoUrl || "",
+            }
+        } catch (e) {
+            console.error("Failed to parse tenant config JSON:", e)
+        }
+    }
+
+    return defaultConfig
 }
 
 export default function EditarSitePage() {
