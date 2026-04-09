@@ -76,6 +76,8 @@ export function elementStyleToCSS(style: ElementStyle): React.CSSProperties {
     if (style.fontSize) css.fontSize = style.fontSize
     if (style.color) css.color = style.color
     if (style.fontWeight) css.fontWeight = style.fontWeight
+    if (style.fontFamily) css.fontFamily = style.fontFamily
+    if (style.fontStyle) css.fontStyle = style.fontStyle
     if (style.textAlign) css.textAlign = style.textAlign
     return css
 }

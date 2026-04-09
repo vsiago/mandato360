@@ -3,8 +3,10 @@ import { getLegislativo } from "@/lib/actions/legislativo";
 import { getAgendasPublicas } from "@/lib/actions/agenda";
 import LandingContent from "./landing-content";
 import { notFound } from "next/navigation";
+import { unstable_noStore as noStore } from "next/cache";
 
 export default async function LandingPage({ params }: { params: { tenant: string } }) {
+  noStore();
   const { tenant: slug } = await params;
 
   // Ignore system assets and reserved words

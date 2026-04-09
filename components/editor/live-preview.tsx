@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { resolveSectionBackground, buildGradientString } from "@/lib/editor/style-utils"
 import { getTheme, generateThemeCSS } from "@/src/themes"
+import { buildGoogleFontsUrl } from "@/lib/editor/fonts"
 
 export function LivePreview() {
     const { data, breakpoint, selectSection, selectElement, selectedSection } = useEditor()
@@ -27,20 +28,49 @@ export function LivePreview() {
     const themeCSSVars = generateThemeCSS(activeTheme, "light")
     const resolvedHeroImageUrl = data.heroImageUrl || "/avatar-vereador.png"
 
+    // Typography
+    const fontHeading = data.fontHeading || activeTheme.typography.heading
+    const fontBody = data.fontBody || activeTheme.typography.body
+
+    // Gather all unique fonts (global + overrides)
+    const fontsToLoad = new Set<string>()
+    if (fontHeading) fontsToLoad.add(fontHeading)
+    if (fontBody) fontsToLoad.add(fontBody)
+    
+    // Scan overrides for additional fonts
+    if (data.responsiveOverrides) {
+        Object.values(data.responsiveOverrides).forEach(bp => {
+            Object.values(bp).forEach(section => {
+                Object.values(section).forEach(element => {
+                    if (element.fontFamily) fontsToLoad.add(element.fontFamily)
+                })
+            })
+        })
+    }
+
+    const googleFontsUrl = buildGoogleFontsUrl(Array.from(fontsToLoad).filter(Boolean))
+
+    const fontHeadingCSS = fontHeading.includes("'") ? fontHeading : `'${fontHeading}', sans-serif`
+    const fontBodyCSS = fontBody.includes("'") ? fontBody : `'${fontBody}', sans-serif`
+
     return (
-        <div
-            className="min-h-full bg-(--theme-color-background) font-sans text-slate-900 overflow-y-auto tenant-theme-root @container"
-            data-theme={data.theme || "neutro"}
-            style={{
-                ...themeCSSVars,
-                ['--tenant-primary' as string]: primary || themeCSSVars['--theme-color-primary'],
-                ['--tenant-secondary' as string]: secondary || themeCSSVars['--theme-color-secondary'],
-                ['--tenant-hover' as string]: secondary,
-                ['--tenant-accent' as string]: secondary || '#eec584',
-                ['--tenant-hero-overlay' as string]: primary,
-                fontFamily: 'var(--theme-font-body)',
-            } as React.CSSProperties}
-        >
+        <>
+            {googleFontsUrl && <link rel="stylesheet" href={googleFontsUrl} />}
+            <div
+                className="min-h-full bg-(--theme-color-background) font-sans text-slate-900 overflow-y-auto tenant-theme-root @container"
+                data-theme={data.theme || "neutro"}
+                style={{
+                    ...themeCSSVars,
+                    ['--tenant-primary' as string]: primary || themeCSSVars['--theme-color-primary'],
+                    ['--tenant-secondary' as string]: secondary || themeCSSVars['--theme-color-secondary'],
+                    ['--tenant-hover' as string]: secondary,
+                    ['--tenant-accent' as string]: secondary || '#eec584',
+                    ['--tenant-hero-overlay' as string]: primary,
+                    ['--theme-font-heading' as string]: fontHeadingCSS,
+                    ['--theme-font-body' as string]: fontBodyCSS,
+                    fontFamily: 'var(--theme-font-body)',
+                } as React.CSSProperties}
+            >
             {/* ─── Hero ─── */}
             <EditableSection sectionId="hero" label="Topo (Hero)">
                 <div className="relative w-full">
@@ -204,7 +234,7 @@ export function LivePreview() {
                     <div className="mx-auto max-w-7xl px-6">
                         <div className="mb-12 text-center text-stone-900">
                             <h2 className="text-3xl @md:text-4xl font-bold tracking-tight mb-4" style={{ fontFamily: 'var(--theme-font-heading)' }}>
-                                Nossas <span className="text-[var(--tenant-primary)] italic">Ações</span>
+                                <EditableText fieldPath="projetosTitle" elementId="projetos-title" sectionId="projetos" as="span" />
                             </h2>
                             <p className="text-base text-slate-600">Projetos de lei e iniciativas para a nossa cidade.</p>
                         </div>
@@ -245,7 +275,7 @@ export function LivePreview() {
                             </div>
                             <div className="space-y-6">
                                 <h2 className="text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 font-heading" style={{ fontFamily: 'var(--theme-font-heading)' }}>
-                                    Trabalho e <span className="text-[var(--tenant-primary)] italic">Transparência</span>.
+                                    <EditableText fieldPath="perfilTitle" elementId="perfil-title" sectionId="perfil" as="span" />
                                 </h2>
                                 <p className="text-lg text-slate-600 leading-relaxed font-light italic">{data.perfil?.bio}</p>
                                 <div className="pt-6 border-t border-slate-100">
@@ -263,7 +293,7 @@ export function LivePreview() {
                 <section className="py-16 bg-(--theme-color-surface) border-t border-slate-100">
                     <div className="mx-auto max-w-7xl px-6">
                         <h2 className="text-3xl font-bold text-center text-slate-900 mb-8" style={{ fontFamily: 'var(--theme-font-heading)' }}>
-                            Transformando a <span className="text-[var(--tenant-primary)] italic">Cidade</span>
+                            <EditableText fieldPath="resultsTitle" elementId="results-title" sectionId="beforeAfter" as="span" />
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {(data.beforeAfter || []).slice(0, 3).map((item, idx) => (
@@ -297,5 +327,6 @@ export function LivePreview() {
                 </footer>
             </EditableSection>
         </div>
+        </>
     )
 }

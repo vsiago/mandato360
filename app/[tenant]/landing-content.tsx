@@ -16,7 +16,8 @@ import { toast } from "sonner"
 import { cn } from '@/lib/utils'
 import { getTheme, generateThemeCSS } from "@/src/themes"
 import { SiteConfig } from "@/lib/editor/types"
-import { buildGradientString } from "@/lib/editor/style-utils"
+import { buildGradientString, resolveElementStyle, elementStyleToCSS } from "@/lib/editor/style-utils"
+import { buildGoogleFontsUrl } from "@/lib/editor/fonts"
 
 export default function LandingContent({ tenant, initialData }: { tenant: any, initialData: any }) {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -48,6 +49,12 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   const displayTagline = config?.tagline || "Mandato Participativo"
   const logoUrl = config?.logoUrl || tenant?.logoUrl || ""
 
+  const projetosTitle = config?.projetosTitle || "Ações e Projetos"
+  const perfilTitle = config?.perfilTitle || "O Vereador"
+  const resultsTitle = config?.resultsTitle || "Transformando a Cidade"
+  const faqTitle = config?.faqTitle || "Perguntas Frequentes"
+  const contactTitle = config?.contactTitle || "Entre em Contato"
+
   // Hero image settings
   const heroSettings = config?.heroImageSettings
   const heroLayout = heroSettings?.layout || 'left'
@@ -57,8 +64,40 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   const hasHeroGradient = heroSectionStyle?.background === 'gradient' && heroSectionStyle?.gradient
   const heroOverlay = heroSettings?.overlayEnabled && heroSettings?.overlay
 
+  // Style Resolution Helper
+  const getStyle = (sectionId: string, elementId: string) => {
+    if (!config) return {}
+    const resolved = resolveElementStyle(config, sectionId, elementId, 'desktop')
+    return elementStyleToCSS(resolved)
+  }
+
   const activeTheme = getTheme((config?.theme as any) || "neutro")
   const themeCSSVars = generateThemeCSS(activeTheme, "light")
+
+  // Typography
+  const fontHeading = config?.fontHeading || activeTheme.typography.heading
+  const fontBody = config?.fontBody || activeTheme.typography.body
+
+  // Gather all unique fonts (global + overrides)
+  const fontsToLoad = new Set<string>()
+  if (fontHeading) fontsToLoad.add(fontHeading)
+  if (fontBody) fontsToLoad.add(fontBody)
+  
+  // Scan overrides for additional fonts
+  if (config?.responsiveOverrides) {
+    Object.values(config.responsiveOverrides).forEach(bp => {
+      Object.values(bp).forEach(section => {
+        Object.values(section).forEach(element => {
+          if (element.fontFamily) fontsToLoad.add(element.fontFamily)
+        })
+      })
+    })
+  }
+
+  const googleFontsUrl = buildGoogleFontsUrl(Array.from(fontsToLoad).filter(Boolean))
+
+  const fontHeadingCSS = fontHeading.includes("'") ? fontHeading : `'${fontHeading}', sans-serif`
+  const fontBodyCSS = fontBody.includes("'") ? fontBody : `'${fontBody}', sans-serif`
 
   // Data from initialData (DB)
   const { projetosLei = [], indicacoes = [], agenda = [] } = initialData || {}
@@ -110,8 +149,12 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
             "--secondary": secondaryColor,
             "--tenant-primary": primaryColor,
             "--tenant-secondary": secondaryColor,
+            "--theme-font-heading": fontHeadingCSS,
+            "--theme-font-body": fontBodyCSS,
+            fontFamily: "var(--theme-font-body)",
         }}
     >
+      {googleFontsUrl && <link rel="stylesheet" href={googleFontsUrl} />}
       {/* HEADER */}
       <header className={`fixed top-0 inset-x-0 z-50 h-16 transition-all duration-300 border-b ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-gray-100' : 'bg-transparent border-transparent'}`}>
         <div className="mx-auto max-w-7xl px-6 h-full flex items-center justify-between">
@@ -189,10 +232,10 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
               <HeartHandshake className="h-3.5 w-3.5 text-white" />
               <span className="text-[10px] font-black text-white uppercase tracking-widest">{heroBadge}</span>
             </div>
-            <h1 className="text-5xl md:text-8xl font-black text-white leading-tight tracking-tighter" style={{ fontFamily: 'var(--theme-font-heading)' }}>
-                {heroHeadline} <span style={{ color: secondaryColor }}>{heroHighlight}</span>
+            <h1 className="text-5xl md:text-8xl font-black text-white leading-tight tracking-tighter" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('hero', 'hero-headline') }}>
+                {heroHeadline} <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>
             </h1>
-            <p className={cn("text-xl text-white/80 font-medium", heroLayout === 'center' ? "max-w-2xl" : "max-w-xl")}>{heroDescription}</p>
+            <p className={cn("text-xl text-white/80 font-medium", heroLayout === 'center' ? "max-w-2xl" : "max-w-xl")} style={getStyle('hero', 'hero-description')}>{heroDescription}</p>
             <div className="flex flex-col sm:flex-row gap-4 mt-2">
               <Button className="bg-[var(--tenant-secondary)] text-white font-black text-xl px-12 py-8 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">Solicitar Demanda</Button>
               <Button variant="outline" className="border-2 border-white/20 text-white bg-white/5 font-bold text-lg px-8 py-8 rounded-2xl" onClick={() => scrollTo('projetos')}>Ver Projetos</Button>
@@ -220,7 +263,9 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
       {/* PROJETOS */}
       <section id="projetos" className="py-24 bg-white relative">
         <div className="mx-auto max-w-7xl px-8">
-           <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16">Ações e Projetos</h2>
+           <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('projetos', 'projetos-title') }}>
+               {projetosTitle}
+           </h2>
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayProjetos.map((proj: any, i: number) => (
                 <div key={i} className="group rounded-[2rem] bg-gray-50 hover:bg-white hover:shadow-2xl transition-all border border-transparent hover:border-gray-200 overflow-hidden">
@@ -375,7 +420,9 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
                 )}
               </div>
               <div className="space-y-8">
-                 <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">O Vereador</h2>
+                 <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('perfil', 'perfil-title') }}>
+                     {perfilTitle}
+                 </h2>
                  <p className="text-xl text-gray-600 leading-relaxed italic">"{displayBio}"</p>
                  <div className="pt-8 border-t border-gray-200">
                     <h3 className="text-3xl font-black uppercase" style={{ color: primaryColor }}>{displayName}</h3>
@@ -390,8 +437,8 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
       {displayBeforeAfter.length > 0 && (
         <section className="py-24 bg-white border-t border-gray-100">
           <div className="mx-auto max-w-7xl px-8">
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16 text-center">
-              Transformando a <span style={{ color: primaryColor }} className="italic">Cidade</span>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16 text-center" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('beforeAfter', 'results-title') }}>
+              {resultsTitle}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {displayBeforeAfter.map((item: any, idx: number) => (
@@ -426,8 +473,8 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
       {displayFAQ.length > 0 && (
         <section className="py-24 bg-gray-50">
           <div className="mx-auto max-w-3xl px-8">
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16 text-center">
-              Perguntas <span style={{ color: primaryColor }} className="italic">Frequentes</span>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16 text-center" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('faq', 'faq-title') }}>
+              {faqTitle}
             </h2>
             <div className="space-y-4">
               {displayFAQ.map((item: any, idx: number) => (
@@ -450,8 +497,8 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
       {(displayContact as any)?.phone || (displayContact as any)?.whatsapp || (displayContact as any)?.email ? (
         <section id="contato" className="py-24 bg-white border-t border-gray-100">
           <div className="mx-auto max-w-4xl px-8">
-            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16 text-center">
-              Entre em <span style={{ color: primaryColor }} className="italic">Contato</span>
+            <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-16 text-center" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('contact', 'contact-title') }}>
+              {contactTitle}
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {(displayContact as any)?.phone && (

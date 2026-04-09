@@ -29,14 +29,6 @@ export function EditableSection({ sectionId, label, children, className }: Edita
                 selectElement(null)
             }}
         >
-            {/* Label flag */}
-            <div className={cn(
-                "absolute -top-3 left-6 px-3 py-1 bg-blue-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-md shadow-lg z-20 pointer-events-none transition-all duration-300",
-                isSelected || "opacity-0 group-hover/section:opacity-100"
-            )}>
-                {label}
-            </div>
-
             {children}
             
             {/* Section overlay hover */}

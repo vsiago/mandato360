@@ -148,6 +148,15 @@ export interface SiteConfig {
     // Visual Editor — per-breakpoint overrides (sectionId → elementId → style)
     responsiveOverrides?: Record<Breakpoint, Record<string, Record<string, ElementStyle>>>
 
+    // Section Titles
+    projetosTitle?: string
+    perfilTitle?: string
+    resultsTitle?: string
+    faqTitle?: string
+    contactTitle?: string
+
     // Theme (Design System)
     theme?: ThemeId
+    fontHeading?: string
+    fontBody?: string
 }

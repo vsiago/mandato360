@@ -19,6 +19,7 @@ import {
     ArrowLeftRight, HeartHandshake, ExternalLink
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { CURATED_FONTS } from "@/lib/editor/fonts"
 
 /* ─── Shared Section Config ─── */
 const SECTIONS: { id: EditorSectionId | 'design-system'; label: string; icon: any }[] = [
@@ -221,15 +222,57 @@ function EditorInner() {
                                     </div>
                                     <p className="text-[10px] text-stone-400 font-medium">Escolha o tema do Mandato</p>
                                 </div>
-                                <div className="p-6 overflow-y-auto">
-                                    <ThemeSelector
-                                        value={(data.theme as ThemeId) || "neutro"}
-                                        onChange={(themeId) => updateField("theme", themeId)}
-                                        variant="grid"
-                                    />
-                                    <div className="mt-8 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
-                                        <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium leading-relaxed">
-                                            💡 O tema altera tipografia, cores e animações de todo o site automaticamente.
+                                 <div className="p-6 overflow-y-auto space-y-8 no-scrollbar">
+                                    <div className="space-y-4">
+                                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
+                                            <Sparkles className="h-3.5 w-3.5 text-emerald-500" /> Temas Predefinidos
+                                        </p>
+                                        <ThemeSelector
+                                            value={(data.theme as ThemeId) || "neutro"}
+                                            onChange={(themeId) => updateField("theme", themeId)}
+                                            variant="grid"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-4 pt-6 border-t border-stone-100 dark:border-stone-800">
+                                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
+                                            <Type className="h-3.5 w-3.5 text-emerald-500" /> Tipografia Global
+                                        </p>
+                                        
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label className="text-[9px] font-black text-stone-500 uppercase">Fonte de Títulos</label>
+                                                <select
+                                                    value={data.fontHeading || ""}
+                                                    onChange={(e) => updateField("fontHeading", e.target.value)}
+                                                    className="w-full h-10 bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-800 rounded-xl px-3 text-xs font-bold transition-all focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                                >
+                                                    <option value="">Padrão do Tema</option>
+                                                    {CURATED_FONTS.map(f => (
+                                                        <option key={f.family} value={f.family}>{f.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <label className="text-[9px] font-black text-stone-500 uppercase">Fonte de Corpo</label>
+                                                <select
+                                                    value={data.fontBody || ""}
+                                                    onChange={(e) => updateField("fontBody", e.target.value)}
+                                                    className="w-full h-10 bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-800 rounded-xl px-3 text-xs font-bold transition-all focus:ring-2 focus:ring-emerald-500/20 outline-none"
+                                                >
+                                                    <option value="">Padrão do Tema</option>
+                                                    {CURATED_FONTS.map(f => (
+                                                        <option key={f.family} value={f.family}>{f.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
+                                        <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium leading-relaxed italic">
+                                            💡 Ao selecionar uma fonte global, ela será aplicada a todos os elementos do site, garantindo harmonia visual.
                                         </p>
                                     </div>
                                 </div>
@@ -321,6 +364,13 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
         faq: [],
         beforeAfter: [],
         theme: "neutro" as ThemeId,
+        fontHeading: "",
+        fontBody: "",
+        projetosTitle: "Ações e Projetos",
+        perfilTitle: "O Vereador",
+        resultsTitle: "Transformando a Cidade",
+        faqTitle: "Perguntas Frequentes",
+        contactTitle: "Entre em Contato",
     }
 
     // If tenant has a full config JSON, use it (merging DB-level fields as ultimate source of truth for media)

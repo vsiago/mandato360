@@ -4,11 +4,14 @@ import { useEditor } from "@/lib/editor/context"
 import { cn } from "@/lib/utils"
 import { 
     Bold, Italic, AlignLeft, AlignCenter, AlignRight, 
-    Type, Trash2, ChevronLeft, ChevronRight, X
+    Type, Trash2, ChevronLeft, ChevronRight, X, Palette
 } from "lucide-react"
+import { CURATED_FONTS } from "@/lib/editor/fonts"
+import { useState } from "react"
 
 export function FloatingToolbar() {
     const { selectedElement, selectedSection, updateResponsiveStyle, breakpoint, getResolvedStyle, selectElement } = useEditor()
+    const [showFonts, setShowFonts] = useState(false)
 
     if (!selectedElement) return null
 
@@ -21,7 +24,38 @@ export function FloatingToolbar() {
 
     return (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] animate-in slide-in-from-bottom-4 duration-300">
+            {/* Font selector sub-menu */}
+            {showFonts && (
+                <div className="absolute bottom-full mb-3 left-0 w-48 bg-stone-900 border border-white/10 rounded-2xl p-2 shadow-2xl max-h-64 overflow-y-auto no-scrollbar">
+                    <p className="px-3 py-1 text-[9px] font-black uppercase text-white/40 mb-1">Escolha a Fonte</p>
+                    <div className="grid grid-cols-1 gap-1">
+                        {CURATED_FONTS.map(f => (
+                            <button
+                                key={f.family}
+                                onClick={() => { updateStyle({ fontFamily: f.family }); setShowFonts(false) }}
+                                className={cn(
+                                    "px-3 py-2 text-left rounded-xl text-xs transition-colors hover:bg-white/10 text-white",
+                                    style.fontFamily === f.family && "bg-white/10 text-emerald-400"
+                                )}
+                                style={{ fontFamily: f.family }}
+                            >
+                                {f.name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="flex items-center gap-1 p-1.5 bg-stone-900 text-white rounded-2xl shadow-2xl border border-white/10 backdrop-blur-xl">
+                {/* Font Selector Trigger */}
+                <button 
+                    onClick={() => setShowFonts(!showFonts)}
+                    className={cn("p-2 rounded-lg transition-colors hover:bg-white/10 flex items-center gap-2 px-3 border-r border-white/10 mr-1", showFonts && "bg-white/10 text-emerald-400")}
+                >
+                    <Type className="h-4 w-4" />
+                    <span className="text-[10px] font-bold truncate max-w-[60px]">{style.fontFamily || "Padrão"}</span>
+                </button>
+
                 {/* Text tools */}
                 <div className="flex items-center gap-0.5 px-2 border-r border-white/10 mr-1">
                     <button 
@@ -31,8 +65,8 @@ export function FloatingToolbar() {
                         <Bold className="h-4 w-4" />
                     </button>
                     <button 
-                         onClick={() => updateStyle({ fontWeight: style.fontWeight === 'italic' ? 'normal' : 'italic' })} // Reuse fontWeight for simplicity or add fontStyle to ElementStyle
-                        className={cn("p-2 rounded-lg transition-colors hover:bg-white/10", style.fontWeight === 'italic' && "text-emerald-400 bg-white/10")}
+                         onClick={() => updateStyle({ fontStyle: style.fontStyle === 'italic' ? 'normal' : 'italic' })}
+                        className={cn("p-2 rounded-lg transition-colors hover:bg-white/10", (style.fontStyle === 'italic' || style.fontWeight === 'italic') && "text-emerald-400 bg-white/10")}
                     >
                         <Italic className="h-4 w-4" />
                     </button>

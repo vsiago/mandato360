@@ -116,7 +116,22 @@ export function GenericGradientEditor({ value, onChange, previewCssBuilder, hide
                 </div>
 
                 {stops.map((stop, i) => (
-                    <div key={i} className="bg-muted/40 rounded-xl p-3 space-y-2">
+                    <div key={i} className="relative bg-muted/40 rounded-xl p-3 space-y-2">
+                        {/* Absolute positioned delete button */}
+                        <button
+                            onClick={() => removeStop(i)}
+                            disabled={stops.length <= 2}
+                            className={cn(
+                                "absolute -top-1.5 -right-1.5 h-6 w-6 rounded-full flex items-center justify-center transition-all shadow-sm border",
+                                stops.length <= 2 
+                                    ? "bg-stone-100 text-stone-300 cursor-not-allowed opacity-0 scale-0" 
+                                    : "bg-white text-stone-400 hover:text-red-500 hover:bg-red-50 border-stone-100 hover:border-red-100 scale-100"
+                            )}
+                            title={stops.length <= 2 ? "Mínimo de 2 cores" : "Excluir cor"}
+                        >
+                            <Trash2 className="h-3 w-3" />
+                        </button>
+
                         <div className="flex items-center gap-2">
                             {/* Color + swatch */}
                             <div className="relative">
@@ -134,14 +149,6 @@ export function GenericGradientEditor({ value, onChange, previewCssBuilder, hide
                                 onChange={e => updateStop(i, { color: e.target.value })}
                                 className="flex-1 h-7 bg-white dark:bg-stone-800 border border-stone-100 rounded-lg px-2 text-xs font-mono"
                             />
-                            {stops.length > 2 && (
-                                <button
-                                    onClick={() => removeStop(i)}
-                                    className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
-                                >
-                                    <Trash2 className="h-3 w-3" />
-                                </button>
-                            )}
                         </div>
 
                         {/* Position slider */}

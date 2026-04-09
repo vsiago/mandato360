@@ -5,6 +5,7 @@ import { tenant, tenantMember, user, eleitor, demanda, lideranca, legislativo, p
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 export async function getTenantBySlug(slug: string) {
   try {
@@ -216,6 +217,10 @@ export async function updateTenantSiteAction(slug: string, configData: any) {
     if (!updated) {
       return { success: false, error: "Mandato não encontrado." };
     }
+
+    // Clear cache for both the landing page and the editor
+    revalidatePath(`/${slug}`);
+    revalidatePath(`/${slug}/dashboard/editar-site`);
 
     return { success: true, data: updated };
   } catch (error: any) {
