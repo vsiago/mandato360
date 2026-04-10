@@ -87,198 +87,262 @@ export function PropertiesPanel() {
                     <>
                         {/* === HERO: Dedicated simple panel === */}
                         {selectedSection === 'hero' ? (
-                            <div className="space-y-6">
+                             <div className="space-y-10 hero-master-editor">
 
-                                {/* ── 1. STYLE PRESETS (main interaction) ── */}
-                                <div className="space-y-3">
-                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Palette className="h-3.5 w-3.5 text-emerald-500" /> Estilo da Hero
-                                    </p>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {([
-                                            {
-                                                name: "Escuro",
-                                                sectionGradient: { angle: 90, stops: [{ color: data.colors?.primary || "#0F2B5B", position: 0, opacity: 100 }, { color: "#000000", position: 100, opacity: 80 }] },
-                                                overlay: { angle: 90, stops: [{ color: data.colors?.primary || "#0F2B5B", position: 0, opacity: 100 }, { color: data.colors?.primary || "#0F2B5B", position: 50, opacity: 100 }, { color: data.colors?.primary || "#0F2B5B", position: 100, opacity: 0 }] },
-                                                preview: `linear-gradient(90deg, ${data.colors?.primary || "#0F2B5B"} 0%, #000000 100%)`
-                                            },
-                                            {
-                                                name: "Esmeralda",
-                                                sectionGradient: { angle: 90, stops: [{ color: data.colors?.secondary || "#0D9F6E", position: 0, opacity: 100 }, { color: "#064E3B", position: 100, opacity: 80 }] },
-                                                overlay: { angle: 90, stops: [{ color: data.colors?.secondary || "#0D9F6E", position: 0, opacity: 100 }, { color: data.colors?.secondary || "#0D9F6E", position: 50, opacity: 100 }, { color: data.colors?.secondary || "#0D9F6E", position: 100, opacity: 0 }] },
-                                                preview: `linear-gradient(90deg, ${data.colors?.secondary || "#0D9F6E"} 0%, #064E3B 100%)`
-                                            },
-                                        ] as { name: string; sectionGradient: Gradient | null; overlay: Gradient | null; preview: string }[]).map((preset, i) => (
-                                            <button
-                                                key={i}
-                                                onClick={() => {
-                                                    if (preset.sectionGradient) {
-                                                        updateSectionStyle('hero', { background: 'gradient', gradient: { ...preset.sectionGradient } })
-                                                    } else {
-                                                        updateSectionStyle('hero', { background: 'solid', bgColor: preset.preview === 'white' ? '#FFFFFF' : data.colors.primary })
-                                                    }
-                                                    const s = { positionX: 50, positionY: 20, zoom: 1, ...data.heroImageSettings } as HeroImageSettings
-                                                    updateField('heroImageSettings', preset.overlay
-                                                        ? { ...s, overlayEnabled: true, overlay: { ...preset.overlay } }
-                                                        : { ...s, overlayEnabled: false }
-                                                    )
-                                                }}
-                                                className="group text-left rounded-xl border border-stone-100 dark:border-stone-800 overflow-hidden hover:ring-2 hover:ring-emerald-500/30 transition-all shadow-sm"
-                                            >
-                                                <div className="h-8 w-full" style={{ background: preset.preview }} />
-                                                <p className="px-1.5 py-1.5 text-[8px] font-bold text-stone-500 group-hover:text-emerald-600 transition-colors text-center uppercase tracking-tighter">{preset.name}</p>
-                                            </button>
-                                        ))}
+                                {/* 🎨 CORES E TRANSIÇÃO (Tons 1, 2, 3) */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <Palette className="h-4 w-4 text-emerald-500" />
+                                        <p className="text-[10px] font-black text-stone-900 dark:text-stone-100 uppercase tracking-widest">Controle de Tons e Vinheta</p>
                                     </div>
-                                </div>
 
+                                    <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-stone-800">
+                                        {[1, 2, 3].map((num) => {
+                                            const sectionStyle = getSectionStyle('hero')
+                                            const settings = data.heroImageSettings
+                                            let currentColor = num === 1 ? (sectionStyle?.gradient?.stops[0]?.color ?? data.colors.primary) : (num === 2 ? (sectionStyle?.gradient?.stops[1]?.color ?? data.colors.primary) : (settings?.overlay?.stops[2]?.color ?? data.colors.primary))
+                                            let opacityValue = num === 3 ? (settings?.overlay?.stops[2]?.opacity ?? 0) : 100
 
-                                {/* ── 2. ORIENTAÇÃO DO LAYOUT ── */}
-                                <div className="space-y-3 pt-6 border-t border-stone-100 dark:border-stone-800">
-                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Layout className="h-3.5 w-3.5 text-emerald-500" /> Orientação
-                                    </p>
-                                    <div className="flex gap-2">
-                                        {[
-                                            { id: 'left', label: 'À Esquerda' },
-                                            { id: 'center', label: 'Centralizado' }
-                                        ].map((opt) => (
-                                            <button
-                                                key={opt.id}
-                                                onClick={() => {
-                                                    const s = { positionX: 50, positionY: 20, zoom: 1, ...data.heroImageSettings } as HeroImageSettings
-                                                    const isCenter = opt.id === 'center'
-                                                    
-                                                    // 1. Update Layout
-                                                    const newSettings: HeroImageSettings = { 
-                                                        ...s, 
-                                                        layout: opt.id as any,
-                                                        // 2. Adjust Overlay for orientation
-                                                        overlay: s.overlay ? {
-                                                            ...s.overlay,
-                                                            angle: isCenter ? 0 : 90,
-                                                            stops: isCenter 
-                                                                ? [
-                                                                    { color: s.overlay.stops[0].color, position: 0, opacity: 100 },
-                                                                    { color: s.overlay.stops[0].color, position: 100, opacity: 0 }
-                                                                  ]
-                                                                : [
-                                                                    { color: s.overlay.stops[0].color, position: 0, opacity: 100 },
-                                                                    { color: s.overlay.stops[0].color, position: 50, opacity: 100 },
-                                                                    { color: s.overlay.stops[0].color, position: 100, opacity: 0 }
-                                                                  ]
-                                                        } : undefined
-                                                    }
-                                                    updateField('heroImageSettings', newSettings)
+                                            const updateTone = (val: string) => {
+                                                const sStyle = getSectionStyle('hero')
+                                                const hSettings = data.heroImageSettings
+                                                const isCenter = hSettings?.layout === 'center'
+                                                const angle = isCenter ? 0 : 90
+                                                const currentPos = sStyle?.gradient?.stops[1]?.position ?? 50
 
-                                                    // 3. Adjust Background Gradient for orientation
-                                                    const sectionStyle = getSectionStyle('hero')
-                                                    if (sectionStyle?.background === 'gradient' && sectionStyle.gradient) {
-                                                        updateSectionStyle('hero', {
-                                                            gradient: {
-                                                                ...sectionStyle.gradient,
-                                                                angle: isCenter ? 0 : 90
-                                                            }
-                                                        })
-                                                    }
-                                                }}
-                                                className={cn(
-                                                    "flex-1 py-2.5 rounded-xl text-[10px] font-bold border transition-all uppercase tracking-tighter shadow-sm",
-                                                    (data.heroImageSettings?.layout || 'left') === opt.id
-                                                        ? "border-emerald-500 bg-emerald-500/5 text-emerald-700 font-bold"
-                                                        : "border-stone-100 dark:border-stone-800 text-stone-500 hover:bg-stone-50 dark:hover:bg-stone-900"
-                                                )}
-                                            >
-                                                {opt.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* ── 3. CATEGORIZED ACCORDIONS ── */}
-                                <div className="space-y-2 pt-6 border-t border-stone-100 dark:border-stone-800">
-
-                                    {/* ═══ 🎨 DEGRADÊ ═══ */}
-                                    {sectionStyle?.background === 'gradient' && sectionStyle.gradient && (
-                                        <details open className="group rounded-xl border border-stone-100 dark:border-stone-800 overflow-hidden shadow-sm">
-                                            <summary className="flex items-center gap-2 px-4 py-3 bg-stone-50 dark:bg-stone-900/50 cursor-pointer select-none list-none hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors">
-                                                <Palette className="h-3.5 w-3.5 text-emerald-500" />
-                                                <span className="text-[10px] font-black text-stone-600 dark:text-stone-300 uppercase tracking-widest flex-1">Ajuste de Cor</span>
-                                                <ChevronRight className="h-3 w-3 text-stone-400 group-open:rotate-90 transition-transform" />
-                                            </summary>
-                                            <div className="px-4 py-4 space-y-4 bg-white dark:bg-stone-950/50">
-                                                <div className="space-y-1">
-                                                     <div className="flex items-center justify-between mb-1">
-                                                         <span className="text-[10px] text-stone-400 font-black uppercase tracking-tighter">Intensidade</span>
-                                                         <span className="text-[10px] font-mono font-bold text-emerald-500">Auto</span>
-                                                     </div>
-                                                     <GenericGradientEditor 
-                                                        value={sectionStyle.gradient} 
-                                                        onChange={(g) => updateSectionStyle('hero', { gradient: g })}
-                                                        hideAngle={false}
-                                                     />
-                                                </div>
-                                            </div>
-                                        </details>
-                                    )}
-
-                                    {/* ═══ 📷 IMAGEM ═══ */}
-                                    <details open className="group rounded-xl border border-stone-100 dark:border-stone-800 overflow-hidden shadow-sm">
-                                        <summary className="flex items-center gap-2 px-4 py-3 bg-stone-50 dark:bg-stone-900/50 cursor-pointer select-none list-none hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors">
-                                            <ImageIcon className="h-3.5 w-3.5 text-emerald-500" />
-                                            <span className="text-[10px] font-black text-stone-600 dark:text-stone-300 uppercase tracking-widest flex-1">Imagem de Fundo</span>
-                                            <span className="text-[8px] uppercase font-black bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-full">{breakpoint}</span>
-                                            <ChevronRight className="h-3 w-3 text-stone-400 group-open:rotate-90 transition-transform" />
-                                        </summary>
-                                        <div className="px-4 py-4 space-y-6 bg-white dark:bg-stone-950/50">
-                                            <div className="space-y-4">
-                                                <div className="space-y-2">
-                                                    <ImageUpload
-                                                        value={data.heroImageUrl}
-                                                        onChange={(url) => updateField('heroImageUrl', url)}
-                                                        className="aspect-video"
-                                                    />
-                                                </div>
-                                            {data.heroImageUrl && (() => {
-                                                const settings = data.heroImageSettings || { positionX: 50, positionY: 20, zoom: 1 }
-                                                const getValue = (field: 'positionX' | 'positionY' | 'zoom') => {
-                                                    if (breakpoint === 'mobile' && settings.mobile?.[field] !== undefined) return settings.mobile[field]!
-                                                    if (breakpoint === 'tablet' && settings.tablet?.[field] !== undefined) return settings.tablet[field]!
-                                                    return settings[field] || (field === 'zoom' ? 1 : field === 'positionX' ? 50 : 20)
+                                                if (num === 1) {
+                                                    updateSectionStyle('hero', {
+                                                        background: 'gradient',
+                                                        gradient: {
+                                                            angle,
+                                                            stops: [
+                                                                { color: val, position: 0, opacity: 100 },
+                                                                { color: sStyle?.gradient?.stops[1]?.color ?? data.colors.primary, position: currentPos, opacity: 100 }
+                                                            ]
+                                                        }
+                                                    })
+                                                } else if (num === 2) {
+                                                    updateSectionStyle('hero', {
+                                                        background: 'gradient',
+                                                        gradient: { angle, stops: [
+                                                            { color: sStyle?.gradient?.stops[0]?.color ?? data.colors.primary, position: 0, opacity: 100 },
+                                                            { color: val, position: currentPos, opacity: 100 }
+                                                        ]}
+                                                    })
+                                                    updateField('heroImageSettings', {
+                                                        ...hSettings,
+                                                        overlay: {
+                                                            angle,
+                                                            stops: [
+                                                                { color: val, position: 0, opacity: 100 },
+                                                                { color: val, position: currentPos, opacity: 100 },
+                                                                { color: hSettings?.overlay?.stops[2]?.color ?? val, position: 100, opacity: hSettings?.overlay?.stops[2]?.opacity ?? 0 }
+                                                            ]
+                                                        }
+                                                    })
+                                                } else if (num === 3) {
+                                                    updateField('heroImageSettings', {
+                                                        ...hSettings,
+                                                        overlay: {
+                                                            angle,
+                                                            stops: [
+                                                                { ...hSettings?.overlay?.stops[0] ?? { color: data.colors.primary, position: 0, opacity: 100 } },
+                                                                { ...hSettings?.overlay?.stops[1] ?? { color: data.colors.primary, position: 50, opacity: 100 } },
+                                                                { color: val, position: 100, opacity: hSettings?.overlay?.stops[2]?.opacity ?? 0 }
+                                                            ]
+                                                        }
+                                                    })
                                                 }
-                                                const setValue = (field: 'positionX' | 'positionY' | 'zoom', val: number) => {
-                                                    const newSettings = { ...settings }
-                                                    if (breakpoint === 'desktop') {
-                                                        (newSettings as any)[field] = val
-                                                    } else {
-                                                        const bpKey = breakpoint as 'mobile' | 'tablet'
-                                                        if (!newSettings[bpKey]) newSettings[bpKey] = {}
-                                                        (newSettings[bpKey] as any)![field] = val
-                                                    }
-                                                    updateField('heroImageSettings', newSettings)
-                                                }
-                                                return (
-                                                    <div className="space-y-4 pt-2">
-                                                        {(['positionX', 'positionY', 'zoom'] as const).map(field => (
-                                                            <div key={field} className="space-y-1.5">
-                                                                <div className="flex justify-between items-center text-[9px] font-black text-stone-400 uppercase tracking-widest">
-                                                                    <span>{field === 'positionX' ? 'Alinhamento Horizontal' : field === 'positionY' ? 'Alinhamento Vertical' : 'Aproximação (Zoom)'}</span>
-                                                                    <span className="text-emerald-500 font-mono">{field === 'zoom' ? `${getValue(field).toFixed(1)}x` : `${getValue(field)}%`}</span>
-                                                                </div>
-                                                                <input type="range"
-                                                                    min={field === 'zoom' ? 1 : 0} max={field === 'zoom' ? 3 : 100} step={field === 'zoom' ? 0.1 : 1}
-                                                                    value={getValue(field)} onChange={e => setValue(field, Number(e.target.value))}
-                                                                    className="w-full h-1 appearance-none bg-stone-100 dark:bg-stone-800 rounded-full accent-emerald-500 cursor-pointer"
-                                                                />
-                                                            </div>
-                                                        ))}
+                                            }
+
+                                            return (
+                                                <div key={num} className="space-y-2">
+                                                    <div className="flex justify-between items-center px-1">
+                                                        <span className="text-[8px] font-black text-stone-400 uppercase tracking-tighter">Tom {num}</span>
+                                                        {num === 3 && <span className="text-[8px] font-mono font-bold text-emerald-500">{opacityValue}%</span>}
                                                     </div>
-                                                )
-                                            })()}
+                                                    <div className="relative group">
+                                                        <div 
+                                                            className="h-10 w-full rounded-xl border border-stone-200 shadow-sm cursor-pointer group-hover:ring-2 group-hover:ring-emerald-500/30 transition-all" 
+                                                            style={{ backgroundColor: currentColor }} 
+                                                        />
+                                                        <input 
+                                                            type="color" 
+                                                            value={currentColor} 
+                                                            onChange={(e) => updateTone(e.target.value)}
+                                                            className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" 
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+
+                                    {/* TRANSIÇÃO / VINHETA SLIDER */}
+                                    <div className="px-1 space-y-3">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-1.5">
+                                                <Sparkles className="h-3 w-3 text-emerald-500" />
+                                                <span className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Ponto de Transição (Vinheta)</span>
                                             </div>
+                                            <span className="text-[10px] font-mono font-bold text-emerald-500">{getSectionStyle('hero')?.gradient?.stops[1]?.position ?? 50}%</span>
                                         </div>
-                                    </details>
+                                        <input 
+                                            type="range" 
+                                            min={0} max={100}
+                                            value={getSectionStyle('hero')?.gradient?.stops[1]?.position ?? 50}
+                                            onChange={(e) => {
+                                                const val = Number(e.target.value)
+                                                const sStyle = getSectionStyle('hero')
+                                                const hSettings = data.heroImageSettings
+                                                const isCenter = hSettings?.layout === 'center'
+                                                const angle = isCenter ? 0 : 90
+                                                
+                                                updateSectionStyle('hero', {
+                                                    background: 'gradient',
+                                                    gradient: {
+                                                        angle,
+                                                        stops: [
+                                                            { ...sStyle?.gradient?.stops[0] ?? { color: data.colors.primary, position: 0, opacity: 100 } },
+                                                            { color: sStyle?.gradient?.stops[1]?.color ?? data.colors.primary, position: val, opacity: 100 }
+                                                        ]
+                                                    }
+                                                })
+                                                updateField('heroImageSettings', {
+                                                    ...hSettings,
+                                                    overlay: {
+                                                        angle,
+                                                        stops: [
+                                                            { color: hSettings?.overlay?.stops[0]?.color ?? data.colors.primary, position: 0, opacity: 100 },
+                                                            { color: hSettings?.overlay?.stops[1]?.color ?? data.colors.primary, position: val, opacity: 100 },
+                                                            { color: hSettings?.overlay?.stops[2]?.color ?? data.colors.primary, position: 100, opacity: hSettings?.overlay?.stops[2]?.opacity ?? 0 }
+                                                        ]
+                                                    }
+                                                })
+                                            }}
+                                            className="w-full h-1.5 appearance-none bg-stone-100 dark:bg-stone-800 rounded-full accent-emerald-500 cursor-pointer"
+                                        />
+                                    </div>
                                 </div>
+
+
+                                {/* 📷 FOTO ADAPTATIVA (Zoom, X, Y, Layout) */}
+                                <div className="space-y-4 pt-4 border-t border-stone-100 dark:border-stone-800">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <ImageIcon className="h-4 w-4 text-emerald-500" />
+                                            <p className="text-[10px] font-black text-stone-900 dark:text-stone-100 uppercase tracking-widest">Foto Adaptativa</p>
+                                        </div>
+                                        <div className="flex bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+                                            {['left', 'center'].map((l) => (
+                                                <button
+                                                    key={l}
+                                                    onClick={() => {
+                                                        const s = { positionX: 50, positionY: 20, zoom: 1, ...data.heroImageSettings } as HeroImageSettings
+                                                        const isCenter = l === 'center'
+                                                        updateField('heroImageSettings', { 
+                                                            ...s, 
+                                                            layout: l as any,
+                                                            overlay: s.overlay ? { ...s.overlay, angle: isCenter ? 0 : 90 } : undefined
+                                                        })
+                                                        const sectionStyle = getSectionStyle('hero')
+                                                        if (sectionStyle?.gradient) {
+                                                            updateSectionStyle('hero', {
+                                                                gradient: { ...sectionStyle.gradient, angle: isCenter ? 0 : 90 }
+                                                            })
+                                                        }
+                                                    }}
+                                                    className={cn(
+                                                        "px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-tighter transition-all",
+                                                        (data.heroImageSettings?.layout || 'left') === l 
+                                                            ? "bg-white text-emerald-600 shadow-sm" 
+                                                            : "text-stone-400 hover:text-stone-600"
+                                                    )}
+                                                >
+                                                    {l === 'left' ? 'Esquerda' : 'Centro'}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div className="space-y-4">
+                                            <ImageUpload
+                                                value={data.heroImageUrl}
+                                                onChange={(url) => updateField('heroImageUrl', url)}
+                                                className="aspect-video"
+                                            />
+                                        </div>
+
+                                        {data.heroImageUrl && (() => {
+                                            const settings = data.heroImageSettings || { positionX: 50, positionY: 20, zoom: 1 }
+                                            const getValue = (field: 'positionX' | 'positionY' | 'zoom') => {
+                                                if (breakpoint === 'mobile' && settings.mobile?.[field] !== undefined) return settings.mobile[field]!
+                                                if (breakpoint === 'tablet' && settings.tablet?.[field] !== undefined) return settings.tablet[field]!
+                                                return settings[field] || (field === 'zoom' ? 1 : field === 'positionX' ? 50 : 20)
+                                            }
+                                            const setValue = (field: 'positionX' | 'positionY' | 'zoom', val: number) => {
+                                                const newSettings = { ...settings }
+                                                if (breakpoint === 'desktop') {
+                                                    (newSettings as any)[field] = val
+                                                } else {
+                                                    const bpKey = breakpoint as 'mobile' | 'tablet'
+                                                    if (!newSettings[bpKey]) newSettings[bpKey] = {}
+                                                    (newSettings[bpKey] as any)![field] = val
+                                                }
+                                                updateField('heroImageSettings', newSettings)
+                                            }
+
+                                            return (
+                                                <div className="space-y-5 p-4 rounded-2xl bg-stone-50/50 dark:bg-stone-900/30 border border-stone-100 dark:border-stone-800">
+                                                    {(['positionX', 'positionY', 'zoom'] as const).map(field => (
+                                                        <div key={field} className="space-y-2">
+                                                            <div className="flex justify-between items-center text-[9px] font-black text-stone-400 uppercase tracking-widest">
+                                                                <span>{field === 'positionX' ? 'Alinhamento X' : field === 'positionY' ? 'Alinhamento Y' : 'Zoom da Foto'}</span>
+                                                                <span className="text-emerald-500 font-mono">{field === 'zoom' ? `${getValue(field).toFixed(1)}x` : `${getValue(field)}%`}</span>
+                                                            </div>
+                                                            <input type="range"
+                                                                min={field === 'zoom' ? 1 : 0} max={field === 'zoom' ? 3 : 100} step={field === 'zoom' ? 0.1 : 1}
+                                                                value={getValue(field)} onChange={e => setValue(field, Number(e.target.value))}
+                                                                className="w-full h-1 appearance-none bg-stone-200 dark:bg-stone-800 rounded-full accent-emerald-500 cursor-pointer"
+                                                            />
+                                                        </div>
+                                                    ))}
+
+                                                    {/* Opacidade do Tom 3 (Overlay) */}
+                                                    <div className="space-y-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                                                        <div className="flex justify-between items-center text-[9px] font-black text-stone-400 uppercase tracking-widest">
+                                                            <span>Opacidade da Vinheta (Tom 3)</span>
+                                                            <span className="text-emerald-500 font-mono">{(data.heroImageSettings?.overlay?.stops[2]?.opacity ?? 0)}%</span>
+                                                        </div>
+                                                        <input 
+                                                            type="range" 
+                                                            min={0} max={100}
+                                                            value={data.heroImageSettings?.overlay?.stops[2]?.opacity ?? 0}
+                                                            onChange={(e) => {
+                                                                const val = Number(e.target.value)
+                                                                const hSettings = data.heroImageSettings
+                                                                updateField('heroImageSettings', {
+                                                                    ...hSettings,
+                                                                    overlay: hSettings?.overlay ? {
+                                                                        ...hSettings.overlay,
+                                                                        stops: [
+                                                                            { color: hSettings.overlay.stops[0]?.color ?? data.colors.primary, position: hSettings.overlay.stops[0]?.position ?? 0, opacity: 100 },
+                                                                            { color: hSettings.overlay.stops[1]?.color ?? data.colors.primary, position: hSettings.overlay.stops[1]?.position ?? 50, opacity: 100 },
+                                                                            { color: hSettings.overlay.stops[2]?.color ?? data.colors.primary, position: 100, opacity: val }
+                                                                        ]
+                                                                    } : undefined
+                                                                })
+                                                            }}
+                                                            className="w-full h-1 appearance-none bg-stone-200 dark:bg-stone-800 rounded-full accent-emerald-500 cursor-pointer"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )
+                                        })()}
+                                    </div>
+                                </div>
+
                             </div>
                         ) : (
                             /* === ALL OTHER SECTIONS: Generic controls === */
