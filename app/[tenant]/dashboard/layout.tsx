@@ -1,6 +1,7 @@
 import { TenantSidebar } from "@/components/sistema/tenant-sidebar"
 import { TenantTopbar } from "@/components/sistema/tenant-topbar"
 import { TenantBottombar } from "@/components/sistema/tenant-bottombar"
+import { TenantMain } from "@/components/sistema/tenant-main"
 import { getTenantBySlug } from "@/lib/actions/tenant"
 import { notFound } from "next/navigation"
 
@@ -48,9 +49,9 @@ export default async function DashboardLayout({
       <div className="flex flex-1 flex-col overflow-hidden">
         <TenantTopbar tenant={tenantProps} />
         {/* Extra padding-bottom on mobile for the bottombar */}
-        <main className="flex-1 overflow-y-auto px-4 py-5 pb-24 lg:px-8 lg:py-6 lg:pb-6">
+        <TenantMain>
           {children}
-        </main>
+        </TenantMain>
       </div>
 
       {/* Bottom navigation bar — mobile only */}

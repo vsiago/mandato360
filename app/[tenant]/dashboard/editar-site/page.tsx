@@ -2,329 +2,437 @@
 
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
-import { cn } from "@/lib/utils"
 import { getTenantBySlug } from "@/lib/actions/tenant"
-import { EditorProvider, useEditor } from "@/lib/editor/context"
-import { LivePreview } from "@/components/editor/live-preview"
-import { FloatingToolbar } from "@/components/editor/floating-toolbar"
-import { PropertiesPanel } from "@/components/editor/properties-panel"
-import { ContentEditorPanel } from "@/components/editor/content-editor-panel"
-import { ThemeSelector } from "@/components/theme-selector"
-import { SiteConfig, EditorSectionId } from "@/lib/editor/types"
-import { ThemeId } from "@/src/themes/types"
+import { updateTenantSiteAction } from "@/lib/actions/tenant"
+import { SiteEditor, type EditorConfig, type EditorPlugin, type PluginSectionProps, type PluginSidebarProps } from "@mandato360/editor"
+import "@mandato360/editor/styles"
+import { siteConfigToEditorConfig, editorConfigToSiteConfig, extractEditorConfig } from "@/lib/editor/adapter"
+import { SiteConfig } from "@/lib/editor/types"
 import {
-    Globe, Award, User, MapPin, HelpCircle, Palette, 
-    Smartphone, Tablet, Monitor, Save, Loader2,
-    AlertTriangle, CheckCircle, FileText, ChevronLeft, ChevronRight, PanelTop, Sparkles,
-    ArrowLeftRight, HeartHandshake, ExternalLink
+    AlertTriangle, Loader2,
+    Award, FileText, User, ArrowLeftRight, HelpCircle, MapPin,
+    CheckCircle2, Phone, MessageCircle, Mail, ChevronRight,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { CURATED_FONTS } from "@/lib/editor/fonts"
 
-/* ─── Shared Section Config ─── */
-const SECTIONS: { id: EditorSectionId | 'design-system'; label: string; icon: any }[] = [
-    { id: "header", label: "Topo", icon: PanelTop },
-    { id: "hero", label: "Hero", icon: Globe },
-    { id: "trust", label: "Destaques", icon: Award },
-    { id: "projetos", label: "Ações", icon: FileText },
-    { id: "perfil", label: "Sobre", icon: User },
-    { id: "beforeAfter", label: "Resultados", icon: ArrowLeftRight },
-    { id: "faq", label: "Dúvidas", icon: HelpCircle },
-    { id: "contact", label: "Contato", icon: MapPin },
-    { id: "footer", label: "Rodapé", icon: Globe },
-    { id: "design-system", label: "Tema", icon: Palette },
-]
+/* ─── Plugin Preview Components ─── */
 
-/* ─── Inner Editor ─── */
-function EditorInner() {
-    const {
-        data, isDirty, saving, saved, save,
-        selectedSection, selectSection, selectElement,
-        breakpoint, setBreakpoint, updateField
-    } = useEditor()
-
-    const [propertiesOpen, setPropertiesOpen] = useState(true)
-
+function TrustPreview({ config, device, themeColors }: PluginSectionProps) {
+    const badges = config.badges || []
+    if (badges.length === 0) return null
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] -mx-6 -my-6 overflow-hidden bg-white dark:bg-stone-950">
-
-            {/* ─── Unsaved changes banner ─── */}
-            {isDirty && (
-                <div className="shrink-0 px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 flex items-center justify-between gap-3 animate-in slide-in-from-top-1 duration-300">
-                    <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-amber-500" />
-                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400">
-                            Alterações não salvas — salve para aplicar no site
-                        </span>
+        <div className="bg-slate-900 py-4 overflow-hidden border-y border-white/5">
+            <div className="flex items-center gap-8 whitespace-nowrap px-6 overflow-x-auto">
+                {badges.map((badge: any, i: number) => (
+                    <div key={i} className="flex items-center gap-2 shrink-0">
+                        <CheckCircle2 className="h-4 w-4" style={{ color: themeColors.secondary || themeColors.accent }} />
+                        <span className="text-white font-bold uppercase tracking-[0.12em] text-[9px]">{badge.text}</span>
                     </div>
-                    <Button
-                        size="sm"
-                        onClick={save}
-                        disabled={saving}
-                        className="rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white h-7 px-4"
-                    >
-                        {saving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Save className="h-3 w-3 mr-1" />}
-                        {saving ? "Salvando..." : "Salvar Agora"}
-                    </Button>
-                </div>
-            )}
-
-            {/* Saved banner */}
-            {saved && !isDirty && (
-                <div className="shrink-0 px-4 py-2 bg-green-500/10 border-b border-green-500/20 flex items-center gap-2 animate-in slide-in-from-top-1 duration-300">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-xs font-medium text-green-700 dark:text-green-400">
-                        Salvo com sucesso! As alterações já estão no ar.
-                    </span>
-                </div>
-            )}
-
-            {/* ─── Main layout ─── */}
-            <div className="flex flex-1 min-h-0">
-
-                {/* Left Navigator */}
-                <div className="hidden lg:flex flex-col w-16 border-r border-stone-100 dark:border-stone-800 shrink-0 bg-stone-50/30 dark:bg-stone-900/10">
-                    <div className="flex-1 flex flex-col items-center py-4 gap-1">
-                        {SECTIONS.map(({ id, label, icon: Icon }) => (
-                            <button
-                                key={id}
-                                onClick={() => {
-                                    selectSection(id as any)
-                                    selectElement(null)
-                                    // Scroll to section in preview
-                                    const el = document.querySelector(`[data-section-id="${id}"]`)
-                                    el?.scrollIntoView({ behavior: "smooth", block: "center" })
-                                }}
-                                className={cn(
-                                    "group w-12 h-12 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all duration-200 relative",
-                                    selectedSection === id
-                                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-sm"
-                                        : "text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:hover:text-stone-300"
-                                )}
-                                title={label}
-                            >
-                                {selectedSection === id && (
-                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-emerald-500" />
-                                )}
-                                <Icon className="h-4 w-4" />
-                                <span className="text-[7px] font-black uppercase tracking-tighter leading-none">{label}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* ─── Live Preview Area ─── */}
-                <div className="flex-1 flex flex-col min-w-0 bg-stone-100/50 dark:bg-stone-900/50">
-                    {/* Preview toolbar */}
-                    <div className="border-b border-stone-100 dark:border-stone-800 px-6 py-2.5 flex items-center justify-between shrink-0 bg-white/50 dark:bg-stone-950/50 backdrop-blur-sm">
-                        <div className="flex items-center gap-4">
-                            <div className="flex gap-1.5">
-                                <div className="w-2.5 h-2.5 rounded-full bg-red-400/30 border border-red-500/20" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-amber-400/30 border border-amber-500/20" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-green-400/30 border border-green-500/20" />
-                            </div>
-                            <span className="text-[10px] text-stone-400 font-mono hidden xl:inline">
-                                mandato360.com.br/{data.slug}
-                            </span>
-                        </div>
-
-                        {/* Device toggles */}
-                        <div className="flex items-center gap-1 p-1 rounded-xl bg-stone-100/50 dark:bg-stone-800/50 border border-stone-100 dark:border-stone-700">
-                            {([
-                                { id: "mobile" as const, icon: Smartphone, label: "Celular" },
-                                { id: "tablet" as const, icon: Tablet, label: "Tablet" },
-                                { id: "desktop" as const, icon: Monitor, label: "Desktop" },
-                            ]).map(({ id, icon: DevIcon, label }) => (
-                                <button
-                                    key={id}
-                                    onClick={() => setBreakpoint(id)}
-                                    className={cn(
-                                        "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all",
-                                        breakpoint === id
-                                            ? "bg-white dark:bg-stone-700 text-emerald-600 shadow-sm border border-stone-100 dark:border-stone-600"
-                                            : "text-stone-400 hover:text-stone-600"
-                                    )}
-                                >
-                                    <DevIcon className="h-3.5 w-3.5" />
-                                    <span className="hidden xl:inline">{label}</span>
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <Button variant="outline" size="sm" className="rounded-xl text-[10px] font-black uppercase tracking-widest h-8 px-4 border-stone-200" asChild>
-                                <a href={`/${data.slug}`} target="_blank" rel="noopener noreferrer">
-                                    <ExternalLink className="h-3.5 w-3.5 mr-2" /> Site Final
-                                </a>
-                            </Button>
-                            <Button
-                                size="sm"
-                                onClick={save}
-                                disabled={saving}
-                                className={cn(
-                                    "rounded-xl text-[10px] font-black uppercase tracking-widest h-8 px-5 transition-all shadow-lg",
-                                    saved && !isDirty
-                                        ? "bg-green-500 hover:bg-green-600 text-white"
-                                        : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                                )}
-                            >
-                                {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" /> : <Save className="h-3.5 w-3.5 mr-2" />}
-                                {saved && !isDirty ? "Salvo ✓" : saving ? "Salvando..." : "Salvar"}
-                            </Button>
-                            <button
-                                onClick={() => setPropertiesOpen(!propertiesOpen)}
-                                className={cn(
-                                    "h-8 w-8 rounded-xl flex items-center justify-center transition-colors border",
-                                    propertiesOpen ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600" : "bg-stone-50 border-stone-200 text-stone-400 hover:bg-stone-100"
-                                )}
-                            >
-                                {propertiesOpen ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Preview container */}
-                    <div className="flex-1 overflow-hidden relative flex items-start justify-center p-6 lg:p-12">
-                        {/* Device frame */}
-                        <div
-                            className={cn(
-                                "relative transition-all duration-700 ease-in-out h-full",
-                                breakpoint === "mobile" && "w-[375px] max-w-full",
-                                breakpoint === "tablet" && "w-[768px] max-w-full",
-                                breakpoint === "desktop" && "w-full",
-                            )}
-                        >
-                            {/* Device frames and live rendered content */}
-                            <div className={cn(
-                                "relative w-full h-full overflow-auto bg-white shadow-[0_0_50px_rgba(0,0,0,0.1)] ring-1 ring-stone-900/5",
-                                breakpoint === "mobile" && "rounded-[3rem] border-[8px] border-stone-800",
-                                breakpoint === "tablet" && "rounded-[2rem] border-[6px] border-stone-800",
-                                breakpoint === "desktop" && "rounded-2xl border-stone-100",
-                            )}>
-                                <LivePreview />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* ─── Right Panel ─── */}
-                <div className={cn(
-                    "hidden lg:block transition-all duration-300 overflow-hidden shrink-0",
-                    propertiesOpen ? "w-80" : "w-0"
-                )}>
-                    {propertiesOpen && (
-                         selectedSection === 'design-system' ? (
-                            <div className="h-full bg-white dark:bg-stone-950 flex flex-col">
-                                <div className="p-5 border-b border-stone-100 dark:border-stone-800 bg-emerald-500/5">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <Sparkles className="h-4 w-4 text-emerald-600" />
-                                        <h3 className="text-sm font-black text-stone-900 dark:text-stone-100 uppercase tracking-widest">Identidade Visual</h3>
-                                    </div>
-                                    <p className="text-[10px] text-stone-400 font-medium">Escolha o tema do Mandato</p>
-                                </div>
-                                 <div className="p-6 overflow-y-auto space-y-8 no-scrollbar">
-                                    <div className="space-y-4">
-                                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
-                                            <Sparkles className="h-3.5 w-3.5 text-emerald-500" /> Temas Predefinidos
-                                        </p>
-                                        <ThemeSelector
-                                            value={(data.theme as ThemeId) || "neutro"}
-                                            onChange={(themeId) => updateField("theme", themeId)}
-                                            variant="grid"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-4 pt-6 border-t border-stone-100 dark:border-stone-800">
-                                        <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest flex items-center gap-2">
-                                            <Type className="h-3.5 w-3.5 text-emerald-500" /> Tipografia Global
-                                        </p>
-                                        
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[9px] font-black text-stone-500 uppercase">Fonte de Títulos</label>
-                                                <select
-                                                    value={data.fontHeading || ""}
-                                                    onChange={(e) => updateField("fontHeading", e.target.value)}
-                                                    className="w-full h-10 bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-800 rounded-xl px-3 text-xs font-bold transition-all focus:ring-2 focus:ring-emerald-500/20 outline-none"
-                                                >
-                                                    <option value="">Padrão do Tema</option>
-                                                    {CURATED_FONTS.map(f => (
-                                                        <option key={f.family} value={f.family}>{f.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <label className="text-[9px] font-black text-stone-500 uppercase">Fonte de Corpo</label>
-                                                <select
-                                                    value={data.fontBody || ""}
-                                                    onChange={(e) => updateField("fontBody", e.target.value)}
-                                                    className="w-full h-10 bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-stone-800 rounded-xl px-3 text-xs font-bold transition-all focus:ring-2 focus:ring-emerald-500/20 outline-none"
-                                                >
-                                                    <option value="">Padrão do Tema</option>
-                                                    {CURATED_FONTS.map(f => (
-                                                        <option key={f.family} value={f.family}>{f.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30">
-                                        <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium leading-relaxed italic">
-                                            💡 Ao selecionar uma fonte global, ela será aplicada a todos os elementos do site, garantindo harmonia visual.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                         ) : selectedSection === 'hero' ? (
-                            <PropertiesPanel />
-                         ) : selectedSection ? (
-                            <ContentEditorPanel />
-                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full px-6 text-center bg-white dark:bg-stone-950">
-                                <div className="h-14 w-14 rounded-2xl flex items-center justify-center mb-4 bg-emerald-500/5 border border-emerald-500/10 shadow-sm">
-                                    <Sparkles className="h-6 w-6 text-emerald-500/50" />
-                                </div>
-                                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 uppercase tracking-tighter">Selecione uma seção</p>
-                                <p className="text-[10px] text-stone-400 mt-1 max-w-48 leading-relaxed font-medium">
-                                    Clique em uma seção na barra lateral para editar seu conteúdo e propriedades.
-                                </p>
-                            </div>
-                         )
-                    )}
-                </div>
+                ))}
             </div>
-
-            {/* ─── Mobile section tabs ─── */}
-            <div className="lg:hidden fixed bottom-16 left-4 right-4 z-50 bg-white/80 backdrop-blur-lg border border-stone-200 shadow-2xl rounded-2xl">
-                <div className="flex items-center overflow-x-auto px-2 py-2 gap-1 no-scrollbar text-stone-900">
-                    {SECTIONS.map(({ id, label, icon: Icon }) => (
-                        <button
-                            key={id}
-                            onClick={() => {
-                                selectSection(id as any)
-                                selectElement(null)
-                            }}
-                            className={cn(
-                                "flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0",
-                                selectedSection === id
-                                    ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-                                    : "text-stone-400 hover:bg-stone-50"
-                            )}
-                        >
-                            <Icon className="h-3.5 w-3.5" />{label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-            
-            <FloatingToolbar />
         </div>
     )
 }
 
-/* ─── Build SiteConfig from tenant DB row ─── */
+function ProjetosPreview({ config, device, themeColors }: PluginSectionProps) {
+    const items = config.items || []
+    const title = config.title || "Ações e Projetos"
+    return (
+        <div className="bg-white py-8 px-4" style={device === "desktop" ? { padding: "3rem 2rem" } : undefined}>
+            <h2 className="text-lg font-black text-gray-900 tracking-tight mb-4" style={device === "desktop" ? { fontSize: "1.5rem", marginBottom: "1.5rem" } : undefined}>
+                {title}
+            </h2>
+            <div className={`grid gap-3 ${device === "desktop" ? "grid-cols-3" : device === "tablet" ? "grid-cols-2" : "grid-cols-1"}`}>
+                {(items.length > 0 ? items.slice(0, 3) : [
+                    { name: "Projeto Exemplo 1", description: "Descrição do projeto" },
+                    { name: "Projeto Exemplo 2", description: "Descrição do projeto" },
+                ]).map((item: any, i: number) => (
+                    <div key={i} className="rounded-xl bg-gray-50 p-4 border border-gray-100">
+                        <div className="h-8 w-8 rounded-lg mb-2 flex items-center justify-center" style={{ backgroundColor: `${themeColors.primary}15`, color: themeColors.primary }}>
+                            <FileText className="h-4 w-4" />
+                        </div>
+                        <h3 className="text-xs font-bold text-gray-900 mb-1">{item.name}</h3>
+                        <p className="text-[10px] text-gray-500 line-clamp-2">{item.description}</p>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+function PerfilPreview({ config, device, themeColors }: PluginSectionProps) {
+    const title = config.title || "O Vereador"
+    return (
+        <div className="bg-gray-50 py-8 px-4" style={device === "desktop" ? { padding: "3rem 2rem" } : undefined}>
+            <div className={`flex gap-6 ${device === "desktop" ? "flex-row items-center" : "flex-col"}`}>
+                <div className="aspect-square rounded-2xl bg-gray-200 flex items-center justify-center overflow-hidden" style={device === "desktop" ? { width: "180px", flexShrink: 0 } : { width: "100%", maxWidth: "200px" }}>
+                    {config.imageUrl ? (
+                        <img src={config.imageUrl} alt={config.name} className="w-full h-full object-cover" />
+                    ) : (
+                        <User className="h-12 w-12 text-gray-400" />
+                    )}
+                </div>
+                <div>
+                    <h2 className="text-lg font-black text-gray-900 tracking-tight mb-2">{title}</h2>
+                    <p className="text-xs text-gray-600 italic mb-2">"{config.bio || "Trabalhando por você."}"</p>
+                    <h3 className="text-sm font-black uppercase" style={{ color: themeColors.primary }}>{config.name || "Nome"}</h3>
+                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{config.role || "Vereador"}</p>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function BeforeAfterPreview({ config, device, themeColors }: PluginSectionProps) {
+    const items = config.items || []
+    if (items.length === 0) return null
+    return (
+        <div className="bg-white py-8 px-4 border-t border-gray-100" style={device === "desktop" ? { padding: "3rem 2rem" } : undefined}>
+            <h2 className="text-lg font-black text-gray-900 tracking-tight mb-4 text-center">{config.title || "Resultados"}</h2>
+            <div className={`grid gap-3 ${device === "desktop" ? "grid-cols-3" : "grid-cols-1"}`}>
+                {items.slice(0, 3).map((item: any, i: number) => (
+                    <div key={i} className="rounded-xl bg-gray-50 border border-gray-100 overflow-hidden">
+                        <div className="grid grid-cols-2 h-20">
+                            <div className="bg-gray-200 flex items-center justify-center text-[8px] font-bold text-gray-400">ANTES</div>
+                            <div className="bg-gray-100 flex items-center justify-center text-[8px] font-bold text-gray-400">DEPOIS</div>
+                        </div>
+                        <div className="p-3">
+                            <p className="text-[10px] font-bold text-gray-900">{item.title}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+function FAQPreview({ config, device, themeColors }: PluginSectionProps) {
+    const items = config.items || []
+    if (items.length === 0) return null
+    return (
+        <div className="bg-gray-50 py-8 px-4" style={device === "desktop" ? { padding: "3rem 2rem" } : undefined}>
+            <h2 className="text-lg font-black text-gray-900 tracking-tight mb-4 text-center">{config.title || "Perguntas Frequentes"}</h2>
+            <div className="space-y-2 max-w-md mx-auto">
+                {items.slice(0, 3).map((item: any, i: number) => (
+                    <div key={i} className="bg-white rounded-lg border border-gray-100 p-3">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-gray-900">{item.question}</span>
+                            <ChevronRight className="h-3 w-3 text-gray-400" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
+
+function ContactPreview({ config, device, themeColors }: PluginSectionProps) {
+    const hasContent = config.phone || config.whatsapp || config.email
+    if (!hasContent) return null
+    return (
+        <div className="bg-white py-8 px-4 border-t border-gray-100" style={device === "desktop" ? { padding: "3rem 2rem" } : undefined}>
+            <h2 className="text-lg font-black text-gray-900 tracking-tight mb-4 text-center">{config.title || "Contato"}</h2>
+            <div className={`grid gap-3 max-w-lg mx-auto ${device === "desktop" ? "grid-cols-3" : "grid-cols-1"}`}>
+                {config.phone && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${themeColors.primary}10`, color: themeColors.primary }}>
+                            <Phone className="h-3.5 w-3.5" />
+                        </div>
+                        <div>
+                            <p className="text-[8px] font-bold text-gray-400 uppercase">Telefone</p>
+                            <p className="text-[10px] font-bold text-gray-900">{config.phone}</p>
+                        </div>
+                    </div>
+                )}
+                {config.whatsapp && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="h-8 w-8 rounded-lg bg-green-500/10 text-green-600 flex items-center justify-center">
+                            <MessageCircle className="h-3.5 w-3.5" />
+                        </div>
+                        <div>
+                            <p className="text-[8px] font-bold text-gray-400 uppercase">WhatsApp</p>
+                            <p className="text-[10px] font-bold text-gray-900">{config.whatsapp}</p>
+                        </div>
+                    </div>
+                )}
+                {config.email && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                        <div className="h-8 w-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${themeColors.primary}10`, color: themeColors.primary }}>
+                            <Mail className="h-3.5 w-3.5" />
+                        </div>
+                        <div>
+                            <p className="text-[8px] font-bold text-gray-400 uppercase">E-mail</p>
+                            <p className="text-[10px] font-bold text-gray-900">{config.email}</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+/* ─── Plugin Sidebar Components ─── */
+
+function TrustSidebar({ config, onChange }: PluginSidebarProps) {
+    const badges = config.badges || []
+    return (
+        <div className="space-y-4">
+            <p className="text-xs font-medium uppercase tracking-wider text-white/50">Destaques / Conquistas</p>
+            {badges.map((badge: any, i: number) => (
+                <div key={i} className="flex items-center gap-2">
+                    <input
+                        type="text"
+                        value={badge.text}
+                        onChange={(e) => {
+                            const newBadges = [...badges]
+                            newBadges[i] = { ...badge, text: e.target.value }
+                            onChange({ badges: newBadges })
+                        }}
+                        className="flex-1 h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80 placeholder:text-white/20"
+                    />
+                    <button
+                        onClick={() => {
+                            const newBadges = badges.filter((_: any, j: number) => j !== i)
+                            onChange({ badges: newBadges })
+                        }}
+                        className="h-8 w-8 rounded-md flex items-center justify-center text-red-400 hover:bg-red-500/10 transition-colors"
+                    >
+                        ×
+                    </button>
+                </div>
+            ))}
+            <button
+                onClick={() => onChange({ badges: [...badges, { text: "Novo Destaque", icon: "Check" }] })}
+                className="w-full h-8 rounded-md border border-dashed border-white/20 text-xs text-white/40 hover:text-white/60 hover:border-white/30 transition-colors"
+            >
+                + Adicionar
+            </button>
+        </div>
+    )
+}
+
+function ProjetosSidebar({ config, onChange }: PluginSidebarProps) {
+    const items = config.items || []
+    return (
+        <div className="space-y-4">
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
+                <input
+                    type="text"
+                    value={config.title || ""}
+                    onChange={(e) => onChange({ title: e.target.value })}
+                    className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80"
+                />
+            </div>
+            <p className="text-xs font-medium uppercase tracking-wider text-white/50">Projetos ({items.length})</p>
+            {items.slice(0, 5).map((item: any, i: number) => (
+                <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] space-y-2">
+                    <input
+                        type="text"
+                        value={item.name || ""}
+                        onChange={(e) => {
+                            const newItems = [...items]
+                            newItems[i] = { ...item, name: e.target.value }
+                            onChange({ items: newItems })
+                        }}
+                        placeholder="Nome"
+                        className="w-full h-7 rounded border border-white/5 bg-white/[0.03] px-2 text-[10px] text-white/80 placeholder:text-white/20"
+                    />
+                    <input
+                        type="text"
+                        value={item.description || ""}
+                        onChange={(e) => {
+                            const newItems = [...items]
+                            newItems[i] = { ...item, description: e.target.value }
+                            onChange({ items: newItems })
+                        }}
+                        placeholder="Descrição"
+                        className="w-full h-7 rounded border border-white/5 bg-white/[0.03] px-2 text-[10px] text-white/80 placeholder:text-white/20"
+                    />
+                </div>
+            ))}
+            <button
+                onClick={() => onChange({ items: [...items, { id: Date.now().toString(), name: "", description: "", image: "", categoryId: "", slug: "" }] })}
+                className="w-full h-8 rounded-md border border-dashed border-white/20 text-xs text-white/40 hover:text-white/60 hover:border-white/30 transition-colors"
+            >
+                + Adicionar Projeto
+            </button>
+        </div>
+    )
+}
+
+function PerfilSidebar({ config, onChange }: PluginSidebarProps) {
+    return (
+        <div className="space-y-4">
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
+                <input type="text" value={config.title || ""} onChange={(e) => onChange({ title: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Nome</p>
+                <input type="text" value={config.name || ""} onChange={(e) => onChange({ name: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Cargo</p>
+                <input type="text" value={config.role || ""} onChange={(e) => onChange({ role: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Biografia</p>
+                <textarea value={config.bio || ""} onChange={(e) => onChange({ bio: e.target.value })} rows={3} className="w-full rounded-md border border-white/5 bg-white/[0.03] px-3 py-2 text-xs text-white/80 resize-none" />
+            </div>
+        </div>
+    )
+}
+
+function FAQSidebar({ config, onChange }: PluginSidebarProps) {
+    const items = config.items || []
+    return (
+        <div className="space-y-4">
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
+                <input type="text" value={config.title || ""} onChange={(e) => onChange({ title: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <p className="text-xs font-medium uppercase tracking-wider text-white/50">Perguntas ({items.length})</p>
+            {items.map((item: any, i: number) => (
+                <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] space-y-2">
+                    <input
+                        type="text"
+                        value={item.question || ""}
+                        onChange={(e) => {
+                            const newItems = [...items]
+                            newItems[i] = { ...item, question: e.target.value }
+                            onChange({ items: newItems })
+                        }}
+                        placeholder="Pergunta"
+                        className="w-full h-7 rounded border border-white/5 bg-white/[0.03] px-2 text-[10px] text-white/80 placeholder:text-white/20"
+                    />
+                    <textarea
+                        value={item.answer || ""}
+                        onChange={(e) => {
+                            const newItems = [...items]
+                            newItems[i] = { ...item, answer: e.target.value }
+                            onChange({ items: newItems })
+                        }}
+                        placeholder="Resposta"
+                        rows={2}
+                        className="w-full rounded border border-white/5 bg-white/[0.03] px-2 py-1 text-[10px] text-white/80 placeholder:text-white/20 resize-none"
+                    />
+                    <button onClick={() => { const n = items.filter((_: any, j: number) => j !== i); onChange({ items: n }) }} className="text-[10px] text-red-400 hover:text-red-300">Remover</button>
+                </div>
+            ))}
+            <button
+                onClick={() => onChange({ items: [...items, { id: Date.now().toString(), question: "", answer: "" }] })}
+                className="w-full h-8 rounded-md border border-dashed border-white/20 text-xs text-white/40 hover:text-white/60 hover:border-white/30 transition-colors"
+            >
+                + Adicionar Pergunta
+            </button>
+        </div>
+    )
+}
+
+function ContactSidebar({ config, onChange }: PluginSidebarProps) {
+    return (
+        <div className="space-y-4">
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
+                <input type="text" value={config.title || ""} onChange={(e) => onChange({ title: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Telefone</p>
+                <input type="text" value={config.phone || ""} onChange={(e) => onChange({ phone: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">WhatsApp</p>
+                <input type="text" value={config.whatsapp || ""} onChange={(e) => onChange({ whatsapp: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">E-mail</p>
+                <input type="text" value={config.email || ""} onChange={(e) => onChange({ email: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Instagram</p>
+                <input type="text" value={config.instagram || ""} onChange={(e) => onChange({ instagram: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Endereço</p>
+                <input type="text" value={config.address || ""} onChange={(e) => onChange({ address: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+        </div>
+    )
+}
+
+function BeforeAfterSidebar({ config, onChange }: PluginSidebarProps) {
+    const items = config.items || []
+    return (
+        <div className="space-y-4">
+            <div>
+                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
+                <input type="text" value={config.title || ""} onChange={(e) => onChange({ title: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
+            </div>
+            <p className="text-xs font-medium uppercase tracking-wider text-white/50">Resultados ({items.length})</p>
+            {items.map((item: any, i: number) => (
+                <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] space-y-2">
+                    <input type="text" value={item.title || ""} onChange={(e) => { const n = [...items]; n[i] = { ...item, title: e.target.value }; onChange({ items: n }) }} placeholder="Título" className="w-full h-7 rounded border border-white/5 bg-white/[0.03] px-2 text-[10px] text-white/80 placeholder:text-white/20" />
+                    <button onClick={() => { const n = items.filter((_: any, j: number) => j !== i); onChange({ items: n }) }} className="text-[10px] text-red-400 hover:text-red-300">Remover</button>
+                </div>
+            ))}
+            <button onClick={() => onChange({ items: [...items, { id: Date.now().toString(), title: "", before: "", after: "" }] })} className="w-full h-8 rounded-md border border-dashed border-white/20 text-xs text-white/40 hover:text-white/60 hover:border-white/30 transition-colors">+ Adicionar</button>
+        </div>
+    )
+}
+
+/* ─── Define Mandato360 Plugins ─── */
+const mandatoPlugins: EditorPlugin[] = [
+    {
+        id: "trust",
+        label: "Destaques",
+        icon: Award,
+        previewComponent: TrustPreview,
+        sidebarComponent: TrustSidebar,
+        defaultConfig: { badges: [] },
+    },
+    {
+        id: "projetos",
+        label: "Ações",
+        icon: FileText,
+        previewComponent: ProjetosPreview,
+        sidebarComponent: ProjetosSidebar,
+        defaultConfig: { title: "Ações e Projetos", items: [], categories: [] },
+    },
+    {
+        id: "perfil",
+        label: "Sobre",
+        icon: User,
+        previewComponent: PerfilPreview,
+        sidebarComponent: PerfilSidebar,
+        defaultConfig: { title: "O Vereador", name: "", bio: "", role: "Vereador", imageUrl: "" },
+    },
+    {
+        id: "beforeAfter",
+        label: "Resultados",
+        icon: ArrowLeftRight,
+        previewComponent: BeforeAfterPreview,
+        sidebarComponent: BeforeAfterSidebar,
+        defaultConfig: { title: "Transformando a Cidade", items: [] },
+    },
+    {
+        id: "faq",
+        label: "Dúvidas",
+        icon: HelpCircle,
+        previewComponent: FAQPreview,
+        sidebarComponent: FAQSidebar,
+        defaultConfig: { title: "Perguntas Frequentes", items: [] },
+    },
+    {
+        id: "contact",
+        label: "Contato",
+        icon: MapPin,
+        previewComponent: ContactPreview,
+        sidebarComponent: ContactSidebar,
+        defaultConfig: { title: "Entre em Contato", phone: "", whatsapp: "", email: "", instagram: "", address: "" },
+    },
+]
+
+/* ─── Build SiteConfig from tenant DB row (reused from original) ─── */
 function buildConfigFromTenant(tenant: any): SiteConfig {
     const defaultConfig: SiteConfig = {
         slug: tenant.slug,
@@ -340,13 +448,7 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
             primary: tenant.primaryColor || "#0F2B5B",
             secondary: tenant.secondaryColor || "#0D9F6E",
         },
-        contact: {
-            phone: "",
-            whatsapp: "",
-            address: "",
-            email: "",
-            instagram: "",
-        },
+        contact: { phone: "", whatsapp: "", address: "", email: "", instagram: "" },
         perfil: {
             name: tenant.name || "Vereador",
             bio: tenant.biografia || "",
@@ -363,7 +465,7 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
         projetos: [],
         faq: [],
         beforeAfter: [],
-        theme: "neutro" as ThemeId,
+        theme: "neutro" as any,
         fontHeading: "",
         fontBody: "",
         projetosTitle: "Ações e Projetos",
@@ -400,20 +502,19 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
         },
     }
 
-    // If tenant has a full config JSON, use it (merging DB-level fields as ultimate source of truth for media)
     if (tenant.config) {
         try {
             const parsed = JSON.parse(tenant.config) as Partial<SiteConfig>
             return {
                 ...defaultConfig,
                 ...parsed,
-                slug: tenant.slug, // Always ensure slug matches
+                slug: tenant.slug,
                 colors: { ...defaultConfig.colors, ...parsed.colors },
                 contact: { ...defaultConfig.contact, ...parsed.contact },
-                perfil: { 
-                    ...defaultConfig.perfil, 
+                perfil: {
+                    ...defaultConfig.perfil,
                     ...parsed.perfil,
-                    imageUrl: tenant.fotoPerfilUrl || parsed.perfil?.imageUrl || "" // DB takes precedence if exists
+                    imageUrl: tenant.fotoPerfilUrl || parsed.perfil?.imageUrl || ""
                 },
                 logoUrl: tenant.logoUrl || parsed.logoUrl || "",
             }
@@ -425,12 +526,14 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
     return defaultConfig
 }
 
+/* ─── Main Page Component ─── */
 export default function EditarSitePage() {
     const params = useParams()
     const slug = params.tenant as string
-    const [data, setData] = useState<SiteConfig | null>(null)
+    const [editorConfig, setEditorConfig] = useState<EditorConfig | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [tenantPrimaryColor, setTenantPrimaryColor] = useState("#10b981")
 
     useEffect(() => {
         getTenantBySlug(slug).then(tenant => {
@@ -439,7 +542,12 @@ export default function EditarSitePage() {
                 setLoading(false)
                 return
             }
-            setData(buildConfigFromTenant(tenant))
+
+            // Build SiteConfig from tenant, then convert to EditorConfig
+            const siteConfig = buildConfigFromTenant(tenant)
+            const config = extractEditorConfig(siteConfig)
+            setEditorConfig(config)
+            setTenantPrimaryColor(tenant.primaryColor || siteConfig.colors?.primary || "#10b981")
             setLoading(false)
         }).catch(err => {
             console.error("Error loading tenant:", err)
@@ -447,6 +555,15 @@ export default function EditarSitePage() {
             setLoading(false)
         })
     }, [slug])
+
+    const handleSave = async (config: EditorConfig) => {
+        // Convert EditorConfig → SiteConfig for persistence
+        const siteConfig = editorConfigToSiteConfig(config, slug)
+        const result = await updateTenantSiteAction(slug, siteConfig)
+        if (!result.success) {
+            throw new Error(result.error || "Falha ao salvar")
+        }
+    }
 
     if (error) {
         return (
@@ -459,7 +576,7 @@ export default function EditarSitePage() {
         )
     }
 
-    if (loading || !data) {
+    if (loading || !editorConfig) {
         return (
             <div className="flex h-[60vh] items-center justify-center">
                 <div className="flex flex-col items-center gap-3">
@@ -471,8 +588,16 @@ export default function EditarSitePage() {
     }
 
     return (
-        <EditorProvider initialData={data}>
-            <EditorInner />
-        </EditorProvider>
+        <SiteEditor
+            initialConfig={editorConfig}
+            onSave={handleSave}
+            previewUrl={`/${slug}`}
+            tenantName={editorConfig.header.logoText || slug}
+            plugins={mandatoPlugins}
+            autoSave={true}
+            autoSaveDelay={2000}
+            accentColor={tenantPrimaryColor}
+            className="w-full h-full -mx-0 -my-0 lg:-mx-0 lg:-my-0"
+        />
     )
 }

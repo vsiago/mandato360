@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   LayoutDashboard,
   ChevronDown,
@@ -89,8 +89,14 @@ function getMenuStructure(tenant: string): { home: MenuItem; groups: MenuGroup[]
 export function TenantSidebar({ tenant }: { tenant: TenantData }) {
   const pathname = usePathname()
   const { data: session } = authClient.useSession()
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => pathname.includes('/editar-site'))
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ "Público": true, "Privado": true })
+
+  useEffect(() => {
+    if (pathname.includes('/editar-site')) {
+      setCollapsed(true)
+    }
+  }, [pathname])
 
   const menu = getMenuStructure(tenant.slug)
   const primaryColor = tenant.primaryColor || "#0F2B5B"

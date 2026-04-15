@@ -54,6 +54,8 @@ export function TenantTopbar({ tenant }: { tenant: TenantData }) {
   const primaryColor = tenant.primaryColor || "#0F2B5B"
   const secondaryColor = tenant.secondaryColor || "#0D9F6E"
 
+  if (pathname.includes('/editar-site')) return null
+
   return (
     <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-card px-4 lg:px-6">
       {/* Logo mobile */}

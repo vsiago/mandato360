@@ -1,5 +1,5 @@
 {
-  "name": "my-project",
+  "name": "mandato360",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -64,7 +64,8 @@
     "sonner": "^1.7.1",
     "tailwind-merge": "^3.3.1",
     "vaul": "^1.1.2",
-    "zod": "^3.24.1"
+    "zod": "^3.24.1",
+    "@mandato360/editor": "workspace:*"
   },
   "devDependencies": {
     "@better-auth/utils": "^0.4.0",
