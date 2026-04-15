@@ -19,6 +19,7 @@ import { getTheme, generateThemeCSS } from "@/src/themes"
 import { SiteConfig } from "@/lib/editor/types"
 import { buildGradientString, resolveElementStyle, elementStyleToCSS } from "@/lib/editor/style-utils"
 import { buildGoogleFontsUrl } from "@/lib/editor/fonts"
+import { renderMarkdown } from "@mandato360/editor"
 
 const FONT_STACKS = {
   sans: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
@@ -66,6 +67,10 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   const heroDescription = editor?.hero?.description || config?.description || "Trabalhando pela transparência e inovação política."
   const ctaPrimaryText = editor?.hero?.ctaPrimary || config?.ctaText || "Solicitar Demanda"
   const ctaSecondaryText = editor?.hero?.ctaSecondary || "Ver Projetos"
+
+  // Responsive Hero Image Logic
+  const getHeroImg = (device: 'mobile' | 'tablet' | 'desktop') => editor?.hero?.images?.[device] || heroImageUrl
+  const getHeroPos = (device: 'mobile' | 'tablet' | 'desktop') => editor?.hero?.imagePosition?.[device] || { x: 50, y: 50, scale: 100 }
   
   const displayTagline = config?.tagline || "Mandato Participativo"
   const logoUrl = config?.logoUrl || tenant?.logoUrl || ""
@@ -293,13 +298,58 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         {/* Layer 1: Image Background */}
         {heroImageUrl && (
           <div 
-            className="absolute inset-0 z-0 bg-no-repeat bg-cover"
+            className="absolute inset-0 z-0 overflow-hidden"
             style={{ 
-                backgroundImage: `url(${heroImageUrl})`,
-                backgroundPosition: editor?.hero?.imagePosition?.desktop ? `${editor.hero.imagePosition.desktop.x}% ${editor.hero.imagePosition.desktop.y}%` : 'center',
-                backgroundSize: editor?.hero?.imagePosition?.desktop ? `${editor.hero.imagePosition.desktop.scale}%` : 'cover'
+                // @ts-ignore
+                '--hero-img-mob': `url(${getHeroImg('mobile')})`,
+                '--hero-img-tab': `url(${getHeroImg('tablet')})`,
+                '--hero-img-desk': `url(${getHeroImg('desktop')})`,
+                '--hero-pos-mob': `${getHeroPos('mobile').x}% ${getHeroPos('mobile').y}%`,
+                '--hero-pos-tab': `${getHeroPos('tablet').x}% ${getHeroPos('tablet').y}%`,
+                '--hero-pos-desk': `${getHeroPos('desktop').x}% ${getHeroPos('desktop').y}%`,
+                '--hero-scale-mob': `${getHeroPos('mobile').scale / 100}`,
+                '--hero-scale-tab': `${getHeroPos('tablet').scale / 100}`,
+                '--hero-scale-desk': `${getHeroPos('desktop').scale / 100}`,
+                
+                backgroundImage: 'var(--hero-img-mob)',
+                backgroundPosition: 'var(--hero-pos-mob)',
+                transform: 'scale(var(--hero-scale-mob))',
             }}
-          />
+          >
+            {/* Inline responsive style for background inheritance */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media (min-width: 768px) {
+                    .hero-img-layer { 
+                        background-image: var(--hero-img-tab) !important; 
+                        background-position: var(--hero-pos-tab) !important;
+                        transform: scale(var(--hero-scale-tab)) !important;
+                        background-size: cover !important;
+                    }
+                }
+                @media (min-width: 1024px) {
+                    .hero-img-layer { 
+                        background-image: var(--hero-img-desk) !important; 
+                        background-position: var(--hero-pos-desk) !important;
+                        transform: none !important;
+                        background-size: calc(var(--hero-scale-desk) * 100%) !important;
+                        top: 0 !important;
+                        bottom: 0 !important;
+                        left: 0 !important;
+                        right: 0 !important;
+                    }
+                }
+            `}} />
+            <div className={cn(
+                "absolute hero-img-layer bg-no-repeat transition-all duration-300 ease-out",
+                // Mobile/Tablet use inset-[-10%] for scale safety, Desktop uses inset-0
+                "inset-x-[-10%] inset-y-[-10%]" 
+            )} style={{ 
+                backgroundImage: 'inherit',
+                backgroundPosition: 'inherit',
+                transform: 'inherit',
+                backgroundSize: 'cover'
+            }} />
+          </div>
         )}
 
         {/* Layer 2: Overlay Color */}
@@ -341,7 +391,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
                   }}
               >
                 <Heart className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5" style={{ color: primaryColor }} />
-                <span className="text-[10px] md:text-xs lg:text-sm font-medium uppercase tracking-widest">{heroBadge}</span>
+                <span className="text-[10px] md:text-xs lg:text-sm font-medium uppercase tracking-widest">{renderMarkdown(heroBadge)}</span>
               </div>
             )}
 
@@ -354,7 +404,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
                     ...getStyle('hero', 'hero-headline') 
                 }}
             >
-                {heroHeadline || "Por uma cidade de"} {heroHighlight && <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>}
+                {renderMarkdown(heroHeadline || "Por uma cidade de")} {heroHighlight && <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>}
             </h1>
 
             {/* Description */}
@@ -368,7 +418,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
                     ...getStyle('hero', 'hero-description') 
                 }}
             >
-                {heroDescription}
+                {renderMarkdown(heroDescription)}
             </p>
 
             {/* CTAs */}
