@@ -120,6 +120,8 @@ export function siteConfigToEditorConfig(site: SiteConfig): EditorConfig {
         color: overlayGradient?.stops?.[0]?.color || primaryColor,
         opacity: overlayGradient?.stops?.[0]?.opacity ?? 60,
       },
+      autoHeight: site.heroImageSettings?.autoHeight ?? true,
+      height: site.heroImageSettings?.height ?? 600,
     },
     footer: {
       style: "columns",
@@ -255,6 +257,8 @@ export function editorConfigToSiteConfig(editor: EditorConfig, originalSlug: str
             ],
           }
         : undefined,
+      autoHeight: editor.hero.autoHeight,
+      height: editor.hero.height,
     },
     projetosTitle: projetosPlugin.title || "Ações e Projetos",
     perfilTitle: perfilPlugin.title || "O Vereador",

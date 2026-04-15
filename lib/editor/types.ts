@@ -86,6 +86,8 @@ export interface HeroImageSettings {
     overlayEnabled?: boolean
     overlay?: Gradient
     layout?: 'left' | 'center'
+    autoHeight?: boolean
+    height?: number
 }
 
 export interface SiteConfig {

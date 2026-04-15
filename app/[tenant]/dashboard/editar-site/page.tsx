@@ -815,6 +815,8 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
             positionY: 20,
             zoom: 1,
             layout: 'left',
+            autoHeight: true,
+            height: 600,
             overlayEnabled: true,
             overlay: {
                 angle: 90,

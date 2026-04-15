@@ -274,14 +274,21 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         </div>
       </header>
 
-      {/* UNIFIED OPENING (100VH) */}
-      <div className="h-screen flex flex-col relative overflow-hidden">
+      {/* UNIFIED OPENING (DYNAMIC HEIGHT) */}
+      <div className={cn(
+        "flex flex-col relative overflow-hidden",
+        (editor?.hero?.autoHeight !== false) ? "min-h-screen" : "h-auto"
+      )}>
         {/* HERO RECONSTRUCTION (ABSOLUTE PARITY) */}
         <section 
           className={cn(
-              "relative flex-1 flex flex-col justify-center min-h-0",
+              "relative flex flex-col justify-center min-h-0",
+              (editor?.hero?.autoHeight !== false) ? "flex-1 min-h-[500px]" : "shrink-0"
           )}
-          style={{ backgroundColor: themeColors.background }}
+          style={{ 
+            backgroundColor: themeColors.background,
+            height: (editor?.hero?.autoHeight !== false) ? undefined : `${editor?.hero?.height || 600}px`
+          }}
         >
         {/* Layer 1: Image Background */}
         {heroImageUrl && (
@@ -313,12 +320,15 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         {vignetteStyle && <div className="absolute inset-0 z-[3]" style={{ background: vignetteStyle }} />}
 
         {/* Layer 5: Content Area */}
-        <div className="relative z-10 mx-auto w-full max-w-7xl h-full flex items-center p-4 md:p-10 pointer-events-none">
+        <div className={cn(
+            "relative z-10 mx-auto w-full max-w-7xl h-full flex items-center px-6 pointer-events-none",
+            isScrolled ? "pt-16" : "pt-20 md:pt-24"
+        )}>
           <div className={cn(
-            "w-full flex-1 flex flex-col transition-all duration-500 pointer-events-auto",
+            "w-full flex-1 flex flex-col transition-all duration-500 pointer-events-auto py-12",
             heroLayout === 'center' ? "items-center text-center" : 
             heroLayout === 'right' ? "items-end text-right" : "items-start text-left",
-            (heroLayout === 'left' || heroLayout === 'right') && "lg:max-w-[55%]"
+            (heroLayout === 'left' || heroLayout === 'right') && "lg:max-w-[60%]"
           )}>
             {/* Badge */}
             {heroBadge && (
@@ -344,7 +354,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
                     ...getStyle('hero', 'hero-headline') 
                 }}
             >
-                {heroHeadline} {heroHighlight && <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>}
+                {heroHeadline || "Por uma cidade de"} {heroHighlight && <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>}
             </h1>
 
             {/* Description */}
