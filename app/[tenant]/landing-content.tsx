@@ -274,14 +274,15 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         </div>
       </header>
 
-      {/* HERO RECONSTRUCTION (ABSOLUTE PARITY) */}
-      <section 
-        className={cn(
-            "relative flex flex-col justify-center overflow-hidden",
-            "min-h-[500px] md:min-h-[700px]"
-        )}
-        style={{ backgroundColor: themeColors.background }}
-      >
+      {/* UNIFIED OPENING (100VH) */}
+      <div className="h-screen flex flex-col relative overflow-hidden">
+        {/* HERO RECONSTRUCTION (ABSOLUTE PARITY) */}
+        <section 
+          className={cn(
+              "relative flex-1 flex flex-col justify-center min-h-0",
+          )}
+          style={{ backgroundColor: themeColors.background }}
+        >
         {/* Layer 1: Image Background */}
         {heroImageUrl && (
           <div 
@@ -389,7 +390,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         </div>
       </section>
 
-      {/* TRUST BADGES */}
+      {/* TRUST BADGES (Highlights Bar) */}
       {displayTrustBadges.length > 0 && (() => {
         const trustPlugin = (config as any)?.__editorConfig?.plugins?.trust || {}
         const autoplay = trustPlugin.autoplay !== false
@@ -406,11 +407,10 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
             Heart
         }
 
-        // Duplicate for infinite loop
         const loopedBadges = [...displayTrustBadges, ...displayTrustBadges, ...displayTrustBadges]
 
         return (
-          <section className="bg-slate-900 py-6 overflow-hidden border-y border-white/5 relative">
+          <section className="bg-slate-900 py-6 overflow-hidden border-y border-white/5 relative shrink-0">
             <style dangerouslySetInnerHTML={{ __html: `
                 @keyframes marquee-site {
                     0% { transform: translateX(0); }
@@ -442,6 +442,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
           </section>
         )
       })()}
+    </div>
 
       {/* PROJETOS */}
       <section id="projetos" className="py-24 bg-white relative">
