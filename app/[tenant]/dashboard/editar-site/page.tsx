@@ -9,26 +9,70 @@ import { SiteEditor, type EditorConfig, type EditorPlugin, type PluginSectionPro
 import "@mandato360/editor/styles"
 import { siteConfigToEditorConfig, editorConfigToSiteConfig, extractEditorConfig } from "@/lib/editor/adapter"
 import { SiteConfig } from "@/lib/editor/types"
+import { cn } from "@/lib/utils"
 import {
     AlertTriangle, Loader2,
     Award, FileText, User, ArrowLeftRight, HelpCircle, MapPin,
     CheckCircle2, Phone, MessageCircle, Mail, ChevronRight,
+    Star, Shield, Gem, Zap, Flag, Heart,
+    Trash2, Plus, GripVertical
 } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 /* ─── Plugin Preview Components ─── */
 
 function TrustPreview({ config, device, themeColors }: PluginSectionProps) {
     const badges = config.badges || []
+    const autoplay = config.autoplay !== false
+    const speed = config.speed || 25
     if (badges.length === 0) return null
+
+    const IconMap: any = {
+        Check: CheckCircle2,
+        Award,
+        Star,
+        Shield,
+        Gem,
+        Zap,
+        Flag,
+        Heart
+    }
+
+    // Double badges for infinite loop
+    const loopedBadges = [...badges, ...badges, ...badges]
+
     return (
-        <div className="bg-slate-900 py-4 overflow-hidden border-y border-white/5">
-            <div className="flex items-center gap-8 whitespace-nowrap px-6 overflow-x-auto">
-                {badges.map((badge: any, i: number) => (
-                    <div key={i} className="flex items-center gap-2 shrink-0">
-                        <CheckCircle2 className="h-4 w-4" style={{ color: themeColors.secondary || themeColors.accent }} />
-                        <span className="text-white font-bold uppercase tracking-[0.12em] text-[9px]">{badge.text}</span>
-                    </div>
-                ))}
+        <div className="bg-slate-900 py-4 overflow-hidden border-y border-white/5 relative">
+            <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes marquee {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-33.333%); }
+                }
+            `}} />
+            <div 
+                className="flex items-center gap-12 whitespace-nowrap px-6 w-max"
+                style={{
+                    animationName: 'marquee',
+                    animationDuration: `${speed}s`,
+                    animationTimingFunction: 'linear',
+                    animationIterationCount: 'infinite',
+                    animationPlayState: autoplay ? 'running' : 'paused'
+                }}
+            >
+                {loopedBadges.map((badge: any, i: number) => {
+                    const Icon = IconMap[badge.icon || 'Check'] || CheckCircle2
+                    return (
+                        <div key={i} className="flex items-center gap-2 shrink-0">
+                            <Icon className="h-4 w-4" style={{ color: themeColors.primary }} />
+                            <span className="text-white font-bold uppercase tracking-[0.12em] text-[9px]">{badge.text}</span>
+                        </div>
+                    )
+                })}
             </div>
         </div>
     )
@@ -171,42 +215,155 @@ function ContactPreview({ config, device, themeColors }: PluginSectionProps) {
     )
 }
 
+/* ─── Sidebar UI Components (Standardized) ─── */
+
+function SidebarSection({ title, children, className }: { title?: string, children: React.ReactNode, className?: string }) {
+    return (
+        <div className={cn("space-y-3", className)}>
+            {title && <SidebarLabel>{title}</SidebarLabel>}
+            {children}
+        </div>
+    )
+}
+
+function SidebarLabel({ children }: { children: React.ReactNode }) {
+    return (
+        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
+            {children}
+        </p>
+    )
+}
+
+function SidebarCard({ children, className, accentColor }: { children: React.ReactNode, className?: string, accentColor?: string }) {
+    return (
+        <div className={cn("group rounded-xl border border-border bg-muted/15 p-3.5 transition-all duration-200 hover:bg-muted/20 relative", className)}>
+            {children}
+        </div>
+    )
+}
+
+function SidebarField({ label, children, description }: { label?: string, children: React.ReactNode, description?: string }) {
+    return (
+        <div className="space-y-2">
+            {label && (
+                <div className="flex items-center justify-between">
+                    <Label className="text-[11px] font-medium text-foreground/70">{label}</Label>
+                </div>
+            )}
+            {children}
+            {description && <p className="text-[9px] text-muted-foreground/50 leading-tight">{description}</p>}
+        </div>
+    )
+}
+
 /* ─── Plugin Sidebar Components ─── */
+
+const ICON_OPTIONS = [
+    { label: "Check", icon: CheckCircle2, id: "Check" },
+    { label: "Prêmio", icon: Award, id: "Award" },
+    { label: "Estrela", icon: Star, id: "Star" },
+    { label: "Escudo", icon: Shield, id: "Shield" },
+    { label: "Gema", icon: Gem, id: "Gem" },
+    { label: "Raio", icon: Zap, id: "Zap" },
+    { label: "Flag", icon: Flag, id: "Flag" },
+    { label: "Coração", icon: Heart, id: "Heart" },
+]
 
 function TrustSidebar({ config, onChange }: PluginSidebarProps) {
     const badges = config.badges || []
+    const autoplay = config.autoplay !== false
+    const speed = config.speed || 25
+
     return (
-        <div className="space-y-4">
-            <p className="text-xs font-medium uppercase tracking-wider text-white/50">Destaques / Conquistas</p>
-            {badges.map((badge: any, i: number) => (
-                <div key={i} className="flex items-center gap-2">
-                    <input
-                        type="text"
-                        value={badge.text}
-                        onChange={(e) => {
-                            const newBadges = [...badges]
-                            newBadges[i] = { ...badge, text: e.target.value }
-                            onChange({ badges: newBadges })
-                        }}
-                        className="flex-1 h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80 placeholder:text-white/20"
-                    />
-                    <button
+        <div className="space-y-6">
+            <SidebarSection title="Configurações Globais">
+                <SidebarCard className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <Label className="text-xs font-medium text-foreground/70">Autoplay</Label>
+                        <Switch 
+                            checked={autoplay} 
+                            onCheckedChange={(checked) => onChange({ autoplay: checked })}
+                        />
+                    </div>
+                    <SidebarField label="Velocidade">
+                        <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[9px] text-muted-foreground">Tempo do loop</span>
+                            <span className="text-[10px] font-mono font-bold text-emerald-500">{speed}s</span>
+                        </div>
+                        <Slider 
+                            min={5} 
+                            max={60} 
+                            step={1}
+                            value={[speed]} 
+                            onValueChange={([val]) => onChange({ speed: val })}
+                        />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
+
+            <SidebarSection title={`Destaques (${badges.length})`}>
+                <div className="space-y-3">
+                    {badges.map((badge: any, i: number) => (
+                        <SidebarCard key={i} className="space-y-3">
+                            <div className="flex items-center gap-2">
+                                <SidebarField label="Texto" className="flex-1">
+                                    <Input 
+                                        value={badge.text}
+                                        onChange={(e) => {
+                                            const newBadges = [...badges]
+                                            newBadges[i] = { ...badge, text: e.target.value }
+                                            onChange({ badges: newBadges })
+                                        }}
+                                        className="h-8 text-[11px] border-border/50 bg-background"
+                                    />
+                                </SidebarField>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        const newBadges = badges.filter((_: any, idx: number) => idx !== i)
+                                        onChange({ badges: newBadges })
+                                    }}
+                                    className="h-8 w-8 text-muted-foreground/30 hover:text-red-500 mt-6"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            <SidebarField label="Ícone">
+                                <div className="grid grid-cols-4 gap-1.5">
+                                    {ICON_OPTIONS.map((opt) => (
+                                        <button
+                                            key={opt.id}
+                                            onClick={() => {
+                                                const newBadges = [...badges]
+                                                newBadges[i] = { ...badge, icon: opt.id }
+                                                onChange({ badges: newBadges })
+                                            }}
+                                            className={cn(
+                                                "flex h-8 items-center justify-center rounded border transition-all hover:bg-muted",
+                                                (badge.icon || "Check") === opt.id ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500" : "border-border text-muted-foreground/40"
+                                            )}
+                                        >
+                                            <opt.icon className="h-3.5 w-3.5" />
+                                        </button>
+                                    ))}
+                                </div>
+                            </SidebarField>
+                        </SidebarCard>
+                    ))}
+
+                    <Button
+                        variant="dashed"
+                        className="w-full h-9 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground"
                         onClick={() => {
-                            const newBadges = badges.filter((_: any, j: number) => j !== i)
-                            onChange({ badges: newBadges })
+                            onChange({ badges: [...badges, { text: "Novo Destaque", icon: "Check" }] })
                         }}
-                        className="h-8 w-8 rounded-md flex items-center justify-center text-red-400 hover:bg-red-500/10 transition-colors"
                     >
-                        ×
-                    </button>
+                        <Plus className="mr-2 h-3.5 w-3.5" /> Adicionar Destaque
+                    </Button>
                 </div>
-            ))}
-            <button
-                onClick={() => onChange({ badges: [...badges, { text: "Novo Destaque", icon: "Check" }] })}
-                className="w-full h-8 rounded-md border border-dashed border-white/20 text-xs text-white/40 hover:text-white/60 hover:border-white/30 transition-colors"
-            >
-                + Adicionar
-            </button>
+            </SidebarSection>
         </div>
     )
 }
@@ -214,72 +371,117 @@ function TrustSidebar({ config, onChange }: PluginSidebarProps) {
 function ProjetosSidebar({ config, onChange }: PluginSidebarProps) {
     const items = config.items || []
     return (
-        <div className="space-y-4">
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
-                <input
-                    type="text"
-                    value={config.title || ""}
-                    onChange={(e) => onChange({ title: e.target.value })}
-                    className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80"
-                />
-            </div>
-            <p className="text-xs font-medium uppercase tracking-wider text-white/50">Projetos ({items.length})</p>
-            {items.slice(0, 5).map((item: any, i: number) => (
-                <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] space-y-2">
-                    <input
-                        type="text"
-                        value={item.name || ""}
-                        onChange={(e) => {
-                            const newItems = [...items]
-                            newItems[i] = { ...item, name: e.target.value }
-                            onChange({ items: newItems })
+        <div className="space-y-6">
+            <SidebarSection title="Configurações da Seção">
+                <SidebarCard className="space-y-4">
+                    <SidebarField label="Título da Seção">
+                        <Input 
+                            value={config.title}
+                            onChange={(e) => onChange({ title: e.target.value })}
+                            placeholder="Ex: Ações e Projetos"
+                            className="h-9 text-xs"
+                        />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
+            
+            <SidebarSection title={`Projetos (${items.length})`}>
+                <div className="space-y-3">
+                    {items.map((item: any, i: number) => (
+                        <SidebarCard key={i} className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <SidebarLabel>Projeto #{i + 1}</SidebarLabel>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        const newItems = items.filter((_: any, idx: number) => idx !== i)
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="h-6 w-6 p-0 text-muted-foreground/30 hover:text-red-500"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                            </div>
+                            <SidebarField label="Título">
+                                <Input 
+                                    value={item.name}
+                                    onChange={(e) => {
+                                        const newItems = [...items]
+                                        newItems[i] = { ...item, name: e.target.value }
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="h-8 text-xs bg-background"
+                                />
+                            </SidebarField>
+                            <SidebarField label="Descrição">
+                                <Textarea 
+                                    value={item.description}
+                                    onChange={(e) => {
+                                        const newItems = [...items]
+                                        newItems[i] = { ...item, description: e.target.value }
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="text-xs bg-background min-h-[60px]"
+                                />
+                            </SidebarField>
+                        </SidebarCard>
+                    ))}
+                    <Button
+                        variant="dashed"
+                        className="w-full h-9 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                            onChange({ items: [...items, { name: "Novo Projeto", description: "Descrição do projeto..." }] })
                         }}
-                        placeholder="Nome"
-                        className="w-full h-7 rounded border border-white/5 bg-white/[0.03] px-2 text-[10px] text-white/80 placeholder:text-white/20"
-                    />
-                    <input
-                        type="text"
-                        value={item.description || ""}
-                        onChange={(e) => {
-                            const newItems = [...items]
-                            newItems[i] = { ...item, description: e.target.value }
-                            onChange({ items: newItems })
-                        }}
-                        placeholder="Descrição"
-                        className="w-full h-7 rounded border border-white/5 bg-white/[0.03] px-2 text-[10px] text-white/80 placeholder:text-white/20"
-                    />
+                    >
+                        <Plus className="mr-2 h-3.5 w-3.5" /> Adicionar Projeto
+                    </Button>
                 </div>
-            ))}
-            <button
-                onClick={() => onChange({ items: [...items, { id: Date.now().toString(), name: "", description: "", image: "", categoryId: "", slug: "" }] })}
-                className="w-full h-8 rounded-md border border-dashed border-white/20 text-xs text-white/40 hover:text-white/60 hover:border-white/30 transition-colors"
-            >
-                + Adicionar Projeto
-            </button>
+            </SidebarSection>
         </div>
     )
 }
 
 function PerfilSidebar({ config, onChange }: PluginSidebarProps) {
     return (
-        <div className="space-y-4">
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
-                <input type="text" value={config.title || ""} onChange={(e) => onChange({ title: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Nome</p>
-                <input type="text" value={config.name || ""} onChange={(e) => onChange({ name: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Cargo</p>
-                <input type="text" value={config.role || ""} onChange={(e) => onChange({ role: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Biografia</p>
-                <textarea value={config.bio || ""} onChange={(e) => onChange({ bio: e.target.value })} rows={3} className="w-full rounded-md border border-white/5 bg-white/[0.03] px-3 py-2 text-xs text-white/80 resize-none" />
-            </div>
+        <div className="space-y-6">
+            <SidebarSection title="Informações do Perfil">
+                <SidebarCard className="space-y-4">
+                    <SidebarField label="Nome">
+                        <Input 
+                            value={config.name}
+                            onChange={(e) => onChange({ name: e.target.value })}
+                            className="h-9 text-xs bg-background"
+                        />
+                    </SidebarField>
+                    <SidebarField label="Cargo / Role">
+                        <Input 
+                            value={config.role}
+                            onChange={(e) => onChange({ role: e.target.value })}
+                            className="h-9 text-xs bg-background"
+                            placeholder="Ex: Vereador"
+                        />
+                    </SidebarField>
+                    <SidebarField label="Biografia">
+                        <Textarea 
+                            value={config.bio}
+                            onChange={(e) => onChange({ bio: e.target.value })}
+                            className="text-xs bg-background min-h-[100px]"
+                        />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
+            <SidebarSection title="Imagem">
+                <SidebarCard>
+                     <SidebarField label="URL da Imagem">
+                        <Input 
+                            value={config.imageUrl}
+                            onChange={(e) => onChange({ imageUrl: e.target.value })}
+                            className="h-9 text-xs bg-background font-mono"
+                        />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
         </div>
     )
 }
@@ -287,76 +489,130 @@ function PerfilSidebar({ config, onChange }: PluginSidebarProps) {
 function FAQSidebar({ config, onChange }: PluginSidebarProps) {
     const items = config.items || []
     return (
-        <div className="space-y-4">
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
-                <input type="text" value={config.title || ""} onChange={(e) => onChange({ title: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <p className="text-xs font-medium uppercase tracking-wider text-white/50">Perguntas ({items.length})</p>
-            {items.map((item: any, i: number) => (
-                <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] space-y-2">
-                    <input
-                        type="text"
-                        value={item.question || ""}
-                        onChange={(e) => {
-                            const newItems = [...items]
-                            newItems[i] = { ...item, question: e.target.value }
-                            onChange({ items: newItems })
+        <div className="space-y-6">
+            <SidebarSection title="Configurações da Seção">
+                <SidebarCard>
+                    <SidebarField label="Título da Seção">
+                        <Input 
+                            value={config.title}
+                            onChange={(e) => onChange({ title: e.target.value })}
+                            placeholder="Ex: Perguntas Frequentes"
+                            className="h-9 text-xs"
+                        />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
+
+            <SidebarSection title={`Perguntas (${items.length})`}>
+                <div className="space-y-3">
+                    {items.map((item: any, i: number) => (
+                        <SidebarCard key={i} className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <SidebarLabel>Item #{i + 1}</SidebarLabel>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        const newItems = items.filter((_: any, idx: number) => idx !== i)
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="h-6 w-6 p-0 text-muted-foreground/30 hover:text-red-500"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                            </div>
+                            <SidebarField label="Pergunta">
+                                <Input 
+                                    value={item.question}
+                                    onChange={(e) => {
+                                        const newItems = [...items]
+                                        newItems[i] = { ...item, question: e.target.value }
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="h-8 text-xs bg-background"
+                                />
+                            </SidebarField>
+                            <SidebarField label="Resposta">
+                                <Textarea 
+                                    value={item.answer}
+                                    onChange={(e) => {
+                                        const newItems = [...items]
+                                        newItems[i] = { ...item, answer: e.target.value }
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="text-xs bg-background min-h-[60px]"
+                                />
+                            </SidebarField>
+                        </SidebarCard>
+                    ))}
+                    <Button
+                        variant="dashed"
+                        className="w-full h-9 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                            onChange({ items: [...items, { question: "Nova Pergunta", answer: "Resposta..." }] })
                         }}
-                        placeholder="Pergunta"
-                        className="w-full h-7 rounded border border-white/5 bg-white/[0.03] px-2 text-[10px] text-white/80 placeholder:text-white/20"
-                    />
-                    <textarea
-                        value={item.answer || ""}
-                        onChange={(e) => {
-                            const newItems = [...items]
-                            newItems[i] = { ...item, answer: e.target.value }
-                            onChange({ items: newItems })
-                        }}
-                        placeholder="Resposta"
-                        rows={2}
-                        className="w-full rounded border border-white/5 bg-white/[0.03] px-2 py-1 text-[10px] text-white/80 placeholder:text-white/20 resize-none"
-                    />
-                    <button onClick={() => { const n = items.filter((_: any, j: number) => j !== i); onChange({ items: n }) }} className="text-[10px] text-red-400 hover:text-red-300">Remover</button>
+                    >
+                        <Plus className="mr-2 h-3.5 w-3.5" /> Adicionar FAQ
+                    </Button>
                 </div>
-            ))}
-            <button
-                onClick={() => onChange({ items: [...items, { id: Date.now().toString(), question: "", answer: "" }] })}
-                className="w-full h-8 rounded-md border border-dashed border-white/20 text-xs text-white/40 hover:text-white/60 hover:border-white/30 transition-colors"
-            >
-                + Adicionar Pergunta
-            </button>
+            </SidebarSection>
         </div>
     )
 }
 
 function ContactSidebar({ config, onChange }: PluginSidebarProps) {
     return (
-        <div className="space-y-4">
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
-                <input type="text" value={config.title || ""} onChange={(e) => onChange({ title: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Telefone</p>
-                <input type="text" value={config.phone || ""} onChange={(e) => onChange({ phone: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">WhatsApp</p>
-                <input type="text" value={config.whatsapp || ""} onChange={(e) => onChange({ whatsapp: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">E-mail</p>
-                <input type="text" value={config.email || ""} onChange={(e) => onChange({ email: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Instagram</p>
-                <input type="text" value={config.instagram || ""} onChange={(e) => onChange({ instagram: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Endereço</p>
-                <input type="text" value={config.address || ""} onChange={(e) => onChange({ address: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
+        <div className="space-y-6">
+            <SidebarSection title="Canais de Atendimento">
+                <SidebarCard className="space-y-4">
+                    <SidebarField label="Telefone">
+                        <Input 
+                            value={config.phone}
+                            onChange={(e) => onChange({ phone: e.target.value })}
+                            className="h-9 text-xs bg-background"
+                            placeholder="(00) 00000-0000"
+                        />
+                    </SidebarField>
+                    <SidebarField label="WhatsApp">
+                        <Input 
+                            value={config.whatsapp}
+                            onChange={(e) => onChange({ whatsapp: e.target.value })}
+                            className="h-9 text-xs bg-background"
+                            placeholder="Link ou número"
+                        />
+                    </SidebarField>
+                    <SidebarField label="E-mail">
+                        <Input 
+                            value={config.email}
+                            onChange={(e) => onChange({ email: e.target.value })}
+                            className="h-9 text-xs bg-background"
+                        />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
+
+            <SidebarSection title="Localização & Social">
+                <SidebarCard className="space-y-4">
+                    <SidebarField label="Endereço">
+                        <Textarea 
+                            value={config.address}
+                            onChange={(e) => onChange({ address: e.target.value })}
+                            className="text-xs bg-background min-h-[60px]"
+                        />
+                    </SidebarField>
+                    <SidebarField label="Instagram">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">@</span>
+                            <Input 
+                                value={config.instagram}
+                                onChange={(e) => onChange({ instagram: e.target.value })}
+                                className="h-9 text-xs bg-background"
+                                placeholder="usuario"
+                            />
+                        </div>
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
         </div>
     )
 }
@@ -364,19 +620,86 @@ function ContactSidebar({ config, onChange }: PluginSidebarProps) {
 function BeforeAfterSidebar({ config, onChange }: PluginSidebarProps) {
     const items = config.items || []
     return (
-        <div className="space-y-4">
-            <div>
-                <p className="text-[10px] text-white/40 mb-1">Título da Seção</p>
-                <input type="text" value={config.title || ""} onChange={(e) => onChange({ title: e.target.value })} className="w-full h-8 rounded-md border border-white/5 bg-white/[0.03] px-3 text-xs text-white/80" />
-            </div>
-            <p className="text-xs font-medium uppercase tracking-wider text-white/50">Resultados ({items.length})</p>
-            {items.map((item: any, i: number) => (
-                <div key={i} className="p-3 rounded-lg border border-white/5 bg-white/[0.02] space-y-2">
-                    <input type="text" value={item.title || ""} onChange={(e) => { const n = [...items]; n[i] = { ...item, title: e.target.value }; onChange({ items: n }) }} placeholder="Título" className="w-full h-7 rounded border border-white/5 bg-white/[0.03] px-2 text-[10px] text-white/80 placeholder:text-white/20" />
-                    <button onClick={() => { const n = items.filter((_: any, j: number) => j !== i); onChange({ items: n }) }} className="text-[10px] text-red-400 hover:text-red-300">Remover</button>
+        <div className="space-y-6">
+            <SidebarSection title="Configurações da Seção">
+                <SidebarCard>
+                    <SidebarField label="Título da Seção">
+                        <Input 
+                            value={config.title}
+                            onChange={(e) => onChange({ title: e.target.value })}
+                            placeholder="Ex: Transformando a Cidade"
+                            className="h-9 text-xs"
+                        />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
+
+            <SidebarSection title={`Comparações (${items.length})`}>
+                <div className="space-y-3">
+                    {items.map((item: any, i: number) => (
+                        <SidebarCard key={i} className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <SidebarLabel>Item #{i + 1}</SidebarLabel>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        const newItems = items.filter((_: any, idx: number) => idx !== i)
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="h-6 w-6 p-0 text-muted-foreground/30 hover:text-red-500"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                            </div>
+                            <SidebarField label="Título">
+                                <Input 
+                                    value={item.title}
+                                    onChange={(e) => {
+                                        const newItems = [...items]
+                                        newItems[i] = { ...item, title: e.target.value }
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="h-8 text-xs bg-background"
+                                />
+                            </SidebarField>
+                            <div className="grid grid-cols-2 gap-2">
+                                <SidebarField label="Link Antes">
+                                    <Input 
+                                        value={item.beforeImage}
+                                        onChange={(e) => {
+                                            const newItems = [...items]
+                                            newItems[i] = { ...item, beforeImage: e.target.value }
+                                            onChange({ items: newItems })
+                                        }}
+                                        className="h-8 text-[10px] font-mono bg-background"
+                                    />
+                                </SidebarField>
+                                <SidebarField label="Link Depois">
+                                    <Input 
+                                        value={item.afterImage}
+                                        onChange={(e) => {
+                                            const newItems = [...items]
+                                            newItems[i] = { ...item, afterImage: e.target.value }
+                                            onChange({ items: newItems })
+                                        }}
+                                        className="h-8 text-[10px] font-mono bg-background"
+                                    />
+                                </SidebarField>
+                            </div>
+                        </SidebarCard>
+                    ))}
+                    <Button
+                        variant="dashed"
+                        className="w-full h-9 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                            onChange({ items: [...items, { title: "Nova Comparação", beforeImage: "", afterImage: "" }] })
+                        }}
+                    >
+                        <Plus className="mr-2 h-3.5 w-3.5" /> Adicionar Comparação
+                    </Button>
                 </div>
-            ))}
-            <button onClick={() => onChange({ items: [...items, { id: Date.now().toString(), title: "", before: "", after: "" }] })} className="w-full h-8 rounded-md border border-dashed border-white/20 text-xs text-white/40 hover:text-white/60 hover:border-white/30 transition-colors">+ Adicionar</button>
+            </SidebarSection>
         </div>
     )
 }
@@ -389,7 +712,7 @@ const mandatoPlugins: EditorPlugin[] = [
         icon: Award,
         previewComponent: TrustPreview,
         sidebarComponent: TrustSidebar,
-        defaultConfig: { badges: [] },
+        defaultConfig: { badges: [], autoplay: true, speed: 25 },
     },
     {
         id: "projetos",

@@ -7,7 +7,8 @@ import {
   Building2, Users, Stethoscope, GraduationCap, HardHat, HeartHandshake,
   ArrowRight, Star, MapPin, ChevronDown, Menu, X, User, Heart, Phone,
   MoveRight, ArrowLeftRight, CheckCircle2, LifeBuoy, FileText, Send, Mail,
-  Share2, MessageCircle, HelpCircle, ChevronRight
+  Share2, MessageCircle, HelpCircle, ChevronRight,
+  Award, Shield, Gem, Zap, Flag
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { submitSupporterAction, submitRequestAction } from "@/lib/actions/forms"
@@ -108,6 +109,25 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   }
 
   const themeCSSVars = generateThemeCSS(activeTheme, "light")
+
+  // --- Absolute Hero Parity Calculations ---
+  const vignetteStyle = editor?.hero?.vignette?.enabled
+    ? `radial-gradient(ellipse at center, transparent 0%, ${editor.hero.vignette.color}${Math.round(
+        (editor.hero.vignette.intensity / 100) * 255
+      ).toString(16).padStart(2, "0")} 100%)`
+    : undefined
+
+  const overlayColor = editor?.hero?.overlay?.enabled
+    ? `${editor.hero.overlay.color}${Math.round((editor.hero.overlay.opacity / 100) * 255).toString(16).padStart(2, "0")}`
+    : undefined
+
+  const themeGradientStyle = editor?.theme?.gradient?.enabled
+    ? `linear-gradient(${editor.theme.gradient.angle}deg, ${editor.theme.gradient.stops
+        .map((stop: any) => `${stop.color} ${stop.position}%`)
+        .join(", ")})`
+    : undefined
+
+  const themeColors = editor?.theme?.colors || { text: "#ffffff", primary: primaryColor, background: "#000000" }
 
   // Typography
   const fontHeading = config?.fontHeading || activeTheme.typography.heading
@@ -254,76 +274,174 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         </div>
       </header>
 
-      {/* HERO */}
-      <section className="relative min-h-[90vh] flex flex-col justify-center pt-16" style={{ backgroundColor: primaryColor }}>
-        {/* Hero Image (Immersive Background) */}
+      {/* HERO RECONSTRUCTION (ABSOLUTE PARITY) */}
+      <section 
+        className={cn(
+            "relative flex flex-col justify-center overflow-hidden",
+            "min-h-[500px] md:min-h-[700px]"
+        )}
+        style={{ backgroundColor: themeColors.background }}
+      >
+        {/* Layer 1: Image Background */}
         {heroImageUrl && (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-             <div 
-                className="absolute inset-0"
-                style={{
-                    backgroundImage: `url(${heroImageUrl})`,
-                    backgroundSize: `${(heroSettings?.zoom ?? 1) * 100}%`,
-                    backgroundPosition: `${heroSettings?.positionX ?? 50}% ${heroSettings?.positionY ?? 20}%`,
-                    backgroundRepeat: "no-repeat",
-                }}
-             />
-          </div>
-        )}
-
-        {/* Base gradient or solid (Layered ON TOP of image for immersion) */}
-        {hasHeroGradient ? (
-          <div className="absolute inset-0 pointer-events-none" style={{ background: buildGradientString(heroSectionStyle!.gradient!) }} />
-        ) : (
-          <div className="absolute inset-0 bg-linear-to-br from-[var(--tenant-primary)]/80 via-[var(--tenant-primary)]/70 to-[var(--tenant-primary)]/60 pointer-events-none" />
-        )}
-
-        {/* Hero Overlay Gradient */}
-        {heroOverlay && (
           <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: buildGradientString(heroSettings!.overlay!) }}
+            className="absolute inset-0 z-0 bg-no-repeat bg-cover"
+            style={{ 
+                backgroundImage: `url(${heroImageUrl})`,
+                backgroundPosition: editor?.hero?.imagePosition?.desktop ? `${editor.hero.imagePosition.desktop.x}% ${editor.hero.imagePosition.desktop.y}%` : 'center',
+                backgroundSize: editor?.hero?.imagePosition?.desktop ? `${editor.hero.imagePosition.desktop.scale}%` : 'cover'
+            }}
           />
         )}
 
-        <div className={cn(
-            "relative z-10 mx-auto w-full max-w-7xl px-8 py-12 flex flex-col",
-            heroLayout === 'center' && "items-center text-center",
-            heroLayout === 'right' && "items-end text-right"
+        {/* Layer 2: Overlay Color */}
+        {overlayColor && <div className="absolute inset-0 z-[1]" style={{ backgroundColor: overlayColor }} />}
+        
+        {/* Layer 3: Theme Gradient */}
+        {themeGradientStyle && (
+            <div 
+                className="absolute inset-0 z-[2]" 
+                style={{ 
+                    background: themeGradientStyle, 
+                    opacity: (editor?.theme?.gradient?.opacity || 100) / 100 
+                }} 
+            />
+        )}
+
+        {/* Layer 4: Vignette */}
+        {vignetteStyle && <div className="absolute inset-0 z-[3]" style={{ background: vignetteStyle }} />}
+
+        {/* Layer 5: Content Area */}
+        <div className="relative z-10 mx-auto w-full max-w-7xl h-full flex items-center p-4 md:p-10 pointer-events-none">
+          <div className={cn(
+            "w-full flex-1 flex flex-col transition-all duration-500 pointer-events-auto",
+            heroLayout === 'center' ? "items-center text-center" : 
+            heroLayout === 'right' ? "items-end text-right" : "items-start text-left",
+            (heroLayout === 'left' || heroLayout === 'right') && "lg:max-w-[55%]"
           )}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md mb-6 border border-white/10" style={{ borderRadius: 'var(--theme-btn-radius)' }}>
-              <Heart className="w-3 h-3 text-[var(--tenant-primary)]" />
-              <span className="text-xs font-medium text-white uppercase tracking-widest">{heroBadge}</span>
-            </div>
-            <h1 className="text-4xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('hero', 'hero-headline') }}>
+            {/* Badge */}
+            {heroBadge && (
+              <div 
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 lg:px-4.5 lg:py-2 rounded-full mb-5 md:mb-6 border border-white/10 transition-transform hover:scale-105" 
+                  style={{ 
+                      borderRadius: 'var(--theme-btn-radius)',
+                      backgroundColor: `${themeColors.primary}4d`, // 30% alpha (4d)
+                      color: themeColors.text
+                  }}
+              >
+                <Heart className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-3.5 lg:h-3.5" style={{ color: primaryColor }} />
+                <span className="text-[10px] md:text-xs lg:text-sm font-medium uppercase tracking-widest">{heroBadge}</span>
+              </div>
+            )}
+
+            {/* Title */}
+            <h1 
+                className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-5 md:mb-6" 
+                style={{ 
+                    fontFamily: 'var(--theme-font-heading)', 
+                    color: themeColors.text,
+                    ...getStyle('hero', 'hero-headline') 
+                }}
+            >
                 {heroHeadline} {heroHighlight && <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>}
             </h1>
-            <p className={cn(
-                "mt-4 text-lg text-white opacity-90 leading-relaxed", 
-                heroLayout === 'center' ? "max-w-2xl mx-auto" : heroLayout === 'right' ? "ml-auto max-w-xl" : "max-w-xl"
-            )} style={getStyle('hero', 'hero-description')}>{heroDescription}</p>
-            <div className={cn("flex flex-col sm:flex-row gap-4 mt-6", heroLayout === 'center' && "justify-center")}>
-              <Button className="bg-[var(--tenant-primary)] text-white font-medium text-sm md:text-base px-6 py-3 md:px-8 md:py-6 shadow-xl hover:scale-105 active:scale-95 transition-all" style={{ borderRadius: 'var(--theme-btn-radius)' }}>{ctaPrimaryText}</Button>
-              <Button variant="outline" className="border-2 border-white text-white bg-transparent font-medium text-sm md:text-base px-6 py-3 md:px-8 md:py-6 hover:bg-white/10" style={{ borderRadius: 'var(--theme-btn-radius)' }} onClick={() => scrollTo('projetos')}>{ctaSecondaryText}</Button>
+
+            {/* Description */}
+            <p 
+                className={cn(
+                    "text-base md:text-lg lg:text-xl leading-relaxed opacity-90 mb-6 md:mb-10", 
+                    heroLayout === 'center' ? "max-w-2xl mx-auto" : "max-w-xl"
+                )} 
+                style={{ 
+                    color: themeColors.text,
+                    ...getStyle('hero', 'hero-description') 
+                }}
+            >
+                {heroDescription}
+            </p>
+
+            {/* CTAs */}
+            <div className={cn("flex flex-wrap gap-3 md:gap-4 mt-2", heroLayout === 'center' && "justify-center")}>
+              <Button 
+                className="font-medium text-xs md:text-sm lg:text-base px-6 py-3 md:px-7 md:py-4 lg:px-9 lg:py-5 transition-transform hover:scale-105 active:scale-95 shadow-xl h-auto" 
+                style={{ 
+                    borderRadius: 'var(--theme-btn-radius)',
+                    backgroundColor: themeColors.primary,
+                    color: themeColors.text
+                }}
+              >
+                {ctaPrimaryText}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-2 bg-transparent font-medium text-xs md:text-sm lg:text-base px-6 py-3 md:px-7 md:py-4 lg:px-9 lg:py-5 transition-transform hover:scale-105 hover:bg-white/10 h-auto" 
+                style={{ 
+                    borderRadius: 'var(--theme-btn-radius)',
+                    borderColor: themeColors.text,
+                    color: themeColors.text
+                }} 
+                onClick={() => scrollTo('projetos')}
+              >
+                {ctaSecondaryText}
+              </Button>
             </div>
           </div>
+        </div>
       </section>
 
       {/* TRUST BADGES */}
-      {displayTrustBadges.length > 0 && (
-        <section className="bg-slate-900 py-6 overflow-hidden border-y border-white/5">
-          <div className="flex items-center gap-12 whitespace-nowrap px-6 overflow-x-auto">
-            {displayTrustBadges.map((badge: any, i: number) => (
-              <div key={i} className="flex items-center gap-3 shrink-0">
-                <CheckCircle2 className="h-5 w-5" style={{ color: secondaryColor }} />
-                <span className="text-white font-bold uppercase tracking-[0.15em] text-[10px]">
-                  {badge.text}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {displayTrustBadges.length > 0 && (() => {
+        const trustPlugin = (config as any)?.__editorConfig?.plugins?.trust || {}
+        const autoplay = trustPlugin.autoplay !== false
+        const speed = trustPlugin.speed || 25
+        
+        const IconMap: any = {
+            Check: CheckCircle2,
+            Award,
+            Star,
+            Shield,
+            Gem,
+            Zap,
+            Flag,
+            Heart
+        }
+
+        // Duplicate for infinite loop
+        const loopedBadges = [...displayTrustBadges, ...displayTrustBadges, ...displayTrustBadges]
+
+        return (
+          <section className="bg-slate-900 py-6 overflow-hidden border-y border-white/5 relative">
+            <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes marquee-site {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-33.333%); }
+                }
+            `}} />
+            <div 
+                className="flex items-center gap-12 whitespace-nowrap px-6 w-max"
+                style={{
+                    animationName: 'marquee-site',
+                    animationDuration: `${speed}s`,
+                    animationTimingFunction: 'linear',
+                    animationIterationCount: 'infinite',
+                    animationPlayState: autoplay ? 'running' : 'paused'
+                }}
+            >
+              {loopedBadges.map((badge: any, i: number) => {
+                const Icon = IconMap[badge.icon || 'Check'] || CheckCircle2
+                return (
+                  <div key={i} className="flex items-center gap-3 shrink-0">
+                    <Icon className="h-5 w-5" style={{ color: primaryColor }} />
+                    <span className="text-white font-bold uppercase tracking-[0.15em] text-[10px]">
+                      {badge.text}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+        )
+      })()}
 
       {/* PROJETOS */}
       <section id="projetos" className="py-24 bg-white relative">
