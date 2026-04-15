@@ -79,7 +79,7 @@ export function siteConfigToEditorConfig(site: SiteConfig): EditorConfig {
       ctaText: site.ctaText || "Fale Conosco",
     },
     hero: {
-      orientation: (site.heroImageSettings?.layout === "center" ? "center" : "left") as any,
+      orientation: (site.heroImageSettings?.layout === "right" ? "right" : site.heroImageSettings?.layout === "center" ? "center" : "left") as any,
       title: site.heroHeadline
         ? `${site.heroHeadline} ${site.heroHighlight || ""}`
         : "Construindo o Futuro",
@@ -261,9 +261,9 @@ export function editorConfigToSiteConfig(editor: EditorConfig, originalSlug: str
     resultsTitle: beforeAfterPlugin.title || "Transformando a Cidade",
     faqTitle: faqPlugin.title || "Perguntas Frequentes",
     contactTitle: contactPlugin.title || "Entre em Contato",
-    theme: "neutro" as any,
-    fontHeading: "",
-    fontBody: "",
+    theme: (editor.theme.designSystem.preset || "neutro") as any,
+    fontHeading: editor.theme.designSystem.fonts.primary || "",
+    fontBody: editor.theme.designSystem.fonts.secondary || "",
     // Store the raw editor config for lossless round-trip
     __editorConfig: editor as any,
   }

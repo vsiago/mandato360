@@ -607,7 +607,7 @@ export default function EditarSitePage() {
             previewUrl={`/${slug}`}
             tenantName={editorConfig.header.logoText || slug}
             plugins={mandatoPlugins}
-            autoSave={true}
+            autoSave={false}
             autoSaveDelay={2000}
             accentColor={tenantPrimaryColor}
             className="w-full h-full -mx-0 -my-0 lg:-mx-0 lg:-my-0"

@@ -19,6 +19,19 @@ import { SiteConfig } from "@/lib/editor/types"
 import { buildGradientString, resolveElementStyle, elementStyleToCSS } from "@/lib/editor/style-utils"
 import { buildGoogleFontsUrl } from "@/lib/editor/fonts"
 
+const FONT_STACKS = {
+  sans: 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
+  serif: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
+  mono: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  display: 'Graphik, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+}
+
+function getFontStack(font: string) {
+  if (FONT_STACKS[font as keyof typeof FONT_STACKS]) return FONT_STACKS[font as keyof typeof FONT_STACKS]
+  if (font.includes("'") || font.includes('"')) return font
+  return `'${font}', sans-serif`
+}
+
 export default function LandingContent({ tenant, initialData }: { tenant: any, initialData: any }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -34,6 +47,8 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
       }
   }
 
+  const editor = (config as any)?.__editorConfig
+
   // Fallback / Merged Data
   const primaryColor = config?.colors?.primary || tenant?.primaryColor || "#0F2B5B"
   const secondaryColor = config?.colors?.secondary || tenant?.secondaryColor || "#0D9F6E"
@@ -41,11 +56,16 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   const displayBio = config?.perfil?.bio || tenant?.biografia || "Trabalhando por você."
   const displayFoto = config?.perfil?.imageUrl || tenant?.fotoPerfilUrl || ""
   const displayRole = config?.perfil?.role || "Vereador"
-  const heroBadge = config?.heroBadge || "Mandato Participativo"
-  const heroHeadline = config?.heroHeadline || "Por uma cidade de"
-  const heroHighlight = config?.heroHighlight || "Resultados"
-  const heroImageUrl = config?.heroImageUrl || "/avatar-vereador.png"
-  const heroDescription = config?.description || "Trabalhando pela transparência e inovação política."
+  
+  // Hero Source of Truth (Prefer Editor Config)
+  const heroBadge = editor?.hero?.badge || config?.heroBadge || "Mandato Participativo"
+  const heroHeadline = editor?.hero?.title || config?.heroHeadline || "Por uma cidade de"
+  const heroHighlight = editor ? "" : (config?.heroHighlight || "Resultados") // Clear highlight if using editor
+  const heroImageUrl = editor?.hero?.images?.desktop || config?.heroImageUrl || "/avatar-vereador.png"
+  const heroDescription = editor?.hero?.description || config?.description || "Trabalhando pela transparência e inovação política."
+  const ctaPrimaryText = editor?.hero?.ctaPrimary || config?.ctaText || "Solicitar Demanda"
+  const ctaSecondaryText = editor?.hero?.ctaSecondary || "Ver Projetos"
+  
   const displayTagline = config?.tagline || "Mandato Participativo"
   const logoUrl = config?.logoUrl || tenant?.logoUrl || ""
 
@@ -57,7 +77,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
 
   // Hero image settings
   const heroSettings = config?.heroImageSettings
-  const heroLayout = heroSettings?.layout || 'left'
+  const heroLayout = editor?.hero?.orientation || heroSettings?.layout || 'left'
 
   // Section styles (for gradient backgrounds)
   const heroSectionStyle = config?.sectionStyles?.hero
@@ -72,6 +92,21 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   }
 
   const activeTheme = getTheme((config?.theme as any) || "neutro")
+  
+  // Patch theme with editor overrides if available for total parity
+  if (editor?.theme) {
+    if (editor.theme.colors) {
+        activeTheme.colors.light = { ...activeTheme.colors.light, ...editor.theme.colors }
+        // Also update the core theme colors for generating variables
+        activeTheme.colors.light.primary = editor.theme.colors.primary
+        activeTheme.colors.light.secondary = editor.theme.colors.secondary
+    }
+    if (editor.theme.designSystem) {
+        activeTheme.buttons.style = editor.theme.designSystem.borderRadius === 'full' ? 'pill' : 
+                                    editor.theme.designSystem.borderRadius === 'none' ? 'sharp' : 'soft'
+    }
+  }
+
   const themeCSSVars = generateThemeCSS(activeTheme, "light")
 
   // Typography
@@ -96,8 +131,8 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
 
   const googleFontsUrl = buildGoogleFontsUrl(Array.from(fontsToLoad).filter(Boolean))
 
-  const fontHeadingCSS = fontHeading.includes("'") ? fontHeading : `'${fontHeading}', sans-serif`
-  const fontBodyCSS = fontBody.includes("'") ? fontBody : `'${fontBody}', sans-serif`
+  const fontHeadingCSS = getFontStack(fontHeading)
+  const fontBodyCSS = getFontStack(fontBody)
 
   // Data from initialData (DB)
   const { projetosLei = [], indicacoes = [], agenda = [] } = initialData || {}
@@ -198,24 +233,24 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
                 </>
               )}
            </div>
-           <nav className="hidden lg:flex items-center gap-8">
-              {['projetos', 'perfil', 'contato'].map((id) => (
-                <button key={id} onClick={() => scrollTo(id)} className={cn(
-                    "text-sm font-bold uppercase tracking-tight transition-colors hover:text-[var(--tenant-secondary)]",
-                    isScrolled ? "text-gray-600" : "text-white/90"
-                )}>
-                  {id === 'projetos' ? 'Projetos' : id === 'perfil' ? 'Perfil' : 'Contato'}
-                </button>
-              ))}
-           </nav>
-           {(config?.__editorConfig?.header?.showCta ?? true) && (
-               <Button className={cn(
-                   "rounded-full px-6 font-bold shadow-md transition-all",
-                   isScrolled ? "bg-[var(--tenant-primary)] text-white h-10" : "bg-[var(--tenant-secondary)] text-white h-12"
-               )}>
-                  {config?.__editorConfig?.header?.ctaText || "Quero Apoiar"}
-               </Button>
-           )}
+            <nav className="hidden lg:flex items-center gap-8">
+               {['projetos', 'perfil', 'contato'].map((id) => (
+                 <button key={id} onClick={() => scrollTo(id)} className={cn(
+                     "text-sm font-medium uppercase tracking-tight transition-colors hover:opacity-100",
+                     isScrolled ? "text-gray-600 hover:text-[var(--tenant-primary)]" : "text-white/90"
+                 )}>
+                   {id === 'projetos' ? 'Projetos' : id === 'perfil' ? 'Perfil' : 'Contato'}
+                 </button>
+               ))}
+            </nav>
+             {(config?.__editorConfig?.header?.showCta ?? true) && (
+                 <Button className={cn(
+                     "px-5 py-2.5 text-sm font-medium shadow-sm transition-all hover:scale-105",
+                     isScrolled ? "bg-[var(--tenant-primary)] text-white h-9" : "bg-[var(--tenant-secondary)] text-white h-10"
+                 )} style={{ borderRadius: 'var(--theme-btn-radius)' }}>
+                    {config?.__editorConfig?.header?.ctaText || "Quero Apoiar"}
+                 </Button>
+             )}
         </div>
       </header>
 
@@ -252,32 +287,26 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
         )}
 
         <div className={cn(
-          "relative z-10 mx-auto w-full max-w-7xl px-8 py-12 flex flex-col",
-          heroLayout === 'center' && "items-center text-center",
-          heroLayout === 'right' && "items-end text-right"
-        )}>
-          <div className={cn(
-            "max-w-3xl flex flex-col gap-8", 
-            heroLayout === 'center' && "items-center",
-            heroLayout === 'right' && "items-end"
+            "relative z-10 mx-auto w-full max-w-7xl px-8 py-12 flex flex-col",
+            heroLayout === 'center' && "items-center text-center",
+            heroLayout === 'right' && "items-end text-right"
           )}>
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/20 w-fit">
-              <HeartHandshake className="h-3.5 w-3.5 text-white" />
-              <span className="text-[10px] font-black text-white uppercase tracking-widest">{heroBadge}</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md mb-6 border border-white/10" style={{ borderRadius: 'var(--theme-btn-radius)' }}>
+              <Heart className="w-3 h-3 text-[var(--tenant-primary)]" />
+              <span className="text-xs font-medium text-white uppercase tracking-widest">{heroBadge}</span>
             </div>
-            <h1 className="text-5xl md:text-8xl font-black text-white leading-tight tracking-tighter" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('hero', 'hero-headline') }}>
-                {heroHeadline} <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>
+            <h1 className="text-4xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('hero', 'hero-headline') }}>
+                {heroHeadline} {heroHighlight && <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>}
             </h1>
             <p className={cn(
-                "text-xl text-white/80 font-medium", 
-                heroLayout === 'center' ? "max-w-2xl" : heroLayout === 'right' ? "ml-auto max-w-xl" : "max-w-xl"
+                "mt-4 text-lg text-white opacity-90 leading-relaxed", 
+                heroLayout === 'center' ? "max-w-2xl mx-auto" : heroLayout === 'right' ? "ml-auto max-w-xl" : "max-w-xl"
             )} style={getStyle('hero', 'hero-description')}>{heroDescription}</p>
-            <div className="flex flex-col sm:flex-row gap-4 mt-2">
-              <Button className="bg-[var(--tenant-secondary)] text-white font-black text-xl px-12 py-8 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">Solicitar Demanda</Button>
-              <Button variant="outline" className="border-2 border-white/20 text-white bg-white/5 font-bold text-lg px-8 py-8 rounded-2xl" onClick={() => scrollTo('projetos')}>Ver Projetos</Button>
+            <div className={cn("flex flex-col sm:flex-row gap-4 mt-6", heroLayout === 'center' && "justify-center")}>
+              <Button className="bg-[var(--tenant-primary)] text-white font-medium text-sm md:text-base px-6 py-3 md:px-8 md:py-6 shadow-xl hover:scale-105 active:scale-95 transition-all" style={{ borderRadius: 'var(--theme-btn-radius)' }}>{ctaPrimaryText}</Button>
+              <Button variant="outline" className="border-2 border-white text-white bg-transparent font-medium text-sm md:text-base px-6 py-3 md:px-8 md:py-6 hover:bg-white/10" style={{ borderRadius: 'var(--theme-btn-radius)' }} onClick={() => scrollTo('projetos')}>{ctaSecondaryText}</Button>
             </div>
           </div>
-        </div>
       </section>
 
       {/* TRUST BADGES */}
