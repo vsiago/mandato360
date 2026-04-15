@@ -156,78 +156,111 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
     >
       {googleFontsUrl && <link rel="stylesheet" href={googleFontsUrl} />}
       {/* HEADER */}
-      <header className={`fixed top-0 inset-x-0 z-50 h-16 transition-all duration-300 border-b ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-gray-100' : 'bg-transparent border-transparent'}`}>
+      <header 
+        className={cn(
+            "fixed top-0 inset-x-0 z-50 transition-all duration-300 border-b",
+            isScrolled ? "bg-white/95 backdrop-blur-md shadow-sm border-gray-100 h-16" : "border-transparent"
+        )}
+        style={!isScrolled ? {
+            height: config?.__editorConfig?.header?.height || 80,
+            background: config?.__editorConfig?.header?.menuStyle === "solid"
+                ? config?.__editorConfig?.header?.backgroundColor
+                : config?.__editorConfig?.header?.menuStyle === "gradient"
+                ? `linear-gradient(${config?.__editorConfig?.header?.gradient?.angle}deg, ${config?.__editorConfig?.header?.gradient?.stops
+                    .map((stop: any) => `${stop.color} ${stop.position}%`)
+                    .join(", ")})`
+                : "transparent",
+            opacity: config?.__editorConfig?.header?.menuStyle === "gradient" ? (config?.__editorConfig?.header?.gradient?.opacity || 100) / 100 : 1,
+        } : {}}
+      >
         <div className="mx-auto max-w-7xl px-6 h-full flex items-center justify-between">
            <div className="flex items-center gap-3">
               {logoUrl ? (
-                <img src={logoUrl} alt={displayName} className="h-10 w-auto object-contain" />
+                <img 
+                    src={logoUrl} 
+                    alt={displayName} 
+                    style={{ height: isScrolled ? 40 : (config?.__editorConfig?.header?.logoHeight || 40) }} 
+                    className="w-auto object-contain" 
+                />
               ) : (
                 <>
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl font-black transition-all ${isScrolled ? 'bg-[var(--tenant-primary)] text-white' : 'bg-white text-[var(--tenant-primary)]'}`}>
-                    {displayName.charAt(0)}
+                  <div className={cn(
+                    "flex items-center justify-center rounded-xl font-black transition-all",
+                    isScrolled ? "bg-[var(--tenant-primary)] text-white h-10 w-10" : "bg-white text-[var(--tenant-primary)]",
+                    !isScrolled && "h-12 w-12"
+                  )}>
+                    {(config?.__editorConfig?.header?.logoText || displayName).charAt(0)}
                   </div>
-                  <span className={`text-base font-bold ${isScrolled ? 'text-gray-900' : 'text-white drop-shadow-sm'}`}>{displayName}</span>
+                  <span className={cn(
+                    "font-bold",
+                    isScrolled ? "text-base text-gray-900" : "text-lg text-white drop-shadow-sm"
+                  )}>{config?.__editorConfig?.header?.logoText || displayName}</span>
                 </>
               )}
            </div>
            <nav className="hidden lg:flex items-center gap-8">
               {['projetos', 'perfil', 'contato'].map((id) => (
-                <button key={id} onClick={() => scrollTo(id)} className={`text-sm font-bold uppercase tracking-tight hover:text-[var(--tenant-secondary)] ${isScrolled ? 'text-gray-600' : 'text-white/80'}`}>
+                <button key={id} onClick={() => scrollTo(id)} className={cn(
+                    "text-sm font-bold uppercase tracking-tight transition-colors hover:text-[var(--tenant-secondary)]",
+                    isScrolled ? "text-gray-600" : "text-white/90"
+                )}>
                   {id === 'projetos' ? 'Projetos' : id === 'perfil' ? 'Perfil' : 'Contato'}
                 </button>
               ))}
            </nav>
-           <Button className={`rounded-full px-6 font-bold shadow-md transition-all h-10 ${isScrolled ? 'bg-[var(--tenant-primary)] text-white' : 'bg-[var(--tenant-secondary)] text-white'}`}>
-              Quero Apoiar
-           </Button>
+           {(config?.__editorConfig?.header?.showCta ?? true) && (
+               <Button className={cn(
+                   "rounded-full px-6 font-bold shadow-md transition-all",
+                   isScrolled ? "bg-[var(--tenant-primary)] text-white h-10" : "bg-[var(--tenant-secondary)] text-white h-12"
+               )}>
+                  {config?.__editorConfig?.header?.ctaText || "Quero Apoiar"}
+               </Button>
+           )}
         </div>
       </header>
 
       {/* HERO */}
       <section className="relative min-h-[90vh] flex flex-col justify-center pt-16" style={{ backgroundColor: primaryColor }}>
-        {/* Base gradient or solid */}
-        {hasHeroGradient ? (
-          <div className="absolute inset-0 z-0" style={{ background: buildGradientString(heroSectionStyle!.gradient!) }} />
-        ) : (
-          <div className="absolute inset-0 bg-linear-to-br from-[var(--tenant-primary)] via-[var(--tenant-primary)]/90 to-[var(--tenant-primary)]/80 z-0" />
+        {/* Hero Image (Immersive Background) */}
+        {heroImageUrl && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+             <div 
+                className="absolute inset-0"
+                style={{
+                    backgroundImage: `url(${heroImageUrl})`,
+                    backgroundSize: `${(heroSettings?.zoom ?? 1) * 100}%`,
+                    backgroundPosition: `${heroSettings?.positionX ?? 50}% ${heroSettings?.positionY ?? 20}%`,
+                    backgroundRepeat: "no-repeat",
+                }}
+             />
+          </div>
         )}
 
-        {/* Hero Image */}
-        {heroImageUrl && (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-[1]">
-             <div className={cn(
-               "absolute z-2 overflow-hidden",
-               heroLayout === 'center' ? "inset-0" : "top-0 right-0 bottom-0 w-full lg:w-[50%]"
-             )}>
-                <Image 
-                    src={heroImageUrl} 
-                    alt={displayName || "Vereador"} 
-                    fill 
-                    className="object-cover" 
-                    sizes={heroLayout === 'center' ? "100vw" : "50vw"}
-                    priority
-                    style={{
-                        objectPosition: `${heroSettings?.positionX ?? 50}% ${heroSettings?.positionY ?? 20}%`,
-                        transform: `scale(${heroSettings?.zoom ?? 1})`,
-                    }}
-                />
-             </div>
-          </div>
+        {/* Base gradient or solid (Layered ON TOP of image for immersion) */}
+        {hasHeroGradient ? (
+          <div className="absolute inset-0 pointer-events-none" style={{ background: buildGradientString(heroSectionStyle!.gradient!) }} />
+        ) : (
+          <div className="absolute inset-0 bg-linear-to-br from-[var(--tenant-primary)]/80 via-[var(--tenant-primary)]/70 to-[var(--tenant-primary)]/60 pointer-events-none" />
         )}
 
         {/* Hero Overlay Gradient */}
         {heroOverlay && (
           <div 
-            className="absolute inset-0 z-[2] pointer-events-none"
+            className="absolute inset-0 pointer-events-none"
             style={{ background: buildGradientString(heroSettings!.overlay!) }}
           />
         )}
 
         <div className={cn(
           "relative z-10 mx-auto w-full max-w-7xl px-8 py-12 flex flex-col",
-          heroLayout === 'center' && "items-center text-center"
+          heroLayout === 'center' && "items-center text-center",
+          heroLayout === 'right' && "items-end text-right"
         )}>
-          <div className={cn("max-w-3xl flex flex-col gap-8", heroLayout === 'center' && "items-center")}>
+          <div className={cn(
+            "max-w-3xl flex flex-col gap-8", 
+            heroLayout === 'center' && "items-center",
+            heroLayout === 'right' && "items-end"
+          )}>
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-white/20 w-fit">
               <HeartHandshake className="h-3.5 w-3.5 text-white" />
               <span className="text-[10px] font-black text-white uppercase tracking-widest">{heroBadge}</span>
@@ -235,7 +268,10 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
             <h1 className="text-5xl md:text-8xl font-black text-white leading-tight tracking-tighter" style={{ fontFamily: 'var(--theme-font-heading)', ...getStyle('hero', 'hero-headline') }}>
                 {heroHeadline} <span style={{ color: secondaryColor, ...getStyle('hero', 'hero-highlight') }}>{heroHighlight}</span>
             </h1>
-            <p className={cn("text-xl text-white/80 font-medium", heroLayout === 'center' ? "max-w-2xl" : "max-w-xl")} style={getStyle('hero', 'hero-description')}>{heroDescription}</p>
+            <p className={cn(
+                "text-xl text-white/80 font-medium", 
+                heroLayout === 'center' ? "max-w-2xl" : heroLayout === 'right' ? "ml-auto max-w-xl" : "max-w-xl"
+            )} style={getStyle('hero', 'hero-description')}>{heroDescription}</p>
             <div className="flex flex-col sm:flex-row gap-4 mt-2">
               <Button className="bg-[var(--tenant-secondary)] text-white font-black text-xl px-12 py-8 rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all">Solicitar Demanda</Button>
               <Button variant="outline" className="border-2 border-white/20 text-white bg-white/5 font-bold text-lg px-8 py-8 rounded-2xl" onClick={() => scrollTo('projetos')}>Ver Projetos</Button>

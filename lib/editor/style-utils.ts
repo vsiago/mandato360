@@ -7,10 +7,18 @@ export function buildGradientString(gradient?: Gradient): string | undefined {
     const { angle, stops } = gradient
     const sortedStops = [...stops].sort((a, b) => a.position - b.position)
     const stopsCSS = sortedStops.map(s => {
+        // If it's not a hex color (e.g. 'transparent'), return as is or with opacity
+        if (!s.color.startsWith('#')) {
+            if (s.color === 'transparent' || s.opacity === undefined || s.opacity === 100) return `${s.color} ${s.position}%`
+            // If it's another name but has opacity, we might need a better parser, 
+            // but for 'transparent' we're good.
+            return `${s.color} ${s.position}%`
+        }
         const r = parseInt(s.color.slice(1, 3), 16)
         const g = parseInt(s.color.slice(3, 5), 16)
         const b = parseInt(s.color.slice(5, 7), 16)
-        return `rgba(${r},${g},${b},${s.opacity / 100}) ${s.position}%`
+        const opacity = s.opacity !== undefined ? s.opacity / 100 : 1
+        return `rgba(${r},${g},${b},${opacity}) ${s.position}%`
     }).join(', ')
     return `linear-gradient(${angle}deg, ${stopsCSS})`
 }

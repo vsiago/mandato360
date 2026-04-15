@@ -22,11 +22,12 @@ export function siteConfigToEditorConfig(site: SiteConfig): EditorConfig {
     ? heroGradient.stops.map((s: SiteGradientStop) => ({
         color: s.color,
         position: s.position,
+        opacity: s.opacity,
       }))
     : [
         { color: primaryColor, position: 0 },
         { color: secondaryColor, position: 50 },
-        { color: "transparent", position: 100 },
+        { color: "#000000", position: 100 },
       ]
 
   // Build overlay gradient for the editor
@@ -192,7 +193,7 @@ export function editorConfigToSiteConfig(editor: EditorConfig, originalSlug: str
   const siteGradientStops: SiteGradientStop[] = editor.theme.gradient.stops.map((s) => ({
     color: s.color,
     position: s.position,
-    opacity: 100,
+    opacity: Math.round(((s as any).opacity ?? 100) * (editor.theme.gradient.opacity / 100)),
   }))
 
   return {
@@ -242,7 +243,7 @@ export function editorConfigToSiteConfig(editor: EditorConfig, originalSlug: str
       positionX: editor.hero.imagePosition.desktop.x,
       positionY: editor.hero.imagePosition.desktop.y,
       zoom: editor.hero.imagePosition.desktop.scale / 100,
-      layout: editor.hero.orientation === "center" ? "center" : "left",
+      layout: editor.hero.orientation,
       overlayEnabled: editor.hero.overlay.enabled,
       overlay: editor.hero.overlay.enabled
         ? {

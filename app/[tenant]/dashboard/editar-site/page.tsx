@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
 import { getTenantBySlug } from "@/lib/actions/tenant"
 import { updateTenantSiteAction } from "@/lib/actions/tenant"
+import { uploadImageAction } from "@/lib/actions/upload"
 import { SiteEditor, type EditorConfig, type EditorPlugin, type PluginSectionProps, type PluginSidebarProps } from "@mandato360/editor"
 import "@mandato360/editor/styles"
 import { siteConfigToEditorConfig, editorConfigToSiteConfig, extractEditorConfig } from "@/lib/editor/adapter"
@@ -480,7 +481,8 @@ function buildConfigFromTenant(tenant: any): SiteConfig {
                     angle: 90,
                     stops: [
                         { color: tenant.primaryColor || "#0F2B5B", position: 0, opacity: 100 },
-                        { color: "#000000", position: 100, opacity: 80 }
+                        { color: tenant.secondaryColor || "#0D9F6E", position: 50, opacity: 80 },
+                        { color: "#000000", position: 100, opacity: 70 }
                     ]
                 }
             }
@@ -565,6 +567,16 @@ export default function EditarSitePage() {
         }
     }
 
+    const handleUpload = async (file: File) => {
+        const formData = new FormData()
+        formData.append("file", file)
+        const result = await uploadImageAction(formData)
+        if (!result.success) {
+            throw new Error(result.error || "Erro ao fazer upload da imagem")
+        }
+        return result.url
+    }
+
     if (error) {
         return (
             <div className="flex h-[60vh] items-center justify-center">
@@ -591,6 +603,7 @@ export default function EditarSitePage() {
         <SiteEditor
             initialConfig={editorConfig}
             onSave={handleSave}
+            onImageUpload={handleUpload}
             previewUrl={`/${slug}`}
             tenantName={editorConfig.header.logoText || slug}
             plugins={mandatoPlugins}
