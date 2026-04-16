@@ -115,19 +115,68 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
 
   const themeCSSVars = generateThemeCSS(activeTheme, "light")
 
-  // --- Absolute Hero Parity Calculations ---
-  const vignetteStyle = editor?.hero?.vignette?.enabled
-    ? `radial-gradient(ellipse at center, transparent 0%, ${editor.hero.vignette.color}${Math.round(
-        (editor.hero.vignette.intensity / 100) * 255
+  // --- Hero Resolution Engine (inline, matches editor's resolveHero) ---
+  function resolveHeroForSite(bp: 'mobile' | 'tablet' | 'desktop') {
+    const hero = editor?.hero
+    if (!hero) return null
+    
+    const base: any = {
+      title: hero.title,
+      subtitle: hero.subtitle,
+      description: hero.description,
+      ctaPrimary: hero.ctaPrimary,
+      ctaSecondary: hero.ctaSecondary,
+      badge: hero.badge,
+      orientation: hero.orientation,
+      autoHeight: hero.autoHeight,
+      height: hero.height,
+      overlay: hero.overlay ? { ...hero.overlay } : { enabled: false, color: '#000000', opacity: 60 },
+      vignette: hero.vignette ? { ...hero.vignette } : { enabled: false, intensity: 40, color: '#000000' },
+      backgroundColor: hero.backgroundColor || '',
+      gradient: hero.gradient ? { ...hero.gradient, stops: (hero.gradient.stops || []).map((s: any) => ({...s})) } : null,
+    }
+    
+    const applyOvr = (target: any, overrides: any) => {
+      if (!overrides) return
+      for (const [k, v] of Object.entries(overrides)) {
+        if (v === undefined) continue
+        if ((k === 'overlay' || k === 'vignette') && typeof v === 'object') {
+          target[k] = { ...target[k], ...v }
+        } else if (k === 'gradient' && typeof v === 'object') {
+          const gradVal = v as any
+          target[k] = { ...(target[k] || {}), ...gradVal, stops: gradVal.stops ? gradVal.stops.map((s: any) => ({...s})) : (target[k]?.stops || []) }
+        } else {
+          target[k] = v
+        }
+      }
+    }
+    
+    if (bp === 'mobile') return base
+    applyOvr(base, hero.overrides?.tablet)
+    if (bp === 'tablet') return base
+    applyOvr(base, hero.overrides?.desktop)
+    return base
+  }
+  
+  const heroDesktop = resolveHeroForSite('desktop')
+  const heroTablet = resolveHeroForSite('tablet')
+  const heroMobile = resolveHeroForSite('mobile')
+
+  // --- Absolute Hero Parity Calculations (use resolved desktop as primary) ---
+  const vignetteStyle = heroDesktop?.vignette?.enabled
+    ? `radial-gradient(ellipse at center, transparent 0%, ${heroDesktop.vignette.color}${Math.round(
+        (heroDesktop.vignette.intensity / 100) * 255
       ).toString(16).padStart(2, "0")} 100%)`
     : undefined
 
-  const overlayColor = editor?.hero?.overlay?.enabled
-    ? `${editor.hero.overlay.color}${Math.round((editor.hero.overlay.opacity / 100) * 255).toString(16).padStart(2, "0")}`
+  const overlayColor = heroDesktop?.overlay?.enabled
+    ? `${heroDesktop.overlay.color}${Math.round((heroDesktop.overlay.opacity / 100) * 255).toString(16).padStart(2, "0")}`
     : undefined
 
-  const themeGradientStyle = editor?.theme?.gradient?.enabled
-    ? `linear-gradient(${editor.theme.gradient.angle}deg, ${editor.theme.gradient.stops
+  // Use hero-level gradient (device-aware) if present, otherwise fallback to theme gradient
+  const activeDesktopGradient = heroDesktop?.gradient?.enabled ? heroDesktop.gradient : editor?.theme?.gradient
+  const themeGradientStyle = activeDesktopGradient?.enabled
+    ? `linear-gradient(${activeDesktopGradient.angle}deg, ${activeDesktopGradient.stops
         .map((stop: any) => `${stop.color} ${stop.position}%`)
         .join(", ")})`
     : undefined
