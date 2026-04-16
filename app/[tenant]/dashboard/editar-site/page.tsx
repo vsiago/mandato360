@@ -215,6 +215,76 @@ function ContactPreview({ config, device, themeColors }: PluginSectionProps) {
     )
 }
 
+function TransparenciaPreview({ config, device, themeColors }: PluginSectionProps) {
+    const items = config.items || []
+    return (
+        <div className="bg-slate-50 py-12 px-6" style={device === "desktop" ? { padding: "4rem 3rem" } : undefined}>
+            <div className="max-w-4xl mx-auto space-y-8">
+                <div className="text-center space-y-2">
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">{config.title || "Portal da Transparência"}</h2>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto">Informações detalhadas sobre a atuação e recursos geridos pelo mandato.</p>
+                </div>
+                
+                <div className={`grid gap-4 ${device === "desktop" ? "grid-cols-3" : device === "tablet" ? "grid-cols-2" : "grid-cols-1"}`}>
+                    {(items.length > 0 ? items : [
+                        { label: "Assiduidade na Câmara", value: "100%", icon: "Shield" },
+                        { label: "Projetos de Lei", value: "42", icon: "FileText" },
+                        { label: "Economia de Verba", value: "R$ 150k", icon: "Gem" }
+                    ]).map((item: any, i: number) => {
+                        const Icon = i === 0 ? Shield : i === 1 ? FileText : i === 2 ? Gem : Zap
+                        return (
+                            <div key={i} className="bg-white rounded-2xl p-5 border border-slate-200/60 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="h-10 w-10 rounded-xl mb-4 flex items-center justify-center" style={{ backgroundColor: `${themeColors.primary}08`, color: themeColors.primary }}>
+                                    <Icon className="h-5 w-5" />
+                                </div>
+                                <div className="space-y-1">
+                                    <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</h3>
+                                    <p className="text-xl font-black text-slate-900" style={{ color: i === 0 ? themeColors.primary : undefined }}>{item.value}</p>
+                                </div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+        </div>
+    )
+}
+
+function PrestacaoContasPreview({ config, device, themeColors }: PluginSectionProps) {
+    const items = config.items || []
+    return (
+        <div className="bg-white py-12 px-6" style={device === "desktop" ? { padding: "4rem 3rem" } : undefined}>
+            <div className="max-w-4xl mx-auto space-y-10">
+                <div className="text-center space-y-2">
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">{config.title || "Prestação de Contas"}</h2>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto">Resumo das principais ações e fiscalizações realizadas neste período.</p>
+                </div>
+
+                <div className="space-y-4">
+                    {(items.length > 0 ? items : [
+                        { text: "Fiscalização em 12 Unidades de Saúde do município", status: "Concluído" },
+                        { text: "Implementação da Coleta Seletiva no bairro Central", status: "Em progresso" },
+                        { text: "Reforma completa da Praça dos Atletas", status: "Concluído" }
+                    ]).map((item: any, i: number) => (
+                        <div key={i} className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50/30">
+                            <div className="h-6 w-6 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ backgroundColor: item.status === "Concluído" ? "#10b98120" : "#f59e0b20", color: item.status === "Concluído" ? "#10b981" : "#f59e0b" }}>
+                                <CheckCircle2 className="h-4 w-4" />
+                            </div>
+                            <div className="flex-1 space-y-1">
+                                <p className="text-xs font-bold text-slate-800 leading-relaxed">{item.text}</p>
+                                <span className={cn(
+                                    "text-[9px] font-black uppercase tracking-widest",
+                                    item.status === "Concluído" ? "text-emerald-500" : "text-amber-500"
+                                )}>{item.status}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    )
+}
+
 /* ─── Sidebar UI Components (Standardized) ─── */
 
 function SidebarSection({ title, children, className }: { title?: string, children: React.ReactNode, className?: string }) {
@@ -617,6 +687,108 @@ function ContactSidebar({ config, onChange }: PluginSidebarProps) {
     )
 }
 
+function TransparenciaSidebar({ config, onChange }: PluginSidebarProps) {
+    const items = config.items || []
+    return (
+        <div className="space-y-6">
+            <SidebarSection title="Configurações da Seção">
+                <SidebarCard>
+                    <SidebarField label="Título">
+                        <Input value={config.title} onChange={(e) => onChange({ title: e.target.value })} className="h-9 text-xs" />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
+            
+            <SidebarSection title={`Métricas (${items.length})`}>
+                <div className="space-y-3">
+                    {items.map((item: any, i: number) => (
+                        <SidebarCard key={i} className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <SidebarLabel>Métrica #{i + 1}</SidebarLabel>
+                                <Button variant="ghost" size="sm" onClick={() => onChange({ items: items.filter((_: any, idx: number) => idx !== i) })} className="h-6 w-6 p-0 text-muted-foreground/30 hover:text-red-500">
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                            </div>
+                            <SidebarField label="Legenda (ex: Projetos)">
+                                <Input value={item.label} onChange={(e) => {
+                                    const newItems = [...items]
+                                    newItems[i] = { ...item, label: e.target.value }
+                                    onChange({ items: newItems })
+                                }} className="h-8 text-xs bg-background" />
+                            </SidebarField>
+                            <SidebarField label="Valor (ex: 42 ou 98%)">
+                                <Input value={item.value} onChange={(e) => {
+                                    const newItems = [...items]
+                                    newItems[i] = { ...item, value: e.target.value }
+                                    onChange({ items: newItems })
+                                }} className="h-8 text-xs bg-background font-black" />
+                            </SidebarField>
+                        </SidebarCard>
+                    ))}
+                    <Button variant="dashed" className="w-full h-9 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground" onClick={() => onChange({ items: [...items, { label: "Novo Dado", value: "0", icon: "Shield" }] })}>
+                        <Plus className="mr-2 h-3.5 w-3.5" /> Adicionar Métrica
+                    </Button>
+                </div>
+            </SidebarSection>
+        </div>
+    )
+}
+
+function PrestacaoContasSidebar({ config, onChange }: PluginSidebarProps) {
+    const items = config.items || []
+    return (
+        <div className="space-y-6">
+            <SidebarSection title="Configurações da Seção">
+                <SidebarCard>
+                    <SidebarField label="Título">
+                        <Input value={config.title} onChange={(e) => onChange({ title: e.target.value })} className="h-9 text-xs" />
+                    </SidebarField>
+                </SidebarCard>
+            </SidebarSection>
+
+            <SidebarSection title={`Ações (${items.length})`}>
+                <div className="space-y-3">
+                    {items.map((item: any, i: number) => (
+                        <SidebarCard key={i} className="space-y-3">
+                            <div className="flex items-center justify-between">
+                                <SidebarLabel>Ação #{i + 1}</SidebarLabel>
+                                <Button variant="ghost" size="sm" onClick={() => onChange({ items: items.filter((_: any, idx: number) => idx !== i) })} className="h-6 w-6 p-0 text-muted-foreground/30 hover:text-red-500">
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                            </div>
+                            <SidebarField label="Descrição da Ação">
+                                <Textarea value={item.text} onChange={(e) => {
+                                    const newItems = [...items]
+                                    newItems[i] = { ...item, text: e.target.value }
+                                    onChange({ items: newItems })
+                                }} className="text-xs bg-background min-h-[60px]" />
+                            </SidebarField>
+                            <SidebarField label="Status">
+                                <select 
+                                    value={item.status} 
+                                    onChange={(e) => {
+                                        const newItems = [...items]
+                                        newItems[i] = { ...item, status: e.target.value }
+                                        onChange({ items: newItems })
+                                    }}
+                                    className="w-full h-8 rounded border border-border bg-background text-[10px] font-bold uppercase tracking-wider px-2"
+                                >
+                                    <option value="Concluído">Concluído</option>
+                                    <option value="Em progresso">Em progresso</option>
+                                    <option value="Aguardando">Aguardando</option>
+                                </select>
+                            </SidebarField>
+                        </SidebarCard>
+                    ))}
+                    <Button variant="dashed" className="w-full h-9 text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground" onClick={() => onChange({ items: [...items, { text: "Nova ação realizada...", status: "Concluído" }] })}>
+                        <Plus className="mr-2 h-3.5 w-3.5" /> Adicionar Ação
+                    </Button>
+                </div>
+            </SidebarSection>
+        </div>
+    )
+}
+
 function BeforeAfterSidebar({ config, onChange }: PluginSidebarProps) {
     const items = config.items || []
     return (
@@ -754,6 +926,22 @@ const mandatoPlugins: EditorPlugin[] = [
         sidebarComponent: ContactSidebar,
         defaultConfig: { title: "Entre em Contato", phone: "", whatsapp: "", email: "", instagram: "", address: "" },
     },
+    {
+        id: "transparencia",
+        label: "Transparência",
+        icon: Shield,
+        previewComponent: TransparenciaPreview,
+        sidebarComponent: TransparenciaSidebar,
+        defaultConfig: { title: "Portal da Transparência", items: [] },
+    },
+    {
+        id: "prestacaoContas",
+        label: "Contas",
+        icon: Gem,
+        previewComponent: PrestacaoContasPreview,
+        sidebarComponent: PrestacaoContasSidebar,
+        defaultConfig: { title: "Prestação de Contas", items: [] },
+    },
 ]
 
 /* ─── Build SiteConfig from tenant DB row (reused from original) ─── */
@@ -861,6 +1049,7 @@ export default function EditarSitePage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [tenantPrimaryColor, setTenantPrimaryColor] = useState("#10b981")
+    const [tenantCargo, setTenantCargo] = useState<string | null>(null)
 
     useEffect(() => {
         getTenantBySlug(slug).then(tenant => {
@@ -875,6 +1064,7 @@ export default function EditarSitePage() {
             const config = extractEditorConfig(siteConfig)
             setEditorConfig(config)
             setTenantPrimaryColor(tenant.primaryColor || siteConfig.colors?.primary || "#10b981")
+            setTenantCargo(tenant.cargo || "Vereador")
             setLoading(false)
         }).catch(err => {
             console.error("Error loading tenant:", err)
@@ -931,7 +1121,10 @@ export default function EditarSitePage() {
             onImageUpload={handleUpload}
             previewUrl={`/${slug}`}
             tenantName={editorConfig.header.logoText || slug}
-            plugins={mandatoPlugins}
+            plugins={mandatoPlugins.filter(p => {
+                if (p.id === 'beforeAfter' && tenantCargo?.toLowerCase() === 'vereador') return false;
+                return true;
+            })}
             autoSave={false}
             autoSaveDelay={2000}
             accentColor={tenantPrimaryColor}

@@ -42,7 +42,7 @@ export function QuemSouContent({ tenant }: { tenant: any }) {
   }
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
+    <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">

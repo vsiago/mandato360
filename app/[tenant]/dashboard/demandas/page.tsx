@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select"
 import { demandas as initialDemandas } from "@/lib/mock-data"
 import type { Demanda } from "@/lib/mock-data"
-import { MapPin, Calendar, Tag, User, ArrowRight, Share2, Copy, CheckCircle2 } from "lucide-react"
+import { MapPin, Calendar, Tag, User, ArrowRight, Share2, Copy, CheckCircle2, ClipboardList } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 
 type StatusType = 'novo' | 'analise' | 'encaminhado' | 'resolvido'
@@ -74,12 +74,19 @@ export default function DemandasPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground">Demandas da Populacao</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Acompanhe e gerencie as solicitacoes dos cidadaos
-        </p>
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between mb-2 md:mb-4">
+        <div>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground tracking-tight flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10">
+              <ClipboardList className="h-4 w-4 text-amber-600" />
+            </div>
+            Demandas da Populacao
+          </h1>
+          <p className="text-[13px] text-muted-foreground mt-1">
+            Acompanhe e gerencie as solicitacoes dos cidadaos
+          </p>
+        </div>
       </div>
 
       {/* Kanban Board - horizontal scroll on mobile */}
@@ -98,7 +105,7 @@ export default function DemandasPage() {
               {getDemandasByStatus(column.id).map((demanda) => (
                 <Card
                   key={demanda.id}
-                  className="cursor-pointer border-0 shadow-sm transition-all hover:shadow-md"
+                  className="cursor-pointer rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
                   onClick={() => setSelectedDemanda(demanda)}
                 >
                   <CardContent className="p-4">
@@ -137,15 +144,15 @@ export default function DemandasPage() {
 
       {/* Dialog de Detalhes */}
       <Dialog open={!!selectedDemanda} onOpenChange={() => setSelectedDemanda(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Detalhes da Demanda</DialogTitle>
-            <DialogDescription>
+        <DialogContent className="max-w-lg rounded-2xl p-0 overflow-hidden border-border/60">
+          <DialogHeader className="px-6 pt-6 pb-4 bg-muted/30 border-b border-border/40">
+            <DialogTitle className="text-lg">Detalhes da Demanda</DialogTitle>
+            <DialogDescription className="text-xs">
               Visualize e altere o status da solicitacao
             </DialogDescription>
           </DialogHeader>
           {selectedDemanda && (
-            <div className="space-y-4">
+            <div className="space-y-4 p-6">
               {/* Status Change */}
               <div className="rounded-xl bg-muted/50 p-4">
                 <p className="mb-2 text-sm font-medium text-muted-foreground">Alterar Status</p>

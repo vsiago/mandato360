@@ -82,23 +82,25 @@ export function AgendaPageContent({ tenantId, initialData }: { tenantId: string;
   const isPast = (date: string) => new Date(date) < new Date()
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between mb-2 md:mb-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-            <CalendarDays className="h-6 w-6 text-orange-600" />
+          <h1 className="text-lg md:text-xl font-semibold text-foreground tracking-tight flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-500/10">
+              <CalendarDays className="h-4 w-4 text-orange-600" />
+            </div>
             Agenda Pública
           </h1>
-          <p className="text-sm text-muted-foreground font-medium">Gerencie eventos, visitas e ações</p>
+          <p className="text-[13px] text-muted-foreground mt-1">Gerencie eventos, visitas e ações</p>
         </div>
-        <Button onClick={openNew} className="rounded-xl gap-2">
+        <Button onClick={openNew} className="rounded-xl h-9 text-[13px] gap-2 shadow-sm transition-all active:scale-[0.98]">
           <Plus className="h-4 w-4" /> Novo Evento
         </Button>
       </div>
 
       <div className="space-y-3">
         {items.length === 0 && (
-          <Card className="border-0 shadow-sm rounded-xl">
+          <Card className="rounded-2xl border border-border/60 shadow-sm col-span-full">
             <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <CalendarDays className="h-12 w-12 mb-3 opacity-30" />
               <p className="font-medium">Nenhum evento agendado</p>
@@ -106,7 +108,7 @@ export function AgendaPageContent({ tenantId, initialData }: { tenantId: string;
           </Card>
         )}
         {items.map((item) => (
-          <Card key={item.id} className={`border-0 shadow-sm rounded-xl hover:shadow-md transition-shadow ${isPast(item.dataEvento) ? "opacity-60" : ""}`}>
+          <Card key={item.id} className={`cursor-pointer rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] group ${isPast(item.dataEvento) ? "opacity-60" : ""}`}>
             <CardContent className="p-4 flex items-center gap-4">
               <div className="flex flex-col items-center justify-center h-14 w-14 rounded-xl bg-orange-50 text-center shrink-0">
                 <span className="text-[10px] font-bold text-orange-600 uppercase">
@@ -134,9 +136,9 @@ export function AgendaPageContent({ tenantId, initialData }: { tenantId: string;
                   {isPast(item.dataEvento) && <Badge variant="secondary" className="text-[10px]">Passado</Badge>}
                 </div>
               </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <Button size="icon" variant="ghost" onClick={() => openEdit(item)} className="h-8 w-8"><Pencil className="h-4 w-4" /></Button>
-                <Button size="icon" variant="ghost" onClick={() => handleDelete(item.id)} className="h-8 w-8 text-red-500"><Trash2 className="h-4 w-4" /></Button>
+              <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shrink-0">
+                <Button size="icon" variant="ghost" onClick={() => openEdit(item)} className="h-8 w-8 rounded-lg hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors active:scale-95"><Pencil className="h-4 w-4" /></Button>
+                <Button size="icon" variant="ghost" onClick={() => handleDelete(item.id)} className="h-8 w-8 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors active:scale-95"><Trash2 className="h-4 w-4" /></Button>
               </div>
             </CardContent>
           </Card>
@@ -144,12 +146,14 @@ export function AgendaPageContent({ tenantId, initialData }: { tenantId: string;
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="rounded-2xl">
-          <DialogHeader><DialogTitle>{editingItem ? "Editar Evento" : "Novo Evento"}</DialogTitle></DialogHeader>
-          <div className="space-y-4">
+        <DialogContent className="rounded-2xl p-0 overflow-hidden border-border/60">
+          <DialogHeader className="px-6 pt-6 pb-4 bg-muted/30 border-b border-border/40">
+            <DialogTitle className="text-lg">{editingItem ? "Editar Evento" : "Novo Evento"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-6 pt-2">
             <div className="space-y-2">
               <Label>Título *</Label>
-              <Input value={form.titulo} onChange={(e) => setForm(prev => ({ ...prev, titulo: e.target.value }))} className="rounded-xl" />
+              <Input value={form.titulo} onChange={(e) => setForm(prev => ({ ...prev, titulo: e.target.value }))} className="rounded-xl h-9" />
             </div>
             <div className="space-y-2">
               <Label>Descrição</Label>
@@ -158,28 +162,28 @@ export function AgendaPageContent({ tenantId, initialData }: { tenantId: string;
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Local</Label>
-                <Input value={form.local} onChange={(e) => setForm(prev => ({ ...prev, local: e.target.value }))} className="rounded-xl" />
+                <Input value={form.local} onChange={(e) => setForm(prev => ({ ...prev, local: e.target.value }))} className="rounded-xl h-9" />
               </div>
               <div className="space-y-2">
                 <Label>Tipo</Label>
                 <Select value={form.tipo} onValueChange={(v) => setForm(prev => ({ ...prev, tipo: v }))}>
-                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="rounded-xl h-9"><SelectValue /></SelectTrigger>
                   <SelectContent>{TIPO_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
             <div className="space-y-2">
               <Label>Data e Hora *</Label>
-              <Input type="datetime-local" value={form.dataEvento} onChange={(e) => setForm(prev => ({ ...prev, dataEvento: e.target.value }))} className="rounded-xl" />
+              <Input type="datetime-local" value={form.dataEvento} onChange={(e) => setForm(prev => ({ ...prev, dataEvento: e.target.value }))} className="rounded-xl h-9" />
             </div>
             <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-              <span className="text-sm font-medium">Visível no site</span>
-              <Switch checked={form.visivel} onCheckedChange={(v) => setForm(prev => ({ ...prev, visivel: v }))} />
+              <span className="text-[13px] font-medium">Visível no site</span>
+              <Switch checked={form.visivel} onCheckedChange={(v) => setForm(prev => ({ ...prev, visivel: v }))} className="scale-90" />
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl">Cancelar</Button>
-            <Button onClick={handleSave} disabled={saving} className="rounded-xl">{saving ? "Salvando..." : "Salvar"}</Button>
+          <DialogFooter className="px-6 pb-6 pt-2">
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl h-9">Cancelar</Button>
+            <Button onClick={handleSave} disabled={saving} className="rounded-xl h-9">{saving ? "Salvando..." : "Salvar"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

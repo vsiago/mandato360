@@ -9,22 +9,14 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Globe,
-  Sparkles,
-  Scale,
-  FileCheck,
-  User,
-  CalendarDays,
-  UserPlus,
   Palette,
-  MapPin,
+  Users,
   Crown,
-  UserCog,
   ClipboardList,
-  BarChart3,
+  CalendarDays,
+  MapPin,
   Settings,
-  Megaphone,
-  Lock,
+  Globe,
   LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -56,29 +48,21 @@ function getMenuStructure(tenant: string): { home: MenuItem; groups: MenuGroup[]
     home: { href: `/${tenant}/dashboard`, label: "Dashboard", icon: LayoutDashboard },
     groups: [
       {
-        label: "Público",
-        icon: Megaphone,
+        label: "Meu Site",
+        icon: Globe,
         items: [
-          { href: `/${tenant}/dashboard/publico/hero`, label: "Hero & Destaques", icon: Sparkles },
-          { href: `/${tenant}/dashboard/publico/leis`, label: "Leis / Projetos", icon: Scale },
-          { href: `/${tenant}/dashboard/publico/indicacoes`, label: "Indicações Leg.", icon: FileCheck },
-          { href: `/${tenant}/dashboard/publico/quem-sou`, label: "Quem Sou", icon: User },
-          { href: `/${tenant}/dashboard/publico/agenda`, label: "Agenda Pública", icon: CalendarDays },
-          { href: `/${tenant}/dashboard/publico/leads`, label: "Leads / Contatos", icon: UserPlus },
           { href: `/${tenant}/dashboard/editar-site`, label: "Editar Site", icon: Palette },
         ],
       },
       {
-        label: "Privado",
-        icon: Lock,
+        label: "Gestão",
+        icon: Users,
         items: [
-          { href: `/${tenant}/dashboard/eleitores`, label: "Base Eleitoral", icon: UserPlus },
-          { href: `/${tenant}/dashboard/bairros`, label: "Bairros", icon: MapPin },
-          { href: `/${tenant}/dashboard/liderancas`, label: "Lideranças", icon: Crown },
-          { href: `/${tenant}/dashboard/assessores`, label: "Assessores", icon: UserCog },
+          { href: `/${tenant}/dashboard/eleitores`, label: "Eleitores", icon: Users },
           { href: `/${tenant}/dashboard/demandas`, label: "Demandas", icon: ClipboardList },
-          { href: `/${tenant}/dashboard/pesquisas`, label: "Pesquisas", icon: ClipboardList },
-          { href: `/${tenant}/dashboard/relatorios`, label: "Relatórios", icon: BarChart3 },
+          { href: `/${tenant}/dashboard/liderancas`, label: "Lideranças", icon: Crown },
+          { href: `/${tenant}/dashboard/bairros`, label: "Bairros", icon: MapPin },
+          { href: `/${tenant}/dashboard/publico/agenda`, label: "Agenda", icon: CalendarDays },
         ],
       },
     ],
@@ -90,7 +74,7 @@ export function TenantSidebar({ tenant }: { tenant: TenantData }) {
   const pathname = usePathname()
   const { data: session } = authClient.useSession()
   const [collapsed, setCollapsed] = useState(() => pathname.includes('/editar-site'))
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ "Público": true, "Privado": true })
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ "Meu Site": true, "Gestão": true })
 
   useEffect(() => {
     if (pathname.includes('/editar-site')) {

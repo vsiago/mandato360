@@ -118,7 +118,7 @@ export function PesquisasPageContent({ tenantId, tenantSlug, initialData }: { te
   const TIPO_LABELS: Record<string, string> = { text: "Texto", choice: "Múltipla Escolha", checkbox: "Caixa de Seleção", scale: "Escala 1-10" }
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
+    <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">

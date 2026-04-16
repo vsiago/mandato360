@@ -116,7 +116,7 @@ export default function MapaPoliticoPage() {
   }), [])
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
+    <div className="flex flex-col gap-5">
       <div className="mb-6 md:mb-8">
         <h1 className="text-xl md:text-2xl font-bold text-foreground">Mapa Politico</h1>
         <p className="text-sm md:text-base text-muted-foreground">

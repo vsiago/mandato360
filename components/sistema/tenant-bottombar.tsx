@@ -5,19 +5,13 @@ import { usePathname } from "next/navigation"
 import { useState, useRef, useEffect } from "react"
 import {
   LayoutDashboard,
-  UserPlus,
+  Users,
   ClipboardList,
-  CalendarDays,
-  MoreHorizontal,
-  Sparkles,
-  Scale,
-  FileCheck,
-  User,
   Palette,
-  MapPin,
+  MoreHorizontal,
   Crown,
-  UserCog,
-  BarChart3,
+  MapPin,
+  CalendarDays,
   Settings,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -37,23 +31,15 @@ export function TenantBottombar({ tenant }: { tenant: TenantData }) {
 
   const mainItems = [
     { label: "Home", href: `/${tenant.slug}/dashboard`, icon: LayoutDashboard },
-    { label: "Eleitores", href: `/${tenant.slug}/dashboard/eleitores`, icon: UserPlus },
+    { label: "Editar Site", href: `/${tenant.slug}/dashboard/editar-site`, icon: Palette },
+    { label: "Eleitores", href: `/${tenant.slug}/dashboard/eleitores`, icon: Users },
     { label: "Demandas", href: `/${tenant.slug}/dashboard/demandas`, icon: ClipboardList },
-    { label: "Agenda", href: `/${tenant.slug}/dashboard/publico/agenda`, icon: CalendarDays },
   ]
 
   const moreItems = [
-    { label: "Hero & Destaques", href: `/${tenant.slug}/dashboard/publico/hero`, icon: Sparkles },
-    { label: "Leis / Projetos", href: `/${tenant.slug}/dashboard/publico/leis`, icon: Scale },
-    { label: "Indicações Leg.", href: `/${tenant.slug}/dashboard/publico/indicacoes`, icon: FileCheck },
-    { label: "Quem Sou", href: `/${tenant.slug}/dashboard/publico/quem-sou`, icon: User },
-    { label: "Leads / Contatos", href: `/${tenant.slug}/dashboard/publico/leads`, icon: UserPlus },
-    { label: "Editar Site", href: `/${tenant.slug}/dashboard/editar-site`, icon: Palette },
-    { label: "Bairros", href: `/${tenant.slug}/dashboard/bairros`, icon: MapPin },
     { label: "Lideranças", href: `/${tenant.slug}/dashboard/liderancas`, icon: Crown },
-    { label: "Assessores", href: `/${tenant.slug}/dashboard/assessores`, icon: UserCog },
-    { label: "Pesquisas", href: `/${tenant.slug}/dashboard/pesquisas`, icon: ClipboardList },
-    { label: "Relatórios", href: `/${tenant.slug}/dashboard/relatorios`, icon: BarChart3 },
+    { label: "Bairros", href: `/${tenant.slug}/dashboard/bairros`, icon: MapPin },
+    { label: "Agenda", href: `/${tenant.slug}/dashboard/publico/agenda`, icon: CalendarDays },
     { label: "Configurações", href: `/${tenant.slug}/dashboard/configuracoes`, icon: Settings },
   ]
 

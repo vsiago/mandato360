@@ -71,7 +71,7 @@ export default function IndicacoesPage() {
   const emExecucao = indicacoes.filter(i => i.status === 'em_execucao').length
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
+    <div className="flex flex-col gap-5">
       <div className="mb-6 md:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-foreground">Indicacoes</h1>

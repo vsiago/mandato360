@@ -92,23 +92,25 @@ export function LiderancasPageContent({ tenantId, initialData, bairros }: { tena
   }, {} as Record<string, number>)
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between mb-2 md:mb-4">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
-            <Crown className="h-6 w-6 text-amber-600" />
+          <h1 className="text-lg md:text-xl font-semibold text-foreground tracking-tight flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10">
+              <Crown className="h-4 w-4 text-amber-600" />
+            </div>
             Lideranças
           </h1>
-          <p className="text-sm text-muted-foreground font-medium">Pessoas influentes do município</p>
+          <p className="text-[13px] text-muted-foreground mt-1">Pessoas influentes do município</p>
         </div>
-        <Button onClick={openNew} className="rounded-xl gap-2">
+        <Button onClick={openNew} className="rounded-xl h-9 text-[13px] gap-2 shadow-sm transition-all active:scale-[0.98]">
           <Plus className="h-4 w-4" /> Nova Liderança
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 mb-6">
-        <Card className="border-0 shadow-sm rounded-xl">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
+        <Card className="rounded-2xl border border-border/60 shadow-sm bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
           <CardContent className="p-3 text-center">
             <p className="text-xl font-bold text-foreground">{items.length}</p>
             <p className="text-[10px] text-muted-foreground font-semibold uppercase">Total</p>
@@ -117,7 +119,7 @@ export function LiderancasPageContent({ tenantId, initialData, bairros }: { tena
         {Object.entries(tipoConfig).map(([key, config]) => {
           const Icon = config.icon
           return (
-            <Card key={key} className="border-0 shadow-sm rounded-xl">
+            <Card key={key} className="rounded-2xl border border-border/60 shadow-sm bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
               <CardContent className="p-3 flex items-center gap-2">
                 <div className={`h-7 w-7 rounded-lg ${config.className} flex items-center justify-center shrink-0`}>
                   <Icon className="h-3.5 w-3.5" />
@@ -163,7 +165,7 @@ export function LiderancasPageContent({ tenantId, initialData, bairros }: { tena
           const leadsCount = item.leads?.length || 0
           const indicacoesCount = item.indicacoes?.length || 0
           return (
-            <Card key={item.id} className="border-0 shadow-sm rounded-xl hover:shadow-md transition-shadow">
+            <Card key={item.id} className="rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] group">
               <CardContent className="p-4 flex items-center gap-4">
                 <div className={`h-11 w-11 rounded-full ${config.className} flex items-center justify-center shrink-0`}>
                   <Icon className="h-5 w-5" />
@@ -186,8 +188,8 @@ export function LiderancasPageContent({ tenantId, initialData, bairros }: { tena
                   </div>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <Button size="icon" variant="ghost" onClick={() => openEdit(item)} className="h-8 w-8"><Pencil className="h-4 w-4" /></Button>
-                  <Button size="icon" variant="ghost" onClick={() => handleDelete(item.id)} className="h-8 w-8 text-red-500"><Trash2 className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => openEdit(item)} className="h-8 w-8 rounded-lg hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors active:scale-95"><Pencil className="h-4 w-4" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => handleDelete(item.id)} className="h-8 w-8 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors active:scale-95"><Trash2 className="h-4 w-4" /></Button>
                 </div>
               </CardContent>
             </Card>
@@ -197,22 +199,23 @@ export function LiderancasPageContent({ tenantId, initialData, bairros }: { tena
 
       {/* Detail Dialog */}
       <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="rounded-2xl max-w-lg">
+        <DialogContent className="rounded-2xl max-w-lg p-0 overflow-hidden border-border/60">
           {selectedItem && (
             <>
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
+              <DialogHeader className="px-6 pt-6 pb-4 bg-muted/30 border-b border-border/40">
+                <DialogTitle className="flex items-center gap-2 text-lg">
                   <Crown className="h-5 w-5 text-amber-600" />
                   {selectedItem.nome}
                 </DialogTitle>
               </DialogHeader>
-              <Tabs defaultValue="info">
-                <TabsList className="w-full">
-                  <TabsTrigger value="info" className="flex-1">Dados</TabsTrigger>
-                  <TabsTrigger value="leads" className="flex-1">Leads ({selectedItem.leads?.length || 0})</TabsTrigger>
-                  <TabsTrigger value="indicacoes" className="flex-1">Indicações ({selectedItem.indicacoes?.length || 0})</TabsTrigger>
-                </TabsList>
-                <TabsContent value="info" className="space-y-3 mt-4">
+              <div className="p-6">
+                <Tabs defaultValue="info">
+                  <TabsList className="w-full">
+                    <TabsTrigger value="info" className="flex-1">Dados</TabsTrigger>
+                    <TabsTrigger value="leads" className="flex-1">Leads ({selectedItem.leads?.length || 0})</TabsTrigger>
+                    <TabsTrigger value="indicacoes" className="flex-1">Indicações ({selectedItem.indicacoes?.length || 0})</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="info" className="space-y-3 mt-4">
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     {selectedItem.telefone && <div className="flex items-center gap-2 text-muted-foreground"><Phone className="h-4 w-4" />{selectedItem.telefone}</div>}
                     {selectedItem.email && <div className="flex items-center gap-2 text-muted-foreground"><Mail className="h-4 w-4" />{selectedItem.email}</div>}
@@ -259,8 +262,9 @@ export function LiderancasPageContent({ tenantId, initialData, bairros }: { tena
                       ))}
                     </div>
                   )}
-                </TabsContent>
-              </Tabs>
+                  </TabsContent>
+                </Tabs>
+              </div>
             </>
           )}
         </DialogContent>

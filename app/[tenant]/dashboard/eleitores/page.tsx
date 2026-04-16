@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Eye, Pencil, Search, Loader2 } from "lucide-react"
+import { Eye, Pencil, Search, Loader2, Users } from "lucide-react"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -94,30 +94,37 @@ export default function EleitoresPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground">Eleitores</h1>
-        <p className="text-sm md:text-base text-muted-foreground">
-          Gerencie os eleitores cadastrados
-        </p>
+    <div className="flex flex-col gap-5">
+      <div className="flex items-center justify-between mb-2 md:mb-4">
+        <div>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground tracking-tight flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10">
+              <Users className="h-4 w-4 text-blue-600" />
+            </div>
+            Eleitores
+          </h1>
+          <p className="text-[13px] text-muted-foreground mt-1">
+            Gerencie os eleitores cadastrados
+          </p>
+        </div>
       </div>
 
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-4">
+      <Card className="rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+        <CardHeader className="pb-4 bg-muted/20 border-b border-border/40">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <CardTitle className="text-base md:text-lg font-semibold">Lista de Eleitores</CardTitle>
+            <CardTitle className="text-[14px] font-semibold">Lista de Eleitores</CardTitle>
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Buscar eleitores..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 rounded-xl border-muted"
+                className="pl-9 rounded-xl border-border/60 h-9 text-[13px] transition-all hover:border-border focus-visible:ring-1 focus-visible:ring-primary/30"
               />
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
             <div className="flex py-20 items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -145,7 +152,7 @@ export default function EleitoresPage() {
                     </TableRow>
                   ) : (
                     filteredEleitores.map((eleitor) => (
-                      <TableRow key={eleitor.id}>
+                      <TableRow key={eleitor.id} className="hover:bg-muted/40 transition-colors group">
                         <TableCell>
                           <div>
                             <p className="font-medium">{eleitor.nome}</p>
@@ -160,11 +167,11 @@ export default function EleitoresPage() {
                         </TableCell>
                         <TableCell className="text-center hidden sm:table-cell">{eleitor.totalSolicitacoes}</TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-1 md:gap-2">
+                          <div className="flex justify-end gap-1">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 md:h-9 md:w-9"
+                              className="h-8 w-8 rounded-lg hover:bg-blue-500/10 hover:text-blue-600 transition-colors active:scale-95"
                               onClick={() => setSelectedEleitor(eleitor)}
                             >
                               <Eye className="h-4 w-4" />
@@ -173,7 +180,7 @@ export default function EleitoresPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 md:h-9 md:w-9"
+                              className="h-8 w-8 rounded-lg hover:bg-emerald-500/10 hover:text-emerald-600 transition-colors active:scale-95"
                               onClick={() => setEditingEleitor(eleitor)}
                             >
                               <Pencil className="h-4 w-4" />
@@ -193,13 +200,13 @@ export default function EleitoresPage() {
 
       {/* Dialog de Visualização */}
       <Dialog open={!!selectedEleitor} onOpenChange={() => setSelectedEleitor(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detalhes do Eleitor</DialogTitle>
-            <DialogDescription>Informacoes e historico de solicitacoes</DialogDescription>
+        <DialogContent className="max-w-2xl rounded-2xl p-0 overflow-hidden border-border/60">
+          <DialogHeader className="px-6 pt-6 pb-4 bg-muted/30 border-b border-border/40">
+            <DialogTitle className="text-lg">Detalhes do Eleitor</DialogTitle>
+            <DialogDescription className="text-xs">Informações e historico de solicitacoes</DialogDescription>
           </DialogHeader>
           {selectedEleitor && (
-            <div className="space-y-6">
+            <div className="space-y-6 p-6">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Nome</p>
@@ -266,13 +273,13 @@ export default function EleitoresPage() {
 
       {/* Dialog de Edição */}
       <Dialog open={!!editingEleitor} onOpenChange={() => setEditingEleitor(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar Eleitor</DialogTitle>
-            <DialogDescription>Atualize as informacoes do eleitor</DialogDescription>
+        <DialogContent className="rounded-2xl p-0 overflow-hidden border-border/60">
+          <DialogHeader className="px-6 pt-6 pb-4 bg-muted/30 border-b border-border/40">
+            <DialogTitle className="text-lg">Editar Eleitor</DialogTitle>
+            <DialogDescription className="text-xs">Atualize as informacoes do eleitor</DialogDescription>
           </DialogHeader>
           {editingEleitor && (
-            <form onSubmit={handleUpdate} className="space-y-4">
+            <form onSubmit={handleUpdate} className="space-y-4 p-6 pt-2">
               <div>
                 <label className="text-sm font-medium text-foreground">Nome</label>
                 <Input name="nome" defaultValue={editingEleitor.nome} className="mt-1" required />
