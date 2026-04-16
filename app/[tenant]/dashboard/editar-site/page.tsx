@@ -1105,14 +1105,30 @@ export default function EditarSitePage() {
 
     if (loading || !editorConfig) {
         return (
-            <div className="flex h-[60vh] items-center justify-center">
-                <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="animate-spin h-8 w-8 text-emerald-500" />
-                    <p className="text-sm text-stone-400 font-medium">Carregando editor visual...</p>
+            <div className="flex flex-1 h-full w-full flex-col items-center justify-center bg-white z-50">
+                <div className="flex flex-col items-center gap-6 max-w-sm text-center">
+                    <div className="relative flex items-center justify-center h-24 w-24">
+                        <div className="absolute inset-0 rounded-full border-t-2 border-emerald-500 animate-[spin_1.5s_linear_infinite]" />
+                        <div className="absolute inset-2 rounded-full border-r-2 border-emerald-400 animate-[spin_2s_linear_infinite_reverse]" />
+                        <div className="absolute inset-4 rounded-full border-b-2 border-emerald-300 animate-[spin_3s_linear_infinite]" />
+                        <div className="h-10 w-10 bg-emerald-50 border border-emerald-100 rounded-full flex items-center justify-center animate-pulse shadow-inner">
+                            <Loader2 className="h-5 w-5 text-emerald-600 animate-spin" />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-stone-800 tracking-tight">Preparando Editor Visual</h3>
+                        <p className="text-sm text-stone-500 font-medium px-4 leading-relaxed">
+                            Carregando componentes, paleta de cores e blocos do seu mandato.
+                        </p>
+                    </div>
+                    <div className="w-56 h-1.5 bg-stone-100 rounded-full overflow-hidden mt-4">
+                        <div className="h-full bg-emerald-500 w-1/2 rounded-full animate-[pulse_1s_ease-in-out_infinite] shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                    </div>
                 </div>
             </div>
         )
     }
+
 
     return (
         <SiteEditor

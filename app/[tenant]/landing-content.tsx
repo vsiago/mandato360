@@ -362,7 +362,6 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
                 
                 backgroundImage: 'var(--hero-img-mob)',
                 backgroundPosition: 'var(--hero-pos-mob)',
-                transform: 'scale(var(--hero-scale-mob))',
             }}
           >
             {/* Inline responsive style for background inheritance */}
