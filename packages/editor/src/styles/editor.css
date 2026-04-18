@@ -1,0 +1,30 @@
+/* ─── @mandato360/editor — Editor Styles ─── */
+
+/* Custom Scrollbar for editor panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-radius: 10px !important;
+  border: 1px solid transparent !important;
+  background-clip: content-box !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border: 1px solid transparent !important;
+  background-clip: content-box !important;
+}
+
+/* Firefox scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent !important;
+}

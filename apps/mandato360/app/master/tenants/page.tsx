@@ -173,8 +173,29 @@ export default function TenantsPage() {
       primaryColor: formData.primaryColor,
       secondaryColor: formData.secondaryColor,
       nome: formData.name,
-      foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800",
-      biografia: `Mandato de ${formData.name} em ${formData.cidade}/${formData.estado}.`
+      foto: formData.fotoPerfilUrl || "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800",
+      biografia: `Mandato de ${formData.name} em ${formData.cidade}/${formData.estado}.`,
+      __editorConfig: {
+        theme: {
+          colors: {
+            primary: formData.primaryColor,
+            secondary: formData.secondaryColor
+          }
+        },
+        hero: {
+          images: {
+            desktop: formData.fotoPerfilUrl || "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=800"
+          },
+          gradient: {
+            enabled: true,
+            angle: 90,
+            stops: [
+              { color: `${formData.primaryColor}E6`, position: 0 },
+              { color: `${formData.secondaryColor}E6`, position: 100 }
+            ]
+          }
+        }
+      }
     })
 
     const result = await createTenantWithOwner({
@@ -218,6 +239,7 @@ export default function TenantsPage() {
       primaryColor: formData.primaryColor,
       secondaryColor: formData.secondaryColor,
       nome: formData.name,
+      foto: formData.fotoPerfilUrl || existingConfig.foto,
     })
 
     const result = await updateTenant(editingTenant.id, {

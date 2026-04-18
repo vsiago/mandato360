@@ -63,7 +63,7 @@ export default function LandingContent({ tenant, initialData }: { tenant: any, i
   const heroBadge = editor?.hero?.badge || config?.heroBadge || "Mandato Participativo"
   const heroHeadline = editor?.hero?.title || config?.heroHeadline || "Por uma cidade de"
   const heroHighlight = editor ? "" : (config?.heroHighlight || "Resultados") // Clear highlight if using editor
-  const heroImageUrl = editor?.hero?.images?.desktop || config?.heroImageUrl || "/avatar-vereador.png"
+  const heroImageUrl = editor?.hero?.images?.desktop || config?.heroImageUrl || tenant?.fotoPerfilUrl || "/avatar-vereador.png"
   const heroDescription = editor?.hero?.description || config?.description || "Trabalhando pela transparência e inovação política."
   const ctaPrimaryText = editor?.hero?.ctaPrimary || config?.ctaText || "Solicitar Demanda"
   const ctaSecondaryText = editor?.hero?.ctaSecondary || "Ver Projetos"

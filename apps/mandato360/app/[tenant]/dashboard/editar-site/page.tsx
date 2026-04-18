@@ -1136,7 +1136,7 @@ export default function EditarSitePage() {
             onSave={handleSave}
             onImageUpload={handleUpload}
             previewUrl={`/${slug}`}
-            tenantName={editorConfig.header.logoText || slug}
+            tenantName={editorConfig.header?.logoText || slug}
             plugins={mandatoPlugins.filter(p => {
                 if (p.id === 'beforeAfter' && tenantCargo?.toLowerCase() === 'vereador') return false;
                 return true;

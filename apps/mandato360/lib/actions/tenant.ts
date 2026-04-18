@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db";
-import { tenant, tenantMember, user, eleitor, demanda, lideranca, legislativo, publicacao } from "@/lib/db/schema";
+import { tenant, tenantMember, user, eleitor, demanda, lideranca, legislativo, publicacao, account, session } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -175,6 +175,9 @@ export async function updateTenant(id: string, data: {
 export async function deleteTenant(id: string) {
   try {
     await db.transaction(async (tx) => {
+      // Find all users that are members of this tenant before deleting
+      const members = await tx.select({ userId: tenantMember.userId }).from(tenantMember).where(eq(tenantMember.tenantId, id));
+
       // Manual cascade for linked tables if not set in DB
       // In a real app, DB level cascade is better, but here we ensure it works
       await tx.delete(tenantMember).where(eq(tenantMember.tenantId, id));
@@ -185,7 +188,18 @@ export async function deleteTenant(id: string) {
       await tx.delete(publicacao).where(eq(publicacao.tenantId, id));
       
       await tx.delete(tenant).where(eq(tenant.id, id));
+
+      // Purge orphaned users
+      for (const m of members) {
+        const otherMemberships = await tx.select().from(tenantMember).where(eq(tenantMember.userId, m.userId));
+        if (otherMemberships.length === 0) {
+           await tx.delete(session).where(eq(session.userId, m.userId));
+           await tx.delete(account).where(eq(account.userId, m.userId));
+           await tx.delete(user).where(eq(user.id, m.userId));
+        }
+      }
     });
+
     
     return { success: true };
   } catch (error) {
