@@ -15,8 +15,10 @@ export default async function middleware(request: NextRequest) {
 	}
 
 	// Optimized session check: skip DB query if no session cookie exists
-	const sessionCookie = request.cookies.get("better-auth.session-token") || 
-						  request.cookies.get("better-auth.session_token");
+	const sessionCookie = request.cookies.get("better-auth.session_token") || 
+						  request.cookies.get("__Secure-better-auth.session_token") || 
+						  request.cookies.get("better-auth.session-token") ||
+						  request.cookies.get("__Secure-better-auth.session-token");
 	
 	const sessionToken = sessionCookie?.value;
 
