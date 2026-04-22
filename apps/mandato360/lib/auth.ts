@@ -8,6 +8,13 @@ export const auth = betterAuth({
 		provider: "pg",
 		schema: schema,
 	}),
+    advanced: {
+        useSecureCookies: process.env.NODE_ENV === "production",
+    },
+    trustedOrigins: [
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3004",
+        "https://mandato360.com.br",
+    ],
 	emailAndPassword: {
 		enabled: true,
 	},
