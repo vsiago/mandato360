@@ -35,10 +35,12 @@ export default function TenantLoginForm({ tenant }: { tenant: any }) {
   const router = useRouter()
   
   const config = tenant.config ? JSON.parse(tenant.config) : {}
-  const primaryColor = config.primaryColor || "#0F2B5B"
-  const secondaryColor = config.secondaryColor || "#0D9F6E"
+  const primaryColor = config.primaryColor || tenant.primaryColor || "#0F2B5B"
+  const secondaryColor = config.secondaryColor || tenant.secondaryColor || "#0D9F6E"
   const tenantName = config.nome || tenant.name
-  const tenantLogo = config.profilePhoto || config.logo
+  
+  // Prioridade de logos: DB logoUrl > DB fotoPerfilUrl > Config logo > Config perfil > Fallback (null)
+  const tenantLogo = tenant.logoUrl || tenant.fotoPerfilUrl || config.logoUrl || config.profilePhoto || config.logo
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
