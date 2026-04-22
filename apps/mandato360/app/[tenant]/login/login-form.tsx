@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -37,6 +38,7 @@ export default function TenantLoginForm({ tenant }: { tenant: any }) {
   const primaryColor = config.primaryColor || "#0F2B5B"
   const secondaryColor = config.secondaryColor || "#0D9F6E"
   const tenantName = config.nome || tenant.name
+  const tenantLogo = config.profilePhoto || config.logo
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -79,17 +81,27 @@ export default function TenantLoginForm({ tenant }: { tenant: any }) {
       />
       
       <Card className="w-full max-w-md relative z-10 border-border bg-white shadow-xl rounded-2xl overflow-hidden">
-        <div 
-            className="h-2 w-full" 
-            style={{ backgroundColor: primaryColor }}
-        />
-        
-        <CardHeader className="space-y-1 text-center pt-8">
+        <CardHeader className="space-y-1 text-center pt-6">
           <div 
-            className="mx-auto p-3 rounded-2xl w-fit mb-4"
-            style={{ backgroundColor: `${primaryColor}10` }}
+            className="mx-auto rounded-2xl w-fit mb-4 overflow-hidden"
           >
-            <LayoutDashboard className="h-8 w-8" style={{ color: primaryColor }} />
+            {tenantLogo ? (
+              <Image 
+                src={tenantLogo} 
+                alt={tenantName} 
+                width={120} 
+                height={60} 
+                className="h-16 w-auto object-contain"
+              />
+            ) : (
+              <Image 
+                src="/images/logo-mandato360.png" 
+                alt="Mandato360 Logo" 
+                width={150} 
+                height={50} 
+                className="h-10 w-auto object-contain"
+              />
+            )}
           </div>
           <CardTitle className="text-2xl font-outfit font-black text-foreground uppercase tracking-tight">
             {tenantName}
@@ -143,7 +155,8 @@ export default function TenantLoginForm({ tenant }: { tenant: any }) {
               className="w-full h-12 rounded-xl transition-all shadow-md font-bold uppercase tracking-widest text-xs"
               style={{ 
                 backgroundColor: primaryColor,
-                color: '#FFFFFF' 
+                color: '#FFFFFF',
+                boxShadow: `0 10px 15px -3px ${primaryColor}40`
               }}
             >
               {isLoading ? (
@@ -171,10 +184,13 @@ export default function TenantLoginForm({ tenant }: { tenant: any }) {
       </Card>
       
       {/* System Footer Info */}
-      <div className="absolute bottom-6 w-full text-center">
+      <div className="absolute bottom-6 w-full text-center space-y-2">
         <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-muted-foreground/40">
-            Powered by Mandato360 Quiet UI
+            Mandato360 Platform
         </p>
+        <div className="flex items-center justify-center gap-2 opacity-20">
+          <Image src="/images/logo-mandato360.png" alt="Mandato360" width={80} height={20} className="grayscale brightness-0" />
+        </div>
       </div>
     </div>
   )

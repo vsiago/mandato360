@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -32,6 +33,11 @@ type RegisterValues = z.infer<typeof registerSchema>
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  
+  // Registration is currently disabled. Redirecting to login.
+  useEffect(() => {
+    router.push("/login")
+  }, [router])
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -69,12 +75,19 @@ export default function RegisterPage() {
       
       <Card className="w-full max-w-md relative z-10 border-white/10 bg-[#112240]/80 backdrop-blur-xl shadow-2xl">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto bg-accent/20 p-3 rounded-2xl w-fit mb-4">
-            <UserPlus className="h-8 w-8 text-accent" />
+          <div className="mx-auto mb-6">
+            <Image 
+              src="/images/logo-mandato360.png" 
+              alt="Mandato360 Logo" 
+              width={180} 
+              height={50} 
+              className="h-12 w-auto object-contain mx-auto"
+              priority
+            />
           </div>
           <CardTitle className="text-3xl font-outfit font-black text-white uppercase tracking-tight">Criar Conta</CardTitle>
           <CardDescription className="text-white/60 font-outfit">
-            Junte-se ao Mandato 360 e comece sua jornada técnica.
+            Junte-se ao ecossistema Mandato360 e potencialize sua gestão.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -129,7 +142,7 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-accent hover:bg-accent/90 text-primary-foreground font-bold py-6 rounded-xl transition-all"
+              className="w-full bg-[#0D9F6E] hover:bg-[#0D9F6E]/90 text-white font-bold py-6 rounded-xl transition-all shadow-lg hover:shadow-[#0D9F6E]/40"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />

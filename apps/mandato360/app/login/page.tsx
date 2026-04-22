@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -69,12 +70,19 @@ export default function LoginPage() {
       
       <Card className="w-full max-w-md relative z-10 border-white/10 bg-[#112240]/80 backdrop-blur-xl shadow-2xl">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto bg-accent/20 p-3 rounded-2xl w-fit mb-4">
-            <LogIn className="h-8 w-8 text-accent" />
+          <div className="mx-auto mb-6">
+            <Image 
+              src="/images/logo-mandato360.png" 
+              alt="Mandato360 Logo" 
+              width={180} 
+              height={50} 
+              className="h-12 w-auto object-contain mx-auto"
+              priority
+            />
           </div>
-          <CardTitle className="text-3xl font-outfit font-black text-white uppercase tracking-tight">Bem-vindo</CardTitle>
+          <CardTitle className="text-3xl font-outfit font-black text-white uppercase tracking-tight">Painel de Controle</CardTitle>
           <CardDescription className="text-white/60 font-outfit">
-            Acesse o portal administrativo de Itaguaí.
+            Acesse o portal administrativo oficial do Mandato360.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -114,7 +122,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-accent hover:bg-accent/90 text-primary-foreground font-bold py-6 rounded-xl transition-all shadow-lg hover:shadow-accent/40"
+              className="w-full bg-[#0D9F6E] hover:bg-[#0D9F6E]/90 text-white font-bold py-6 rounded-xl transition-all shadow-lg hover:shadow-[#0D9F6E]/40"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -125,13 +133,7 @@ export default function LoginPage() {
           </form>
         </CardContent>
         <CardFooter className="flex flex-col space-y-4">
-          <p className="text-sm text-white/40 font-outfit text-center">
-            Ainda não tem acesso?{" "}
-            <Link href="/register" className="text-accent hover:underline font-bold">
-              Solicite agora
-            </Link>
-          </p>
-          <div className="w-full pt-4 border-t border-white/5 text-center">
+          <div className="w-full text-center">
             <Link href="/" className="text-xs text-white/20 hover:text-white/40 transition-colors uppercase tracking-[0.2em]">
               Voltar ao Site
             </Link>
