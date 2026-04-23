@@ -5,18 +5,28 @@ import { agendaPublica } from "@/lib/db/schema";
 import { eq, and, gte, desc } from "drizzle-orm";
 
 export async function getAgendas(tenantId: string) {
-  return await db.query.agendaPublica.findMany({
-    where: eq(agendaPublica.tenantId, tenantId),
-    orderBy: desc(agendaPublica.dataEvento),
-  });
+  try {
+    return await db.query.agendaPublica.findMany({
+      where: eq(agendaPublica.tenantId, tenantId),
+      orderBy: desc(agendaPublica.dataEvento),
+    });
+  } catch (error) {
+    console.error("Erro ao buscar todas as agendas:", error);
+    return [];
+  }
 }
 
 export async function getAgendasPublicas(tenantId: string) {
-  const now = new Date();
-  return await db.query.agendaPublica.findMany({
-    where: and(eq(agendaPublica.tenantId, tenantId), eq(agendaPublica.visivel, true), gte(agendaPublica.dataEvento, now)),
-    orderBy: agendaPublica.dataEvento,
-  });
+  try {
+    const now = new Date();
+    return await db.query.agendaPublica.findMany({
+      where: and(eq(agendaPublica.tenantId, tenantId), eq(agendaPublica.visivel, true), gte(agendaPublica.dataEvento, now)),
+      orderBy: agendaPublica.dataEvento,
+    });
+  } catch (error) {
+    console.error("Erro ao buscar agendas:", error);
+    return [];
+  }
 }
 
 export async function createAgenda(data: {

@@ -5,22 +5,36 @@ import { lideranca } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 
 export async function getLiderancas(tenantId: string) {
-  return await db.query.lideranca.findMany({
-    where: eq(lideranca.tenantId, tenantId),
-    orderBy: desc(lideranca.createdAt),
-    with: {
-      bairroRef: true,
-      leads: true,
-      indicacoes: true,
-    },
-  });
+  try {
+    return await db.query.lideranca.findMany({
+      where: eq(lideranca.tenantId, tenantId),
+      orderBy: desc(lideranca.createdAt),
+      with: {
+        // bairroRef: true,
+        leads: true,
+        indicacoes: true,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao buscar lideranças:", error);
+    return [];
+  }
 }
 
 export async function getLiderancaById(id: string) {
-  return await db.query.lideranca.findFirst({
-    where: eq(lideranca.id, id),
-    with: { bairroRef: true, leads: true, indicacoes: true },
-  });
+  try {
+    return await db.query.lideranca.findFirst({
+      where: eq(lideranca.id, id),
+      with: { 
+        // bairroRef: true, 
+        leads: true, 
+        indicacoes: true 
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao buscar liderança por ID:", error);
+    return null;
+  }
 }
 
 export async function createLideranca(data: {

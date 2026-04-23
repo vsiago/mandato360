@@ -84,7 +84,7 @@ export const tenant = pgTable("tenant", {
     cargo: text("cargo").default("Vereador"),
 
     // White-label: Hero
-    heroHeadline: text("hero_headline").default("Por uma cidade de"),
+    heroHeadline: text("hero_headline").default("Por uma city de"),
     heroHighlight: text("hero_highlight").default("Resultados"),
     heroBadge: text("hero_badge").default("Mandato Participativo"),
     heroImageUrl: text("hero_image_url"),
@@ -133,14 +133,15 @@ export const bairro = pgTable("bairro", {
 });
 
 // ─── Leads / Eleitores (Unificado com Funil) ───
-export const lead = pgTable("lead", {
+export const lead = pgTable("eleitor", {
     id: uuid("id").primaryKey().defaultRandom(),
     tenantId: uuid("tenantId").notNull().references(() => tenant.id),
     nome: text("nome").notNull(),
     email: text("email"),
     telefone: text("telefone"),
-    bairroId: uuid("bairro_id").references(() => bairro.id),
-    bairroNome: text("bairro_nome"), // fallback text
+    bairro: text("bairro"), // Mantendo compatibilidade com campo texto do banco
+    // bairroId: uuid("bairro_id").references(() => bairro.id),
+    // bairroNome: text("bairro_nome"), 
     liderancaId: uuid("lideranca_id").references(() => lideranca.id),
 
     // Funil de relacionamento
@@ -163,7 +164,7 @@ export const eleitor = lead;
 export const demanda = pgTable("demanda", {
 	id: uuid("id").primaryKey().defaultRandom(),
 	tenantId: uuid("tenantId").notNull().references(() => tenant.id),
-	leadId: uuid("leadId").references(() => lead.id),
+	leadId: uuid("eleitorId").references(() => lead.id),
 	assessorId: text("assessorId").references(() => user.id),
 	tipo: text("tipo").notNull(),
 	descricao: text("descricao").notNull(),
@@ -179,8 +180,8 @@ export const lideranca = pgTable("lideranca", {
 	telefone: text("telefone"),
 	email: text("email"),
 	cpf: text("cpf"),
-	bairroId: uuid("bairro_id").references(() => bairro.id),
-	bairro: text("bairro"), // fallback legado
+	// bairroId: uuid("bairro_id").references(() => bairro.id),
+	bairro: text("bairro"), // Mantendo compatibilidade com campo texto do banco
 	tipo: liderancaTipoEnum("tipo").notNull(),
 	influenciaEstimada: text("influencia_estimada"),
 	endereco: text("endereco"),
@@ -199,7 +200,7 @@ export const legislativo = pgTable("legislativo", {
 	status: legislativoStatusEnum("status").notNull(),
 	data: timestamp("data").notNull(),
 	// Visibilidade na landing page
-	visivelLanding: boolean("visivel_landing").default(true).notNull(),
+	// visivelLanding: boolean("visivel_landing").default(true).notNull(),
 });
 
 // ─── Publicações ───
@@ -233,7 +234,7 @@ export const agendaPublica = pgTable("agenda_publica", {
     titulo: text("titulo").notNull(),
     descricao: text("descricao"),
     local: text("local"),
-    dataEvento: timestamp("data_evento").notNull(),
+    dataEvento: timestamp("dataEvento").notNull(),
     tipo: agendaTipoEnum("tipo").default("evento").notNull(),
     visivel: boolean("visivel").default(true).notNull(),
     createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -243,8 +244,8 @@ export const agendaPublica = pgTable("agenda_publica", {
 export const indicacaoPopular = pgTable("indicacao_popular", {
     id: uuid("id").primaryKey().defaultRandom(),
     tenantId: uuid("tenantId").notNull().references(() => tenant.id),
-    liderancaId: uuid("lideranca_id").references(() => lideranca.id),
-    bairroId: uuid("bairro_id").references(() => bairro.id),
+    liderancaId: uuid("liderancaId").references(() => lideranca.id),
+    bairroId: uuid("bairroId").references(() => bairro.id),
     descricao: text("descricao").notNull(),
     tipo: text("tipo"), // "infraestrutura", "saude", "seguranca", etc
     status: indicacaoPopularStatusEnum("status").default("pendente").notNull(),
@@ -269,7 +270,7 @@ export const pesquisa = pgTable("pesquisa", {
 
 export const pesquisaResposta = pgTable("pesquisa_resposta", {
     id: uuid("id").primaryKey().defaultRandom(),
-    pesquisaId: uuid("pesquisa_id").notNull().references(() => pesquisa.id),
+    pesquisaId: uuid("pesquisaId").notNull().references(() => pesquisa.id),
     // Respostas em JSON: { [perguntaId]: "resposta" | string[] }
     respostas: jsonb("respostas").$type<Record<string, string | string[]>>().default({}),
     respondente: text("respondente"), // nome opcional
@@ -303,7 +304,7 @@ export const tenantRelations = relations(tenant, ({ many }) => ({
 
 export const leadRelations = relations(lead, ({ one, many }) => ({
     tenant: one(tenant, { fields: [lead.tenantId], references: [tenant.id] }),
-    bairroRef: one(bairro, { fields: [lead.bairroId], references: [bairro.id] }),
+    // bairroRef: one(bairro, { fields: [lead.bairroId], references: [bairro.id] }),
     liderancaRef: one(lideranca, { fields: [lead.liderancaId], references: [lideranca.id] }),
     demandas: many(demanda),
 }));
@@ -315,17 +316,17 @@ export const demandaRelations = relations(demanda, ({ one }) => ({
 }));
 
 export const liderancaRelations = relations(lideranca, ({ one, many }) => ({
-    tenant: one(tenant, { fields: [lideranca.tenantId], references: [tenant.id] }),
-    bairroRef: one(bairro, { fields: [lideranca.bairroId], references: [bairro.id] }),
-    leads: many(lead),
-    indicacoes: many(indicacaoPopular),
+	tenant: one(tenant, { fields: [lideranca.tenantId], references: [tenant.id] }),
+	// bairroRef: one(bairro, { fields: [lideranca.bairroId], references: [bairro.id] }),
+	leads: many(lead),
+	indicacoes: many(indicacaoPopular),
 }));
 
 export const bairroRelations = relations(bairro, ({ one, many }) => ({
-    tenant: one(tenant, { fields: [bairro.tenantId], references: [tenant.id] }),
-    liderancas: many(lideranca),
-    leads: many(lead),
-    indicacoes: many(indicacaoPopular),
+	tenant: one(tenant, { fields: [bairro.tenantId], references: [tenant.id] }),
+	// liderancas: many(lideranca),
+	// leads: many(lead),
+	indicacoes: many(indicacaoPopular),
 }));
 
 export const assessorRelations = relations(assessor, ({ one }) => ({
@@ -340,7 +341,7 @@ export const agendaPublicaRelations = relations(agendaPublica, ({ one }) => ({
 export const indicacaoPopularRelations = relations(indicacaoPopular, ({ one }) => ({
     tenant: one(tenant, { fields: [indicacaoPopular.tenantId], references: [tenant.id] }),
     liderancaRef: one(lideranca, { fields: [indicacaoPopular.liderancaId], references: [lideranca.id] }),
-    bairroRef: one(bairro, { fields: [indicacaoPopular.bairroId], references: [bairro.id] }),
+    // bairroRef: one(bairro, { fields: [indicacaoPopular.bairroId], references: [bairro.id] }),
 }));
 
 export const pesquisaRelations = relations(pesquisa, ({ one, many }) => ({

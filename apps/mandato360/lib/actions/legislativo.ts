@@ -5,13 +5,18 @@ import { legislativo } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
 
 export async function getLegislativo(tenantId: string, tipo?: "projeto_lei" | "indicacao" | "lei_aprovada") {
-  const conditions = [eq(legislativo.tenantId, tenantId)];
-  if (tipo) conditions.push(eq(legislativo.tipo, tipo));
+  try {
+    const conditions = [eq(legislativo.tenantId, tenantId)];
+    if (tipo) conditions.push(eq(legislativo.tipo, tipo));
 
-  return await db.query.legislativo.findMany({
-    where: and(...conditions),
-    orderBy: desc(legislativo.data),
-  });
+    return await db.query.legislativo.findMany({
+      where: and(...conditions),
+      orderBy: desc(legislativo.data),
+    });
+  } catch (error) {
+    console.error("Erro ao buscar legislativo:", error);
+    return [];
+  }
 }
 
 export async function createLegislativo(data: {
@@ -22,10 +27,11 @@ export async function createLegislativo(data: {
   descricao?: string;
   status: "tramitando" | "aprovado" | "rejeitado" | "arquivado" | "pendente" | "concluido";
   data: Date;
-  visivelLanding?: boolean;
+  // visivelLanding?: boolean;
 }) {
+  const { visivelLanding, ...insertData } = data;
   try {
-    const [result] = await db.insert(legislativo).values(data).returning();
+    const [result] = await db.insert(legislativo).values(insertData as any).returning();
     return { success: true, data: result };
   } catch (error: any) {
     return { success: false, error: error.message || "Erro ao criar item legislativo." };
@@ -38,7 +44,7 @@ export async function updateLegislativo(id: string, data: Partial<{
   descricao: string;
   status: "tramitando" | "aprovado" | "rejeitado" | "arquivado" | "pendente" | "concluido";
   data: Date;
-  visivelLanding: boolean;
+  // visivelLanding: boolean;
 }>) {
   try {
     const [result] = await db.update(legislativo).set(data).where(eq(legislativo.id, id)).returning();
@@ -59,8 +65,9 @@ export async function deleteLegislativo(id: string) {
 
 export async function toggleLegislativoVisibility(id: string, visivel: boolean) {
   try {
-    const [result] = await db.update(legislativo).set({ visivelLanding: visivel }).where(eq(legislativo.id, id)).returning();
-    return { success: true, data: result };
+    // const [result] = await db.update(legislativo).set({ visivelLanding: visivel }).where(eq(legislativo.id, id)).returning();
+    // return { success: true, data: result };
+    return { success: false, error: "Funcionalidade desativada temporariamente (migração pendente)." };
   } catch (error: any) {
     return { success: false, error: error.message || "Erro ao alterar visibilidade." };
   }
