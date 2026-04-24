@@ -41,6 +41,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
   const [isTyping, setIsTyping] = useState(false)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
   
   const { theme, header, hero, footer } = config
   // Resolved Hero with overrides applied for the current device
@@ -69,6 +70,21 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
+
+  // Auto-scroll to active section
+  useEffect(() => {
+    if (!activeSection || !scrollContainerRef.current) return
+
+    // Small timeout to allow the DOM to update if needed
+    const timeoutId = setTimeout(() => {
+      const element = scrollContainerRef.current?.querySelector(`[data-section-id="${activeSection}"]`)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [activeSection])
 
   const handleToolbarAction = (action: string) => {
     if (!editingField || !onConfigChange) return
@@ -256,13 +272,16 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
             )}
 
             {/* Content Area */}
-            <div className={cn(
-              "relative overflow-y-auto bg-black custom-scrollbar",
-              (config.hero.autoHeight !== false || device === "mobile" || device === "tablet") ? "flex-1" : "",
-              device === "mobile" && "rounded-[2.25rem] aspect-[9/19]",
-              device === "tablet" && "rounded-2xl aspect-[3/4]",
-              device === "desktop" && (config.hero.autoHeight !== false ? "h-full min-h-[600px] max-h-[900px]" : "min-h-[600px] max-h-[80vh]")
-            )}>
+            <div 
+              ref={scrollContainerRef}
+              className={cn(
+                "relative overflow-y-auto bg-black custom-scrollbar",
+                (config.hero.autoHeight !== false || device === "mobile" || device === "tablet") ? "flex-1" : "",
+                device === "mobile" && "rounded-[2.25rem] aspect-[9/19]",
+                device === "tablet" && "rounded-2xl aspect-[3/4]",
+                device === "desktop" && (config.hero.autoHeight !== false ? "h-full min-h-[600px] max-h-[900px]" : "min-h-[600px] max-h-[80vh]")
+              )}
+            >
               {/* Full Page Preview */}
               <div className={cn(
                 "relative flex flex-col h-full",
@@ -270,6 +289,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
               )}>
                 {/* === HEADER === */}
                 <header
+                  data-section-id="header"
                   className={cn(
                     "relative z-50 flex shrink-0 items-center justify-between px-4 transition-all",
                     device === "desktop" && "px-8",
@@ -329,6 +349,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                 >
                   {/* === HERO === */}
                   <div
+                    data-section-id="hero"
                     className={cn(
                       "relative flex flex-col justify-center min-h-0",
                       resolvedHero.autoHeight !== false ? "flex-1" : "shrink-0"
@@ -509,6 +530,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   {/* Group first plugin (usually Trust bar) into the same viewport container */}
                   {middleSections[0] && (
                     <div
+                      data-section-id={middleSections[0]}
                       className="relative shrink-0"
                       style={activeSection === middleSections[0] ? { boxShadow: `inset 0 0 0 2px ${accentColor}` } : undefined}
                     >
@@ -532,6 +554,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   return (
                     <div
                       key={sectionId}
+                      data-section-id={sectionId}
                       className={cn("relative")}
                       style={activeSection === sectionId ? { boxShadow: `inset 0 0 0 2px ${accentColor}` } : undefined}
                     >
@@ -542,6 +565,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
 
                 {/* === FOOTER === */}
                 <footer
+                  data-section-id="footer"
                   className={cn(
                     "relative z-10 shrink-0 border-t border-white/10 px-4 py-3",
                     device === "desktop" && "px-8 py-5",
