@@ -20,3 +20,19 @@ export async function requireAdmin() {
 
     return { error: null, user: session.user }
 }
+
+export async function requireRoot() {
+    const session = await auth.api.getSession({ headers: await headers() })
+
+    if (!session?.user) {
+        return { error: NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL || "")), user: null }
+    }
+
+    const role = (session.user as any).role
+    if (role !== "root") {
+        return { error: NextResponse.redirect(new URL("/painel", process.env.NEXT_PUBLIC_APP_URL || "")), user: null }
+    }
+
+    return { error: null, user: session.user }
+}
+

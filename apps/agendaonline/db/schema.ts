@@ -2,7 +2,7 @@ import { pgTable, text, timestamp, boolean, integer, numeric, pgEnum, jsonb } fr
 
 // ===== Better Auth tables =====
 
-export const roleEnum = pgEnum("role", ["user", "admin", "superadmin"]);
+export const roleEnum = pgEnum("role", ["user", "admin", "superadmin", "root"]);
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),

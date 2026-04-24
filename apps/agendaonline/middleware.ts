@@ -20,10 +20,11 @@ export default async function authMiddleware(request: NextRequest) {
         pathname.startsWith("/onboarding") ||
         pathname.startsWith("/editar-site");
     const isVerificationPage = pathname.startsWith("/verificar-email") || pathname.startsWith("/confirmar");
+    const isAdminPage = pathname.startsWith("/admin");
 
     // ─── Not authenticated ─────────────────────────────────────
     if (!authData) {
-        if (isDashboardPage) {
+        if (isDashboardPage || isAdminPage) {
             return NextResponse.redirect(new URL("/login", request.url));
         }
 
@@ -41,6 +42,12 @@ export default async function authMiddleware(request: NextRequest) {
     // ─── Already authenticated ─────────────────────────────────
     if (authData) {
         const isVerified = authData.user?.emailVerified === true;
+        const role = authData.user?.role;
+
+        // If trying to access admin and not root
+        if (isAdminPage && role !== "root") {
+            return NextResponse.redirect(new URL("/painel", request.url));
+        }
 
         // If not verified and trying to access dashboard/checkout
         if (!isVerified && (isDashboardPage || isCheckoutPage) && !isVerificationPage) {
@@ -64,5 +71,5 @@ export default async function authMiddleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/painel/:path*", "/onboarding", "/login", "/registro", "/editar-site/:path*", "/checkout", "/checkout/:path*", "/confirmar", "/verificar-email"],
+    matcher: ["/painel/:path*", "/onboarding", "/login", "/registro", "/editar-site/:path*", "/checkout", "/checkout/:path*", "/confirmar", "/verificar-email", "/admin/:path*"],
 };
