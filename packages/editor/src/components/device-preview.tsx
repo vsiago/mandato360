@@ -320,16 +320,11 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   )}
                 </header>
 
-                {/* Phantom Viewport Spacer */}
-                {resolvedHero.autoHeight !== false && (
-                    <div className="shrink-0 min-h-full w-full pointer-events-none" />
-                )}
-
                 {/* UNIFIED OPENING (100VH PARITY) */}
                 <div 
                   className={cn(
                     "flex flex-col relative overflow-hidden shrink-0",
-                    resolvedHero.autoHeight !== false ? "absolute inset-0 z-10" : "h-auto"
+                    resolvedHero.autoHeight !== false ? "relative min-h-full" : "h-auto"
                   )}
                 >
                   {/* === HERO === */}
