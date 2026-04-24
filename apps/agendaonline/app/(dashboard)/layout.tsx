@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
@@ -46,6 +47,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter()
     const { data: session } = authClient.useSession()
     const { theme, setTheme } = useTheme()
+
+    // Root users should always be in the admin area
+    useEffect(() => {
+        if (session?.user?.role === "root") {
+            router.push("/admin")
+        }
+    }, [session, router])
 
     const handleLogout = async () => {
         await authClient.signOut({

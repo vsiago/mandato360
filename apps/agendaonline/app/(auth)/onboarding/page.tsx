@@ -60,6 +60,14 @@ export default function OnboardingPage() {
     })
     const { data: session } = useSession()
     const [mounted, setMounted] = useState(false)
+
+    // Root users should always be in the admin area
+    useEffect(() => {
+        if (session?.user?.role === "root") {
+            router.push("/admin")
+        }
+    }, [session, router])
+
     const storageKey = session?.user?.id ? `agenda_onboarding_${session.user.id}` : null
 
     useEffect(() => {

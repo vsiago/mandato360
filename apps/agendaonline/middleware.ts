@@ -44,6 +44,11 @@ export default async function authMiddleware(request: NextRequest) {
         const isVerified = authData.user?.emailVerified === true;
         const role = authData.user?.role;
 
+        // HIGH PRIORITY: Root users always go to /admin if they try to access standard dashboard or auth pages
+        if (role === "root" && (isAuthPage || pathname.startsWith("/onboarding") || pathname.startsWith("/painel"))) {
+            return NextResponse.redirect(new URL("/admin", request.url));
+        }
+
         // If trying to access admin and not root
         if (isAdminPage && role !== "root") {
             return NextResponse.redirect(new URL("/painel", request.url));
@@ -54,8 +59,8 @@ export default async function authMiddleware(request: NextRequest) {
             return NextResponse.redirect(new URL("/verificar-email", request.url));
         }
 
-        if (isAuthPage) {
 
+        if (isAuthPage) {
             // If register/login page has a plan param → go to checkout
             const plan = request.nextUrl.searchParams.get("plan");
             if (plan) {
@@ -65,11 +70,25 @@ export default async function authMiddleware(request: NextRequest) {
             }
             return NextResponse.redirect(new URL("/painel", request.url));
         }
+
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/painel/:path*", "/onboarding", "/login", "/registro", "/editar-site/:path*", "/checkout", "/checkout/:path*", "/confirmar", "/verificar-email", "/admin/:path*"],
+    matcher: [
+        "/painel/:path*", 
+        "/onboarding/:path*", 
+        "/onboarding",
+        "/login", 
+        "/registro", 
+        "/editar-site/:path*", 
+        "/checkout", 
+        "/checkout/:path*", 
+        "/confirmar", 
+        "/verificar-email/:path*",
+        "/verificar-email",
+        "/admin/:path*"
+    ],
 };

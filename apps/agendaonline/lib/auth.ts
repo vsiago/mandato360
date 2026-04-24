@@ -7,10 +7,24 @@ import { getResetPasswordEmailHtml } from "@/lib/mail/templates/reset-password-e
 
 
 
+import { admin } from "better-auth/plugins";
+
 export const auth = betterAuth({
     database: drizzleAdapter(db, {
         provider: "pg",
     }),
+    user: {
+        additionalFields: {
+            role: {
+                type: "string",
+                required: false,
+                defaultValue: "user",
+            },
+        },
+    },
+    plugins: [
+        admin()
+    ],
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true,
