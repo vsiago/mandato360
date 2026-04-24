@@ -50,6 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     // Root users should always be in the admin area
     useEffect(() => {
+        // console.log("DEBUG SESSION:", session)
         if (session?.user?.role === "root") {
             router.push("/admin")
         }

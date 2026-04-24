@@ -14,6 +14,9 @@ export default async function authMiddleware(request: NextRequest) {
     );
 
     const pathname = request.nextUrl.pathname;
+    
+    // console.log(`[Middleware] Path: ${pathname}, Role: ${authData?.user?.role}`);
+
     const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/registro");
     const isCheckoutPage = pathname.startsWith("/checkout");
     const isDashboardPage = pathname.startsWith("/painel") ||

@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:push": "drizzle-kit push --env-file=.env",
-    "db:generate": "drizzle-kit generate --env-file=.env",
-    "db:migrate": "drizzle-kit migrate --env-file=.env",
-    "db:studio": "drizzle-kit studio --env-file=.env"
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@better-fetch/fetch": "^1.1.21",
