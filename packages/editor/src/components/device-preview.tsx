@@ -119,8 +119,8 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
       // Future advanced settings panel trigger
     }
   }
-  const currentImage = hero.images[device] || hero.images.desktop
-  const currentPosition = hero.imagePosition[device]
+  const currentImage = (hero.images?.[device] || hero.images?.desktop) || ""
+  const currentPosition = hero.imagePosition?.[device] || { x: 50, y: 50, scale: 100 }
   const designSystem = theme.designSystem || {
     preset: "emerald",
     fonts: { primary: "serif", secondary: "sans" },

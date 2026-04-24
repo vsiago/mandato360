@@ -2,13 +2,15 @@
 
 import { revalidatePath } from "next/cache"
 import { db } from "@/db"
-import { tenants, services, categories, globalCategories, globalServices, globalPlaceholders, subscriptions } from "@/db/schema"
+import { tenants, services, categories, globalCategories, globalServices, globalPlaceholders, subscriptions, businessTypes } from "@/db/schema"
 import { auth } from "@/lib/auth"
 import type { TenantData, TenantBadge } from "@/lib/tenant-types"
 import { mergeTenantWithDefaults } from "@/lib/tenant-defaults"
 import { buildTenantConfig, configToTenantData } from "@/lib/tenant-config-builder"
 import { eq, and } from "drizzle-orm"
 import { headers } from "next/headers"
+import { buildDefaultEditorConfig } from "@/lib/default-editor-config"
+import { getHeroImageForNiche } from "@/src/themes"
 
 /* ─── Helpers ─── */
 
@@ -167,37 +169,64 @@ export async function createTenantAction(data: Partial<TenantData>): Promise<{ s
 
         const dbValues = mapTenantToDb(data)
 
+        // Find business type slug to get default hero image
+        let btSlug = "outros"
+        if (dbValues.businessTypeId) {
+            const bt = await db.query.businessTypes.findFirst({
+                where: eq(businessTypes.id, dbValues.businessTypeId)
+            })
+            if (bt) btSlug = bt.slug
+        }
+        
+        // Always enforce a default hero image during creation if none exists
+        const defaultHeroImage = getHeroImageForNiche(btSlug)
+        const resolvedPrimary = dbValues.primaryColor || "#8c6239"
+        const resolvedHover = dbValues.hoverColor || "#6d4a2a"
+        
+        // Generate a COMPLETE config — identical to what /editar-site produces
+        const defaultConfig = buildDefaultEditorConfig({
+            name: dbValues.name || data.name || "Meu Negócio",
+            heroImage: dbValues.heroImageUrl || defaultHeroImage,
+            primaryColor: resolvedPrimary,
+            hoverColor: resolvedHover,
+            heroHeadline: dbValues.heroHeadline || undefined,
+            heroBadge: dbValues.heroBadge || undefined,
+            description: dbValues.description || undefined,
+            ctaText: dbValues.ctaText || undefined,
+        })
+
         const result = await db.insert(tenants).values({
             slug: data.slug || "meu-negocio",
             name: dbValues.name || "Meu Negócio",
             surname: dbValues.surname,
             businessTypeId: dbValues.businessTypeId || undefined,
-            description: dbValues.description,
-            primaryColor: dbValues.primaryColor || "#8c6239",
-            hoverColor: dbValues.hoverColor || "#6d4a2a",
+            description: dbValues.description || defaultConfig.hero.description,
+            primaryColor: resolvedPrimary,
+            hoverColor: resolvedHover,
             phone: dbValues.phone,
             whatsapp: dbValues.whatsapp,
             address: dbValues.address,
             instagram: dbValues.instagram,
             mapEmbedUrl: dbValues.mapEmbedUrl,
             logoUrl: dbValues.logoUrl,
-            heroImageUrl: dbValues.heroImageUrl,
+            heroImageUrl: dbValues.heroImageUrl || defaultHeroImage,
             profileImageUrl: dbValues.profileImageUrl,
             avatarUrl: dbValues.avatarUrl,
             founderName: dbValues.founderName,
             founderBio: dbValues.founderBio,
             founderRole: dbValues.founderRole,
-            heroBadge: dbValues.heroBadge,
-            heroHeadline: dbValues.heroHeadline,
+            heroBadge: dbValues.heroBadge || defaultConfig.hero.badge,
+            heroHeadline: dbValues.heroHeadline || defaultConfig.hero.title,
             heroHighlight: dbValues.heroHighlight,
-            ctaText: dbValues.ctaText,
-            trustBadges: dbValues.trustBadges || [],
-            faq: dbValues.faq || [],
+            ctaText: dbValues.ctaText || defaultConfig.hero.ctaPrimary,
+            trustBadges: dbValues.trustBadges || defaultConfig.plugins.trust.badges,
+            faq: dbValues.faq || defaultConfig.plugins.faq.items,
             beforeAfter: dbValues.beforeAfter || [],
             sectionStyles: dbValues.sectionStyles,
             responsiveOverrides: dbValues.responsiveOverrides,
             chat: dbValues.chat,
             theme: data.theme || "neutro",
+            config: defaultConfig,
             onboardingCompleted: true,
             ownerId: session.user.id,
         }).returning()

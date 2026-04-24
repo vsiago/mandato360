@@ -5,23 +5,7 @@ import { EditorConfig } from "@mandato360/editor"
  * Adapts TenantData (Agenda Online) to EditorConfig (@mandato360/editor)
  */
 export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
-  // If we have a full config saved, use it as the base for total parity
-  if (tenant.config) {
-    const savedConfig = tenant.config as EditorConfig
-    return {
-      ...savedConfig,
-      // Ensure essential fields are synced even if the config is slightly stale
-      header: { ...savedConfig.header, logo: tenant.logoUrl, logoText: tenant.name },
-      plugins: {
-        ...savedConfig.plugins,
-        services: { items: tenant.services, categories: tenant.categories },
-        about: { founder: tenant.founder },
-        contact: { info: tenant.contact },
-      }
-    }
-  }
-
-  return {
+  const defaultConfig = {
     theme: {
       designSystem: tenant.designSystem || {
         preset: "neutral",
@@ -66,7 +50,7 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
       ctaText: tenant.ctaText || "Agendar",
     },
     hero: {
-      orientation: (tenant.config as any)?.__editorConfig?.hero?.orientation || tenant.heroImageSettings?.layout || "left",
+      orientation: tenant.heroImageSettings?.layout || "left",
       title: tenant.heroHeadline,
       subtitle: tenant.heroHighlight || "",
       description: tenant.description,
@@ -127,6 +111,29 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
     },
     sectionOrder: ["header", "hero", "trust", "services", "about", "beforeAfter", "faq", "contact", "footer"],
   }
+
+  // If we have a saved config, deep merge it with the defaults to avoid "undefined" crashes
+  if (tenant.config) {
+    const savedConfig = tenant.config as any
+    return {
+      ...defaultConfig,
+      ...savedConfig,
+      // Ensure nested objects are also merged or exist
+      theme: { ...defaultConfig.theme, ...savedConfig.theme },
+      header: { ...defaultConfig.header, ...savedConfig.header, logo: tenant.logoUrl, logoText: tenant.name },
+      hero: { ...defaultConfig.hero, ...savedConfig.hero },
+      footer: { ...defaultConfig.footer, ...savedConfig.footer },
+      plugins: {
+        ...defaultConfig.plugins,
+        ...savedConfig.plugins,
+        services: { items: tenant.services, categories: tenant.categories },
+        about: { founder: tenant.founder },
+        contact: { info: tenant.contact },
+      }
+    }
+  }
+
+  return defaultConfig
 }
 
 /**

@@ -1,12 +1,14 @@
 "use server"
 
 import { db } from "@/db"
-import { user, subscriptions, tenants, categories, services, globalCategories, globalServices, globalPlaceholders, account } from "@/db/schema"
+import { user, subscriptions, tenants, categories, services, globalCategories, globalServices, globalPlaceholders, account, businessTypes } from "@/db/schema"
 import { count, eq, and, sql } from "drizzle-orm"
 import { requireRoot } from "@/lib/admin-guard"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
+import { getHeroImageForNiche } from "@/src/themes"
+import { buildDefaultEditorConfig } from "@/lib/default-editor-config"
 
 export async function getAdminMetrics() {
     const { error } = await requireRoot()
@@ -86,7 +88,24 @@ export async function adminCreateTenantAction(data: {
         // 2. Force verify email
         await db.update(user).set({ emailVerified: true }).where(eq(user.email, data.demoEmail))
 
-        // 3. Create Tenant
+        // 2.5 Find business type slug for default image
+        const bt = await db.query.businessTypes.findFirst({
+            where: eq(businessTypes.id, data.businessTypeId)
+        })
+        const btSlug = bt?.slug || "outros"
+        const defaultHeroImage = getHeroImageForNiche(btSlug)
+        const primaryColor = data.theme === "gold" ? "#d4af37" : "#8c6239"
+        const hoverColor = data.theme === "gold" ? "#b8860b" : "#6d4a2a"
+
+        // Generate a COMPLETE config — identical to what /editar-site produces
+        const defaultConfig = buildDefaultEditorConfig({
+            name: data.name,
+            heroImage: defaultHeroImage,
+            primaryColor,
+            hoverColor,
+        })
+
+        // 3. Create Tenant (with ALL text columns + full config)
         const tenantResult = await db.insert(tenants).values({
             slug: data.slug,
             name: data.name,
@@ -94,8 +113,16 @@ export async function adminCreateTenantAction(data: {
             theme: data.theme,
             ownerId: newUser.user.id,
             onboardingCompleted: true,
-            primaryColor: data.theme === "gold" ? "#d4af37" : "#8c6239",
-            hoverColor: data.theme === "gold" ? "#b8860b" : "#6d4a2a",
+            primaryColor,
+            hoverColor,
+            heroImageUrl: defaultHeroImage,
+            heroHeadline: defaultConfig.hero.title,
+            heroBadge: defaultConfig.hero.badge,
+            description: defaultConfig.hero.description,
+            ctaText: defaultConfig.hero.ctaPrimary,
+            trustBadges: defaultConfig.plugins.trust.badges,
+            faq: defaultConfig.plugins.faq.items,
+            config: defaultConfig,
         }).returning()
 
         const tenantId = tenantResult[0].id
