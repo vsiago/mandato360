@@ -1,0 +1,1 @@
+ALTER TABLE "tenants" ADD COLUMN "hero_image_settings" jsonb;

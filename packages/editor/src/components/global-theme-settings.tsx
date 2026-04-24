@@ -258,13 +258,14 @@ export function GlobalThemeSettings({ config, onConfigChange, accentColor = "#10
                 )}
                 style={designSystem.fonts.primary === font.id ? { borderColor: accentColor, backgroundColor: `${accentColor}15` } : undefined}
               >
-                <span className={cn(
-                  "text-lg text-foreground",
-                  font.id === "sans" && "font-sans",
-                  font.id === "serif" && "font-serif italic",
-                  font.id === "mono" && "font-mono",
-                  font.id === "display" && "font-serif font-bold"
-                )}>
+                <span 
+                  className="text-lg text-foreground"
+                  style={{ 
+                    fontFamily: `var(--font-${font.id})`,
+                    fontStyle: font.id === 'serif' ? 'italic' : 'normal',
+                    fontWeight: font.id === 'display' ? 'bold' : 'normal'
+                  }}
+                >
                   {font.preview}
                 </span>
                 <span className="text-[8px] text-muted-foreground">{font.label}</span>
@@ -288,13 +289,10 @@ export function GlobalThemeSettings({ config, onConfigChange, accentColor = "#10
                 )}
                 style={designSystem.fonts.secondary === font.id ? { borderColor: accentColor, backgroundColor: `${accentColor}15` } : undefined}
               >
-                <span className={cn(
-                  "text-sm text-foreground",
-                  font.id === "sans" && "font-sans",
-                  font.id === "serif" && "font-serif",
-                  font.id === "mono" && "font-mono",
-                  font.id === "display" && "font-serif"
-                )}>
+                <span 
+                  className="text-sm text-foreground"
+                  style={{ fontFamily: `var(--font-${font.id})` }}
+                >
                   {font.preview}
                 </span>
                 <span className="text-[8px] text-muted-foreground">{font.label}</span>

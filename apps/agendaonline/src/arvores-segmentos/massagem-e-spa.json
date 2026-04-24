@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Massagem e SPA", "slug": "massagem-e-spa", "icone": "💆‍♂️", "emoji": "💆‍♂️", "cor": "#6B8E7B", "descricao": "Recupere suas energias com terapias de relaxamento e bem-estar.", "keywords": ["massagem", "spa", "relaxamento", "terapia", "shiatsu", "drenagem", "reflexologia"] },
+  "heroPreset": { "badge": "BEM-ESTAR & SPA", "headline": "Renove corpo e mente", "highlight": "Reserve sua sessão", "ctaText": "Reservar Sessão", "imagemSugerida": "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80", "subheadline": "Terapias de relaxamento e bem-estar para recuperar suas energias." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Diferenciais", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Terapias", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "planos", "enabled": false, "label": "Pacotes", "order": 4, "pro": true },
+    { "type": "depoimentos", "enabled": false, "label": "Depoimentos", "order": 5, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 6, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 7, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 8, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "pricing_plans", "label": "Pacotes de Sessões", "descricao": "Planos mensais de massagem com desconto.", "enabled": false, "pro": true, "icon": "CreditCard" }
+  ],
+  "categorias": [
+    { "nome": "Relaxantes", "slug": "relaxantes", "ordem": 0, "servicos": [
+      { "nome": "Massagem Relaxante", "slug": "massagem-relaxante", "descricao": "Movimentos suaves para alívio de tensões.", "duracao": 60, "preco": 120, "imagem": "/images/global-services/massagem-relaxante.png", "placeholder": "Movimentos suaves e ritmados.", "features": ["Óleos essenciais", "Ambiente zen"], "addons": [{ "nome": "30 min extra", "preco": 60 }] },
+      { "nome": "Massagem Pedras Quentes", "slug": "pedras-quentes", "descricao": "Terapia com pedras vulcânicas aquecidas.", "duracao": 75, "preco": 180, "imagem": "/images/global-services/massagem-pedras-quentes.png", "placeholder": "Terapia profunda com pedras vulcânicas.", "features": ["Calor terapêutico", "Relaxamento profundo"], "addons": [] },
+      { "nome": "Massagem Aromática", "slug": "massagem-aromatica", "descricao": "Óleos essenciais e técnicas relaxantes.", "duracao": 60, "preco": 140, "imagem": "/images/global-services/massagem-aromatica.png", "placeholder": "Combinação de óleos essenciais.", "features": ["Aromaterapia", "Personalizada"], "addons": [{ "nome": "Óleo extra", "preco": 15 }] }
+    ]},
+    { "nome": "Terapêuticas", "slug": "terapeuticas", "ordem": 1, "servicos": [
+      { "nome": "Massagem Desportiva", "slug": "massagem-desportiva", "descricao": "Recuperação muscular para esportistas.", "duracao": 60, "preco": 150, "imagem": "/images/global-services/massagem-desportiva.png", "placeholder": "Foco na recuperação muscular.", "features": ["Técnica firme", "Recuperação acelerada"], "addons": [] },
+      { "nome": "Shiatsu", "slug": "shiatsu", "descricao": "Pressão em pontos energéticos.", "duracao": 60, "preco": 130, "imagem": "/images/global-services/shiatsu.png", "placeholder": "Técnica japonesa de pressão.", "features": ["Equilíbrio energético"], "addons": [] },
+      { "nome": "Reflexologia Podal", "slug": "reflexologia-podal", "descricao": "Massagem nos pés que estimula órgãos.", "duracao": 45, "preco": 100, "imagem": "/images/global-services/reflexologia-podal.png", "placeholder": "Massagem terapêutica nos pés.", "features": ["Estímulo reflexo"], "addons": [{ "nome": "Escalda-pés", "preco": 20 }] }
+    ]},
+    { "nome": "Estéticas & Revitalizantes", "slug": "esteticas-revitalizantes", "ordem": 2, "servicos": [
+      { "nome": "Banho de Ofurô", "slug": "banho-ofuro", "descricao": "Imersão relaxante com ervas.", "duracao": 45, "preco": 200, "imagem": "/images/global-services/banho-ofuro.png", "placeholder": "Relaxamento profundo e purificação.", "features": ["Ervas selecionadas", "Imersão total"], "addons": [{ "nome": "Espumante", "preco": 35 }] },
+      { "nome": "Máscara de Ouro", "slug": "mascara-ouro", "descricao": "Tratamento facial luxuoso.", "duracao": 45, "preco": 120, "imagem": "/images/global-services/mascara-ouro.png", "placeholder": "Revitalização facial com ouro.", "features": ["Luxo puro"], "addons": [] },
+      { "nome": "Argiloterapia Corporal", "slug": "argiloterapia", "descricao": "Argila para desintoxicação.", "duracao": 60, "preco": 150, "imagem": "/images/global-services/argiloterapia.png", "placeholder": "Tratamento natural de desintoxicação.", "features": ["Detox natural"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Qual massagem indicada para dor?", "resposta": "A massagem desportiva e shiatsu são mais indicadas para dores musculares e tensões." },
+    { "pergunta": "Posso fazer grávida?", "resposta": "Sim! Temos protocolos específicos para gestantes a partir do 3º mês. Converse com nosso terapeuta." },
+    { "pergunta": "Quanto tempo dura o efeito?", "resposta": "O relaxamento imediato dura 2-3 dias. Sessões regulares promovem bem-estar contínuo." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Agendamentos do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Clientes", "descricao": "Clientes recorrentes.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-pacotes", "nome": "Pacotes de Sessões", "descricao": "Planos mensais com desconto.", "icone": "CreditCard", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-depoimentos", "nome": "Depoimentos", "descricao": "Avaliações de clientes.", "icone": "MessageSquare", "ativa": false, "categoria": "conversao" }
+  ],
+  "trustBadges": [
+    { "texto": "Ambiente Zen", "icone": "Leaf" },
+    { "texto": "Terapeutas Certificados", "icone": "Award" },
+    { "texto": "Produtos Naturais", "icone": "Flower" },
+    { "texto": "Agendamento Online", "icone": "Clock" }
+  ],
+  "copyVoz": { "tom": "Zen, acolhedor e terapêutico. Transmite calma e bem-estar.", "exemplosCTA": ["Reservar Sessão", "Quero Relaxar", "Ver Terapias"], "fraseImpacto": "Pausa. Respira. Renova." }
+}

@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "Bot Instagram Automator",
+    "version": "1.0",
+    "description": "Automatiza fluxo de comentários e DMs no Instagram (Uso Educativo).",
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "*://*.instagram.com/*"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Configurar Bot"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.instagram.com/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ]
+}

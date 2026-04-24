@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Nail Designer", "slug": "nail-designer", "icone": "💅", "emoji": "💅", "cor": "#E8B4B8", "descricao": "Design de unhas exclusivo e personalizado com técnicas modernas.", "keywords": ["nail designer", "manicure", "pedicure", "alongamento", "fibra", "gel", "nail art"] },
+  "heroPreset": { "badge": "NAIL DESIGNER", "headline": "Unhas perfeitas são a nossa arte", "highlight": "Agende seu horário", "ctaText": "Agendar Agora", "imagemSugerida": "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&q=80", "subheadline": "Técnicas exclusivas de alongamento, esmaltação em gel e nail art para unhas dos sonhos." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Diferenciais", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "antes_depois", "enabled": true, "label": "Antes & Depois", "order": 4, "pro": false },
+    { "type": "galeria", "enabled": false, "label": "Portfólio", "order": 5, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 6, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 7, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 8, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "before_after_gallery", "label": "Transformações", "descricao": "Antes/depois de alongamentos e nail art.", "enabled": true, "pro": false, "icon": "ImageIcon" },
+    { "type": "portfolio_grid", "label": "Portfólio de Nail Art", "descricao": "Galeria dos melhores trabalhos.", "enabled": false, "pro": true, "icon": "Grid3X3" }
+  ],
+  "categorias": [
+    { "nome": "Mãos", "slug": "maos", "ordem": 0, "servicos": [
+      { "nome": "Alongamento em Fibra", "slug": "alongamento-fibra", "descricao": "Extensão com fibra de vidro para formato perfeito.", "duracao": 90, "preco": 150, "imagem": "/images/global-services/alongamento-fibra.png", "placeholder": "Extensão de unhas com fibra de vidro.", "features": ["Formato perfeito", "Alta resistência"], "addons": [{ "nome": "Nail art (2 unhas)", "preco": 20 }] },
+      { "nome": "Esmaltação em Gel", "slug": "esmaltacao-gel", "descricao": "Unha em gel com acabamento espelhado.", "duracao": 60, "preco": 80, "imagem": "/images/global-services/esmaltacao-gel.png", "placeholder": "Unha em gel com alta durabilidade.", "features": ["Duração 21 dias", "Brilho espelhado"], "addons": [{ "nome": "Pedrarias", "preco": 15 }] },
+      { "nome": "Manicure Completa", "slug": "manicure-completa", "descricao": "Cuticulagem, lixamento e esmaltação premium.", "duracao": 45, "preco": 50, "imagem": "/images/global-services/manicure-nail.png", "placeholder": "Cuticulagem e esmaltação com cuidado premium.", "features": ["Hidratação das mãos"], "addons": [{ "nome": "Esmaltação em gel", "preco": 30 }] }
+    ]},
+    { "nome": "Pés & Nail Art", "slug": "pes-nail-art", "ordem": 1, "servicos": [
+      { "nome": "Pedicure Spa", "slug": "pedicure-spa", "descricao": "Pedicure completa com spa dos pés.", "duracao": 60, "preco": 65, "imagem": "/images/global-services/pedicure-spa.png", "placeholder": "Pedicure completa com spa dos pés e hidratação.", "features": ["Esfoliação", "Massagem"], "addons": [{ "nome": "Parafina", "preco": 25 }] },
+      { "nome": "Plástica dos Pés", "slug": "plastica-pes", "descricao": "Tratamento profundo para calosidades.", "duracao": 60, "preco": 90, "imagem": "/images/global-services/plastica-pes.png", "placeholder": "Remoção indolor de calosidades.", "features": ["Pés macios", "Sem lâminas"], "addons": [] },
+      { "nome": "Nail Art Simples", "slug": "nail-art", "descricao": "Decoração artística com até 2 unhas.", "duracao": 30, "preco": 30, "imagem": "/images/global-services/nail-art.png", "placeholder": "Decoração artística com até 2 unhas decoradas.", "features": ["Desenhos exclusivos"], "addons": [{ "nome": "Nail art completa", "preco": 40 }] }
+    ]},
+    { "nome": "Tratamentos & SPA", "slug": "tratamentos-spa", "ordem": 2, "servicos": [
+      { "nome": "Blindagem de Unhas", "slug": "blindagem-unhas", "descricao": "Camada protetora para fortalecer unhas.", "duracao": 45, "preco": 70, "imagem": "/images/global-services/blindagem-unhas.png", "placeholder": "Proteção extra contra quebras.", "features": ["Fortalecimento natural"], "addons": [] },
+      { "nome": "Banho de Gel", "slug": "banho-gel", "descricao": "Cobertura em gel para brilho e resistência.", "duracao": 60, "preco": 90, "imagem": "/images/global-services/banho-gel.png", "placeholder": "Fortalecimento com acabamento em gel.", "features": ["Brilho duradouro"], "addons": [{ "nome": "Cover pink", "preco": 15 }] },
+      { "nome": "SPA de Mãos", "slug": "spa-maos", "descricao": "Esfoliação, hidratação e massagem.", "duracao": 30, "preco": 45, "imagem": "/images/global-services/spa-maos.png", "placeholder": "Cuidado intensivo para mãos macias.", "features": ["Esfoliação", "Hidratação", "Massagem"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Quanto tempo dura o alongamento?", "resposta": "Em média 3 a 4 semanas. Recomendamos manutenção a cada 20 dias." },
+    { "pergunta": "Posso escolher o formato?", "resposta": "Sim! Trabalhamos com todos os formatos: oval, quadrado, stiletto, coffin e mais." },
+    { "pergunta": "A esmaltação em gel estraga a unha?", "resposta": "Não! Com remoção profissional e cuidados, suas unhas ficam saudáveis." },
+    { "pergunta": "Quais formas de pagamento?", "resposta": "PIX, dinheiro, débito e crédito." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Horários do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Clientes", "descricao": "Clientes recentes.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" },
+    { "type": "antes_depois_recentes", "label": "Transformações", "descricao": "Últimos antes/depois.", "enabled": true, "pro": false, "icon": "ImageIcon" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-portfolio", "nome": "Portfólio Visual", "descricao": "Galeria profissional de trabalhos.", "icone": "Grid3X3", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-follow-up", "nome": "Follow-up", "descricao": "Lembrete de manutenção.", "icone": "Bell", "ativa": false, "categoria": "marketing" }
+  ],
+  "trustBadges": [
+    { "texto": "Produtos Importados", "icone": "Sparkles" },
+    { "texto": "Ambiente Higienizado", "icone": "ShieldCheck" },
+    { "texto": "Agendamento Online", "icone": "Clock" },
+    { "texto": "Nail Art Exclusiva", "icone": "Palette" }
+  ],
+  "copyVoz": { "tom": "Feminino, delicado e criativo. Transmite cuidado e arte.", "exemplosCTA": ["Agendar Agora", "Quero Minhas Unhas", "Ver Trabalhos"], "fraseImpacto": "Cada unha é uma obra de arte." }
+}

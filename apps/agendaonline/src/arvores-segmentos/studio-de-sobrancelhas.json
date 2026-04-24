@@ -1,0 +1,60 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Studio de Sobrancelhas", "slug": "studio-de-sobrancelhas", "icone": "👁️", "emoji": "👁️", "cor": "#8B7355", "descricao": "Sobrancelhas perfeitas com técnicas exclusivas de design e micropigmentação.", "keywords": ["sobrancelha", "micropigmentação", "microblading", "lamination", "henna", "cílios"] },
+  "heroPreset": { "badge": "SOBRANCELHAS PERFEITAS", "headline": "O olhar que transforma", "highlight": "Agende seu design", "ctaText": "Agendar Design", "imagemSugerida": "https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80", "subheadline": "Design personalizado, micropigmentação e técnicas que realçam o seu olhar." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Diferenciais", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "antes_depois", "enabled": true, "label": "Transformações", "order": 4, "pro": false },
+    { "type": "galeria", "enabled": false, "label": "Portfólio", "order": 5, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 6, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 7, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 8, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "before_after_gallery", "label": "Antes & Depois", "descricao": "Transformações de sobrancelhas.", "enabled": true, "pro": false, "icon": "ImageIcon" },
+    { "type": "portfolio_grid", "label": "Portfólio", "descricao": "Galeria de designs realizados.", "enabled": false, "pro": true, "icon": "Grid3X3" }
+  ],
+  "categorias": [
+    { "nome": "Design & Lamination", "slug": "design-lamination", "ordem": 0, "servicos": [
+      { "nome": "Design de Sobrancelhas", "slug": "design-sobrancelhas", "descricao": "Modelagem com pinça e linha.", "duracao": 30, "preco": 45, "imagem": "/images/global-services/design-sobrancelhas.png", "placeholder": "Modelagem com pinça e linha para o formato ideal.", "features": ["Harmonização facial", "Formato personalizado"], "addons": [{ "nome": "Henna", "preco": 20 }] },
+      { "nome": "Brow Lamination", "slug": "brow-lamination", "descricao": "Alisamento e fixação para sobrancelhas volumosas.", "duracao": 45, "preco": 90, "imagem": "/images/global-services/brow-lamination.png", "placeholder": "Sobrancelhas volumosas e alinhadas.", "features": ["Volume natural", "Fios alinhados"], "addons": [{ "nome": "Tinta", "preco": 15 }] },
+      { "nome": "Henna de Sobrancelhas", "slug": "henna", "descricao": "Coloração temporária para definir e preencher.", "duracao": 30, "preco": 40, "imagem": "/images/global-services/henna-sobrancelhas.png", "placeholder": "Coloração temporária com henna.", "features": ["Preenchimento natural"], "addons": [] }
+    ]},
+    { "nome": "Micropigmentação & Cílios", "slug": "micropigmentacao-cilios", "ordem": 1, "servicos": [
+      { "nome": "Micropigmentação Fio a Fio", "slug": "micropigmentacao-fio-a-fio", "descricao": "Técnica hiperrealista que simula fios naturais.", "duracao": 120, "preco": 450, "imagem": "/images/global-services/micropigmentacao-fio-a-fio.png", "placeholder": "Técnica hiperrealista com fios naturais.", "features": ["Resultado hiperrealista", "Duração 1-2 anos"], "addons": [{ "nome": "Retoque 30 dias", "preco": 100 }] },
+      { "nome": "Micropigmentação Shadow", "slug": "micropigmentacao-shadow", "descricao": "Efeito sombreado para sobrancelhas definidas.", "duracao": 120, "preco": 400, "imagem": "/images/global-services/micropigmentacao-shadow.png", "placeholder": "Efeito sombreado e definido.", "features": ["Preenchimento uniforme"], "addons": [] },
+      { "nome": "Lifting de Cílios", "slug": "lifting-cilios", "descricao": "Curvatura natural e duradoura.", "duracao": 60, "preco": 120, "imagem": "/images/global-services/lifting-cilios.png", "placeholder": "Curvatura natural sem curvex.", "features": ["Sem danos", "Efeito 6-8 semanas"], "addons": [{ "nome": "Tinta de cílios", "preco": 20 }] }
+    ]},
+    { "nome": "Tebori & Microblading", "slug": "tebori-microblading", "ordem": 2, "servicos": [
+      { "nome": "Microblading Flow", "slug": "microblading-flow", "descricao": "Técnica ultra-natural de preenchimento fio a fio.", "duracao": 90, "preco": 500, "imagem": "/images/global-services/microblading-flow.png", "placeholder": "Fios desenhados com precisão.", "features": ["Ultra-natural"], "addons": [] },
+      { "nome": "Retoque Micropigmentação", "slug": "retoque-micropigmentacao", "descricao": "Manutenção da cor e formato.", "duracao": 60, "preco": 200, "imagem": "/images/global-services/retoque-micropigmentacao.png", "placeholder": "Ajuste de cor e preenchimento.", "features": ["Manutenção preventiva"], "addons": [] },
+      { "nome": "Despigmentação Química", "slug": "despigmentacao-quimica", "descricao": "Remoção gradual de pigmentos indesejados.", "duracao": 45, "preco": 150, "imagem": "/images/global-services/despigmentacao-quimica.png", "placeholder": "Clareamento de tatuagens antigas.", "features": ["Processo seguro"], "addons": [{ "nome": "Sessão extra", "preco": 120 }] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "A micropigmentação dói?", "resposta": "Usamos anestésico tópico. A maioria das clientes relata desconforto mínimo." },
+    { "pergunta": "Quanto tempo dura?", "resposta": "Micropigmentação: 1 a 2 anos. Henna: 15 dias. Lamination: 6-8 semanas." },
+    { "pergunta": "Preciso de retoque?", "resposta": "Sim! Recomendamos retoque 30 dias após a primeira sessão para garantir perfeição." },
+    { "pergunta": "Quais cuidados pós-procedimento?", "resposta": "Evitar sol, água e maquiagem na região por 7 dias. Fornecemos um guia completo." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Horários do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Clientes", "descricao": "Clientes ativos.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" },
+    { "type": "antes_depois_recentes", "label": "Transformações", "descricao": "Últimos resultados.", "enabled": true, "pro": false, "icon": "ImageIcon" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-portfolio", "nome": "Portfólio Visual", "descricao": "Galeria de designs.", "icone": "Grid3X3", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-follow-up", "nome": "Follow-up Retoque", "descricao": "Lembrete de retoque automático.", "icone": "Bell", "ativa": false, "categoria": "marketing" }
+  ],
+  "trustBadges": [
+    { "texto": "Biossegurança Total", "icone": "ShieldCheck" },
+    { "texto": "Materiais Descartáveis", "icone": "Trash2" },
+    { "texto": "Técnica Certificada", "icone": "Award" },
+    { "texto": "Agendamento Online", "icone": "Clock" }
+  ],
+  "copyVoz": { "tom": "Delicado, técnico e artístico. Transmite precisão e confiança.", "exemplosCTA": ["Agendar Design", "Quero Meu Olhar", "Ver Transformações"], "fraseImpacto": "Cada fio desenhado com precisão para realçar o seu olhar." }
+}

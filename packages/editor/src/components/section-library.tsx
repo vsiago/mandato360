@@ -32,7 +32,7 @@ export function SectionLibrary({
     const availablePlugins = plugins.filter(p => !activeSectionIds.includes(p.id))
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div 
                 className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-300"

@@ -1,0 +1,69 @@
+{
+  "id": "classico",
+  "nome": "Clássico",
+  "descricao": "Elegante, atemporal e luxuoso. Foco em tipografia.",
+  "emoji": "🏛️",
+  "preview": "#1C1917",
+
+  "colors": {
+    "light": {
+      "primary": "#1C1917",
+      "secondary": "#78716C",
+      "accent": "#C4956A",
+      "background": "#FAFAF9",
+      "surface": "#F5F5F4",
+      "text": "#1C1917",
+      "textMuted": "#78716C",
+      "border": "#292524"
+    },
+    "dark": {
+      "primary": "#FAFAF9",
+      "secondary": "#A8A29E",
+      "accent": "#D4A574",
+      "background": "#0C0A09",
+      "surface": "#1C1917",
+      "text": "#FAFAF9",
+      "textMuted": "#A8A29E",
+      "border": "#44403C"
+    }
+  },
+  "typography": {
+    "heading": "Playfair Display",
+    "body": "Inter",
+    "headingWeight": "700",
+    "bodyWeight": "400"
+  },
+  "buttons": {
+    "style": "soft",
+    "shadow": true,
+    "borderWidth": 1
+  },
+  "cards": {
+    "shadow": "md",
+    "border": true,
+    "borderRadius": "4px",
+    "backdrop": false
+  },
+  "animations": {
+    "hoverScale": true,
+    "fadeIn": true,
+    "staggerChildren": true,
+    "duration": "normal"
+  },
+  "spacing": {
+    "sectionPadding": "120px 0",
+    "cardPadding": "40px",
+    "borderRadius": "4px",
+    "gap": "28px"
+  },
+  "cssVariables": {
+    "--theme-radius": "4px",
+    "--theme-font-heading": "'Playfair Display', serif",
+    "--theme-font-body": "'Inter', sans-serif",
+    "--theme-shadow": "0 20px 60px rgba(0,0,0,0.05)",
+    "--theme-transition": "500ms cubic-bezier(0.2, 0, 0, 1)",
+    "--theme-btn-radius": "2px",
+    "--theme-section-py": "120px",
+    "--theme-card-py": "40px"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Educação e Aulas", "slug": "educacao-e-aulas", "icone": "📚", "emoji": "📚", "cor": "#4A6FA5", "descricao": "Aulas particulares e mentorias focadas no seu desenvolvimento.", "keywords": ["aulas particulares", "mentoria", "idiomas", "música", "carreira", "workshop"] },
+  "heroPreset": { "badge": "EDUCAÇÃO", "headline": "Aprenda com quem domina", "highlight": "Agende sua aula", "ctaText": "Agendar Aula", "imagemSugerida": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80", "subheadline": "Aulas e mentorias personalizadas para acelerar seu desenvolvimento." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Diferenciais", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Aulas", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "conteudo", "enabled": false, "label": "Conteúdo", "order": 4, "pro": true },
+    { "type": "depoimentos", "enabled": false, "label": "Depoimentos", "order": 5, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 6, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 7, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 8, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "content_hub", "label": "Blog & Conteúdo", "descricao": "Artigos e materiais educativos.", "enabled": false, "pro": true, "icon": "FileText" }
+  ],
+  "categorias": [
+    { "nome": "Aulas", "slug": "aulas", "ordem": 0, "servicos": [
+      { "nome": "Mentoria Individual", "slug": "mentoria-individual", "descricao": "Sessão de mentoria personalizada.", "duracao": 90, "preco": 150, "imagem": "/images/global-services/mentoria-individual.png", "placeholder": "Mentoria para desenvolvimento.", "features": ["Plano de ação", "Acompanhamento"], "addons": [] },
+      { "nome": "Workshop em Grupo", "slug": "workshop-grupo", "descricao": "Workshop temático para pequenos grupos.", "duracao": 120, "preco": 60, "imagem": "/images/global-services/workshop-grupo.png", "placeholder": "Workshop temático.", "features": ["Material incluso", "Certificado"], "addons": [] },
+      { "nome": "Consultoria de Carreira", "slug": "consultoria-carreira", "descricao": "Orientação e planejamento de carreira.", "duracao": 60, "preco": 180, "imagem": "/images/global-services/consultoria-carreira.png", "placeholder": "Planejamento estratégico de carreira.", "features": ["Análise de perfil", "Metas claras"], "addons": [{ "nome": "Currículo profissional", "preco": 50 }] }
+    ]},
+    { "nome": "Idiomas", "slug": "idiomas", "ordem": 1, "servicos": [
+      { "nome": "Aula de Inglês", "slug": "aula-ingles", "descricao": "Aula particular focada em conversação.", "duracao": 60, "preco": 100, "imagem": "/images/global-services/aula-ingles.png", "placeholder": "Aprendizado acelerado.", "features": ["Conversação fluente"], "addons": [] },
+      { "nome": "Aula de Espanhol", "slug": "aula-espanhol", "descricao": "Espanhol dinâmico e prático.", "duracao": 60, "preco": 90, "imagem": "/images/global-services/aula-espanhol.png", "placeholder": "Foco em fluência.", "features": ["Método imersivo"], "addons": [] },
+      { "nome": "Aula de Francês", "slug": "aula-frances", "descricao": "Francês do básico ao avançado.", "duracao": 60, "preco": 120, "imagem": "/images/global-services/aula-frances.png", "placeholder": "Língua e cultura francesa.", "features": ["Personalizada"], "addons": [] }
+    ]},
+    { "nome": "Artes & Música", "slug": "artes-musica", "ordem": 2, "servicos": [
+      { "nome": "Aula de Violão", "slug": "aula-violao", "descricao": "Técnicas básicas e repertório.", "duracao": 60, "preco": 80, "imagem": "/images/global-services/aula-violao.png", "placeholder": "Aprenda suas músicas favoritas.", "features": ["Método prático"], "addons": [] },
+      { "nome": "Aula de Pintura", "slug": "aula-pintura", "descricao": "Desenho e pintura em tela.", "duracao": 90, "preco": 110, "imagem": "/images/global-services/aula-pintura.png", "placeholder": "Desperte sua criatividade.", "features": ["Material incluso"], "addons": [{ "nome": "Tela extra", "preco": 20 }] },
+      { "nome": "Aula de Canto", "slug": "aula-canto", "descricao": "Técnica vocal e performance.", "duracao": 60, "preco": 130, "imagem": "/images/global-services/aula-canto.png", "placeholder": "Desenvolva sua voz.", "features": ["Exercícios profissionais"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Preciso ter experiência?", "resposta": "Não! Adaptamos o conteúdo ao seu nível." },
+    { "pergunta": "As aulas são online ou presenciais?", "resposta": "Ambas as opções disponíveis conforme sua preferência." },
+    { "pergunta": "Tem material didático?", "resposta": "Sim! Material digital incluso em todas as aulas." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Aulas do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Alunos", "descricao": "Alunos ativos.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-conteudo", "nome": "Hub de Conteúdo", "descricao": "Blog e artigos no site.", "icone": "FileText", "ativa": false, "categoria": "marketing" },
+    { "id": "pro-depoimentos", "nome": "Depoimentos", "descricao": "Avaliações de alunos.", "icone": "MessageSquare", "ativa": false, "categoria": "conversao" }
+  ],
+  "trustBadges": [
+    { "texto": "Professores Qualificados", "icone": "Award" },
+    { "texto": "Material Incluso", "icone": "BookOpen" },
+    { "texto": "Online ou Presencial", "icone": "Monitor" },
+    { "texto": "Agendamento Online", "icone": "Clock" }
+  ],
+  "copyVoz": { "tom": "Educativo, inspirador e acessível. Transmite conhecimento e motivação.", "exemplosCTA": ["Agendar Aula", "Começar a Aprender", "Ver Cursos"], "fraseImpacto": "Conhecimento que transforma." }
+}

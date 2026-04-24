@@ -1,0 +1,64 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Studio de Estética", "slug": "studio-de-estetica", "icone": "✨", "emoji": "✨", "cor": "#D4A574", "descricao": "Tratamentos estéticos avançados para realçar sua beleza com tecnologia de ponta.", "keywords": ["estética", "limpeza de pele", "peeling", "drenagem", "depilação", "radiofrequência"] },
+  "heroPreset": { "badge": "ESTÉTICA AVANÇADA", "headline": "Resultados reais com tecnologia de ponta", "highlight": "Agende sua avaliação", "ctaText": "Agendar Avaliação", "imagemSugerida": "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80", "subheadline": "Protocolos personalizados com os melhores equipamentos e profissionais qualificados." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Selos de Confiança", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Tratamentos", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre o Studio", "order": 3, "pro": false },
+    { "type": "antes_depois", "enabled": true, "label": "Resultados", "order": 4, "pro": false },
+    { "type": "jornada_tratamento", "enabled": false, "label": "Jornada do Tratamento", "order": 5, "pro": true },
+    { "type": "depoimentos", "enabled": false, "label": "Depoimentos", "order": 6, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 7, "pro": false },
+    { "type": "faq", "enabled": true, "label": "Dúvidas Frequentes", "order": 8, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 9, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "before_after_gallery", "label": "Resultados Comparativos", "descricao": "Slider antes/depois dos tratamentos.", "enabled": true, "pro": false, "icon": "ImageIcon" },
+    { "type": "treatment_journey", "label": "Jornada do Tratamento", "descricao": "Etapas claras do protocolo para gerar confiança.", "enabled": false, "pro": true, "icon": "Route" }
+  ],
+  "categorias": [
+    { "nome": "Facial", "slug": "facial", "ordem": 0, "servicos": [
+      { "nome": "Limpeza de Pele", "slug": "limpeza-de-pele", "descricao": "Limpeza profunda com extração e máscara revitalizante.", "duracao": 60, "preco": 120, "imagem": "/images/global-services/limpeza-pele.png", "placeholder": "Limpeza profunda com extração e máscara revitalizante.", "features": ["Extração completa", "Máscara revitalizante", "Proteção solar"], "addons": [{ "nome": "LED terapêutico", "preco": 30 }] },
+      { "nome": "Peeling Químico", "slug": "peeling-quimico", "descricao": "Renovação celular para uniformizar tom e textura.", "duracao": 45, "preco": 150, "imagem": "/images/global-services/peeling-quimico.png", "placeholder": "Renovação celular para uniformizar o tom e textura da pele.", "features": ["Renovação celular", "Tom uniforme"], "addons": [{ "nome": "Máscara calmante", "preco": 25 }] },
+      { "nome": "Radiofrequência Facial", "slug": "radiofrequencia-facial", "descricao": "Tecnologia para estimular colágeno e firmar a pele.", "duracao": 45, "preco": 180, "imagem": "/images/global-services/radiofrequencia-facial.png", "placeholder": "Tecnologia para estimular colágeno e firmar a pele do rosto.", "features": ["Estímulo de colágeno", "Firmeza imediata"], "addons": [] }
+    ]},
+    { "nome": "Corporal", "slug": "corporal", "ordem": 1, "servicos": [
+      { "nome": "Drenagem Linfática", "slug": "drenagem-linfatica", "descricao": "Massagem manual para reduzir inchaços e toxinas.", "duracao": 60, "preco": 130, "imagem": "/images/global-services/drenagem-linfatica.png", "placeholder": "Massagem manual para reduzir inchaços e eliminar toxinas.", "features": ["Reduz inchaço", "Elimina toxinas"], "addons": [{ "nome": "Bandagem modeladora", "preco": 40 }] },
+      { "nome": "Massagem Modeladora", "slug": "massagem-modeladora", "descricao": "Técnica firme para contorno corporal.", "duracao": 60, "preco": 140, "imagem": "/images/global-services/massagem-modeladora.png", "placeholder": "Técnica firme para contorno corporal e redução de medidas.", "features": ["Contorno corporal", "Redução de medidas"], "addons": [] },
+      { "nome": "Depilação a Laser", "slug": "depilacao-laser", "descricao": "Depilação definitiva com tecnologia laser.", "duracao": 30, "preco": 150, "imagem": "/images/global-services/depilacao-laser.png", "placeholder": "Depilação definitiva com tecnologia laser de última geração.", "features": ["Resultado duradouro", "Sem dor"], "addons": [{ "nome": "Área adicional", "preco": 80 }] }
+    ]},
+    { "nome": "Depilação & Sobrancelhas", "slug": "depilacao-sobrancelhas", "ordem": 2, "servicos": [
+      { "nome": "Depilação com Cera", "slug": "depilacao-cera", "descricao": "Remoção de pelos com cera morna e técnica suave.", "duracao": 45, "preco": 80, "imagem": "/images/global-services/depilacao-cera.png", "placeholder": "Depilação eficaz em diversas áreas do corpo.", "features": ["Cera morna", "Técnica suave"], "addons": [] },
+      { "nome": "Design de Sobrancelha", "slug": "design-sobrancelha", "descricao": "Modelagem para harmonização facial.", "duracao": 30, "preco": 45, "imagem": "/images/global-services/design-sobrancelha-estetica.png", "placeholder": "Design personalizado com pinça ou linha.", "features": ["Harmonização facial"], "addons": [{ "nome": "Henna", "preco": 20 }] },
+      { "nome": "Henna Sobrancelhas", "slug": "henna-sobrancelhas", "descricao": "Delineamento natural com coloração temporária.", "duracao": 30, "preco": 40, "imagem": "/images/global-services/henna-estetica.png", "placeholder": "Preenchimento e definição com henna de alta qualidade.", "features": ["Coloração temporária", "Efeito natural"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Quantas sessões preciso?", "resposta": "Depende do tratamento. Na avaliação, montamos seu protocolo personalizado com número ideal de sessões." },
+    { "pergunta": "Os tratamentos doem?", "resposta": "A maioria dos procedimentos é confortável. Em tratamentos que possam causar desconforto, usamos anestésico tópico." },
+    { "pergunta": "Pode fazer no verão?", "resposta": "Alguns tratamentos como peeling exigem cuidados com sol. Orientamos sobre cada caso na avaliação." },
+    { "pergunta": "Quais formas de pagamento?", "resposta": "PIX, dinheiro, débito e crédito. Parcelamos pacotes de tratamento." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda de Hoje", "descricao": "Agendamentos do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Pacientes Ativas", "descricao": "Pacientes em tratamento.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita do mês.", "enabled": true, "pro": false, "icon": "DollarSign" },
+    { "type": "antes_depois_recentes", "label": "Resultados Recentes", "descricao": "Últimos antes/depois.", "enabled": true, "pro": false, "icon": "ImageIcon" },
+    { "type": "taxa_retorno", "label": "Fidelização", "descricao": "Pacientes que retornam.", "enabled": false, "pro": true, "icon": "RefreshCw" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-jornada", "nome": "Jornada do Tratamento", "descricao": "Mostre as etapas do protocolo no site.", "icone": "Route", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-depoimentos", "nome": "Depoimentos", "descricao": "Avaliações reais de pacientes.", "icone": "MessageSquare", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-follow-up", "nome": "Follow-up Automático", "descricao": "Lembrete de retorno por WhatsApp.", "icone": "Bell", "ativa": false, "categoria": "marketing" },
+    { "id": "pro-relatorio", "nome": "Relatório Mensal", "descricao": "PDF com performance.", "icone": "FileText", "ativa": false, "categoria": "analytics" }
+  ],
+  "trustBadges": [
+    { "texto": "Equipamentos de Ponta", "icone": "Zap" },
+    { "texto": "Profissionais Certificados", "icone": "Award" },
+    { "texto": "Ambiente Climatizado", "icone": "Wind" },
+    { "texto": "Agendamento Online", "icone": "Clock" }
+  ],
+  "copyVoz": { "tom": "Técnico, confiável e elegante. Transmite expertise e resultado.", "exemplosCTA": ["Agendar Avaliação", "Quero Meu Protocolo", "Ver Tratamentos"], "fraseImpacto": "Resultados visíveis desde a primeira sessão." }
+}

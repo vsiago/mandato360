@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Tatuagem e Piercing", "slug": "tatuagem-e-piercing", "icone": "🎨", "emoji": "🎨", "cor": "#1A1A2E", "descricao": "Arte na pele com segurança e estilo. Tatuagens exclusivas e piercings profissionais.", "keywords": ["tatuagem", "tattoo", "piercing", "cobertura", "remoção", "arte corporal"] },
+  "heroPreset": { "badge": "ARTE NA PELE", "headline": "Sua história, nossa arte", "highlight": "Agende sua sessão", "ctaText": "Agendar Sessão", "imagemSugerida": "https://images.unsplash.com/photo-1590246814883-57c511c7c3a6?auto=format&fit=crop&q=80", "subheadline": "Tatuagens autorais e piercings profissionais em ambiente seguro e criativo." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Segurança", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre o Artista", "order": 3, "pro": false },
+    { "type": "galeria", "enabled": true, "label": "Portfólio", "order": 4, "pro": false },
+    { "type": "antes_depois", "enabled": false, "label": "Coberturas", "order": 5, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 6, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 7, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 8, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "portfolio_grid", "label": "Portfólio de Arte", "descricao": "Galeria de tatuagens e estilos.", "enabled": true, "pro": false, "icon": "Grid3X3" },
+    { "type": "before_after_gallery", "label": "Coberturas", "descricao": "Antes/depois de coberturas de tattoo.", "enabled": false, "pro": true, "icon": "ImageIcon" }
+  ],
+  "categorias": [
+    { "nome": "Tatuagens", "slug": "tatuagens", "ordem": 0, "servicos": [
+      { "nome": "Tattoo Pequena", "slug": "tattoo-pequena", "descricao": "Tatuagem autoral de pequeno porte (até 5cm).", "duracao": 60, "preco": 200, "imagem": "/images/global-services/tattoo-pequena.png", "placeholder": "Tatuagem de pequeno porte.", "features": ["Design exclusivo", "Material descartável"], "addons": [] },
+      { "nome": "Tattoo Média", "slug": "tattoo-media", "descricao": "Tatuagem personalizada (até 15cm).", "duracao": 180, "preco": 500, "imagem": "/images/global-services/tattoo-media.png", "placeholder": "Tatuagem de médio porte.", "features": ["Design personalizado", "Sessão completa"], "addons": [{ "nome": "Retoque incluso", "preco": 0 }] },
+      { "nome": "Tattoo Grande", "slug": "tattoo-grande", "descricao": "Tatuagem de grande porte ou cobertura.", "duracao": 300, "preco": 1000, "imagem": "/images/global-services/tattoo-grande.png", "placeholder": "Tatuagem de grande porte.", "features": ["Múltiplas sessões possíveis"], "addons": [] }
+    ]},
+    { "nome": "Piercings & Cuidados", "slug": "piercings-cuidados", "ordem": 1, "servicos": [
+      { "nome": "Piercing Orelha", "slug": "piercing-orelha", "descricao": "Aplicação com joia inclusa.", "duracao": 30, "preco": 80, "imagem": "/images/global-services/piercing-orelha.png", "placeholder": "Piercing na orelha com joia.", "features": ["Joia inclusa", "Biossegurança"], "addons": [{ "nome": "Joia premium", "preco": 30 }] },
+      { "nome": "Piercing Nariz/Septo", "slug": "piercing-nariz", "descricao": "Aplicação nasal ou no septo.", "duracao": 30, "preco": 100, "imagem": "/images/global-services/piercing-nariz.png", "placeholder": "Piercing no nariz/septo.", "features": ["Material cirúrgico"], "addons": [] },
+      { "nome": "Piercing Corporal", "slug": "piercing-corporal", "descricao": "Aplicação em diversas regiões.", "duracao": 30, "preco": 120, "imagem": "/images/global-services/piercing-corporal.png", "placeholder": "Piercing em diversas regiões.", "features": ["Orientação pós-cuidado"], "addons": [] }
+    ]},
+    { "nome": "Remoção & Cobertura", "slug": "remocao-cobertura", "ordem": 2, "servicos": [
+      { "nome": "Remoção de Tattoo", "slug": "remocao-tattoo", "descricao": "Sessão de remoção a laser.", "duracao": 45, "preco": 150, "imagem": "/images/global-services/remocao-tattoo.png", "placeholder": "Remoção de tatuagem a laser.", "features": ["Tecnologia laser", "Sessões progressivas"], "addons": [] },
+      { "nome": "Cobertura de Cicatrizes", "slug": "cobertura-cicatrizes", "descricao": "Tatuagem estética para camuflagem.", "duracao": 120, "preco": 400, "imagem": "/images/global-services/cobertura-cicatrizes.png", "placeholder": "Transforme marcas em arte.", "features": ["Técnica de camuflagem"], "addons": [] },
+      { "nome": "Consultoria de Arte", "slug": "consultoria-arte", "descricao": "Sessão para criação de design.", "duracao": 30, "preco": 50, "imagem": "/images/global-services/consultoria-arte.png", "placeholder": "Defina seu projeto com o artista.", "features": ["Design personalizado", "Orçamento incluso"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Dói muito para tatuar?", "resposta": "A dor varia conforme a região. Áreas com mais músculo doem menos. Usamos técnicas para reduzir o desconforto." },
+    { "pergunta": "Qual o cuidado pós-tatuagem?", "resposta": "Película por 4 horas, lavar com sabonete neutro, hidratar com pomada indicada. Evitar sol por 30 dias." },
+    { "pergunta": "O piercing cicatriza em quanto tempo?", "resposta": "Orelha: 4-6 semanas. Nariz: 3-6 meses. Corpo: 6-12 meses, dependendo da região." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Sessões do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" },
+    { "type": "antes_depois_recentes", "label": "Trabalhos", "descricao": "Últimos trabalhos.", "enabled": true, "pro": false, "icon": "ImageIcon" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-coberturas", "nome": "Galeria de Coberturas", "descricao": "Antes/depois de cover-ups.", "icone": "ImageIcon", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-follow-up", "nome": "Follow-up Retoque", "descricao": "Lembrete de retoque.", "icone": "Bell", "ativa": false, "categoria": "marketing" }
+  ],
+  "trustBadges": [
+    { "texto": "Biossegurança", "icone": "ShieldCheck" },
+    { "texto": "Material Descartável", "icone": "Trash2" },
+    { "texto": "Arte Autoral", "icone": "Palette" },
+    { "texto": "Agendamento Online", "icone": "Clock" }
+  ],
+  "copyVoz": { "tom": "Artístico, criativo e autêntico. Transmite expressão pessoal e segurança.", "exemplosCTA": ["Agendar Sessão", "Ver Portfólio", "Criar Meu Design"], "fraseImpacto": "Sua pele, sua história, nossa arte." }
+}

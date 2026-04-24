@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Fotografia", "slug": "fotografia", "icone": "📸", "emoji": "📸", "cor": "#3D405B", "descricao": "Eternize momentos especiais com olhar profissional e arte.", "keywords": ["fotógrafo", "ensaio fotográfico", "eventos", "branding", "produto", "retrato"] },
+  "heroPreset": { "badge": "FOTOGRAFIA PROFISSIONAL", "headline": "Momentos que viram eternidade", "highlight": "Agende seu ensaio", "ctaText": "Agendar Ensaio", "imagemSugerida": "/images/global-services/hero-fotografia.png", "subheadline": "Fotografia profissional para ensaios, eventos e branding." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Diferenciais", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "galeria", "enabled": true, "label": "Portfólio", "order": 4, "pro": false },
+    { "type": "depoimentos", "enabled": false, "label": "Depoimentos", "order": 5, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 6, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 7, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 8, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "portfolio_grid", "label": "Portfólio", "descricao": "Galeria profissional de trabalhos.", "enabled": true, "pro": false, "icon": "Grid3X3" }
+  ],
+  "categorias": [
+    { "nome": "Ensaios", "slug": "ensaios", "ordem": 0, "servicos": [
+      { "nome": "Ensaio Individual", "slug": "ensaio-individual", "descricao": "Sessão fotográfica individual.", "duracao": 60, "preco": 250, "imagem": "/images/global-services/ensaio-individual.png", "placeholder": "Sessão individual.", "features": ["Direção de poses", "Edição premium"], "addons": [{ "nome": "Fotos extras (10)", "preco": 100 }] },
+      { "nome": "Ensaio de Casal", "slug": "ensaio-casal", "descricao": "Sessão romântica.", "duracao": 90, "preco": 400, "imagem": "/images/global-services/ensaio-casal.png", "placeholder": "Sessão para casais.", "features": ["Cenário externo", "Edição artística"], "addons": [] },
+      { "nome": "Ensaio Gestante", "slug": "ensaio-gestante", "descricao": "Registro da espera pelo bebê.", "duracao": 120, "preco": 450, "imagem": "https://images.unsplash.com/photo-1544126592-807daa2b565b?auto=format&fit=crop&q=80", "placeholder": "Registro sensível da gestação.", "features": ["Figurino sugerido", "Edição delicada"], "addons": [{ "nome": "Álbum impresso", "preco": 200 }] }
+    ]},
+    { "nome": "Eventos", "slug": "eventos", "ordem": 1, "servicos": [
+      { "nome": "Cobertura de Batizado", "slug": "cobertura-batizado", "descricao": "Registro completo da cerimônia.", "duracao": 120, "preco": 500, "imagem": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80", "placeholder": "Fotografia de batizados.", "features": ["Cobertura completa"], "addons": [] },
+      { "nome": "Aniversário Infantil", "slug": "aniversario-infantil", "descricao": "Cobertura de festas.", "duracao": 240, "preco": 800, "imagem": "https://images.unsplash.com/photo-1530103043960-ef38714abb15?auto=format&fit=crop&q=80", "placeholder": "Registro espontâneo de festas.", "features": ["Fotos espontâneas e posadas"], "addons": [{ "nome": "Hora extra", "preco": 200 }] },
+      { "nome": "Evento Corporativo", "slug": "evento-corporativo", "descricao": "Fotografia para empresas.", "duracao": 180, "preco": 600, "imagem": "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&q=80", "placeholder": "Registro profissional para eventos.", "features": ["Entrega rápida", "Alta resolução"], "addons": [] }
+    ]},
+    { "nome": "Produtos & Branding", "slug": "produtos-branding", "ordem": 2, "servicos": [
+      { "nome": "Foto de Produto", "slug": "foto-produto", "descricao": "Fotografia para e-commerce.", "duracao": 60, "preco": 150, "imagem": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80", "placeholder": "Imagens que vendem.", "features": ["Fundo branco ou lifestyle"], "addons": [{ "nome": "5 produtos extras", "preco": 80 }] },
+      { "nome": "Retrato Corporativo", "slug": "retrato-corporativo", "descricao": "Foto profissional.", "duracao": 30, "preco": 180, "imagem": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80", "placeholder": "Marca pessoal.", "features": ["LinkedIn ready"], "addons": [] },
+      { "nome": "Catálogo de Moda", "slug": "catalogo-moda", "descricao": "Produção para marcas de roupa.", "duracao": 240, "preco": 1200, "imagem": "https://images.unsplash.com/photo-1445205174242-2775f242aa1a?auto=format&fit=crop&q=80", "placeholder": "Editorial de moda.", "features": ["Produção completa"], "addons": [{ "nome": "Vídeo backstage", "preco": 300 }] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Em quanto tempo recebo as fotos?", "resposta": "Ensaios: 7-15 dias. Eventos: 15-30 dias. Produtos: 3-5 dias úteis." },
+    { "pergunta": "Quantas fotos recebo?", "resposta": "Depende do serviço. Em média: ensaios 30-50 fotos editadas, eventos 100-200 fotos." },
+    { "pergunta": "Posso escolher o cenário?", "resposta": "Sim! Podemos fotografar em estúdio, ao ar livre ou em locação de sua escolha." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Sessões do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" },
+    { "type": "clientes_ativos", "label": "Clientes", "descricao": "Clientes recentes.", "enabled": true, "pro": false, "icon": "Users" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-portfolio", "nome": "Portfólio Premium", "descricao": "Galeria expandida.", "icone": "Grid3X3", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-depoimentos", "nome": "Depoimentos", "descricao": "Avaliações de clientes.", "icone": "MessageSquare", "ativa": false, "categoria": "conversao" }
+  ],
+  "trustBadges": [
+    { "texto": "Equipamento Profissional", "icone": "Camera" },
+    { "texto": "Edição Premium", "icone": "Sparkles" },
+    { "texto": "Entrega Digital", "icone": "Cloud" },
+    { "texto": "Agendamento Online", "icone": "Clock" }
+  ],
+  "copyVoz": { "tom": "Artístico, emotivo e profissional. Transmite sensibilidade e excelência.", "exemplosCTA": ["Agendar Ensaio", "Ver Portfólio", "Cotar Evento"], "fraseImpacto": "Cada clique conta uma história." }
+}

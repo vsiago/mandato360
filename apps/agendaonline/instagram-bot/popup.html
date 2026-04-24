@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 320px;
+            padding: 10px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            margin-top: 5px;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 60px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #startBtn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #stopBtn {
+            background-color: #f44336;
+            color: white;
+            margin-top: 5px;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Instagram Bot</h2>
+
+    <label for="hashtagUrl">URL da Hashtag/Pesquisa:</label>
+    <input type="text" id="hashtagUrl" placeholder="Ex: https://www.ig.com..."
+        value="https://www.instagram.com/explore/search/keyword/?q=%23sobrancelhassp">
+
+    <label for="commentText">Texto do Comentário:</label>
+    <textarea
+        id="commentText">Seu design ficou muito bonito 👏 Você agenda pelo WhatsApp ou usa agenda online?</textarea>
+
+    <label for="dmText">Texto da DM:</label>
+    <textarea id="dmText">Oi! Feliz Dia das Mulheres 🌷
+Vi que você tem um link na bio para atendimento.
+Você já pensou em ter um site próprio com um link onde o cliente escolhe o horário e agenda sozinho?</textarea>
+
+    <button id="startBtn">INICIAR BOT</button>
+    <button id="stopBtn">PARAR BOT</button>
+
+    <div class="status">Status: <strong id="statusText" style="color: red;">Parado</strong></div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

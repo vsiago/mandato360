@@ -1,0 +1,56 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Pet Shop", "slug": "pet-shop", "icone": "🐾", "emoji": "🐾", "cor": "#E07A5F", "descricao": "O melhor para o seu melhor amigo. Banho, tosa e cuidados estéticos para pets.", "keywords": ["pet shop", "banho e tosa", "veterinário", "hotel pet", "creche pet", "cuidados animais"] },
+  "heroPreset": { "badge": "PET CARE", "headline": "Seu pet merece o melhor", "highlight": "Agende o banho", "ctaText": "Agendar Banho", "imagemSugerida": "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&q=80", "subheadline": "Cuidados premium para o seu melhor amigo com profissionais apaixonados por animais." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Diferenciais", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "antes_depois", "enabled": true, "label": "Transformações", "order": 4, "pro": false },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 5, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 6, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 7, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "before_after_gallery", "label": "Antes & Depois", "descricao": "Transformações de pets.", "enabled": true, "pro": false, "icon": "ImageIcon" }
+  ],
+  "categorias": [
+    { "nome": "Banho & Tosa", "slug": "banho-tosa", "ordem": 0, "servicos": [
+      { "nome": "Banho e Tosa Higiênica", "slug": "banho-tosa-higienica", "descricao": "Banho completo com corte de unhas e limpeza de ouvidos.", "duracao": 90, "preco": 80, "imagem": "/images/global-services/banho-tosa-higienica.png", "placeholder": "Banho completo com unhas e ouvidos.", "features": ["Corte de unhas", "Limpeza de ouvidos", "Perfume"], "addons": [{ "nome": "Hidratação", "preco": 20 }] },
+      { "nome": "Tosa da Raça", "slug": "tosa-raca", "descricao": "Corte seguindo o padrão da raça.", "duracao": 120, "preco": 120, "imagem": "/images/global-services/tosa-raca.png", "placeholder": "Tosa seguindo o padrão da raça.", "features": ["Padrão da raça", "Acabamento perfeito"], "addons": [] },
+      { "nome": "Banho Terapêutico", "slug": "banho-terapeutico", "descricao": "Banho com produtos para problemas de pele.", "duracao": 60, "preco": 100, "imagem": "/images/global-services/banho-terapeutico.png", "placeholder": "Banho com produtos específicos para pele.", "features": ["Produtos dermatológicos", "Cuidado especial"], "addons": [] }
+    ]},
+    { "nome": "Estética & Saúde", "slug": "estetica-saude", "ordem": 1, "servicos": [
+      { "nome": "Hidratação de Pelagem", "slug": "hidratacao-pelagem", "descricao": "Brilho e maciez dos pelos.", "duracao": 30, "preco": 40, "imagem": "/images/global-services/hidratacao-pelagem.png", "placeholder": "Brilho e maciez dos pelos.", "features": ["Pelos sedosos"], "addons": [] },
+      { "nome": "Escovação de Dentes", "slug": "escovacao-dentes", "descricao": "Higiene bucal preventiva.", "duracao": 15, "preco": 20, "imagem": "/images/global-services/escovacao-dentes-pet.png", "placeholder": "Higiene bucal preventiva.", "features": ["Hálito fresco"], "addons": [] },
+      { "nome": "Desembolamento", "slug": "desembolamento", "descricao": "Remoção cuidadosa de nós.", "duracao": 60, "preco": 60, "imagem": "/images/global-services/desembolamento-pet.png", "placeholder": "Remoção cuidadosa de nós na pelagem.", "features": ["Sem dor para o animal"], "addons": [] }
+    ]},
+    { "nome": "Hospedagem & Creche", "slug": "hospedagem-creche", "ordem": 2, "servicos": [
+      { "nome": "Dia de Creche", "slug": "creche-pet", "descricao": "Diversão e socialização durante o dia.", "duracao": 480, "preco": 50, "imagem": "/images/global-services/creche-pet.png", "placeholder": "Atividades e supervisão para seu pet.", "features": ["Supervisão integral", "Socialização"], "addons": [{ "nome": "Refeição premium", "preco": 15 }] },
+      { "nome": "Hospedagem Noturna", "slug": "hospedagem-noturna", "descricao": "Pernoite com conforto e segurança.", "duracao": 720, "preco": 90, "imagem": "/images/global-services/hospedagem-pet.png", "placeholder": "Hospedagem segura com carinho.", "features": ["Monitoramento", "Conforto total"], "addons": [{ "nome": "Banho na saída", "preco": 40 }] },
+      { "nome": "Treinamento Básico", "slug": "treinamento-basico", "descricao": "Adestramento para comandos essenciais.", "duracao": 60, "preco": 150, "imagem": "/images/global-services/treinamento-pet.png", "placeholder": "Comandos essenciais.", "features": ["Método positivo"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Precisa de carteira de vacinação?", "resposta": "Sim! Para a segurança de todos os pets, solicitamos carteira de vacinação atualizada." },
+    { "pergunta": "Atendem gatos?", "resposta": "Sim! Temos ambiente separado e profissionais especializados em felinos." },
+    { "pergunta": "Qual a frequência ideal de banho?", "resposta": "Em média a cada 15 dias, mas pode variar conforme a raça e estilo de vida do pet." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Agendamentos do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Tutores Ativos", "descricao": "Tutores dos últimos 30 dias.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-lembretes-vacina", "nome": "Lembrete de Vacina", "descricao": "Aviso automático de vacinação.", "icone": "Bell", "ativa": false, "categoria": "gestao" },
+    { "id": "pro-follow-up", "nome": "Follow-up Banho", "descricao": "Lembrete de próximo banho.", "icone": "RefreshCw", "ativa": false, "categoria": "marketing" }
+  ],
+  "trustBadges": [
+    { "texto": "Amor pelos Animais", "icone": "Heart" },
+    { "texto": "Produtos Pet-Safe", "icone": "ShieldCheck" },
+    { "texto": "Ambiente Climatizado", "icone": "Wind" },
+    { "texto": "Câmeras ao Vivo", "icone": "Eye" }
+  ],
+  "copyVoz": { "tom": "Carinhoso, divertido e confiável. Transmite amor e cuidado.", "exemplosCTA": ["Agendar Banho", "Cuidar do Meu Pet", "Ver Serviços"], "fraseImpacto": "Seu pet feliz, você tranquilo." }
+}

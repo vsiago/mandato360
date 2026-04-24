@@ -1,0 +1,57 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Manutenção e Reparos", "slug": "manutencao-e-reparos", "icone": "🛠️", "emoji": "🛠️", "cor": "#5C4033", "descricao": "Manutenção residencial e comercial com rapidez e confiança.", "keywords": ["manutenção", "reparos", "eletricista", "encanador", "pintura", "reformas", "marido de aluguel"] },
+  "heroPreset": { "badge": "MANUTENÇÃO PROFISSIONAL", "headline": "Resolvemos, você descansa", "highlight": "Solicite um orçamento", "ctaText": "Solicitar Orçamento", "imagemSugerida": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&q=80", "subheadline": "Serviços de manutenção e reparos com qualidade, pontualidade e confiança." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Garantias", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "antes_depois", "enabled": false, "label": "Antes & Depois", "order": 4, "pro": true },
+    { "type": "depoimentos", "enabled": false, "label": "Depoimentos", "order": 5, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 6, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 7, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 8, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "before_after_gallery", "label": "Antes & Depois", "descricao": "Fotos de reparos e reformas realizadas.", "enabled": false, "pro": true, "icon": "ImageIcon" }
+  ],
+  "categorias": [
+    { "nome": "Reparos", "slug": "reparos", "ordem": 0, "servicos": [
+      { "nome": "Reparo Elétrico", "slug": "reparo-eletrico", "descricao": "Conserto de tomadas, disjuntores e fiação.", "duracao": 60, "preco": 120, "imagem": "/images/global-services/reparo-eletrico.png", "placeholder": "Soluções elétricas rápidas.", "features": ["Diagnóstico incluso", "Garantia 30 dias"], "addons": [] },
+      { "nome": "Reparo Hidráulico", "slug": "reparo-hidraulico", "descricao": "Vazamentos, torneiras e descargas.", "duracao": 60, "preco": 100, "imagem": "/images/global-services/reparo-hidraulico.png", "placeholder": "Eliminação de vazamentos.", "features": ["Material básico incluso"], "addons": [{ "nome": "Troca de peça", "preco": 50 }] },
+      { "nome": "Pequenos Reparos", "slug": "pequenos-reparos", "descricao": "Serviços gerais.", "duracao": 45, "preco": 80, "imagem": "/images/global-services/pequenos-reparos.png", "placeholder": "Consertos diversos.", "features": ["Atendimento rápido"], "addons": [] }
+    ]},
+    { "nome": "Instalação", "slug": "instalacao", "ordem": 1, "servicos": [
+      { "nome": "Instalação de TV", "slug": "instalacao-tv", "descricao": "Fixação de suporte e configuração.", "duracao": 45, "preco": 90, "imagem": "/images/global-services/instalacao-tv.png", "placeholder": "TV segura na parede.", "features": ["Suporte incluso"], "addons": [{ "nome": "Ocultar fios", "preco": 30 }] },
+      { "nome": "Instalação de Ar Condicionado", "slug": "instalacao-ar", "descricao": "Instalação técnica de split.", "duracao": 180, "preco": 350, "imagem": "/images/global-services/instalacao-ar.png", "placeholder": "Montagem completa.", "features": ["Tubulação inclusa (até 3m)"], "addons": [] },
+      { "nome": "Montagem de Móveis", "slug": "montagem-moveis", "descricao": "Montagem profissional.", "duracao": 120, "preco": 150, "imagem": "/images/global-services/montagem-moveis.png", "placeholder": "Montagem precisa.", "features": ["Ferramentas inclusas"], "addons": [{ "nome": "Desmontagem", "preco": 40 }] }
+    ]},
+    { "nome": "Reformas & Acabamentos", "slug": "reformas-acabamentos", "ordem": 2, "servicos": [
+      { "nome": "Pintura de Parede", "slug": "pintura-parede", "descricao": "Pintura residencial ou comercial.", "duracao": 240, "preco": 300, "imagem": "/images/global-services/pintura-parede.png", "placeholder": "Renove seus ambientes.", "features": ["Acabamento fino", "2 demãos"], "addons": [{ "nome": "Tinta premium", "preco": 80 }] },
+      { "nome": "Instalação de Rodapé", "slug": "instalacao-rodape", "descricao": "Rodapés em madeira, PVC ou poliestireno.", "duracao": 120, "preco": 150, "imagem": "/images/global-services/instalacao-rodape.png", "placeholder": "Acabamento perfeito.", "features": ["Material incluso (PVC)"], "addons": [] },
+      { "nome": "Troca de Revestimento", "slug": "troca-revestimento", "descricao": "Azulejos ou pisos em áreas pequenas.", "duracao": 480, "preco": 600, "imagem": "/images/global-services/troca-revestimento.png", "placeholder": "Pequenas reformas.", "features": ["Orçamento prévio"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "O orçamento é grátis?", "resposta": "Sim! A visita técnica é gratuita para orçamentos acima de R$ 100." },
+    { "pergunta": "Tem garantia?", "resposta": "Sim, todos os nossos serviços têm garantia de 30 a 90 dias." },
+    { "pergunta": "Atendem no fim de semana?", "resposta": "Sim! Atendemos sábados e domingos com agendamento prévio." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Chamados do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" },
+    { "type": "clientes_ativos", "label": "Clientes", "descricao": "Clientes recentes.", "enabled": true, "pro": false, "icon": "Users" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-antes-depois", "nome": "Antes & Depois", "descricao": "Fotos de reformas.", "icone": "ImageIcon", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-depoimentos", "nome": "Depoimentos", "descricao": "Avaliações de clientes.", "icone": "MessageSquare", "ativa": false, "categoria": "conversao" }
+  ],
+  "trustBadges": [
+    { "texto": "Garantia de Serviço", "icone": "ShieldCheck" },
+    { "texto": "Pontualidade", "icone": "Clock" },
+    { "texto": "Orçamento Grátis", "icone": "FileText" },
+    { "texto": "Profissional Certificado", "icone": "Award" }
+  ],
+  "copyVoz": { "tom": "Confiável, prático e direto. Transmite competência e pontualidade.", "exemplosCTA": ["Solicitar Orçamento", "Agendar Visita", "Ver Serviços"], "fraseImpacto": "Qualidade que você vê e confia." }
+}

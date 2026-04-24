@@ -1,0 +1,95 @@
+{
+  "version": "1.0.0",
+  "meta": {
+    "nome": "Barbearia",
+    "slug": "barbearia",
+    "icone": "💈",
+    "emoji": "💈",
+    "cor": "#2C1810",
+    "descricao": "Cortes clássicos e modernos, barba impecável e experiência premium.",
+    "keywords": ["barbearia", "corte masculino", "barba", "degradê", "fade", "combo corte barba"]
+  },
+  "heroPreset": {
+    "badge": "BARBEARIA PREMIUM",
+    "headline": "Estilo e precisão em cada corte",
+    "highlight": "Agende seu horário",
+    "ctaText": "Agendar Agora",
+    "imagemSugerida": "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&q=80",
+    "subheadline": "Cortes clássicos e modernos com experiência premium de verdade."
+  },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Selos de Confiança", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "antes_depois", "enabled": true, "label": "Antes & Depois", "order": 4, "pro": false },
+    { "type": "depoimentos", "enabled": false, "label": "Depoimentos", "order": 5, "pro": true },
+    { "type": "equipe", "enabled": false, "label": "Equipe", "order": 6, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 7, "pro": false },
+    { "type": "faq", "enabled": true, "label": "Perguntas Frequentes", "order": 8, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 9, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "before_after_gallery", "label": "Antes & Depois", "descricao": "Transformações de cortes e barba para inspirar novos clientes.", "enabled": true, "pro": false, "icon": "ImageIcon" },
+    { "type": "team_showcase", "label": "Barbeiros", "descricao": "Perfil dos barbeiros com especialidades e agenda.", "enabled": false, "pro": true, "icon": "Users" }
+  ],
+  "categorias": [
+    {
+      "nome": "Cortes", "slug": "cortes", "ordem": 0,
+      "servicos": [
+        { "nome": "Corte Masculino", "slug": "corte-masculino", "descricao": "Corte personalizado com acabamento e finalização.", "duracao": 40, "preco": 50, "imagem": "/images/global-services/corte-masculino-barbearia.png", "placeholder": "Corte masculino personalizado, incluindo acabamento e finalização.", "features": ["Lavagem inclusa", "Finalização com pomada", "Design personalizado"], "addons": [{ "nome": "Sobrancelha na navalha", "preco": 15 }] },
+        { "nome": "Corte Degradê", "slug": "corte-degrade", "descricao": "Corte degradê (fade) com transição perfeita.", "duracao": 45, "preco": 55, "imagem": "/images/global-services/corte-degrade.png", "placeholder": "Corte degradê (fade) com transição perfeita e acabamento preciso.", "features": ["Fade impecável", "Acabamento detalhado", "Lavagem"], "addons": [{ "nome": "Pigmentação", "preco": 25 }] },
+        { "nome": "Corte + Sobrancelha", "slug": "corte-sobrancelha", "descricao": "Corte completo com design de sobrancelha na navalha.", "duracao": 50, "preco": 65, "imagem": "/images/global-services/corte-sobrancelha.png", "placeholder": "Corte completo com design de sobrancelha na navalha ou pinça.", "features": ["Double care", "Sobrancelha modelada"], "addons": [{ "nome": "Hidratação capilar", "preco": 20 }] }
+      ]
+    },
+    {
+      "nome": "Barba & Combos", "slug": "barba-combos", "ordem": 1,
+      "servicos": [
+        { "nome": "Barba Completa", "slug": "barba-completa", "descricao": "Aparar, modelar e hidratar a barba com toalha quente.", "duracao": 30, "preco": 40, "imagem": "/images/global-services/barba-completa.png", "placeholder": "Aparar, modelar e hidratar a barba com toalha quente.", "features": ["Toalha quente", "Hidratação pós-barba"], "addons": [{ "nome": "Óleo Premium", "preco": 10 }] },
+        { "nome": "Barba com Navalha", "slug": "barba-navalha", "descricao": "Barbearia tradicional com navalha para acabamento perfeito.", "duracao": 40, "preco": 50, "imagem": "/images/global-services/barba-navalha.png", "placeholder": "Barbearia tradicional com navalha para um acabamento perfeito.", "features": ["Toalha quente", "Massagem facial"], "addons": [{ "nome": "Massagem extra", "preco": 15 }] },
+        { "nome": "Combo Corte + Barba", "slug": "combo-corte-barba", "descricao": "Corte completo + barba modelada com desconto.", "duracao": 60, "preco": 75, "imagem": "/images/global-services/combo-corte-barba.png", "placeholder": "Corte completo mais barba modelada com desconto especial.", "features": ["Corte completo", "Barba toalha quente", "Bebida cortesia"], "addons": [{ "nome": "Sobrancelha free", "preco": 0 }] }
+      ]
+    },
+    {
+      "nome": "Tratamentos Masculinos", "slug": "tratamentos-masculinos", "ordem": 2,
+      "servicos": [
+        { "nome": "Limpeza de Pele Express", "slug": "limpeza-pele-express", "descricao": "Limpeza rápida e refrescante para a pele masculina.", "duracao": 30, "preco": 60, "imagem": "/images/global-services/limpeza-pele-masculina.png", "placeholder": "Remoção de impurezas e hidratação rápida da pele.", "features": ["Esfoliação", "Máscara mineral"], "addons": [{ "nome": "Extração simples", "preco": 20 }] },
+        { "nome": "Depilação Nariz/Orelha", "slug": "depilacao-nariz-orelha", "descricao": "Remoção de pelos indesejados no nariz e orelhas.", "duracao": 15, "preco": 20, "imagem": "/images/global-services/depilacao-nariz-orelha.png", "placeholder": "Remoção técnica e rápida para um visual mais limpo.", "features": ["Cera morna", "Higiene completa"], "addons": [] },
+        { "nome": "Camuflagem de Brancos", "slug": "camuflagem-brancos", "descricao": "Técnica discreta para suavizar fios brancos.", "duracao": 30, "preco": 70, "imagem": "/images/global-services/camuflagem-brancos.png", "placeholder": "Aplicação natural para reduzir o contraste dos fios brancos.", "features": ["Efeito natural", "Penteado incluso"], "addons": [{ "nome": "Aplicação extra", "preco": 30 }] }
+      ]
+    }
+  ],
+  "faqSugerida": [
+    { "pergunta": "Preciso agendar horário?", "resposta": "Recomendamos o agendamento online para garantir seu horário, mas atendemos por ordem de chegada quando há disponibilidade." },
+    { "pergunta": "Quanto tempo dura um corte?", "resposta": "Um corte simples leva em média 40 minutos. Combos com barba levam cerca de 1 hora." },
+    { "pergunta": "Quais formas de pagamento?", "resposta": "PIX, dinheiro, cartão de débito e crédito. Parcelamos em até 3x sem juros em serviços acima de R$ 100." },
+    { "pergunta": "Atendem crianças?", "resposta": "Sim! Temos experiência com cortes infantis em ambiente descontraído." },
+    { "pergunta": "A barbearia tem estacionamento?", "resposta": "Consulte a seção de contato para informações sobre estacionamento e localização." },
+    { "pergunta": "Posso escolher o barbeiro?", "resposta": "Sim! Ao agendar, você pode selecionar o profissional de sua preferência." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda de Hoje", "descricao": "Agendamentos do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Clientes Ativos", "descricao": "Clientes dos últimos 30 dias.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Faturamento do mês.", "enabled": true, "pro": false, "icon": "DollarSign" },
+    { "type": "servicos_populares", "label": "Mais Populares", "descricao": "Serviços mais agendados.", "enabled": true, "pro": false, "icon": "TrendingUp" },
+    { "type": "taxa_retorno", "label": "Taxa de Retorno", "descricao": "Clientes que voltam.", "enabled": false, "pro": true, "icon": "RefreshCw" },
+    { "type": "antes_depois_recentes", "label": "Antes & Depois", "descricao": "Últimas transformações.", "enabled": true, "pro": false, "icon": "ImageIcon" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-depoimentos", "nome": "Depoimentos", "descricao": "Avaliações reais de clientes.", "icone": "MessageSquare", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-equipe", "nome": "Perfil dos Barbeiros", "descricao": "Cada barbeiro com foto e especialidades.", "icone": "Users", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-follow-up", "nome": "Follow-up WhatsApp", "descricao": "Lembrete para clientes inativos.", "icone": "Bell", "ativa": false, "categoria": "marketing" },
+    { "id": "pro-relatorio", "nome": "Relatório Mensal", "descricao": "PDF com performance do mês.", "icone": "FileText", "ativa": false, "categoria": "analytics" }
+  ],
+  "trustBadges": [
+    { "texto": "Cerveja Artesanal", "icone": "Beer" },
+    { "texto": "Wi-Fi Grátis", "icone": "Wifi" },
+    { "texto": "Agendamento 24h", "icone": "Clock" },
+    { "texto": "Ambiente Premium", "icone": "Crown" }
+  ],
+  "copyVoz": {
+    "tom": "Masculino, direto e premium. Transmite confiança e estilo.",
+    "exemplosCTA": ["Agendar Agora", "Garantir Meu Horário", "Reservar Corte"],
+    "fraseImpacto": "Estilo e precisão em cada detalhe."
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Outros", "slug": "outros", "icone": "📝", "emoji": "📝", "cor": "#6C757D", "descricao": "Atendimento de excelência para diversos tipos de serviços especializados.", "keywords": ["consultoria", "serviços gerais", "suporte", "TI", "tradução", "terapia"] },
+  "heroPreset": { "badge": "SERVIÇOS PROFISSIONAIS", "headline": "Excelência em cada atendimento", "highlight": "Agende seu horário", "ctaText": "Agendar Agora", "imagemSugerida": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80", "subheadline": "Serviços profissionais especializados com agendamento online simplificado." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Diferenciais", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 4, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 5, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 6, "pro": false }
+  ],
+  "modulosEspeciais": [],
+  "categorias": [
+    { "nome": "Geral", "slug": "geral", "ordem": 0, "servicos": [
+      { "nome": "Consultoria Geral", "slug": "consultoria-geral", "descricao": "Sessão de consultoria para temas diversos.", "duracao": 60, "preco": 150, "imagem": "/images/global-services/consultoria-geral.png", "placeholder": "Aconselhamento especializado.", "features": ["Orientação personalizada"], "addons": [] },
+      { "nome": "Planejamento de Evento", "slug": "planejamento-evento", "descricao": "Organização de pequenos eventos.", "duracao": 90, "preco": 200, "imagem": "/images/global-services/planejamento-evento.png", "placeholder": "Organização profissional.", "features": ["Logística completa"], "addons": [] },
+      { "nome": "Serviços Administrativos", "slug": "servicos-administrativos", "descricao": "Suporte em tarefas de escritório.", "duracao": 60, "preco": 80, "imagem": "/images/global-services/servicos-administrativos.png", "placeholder": "Auxílio administrativo.", "features": ["Prático e rápido"], "addons": [] }
+    ]},
+    { "nome": "Especializado", "slug": "especializado", "ordem": 1, "servicos": [
+      { "nome": "Consultoria Jurídica", "slug": "consultoria-juridica", "descricao": "Orientação legal inicial.", "duracao": 60, "preco": 300, "imagem": "/images/global-services/consultoria-juridica.png", "placeholder": "Esclareça dúvidas legais.", "features": ["Sigilo total"], "addons": [{ "nome": "Parecer por escrito", "preco": 200 }] },
+      { "nome": "Tradução de Documentos", "slug": "traducao-documentos", "descricao": "Tradução para diferentes idiomas.", "duracao": 120, "preco": 100, "imagem": "/images/global-services/traducao-documentos.png", "placeholder": "Tradução técnica ou juramentada.", "features": ["Múltiplos idiomas"], "addons": [{ "nome": "Certificação", "preco": 50 }] },
+      { "nome": "Acompanhamento Terapêutico", "slug": "acompanhamento-terapeutico", "descricao": "Suporte emocional e desenvolvimento.", "duracao": 60, "preco": 150, "imagem": "/images/global-services/acompanhamento-terapeutico.png", "placeholder": "Escuta ativa e equilíbrio.", "features": ["Ambiente acolhedor"], "addons": [] }
+    ]},
+    { "nome": "Suporte Digital & TI", "slug": "suporte-digital-ti", "ordem": 2, "servicos": [
+      { "nome": "Configuração de Rede", "slug": "configuracao-rede", "descricao": "Otimização WiFi e roteador.", "duracao": 45, "preco": 80, "imagem": "/images/global-services/configuracao-rede.png", "placeholder": "Melhore sua conexão.", "features": ["Diagnóstico completo"], "addons": [] },
+      { "nome": "Remoção de Vírus", "slug": "remocao-virus", "descricao": "Limpeza e otimização.", "duracao": 60, "preco": 120, "imagem": "/images/global-services/remocao-virus.png", "placeholder": "Equipamento rápido e seguro.", "features": ["Backup incluso"], "addons": [{ "nome": "Antivírus premium", "preco": 60 }] },
+      { "nome": "Treinamento de Software", "slug": "treinamento-software", "descricao": "Aulas de ferramentas digitais.", "duracao": 90, "preco": 150, "imagem": "/images/global-services/treinamento-software.png", "placeholder": "Domine seus aplicativos.", "features": ["Material digital"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Como funciona o agendamento?", "resposta": "Clique em 'Agendar Agora', escolha o serviço e o melhor horário. Confirmação imediata." },
+    { "pergunta": "Quais formas de pagamento?", "resposta": "PIX, dinheiro, cartão de débito e crédito." },
+    { "pergunta": "Posso cancelar?", "resposta": "Sim, com 4 horas de antecedência sem custo." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Agendamentos do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Clientes", "descricao": "Clientes recentes.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-depoimentos", "nome": "Depoimentos", "descricao": "Avaliações de clientes.", "icone": "MessageSquare", "ativa": false, "categoria": "conversao" }
+  ],
+  "trustBadges": [
+    { "texto": "Profissional Verificado", "icone": "ShieldCheck" },
+    { "texto": "Atendimento Digital", "icone": "Monitor" },
+    { "texto": "Agendamento Online", "icone": "Clock" },
+    { "texto": "Satisfação Garantida", "icone": "ThumbsUp" }
+  ],
+  "copyVoz": { "tom": "Profissional, versátil e direto. Transmite competência e confiança.", "exemplosCTA": ["Agendar Agora", "Solicitar Serviço", "Ver Opções"], "fraseImpacto": "Profissionalismo em cada detalhe." }
+}

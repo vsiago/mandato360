@@ -1,0 +1,61 @@
+{
+  "version": "1.0.0",
+  "meta": { "nome": "Health & Fitness", "slug": "health-fitness", "icone": "💪", "emoji": "💪", "cor": "#2D6A4F", "descricao": "Treinos personalizados e acompanhamento focado nos seus objetivos de saúde.", "keywords": ["personal trainer", "academia", "fitness", "treino", "yoga", "pilates", "nutrição"] },
+  "heroPreset": { "badge": "HEALTH & FITNESS", "headline": "Seu melhor resultado começa aqui", "highlight": "Agende sua avaliação", "ctaText": "Agendar Avaliação", "imagemSugerida": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&q=80", "subheadline": "Treinos personalizados e acompanhamento profissional para atingir seus objetivos." },
+  "secoes": [
+    { "type": "hero", "enabled": true, "label": "Hero", "order": 0, "pro": false },
+    { "type": "trust_badges", "enabled": true, "label": "Diferenciais", "order": 1, "pro": false },
+    { "type": "servicos", "enabled": true, "label": "Serviços", "order": 2, "pro": false },
+    { "type": "sobre", "enabled": true, "label": "Sobre", "order": 3, "pro": false },
+    { "type": "planos", "enabled": false, "label": "Planos", "order": 4, "pro": true },
+    { "type": "antes_depois", "enabled": true, "label": "Transformações", "order": 5, "pro": false },
+    { "type": "depoimentos", "enabled": false, "label": "Depoimentos", "order": 6, "pro": true },
+    { "type": "agendamento", "enabled": true, "label": "Agendamento", "order": 7, "pro": false },
+    { "type": "faq", "enabled": true, "label": "FAQ", "order": 8, "pro": false },
+    { "type": "contato", "enabled": true, "label": "Contato", "order": 9, "pro": false }
+  ],
+  "modulosEspeciais": [
+    { "type": "before_after_gallery", "label": "Transformações", "descricao": "Antes/depois de alunos.", "enabled": true, "pro": false, "icon": "ImageIcon" },
+    { "type": "pricing_plans", "label": "Planos de Treino", "descricao": "Pacotes mensais e trimestrais.", "enabled": false, "pro": true, "icon": "CreditCard" }
+  ],
+  "categorias": [
+    { "nome": "Treinos", "slug": "treinos", "ordem": 0, "servicos": [
+      { "nome": "Consultoria Fitness", "slug": "consultoria-fitness", "descricao": "Avaliação física e montagem de treino.", "duracao": 60, "preco": 150, "imagem": "/images/global-services/consultoria-fitness.png", "placeholder": "Avaliação completa e plano de treino.", "features": ["Avaliação completa", "Plano personalizado"], "addons": [{ "nome": "Planilha nutricional", "preco": 50 }] },
+      { "nome": "Personal Trainer", "slug": "personal-trainer", "descricao": "Acompanhamento individual.", "duracao": 60, "preco": 100, "imagem": "/images/global-services/personal-trainer.png", "placeholder": "Acompanhamento individualizado.", "features": ["Correção postural", "Motivação"], "addons": [] },
+      { "nome": "Avaliação Nutricional", "slug": "avaliacao-nutricional", "descricao": "Planejamento alimentar.", "duracao": 45, "preco": 120, "imagem": "/images/global-services/avaliacao-nutricional.png", "placeholder": "Plano alimentar personalizado.", "features": ["Dieta personalizada"], "addons": [{ "nome": "Retorno 15 dias", "preco": 60 }] }
+    ]},
+    { "nome": "Avaliações", "slug": "avaliacoes", "ordem": 1, "servicos": [
+      { "nome": "Bioimpedância", "slug": "bioimpedancia", "descricao": "Composição corporal detalhada.", "duracao": 15, "preco": 50, "imagem": "/images/global-services/bioimpedancia.png", "placeholder": "Análise de composição corporal.", "features": ["Resultado imediato"], "addons": [] },
+      { "nome": "Avaliação Postural", "slug": "avaliacao-postural", "descricao": "Análise e prevenção de lesões.", "duracao": 30, "preco": 80, "imagem": "/images/global-services/avaliacao-postural.png", "placeholder": "Análise técnica da postura.", "features": ["Prevenção de lesões"], "addons": [] },
+      { "nome": "Teste de Esforço", "slug": "teste-esforco", "descricao": "Avaliação cardiovascular.", "duracao": 45, "preco": 150, "imagem": "/images/global-services/teste-esforco.png", "placeholder": "Avaliação da capacidade cardiovascular.", "features": ["Monitoramento completo"], "addons": [] }
+    ]},
+    { "nome": "Treinos Coletivos", "slug": "treinos-coletivos", "ordem": 2, "servicos": [
+      { "nome": "Aula de Yoga", "slug": "aula-yoga", "descricao": "Flexibilidade e mente.", "duracao": 60, "preco": 60, "imagem": "/images/global-services/aula-yoga.png", "placeholder": "Equilíbrio corpo e mente.", "features": ["Grupo reduzido"], "addons": [] },
+      { "nome": "Cross Training", "slug": "cross-training", "descricao": "Alta intensidade funcional.", "duracao": 60, "preco": 70, "imagem": "/images/global-services/cross-training.png", "placeholder": "Desafio físico completo.", "features": ["Intenso", "Dinâmico"], "addons": [] },
+      { "nome": "Pilates Solo", "slug": "pilates-solo", "descricao": "Fortalecimento do core.", "duracao": 60, "preco": 65, "imagem": "/images/global-services/pilates-solo.png", "placeholder": "Força e flexibilidade.", "features": ["Controle corporal"], "addons": [] }
+    ]}
+  ],
+  "faqSugerida": [
+    { "pergunta": "Preciso de experiência?", "resposta": "Não! Montamos treinos para todos os níveis, do iniciante ao avançado." },
+    { "pergunta": "Qual a frequência ideal?", "resposta": "3 a 5 vezes por semana para resultados consistentes. O plano é adaptado à sua rotina." },
+    { "pergunta": "Posso cancelar a sessão?", "resposta": "Sim, com 4 horas de antecedência sem custo. Cancelamentos tardios podem ser cobrados." }
+  ],
+  "dashboardWidgets": [
+    { "type": "agenda_hoje", "label": "Agenda", "descricao": "Sessões do dia.", "enabled": true, "pro": false, "icon": "Calendar" },
+    { "type": "clientes_ativos", "label": "Alunos", "descricao": "Alunos ativos.", "enabled": true, "pro": false, "icon": "Users" },
+    { "type": "faturamento_mensal", "label": "Faturamento", "descricao": "Receita mensal.", "enabled": true, "pro": false, "icon": "DollarSign" },
+    { "type": "antes_depois_recentes", "label": "Transformações", "descricao": "Evolução dos alunos.", "enabled": true, "pro": false, "icon": "ImageIcon" }
+  ],
+  "funcionalidadesPro": [
+    { "id": "pro-planos", "nome": "Planos e Pacotes", "descricao": "Planos mensais de treino.", "icone": "CreditCard", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-depoimentos", "nome": "Depoimentos", "descricao": "Avaliações de alunos.", "icone": "MessageSquare", "ativa": false, "categoria": "conversao" },
+    { "id": "pro-follow-up", "nome": "Follow-up", "descricao": "Lembrete de treino.", "icone": "Bell", "ativa": false, "categoria": "marketing" }
+  ],
+  "trustBadges": [
+    { "texto": "CREF Ativo", "icone": "Award" },
+    { "texto": "Equipamentos Novos", "icone": "Dumbbell" },
+    { "texto": "Resultados Reais", "icone": "TrendingUp" },
+    { "texto": "Agendamento Online", "icone": "Clock" }
+  ],
+  "copyVoz": { "tom": "Motivacional, energético e profissional. Transmite resultado e disciplina.", "exemplosCTA": ["Agendar Avaliação", "Começar Agora", "Ver Planos"], "fraseImpacto": "Seu corpo, suas regras, nosso método." }
+}

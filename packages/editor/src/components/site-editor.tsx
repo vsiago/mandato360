@@ -109,7 +109,7 @@ export function SiteEditor({
       />
       <div className="flex flex-1 overflow-hidden relative">
         {/* Section Navigation (Desktop) */}
-        <div className="hidden md:flex bg-background z-10">
+        <div className="hidden md:flex bg-background">
           <SectionNav
             activeSection={editor.activeSection}
             sectionOrder={editor.sectionOrder}
@@ -151,7 +151,7 @@ export function SiteEditor({
         </div>
 
         {/* Editor Sidebar (Desktop) */}
-        <div className="hidden lg:flex border-l border-border bg-background z-10 w-80">
+        <div className="hidden lg:flex border-l border-border bg-background w-80">
           <EditorSidebar
             config={editor.config}
             device={editor.device}

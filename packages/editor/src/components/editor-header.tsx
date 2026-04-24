@@ -23,6 +23,7 @@ interface EditorHeaderProps {
   previewUrl?: string
   tenantName?: string
   accentColor?: string
+  className?: string
 }
 
 const devices: { type: DeviceType; icon: typeof Smartphone; label: string }[] = [
@@ -47,9 +48,10 @@ export function EditorHeader({
   previewUrl,
   tenantName,
   accentColor = "#10b981",
+  className,
 }: EditorHeaderProps) {
   return (
-    <header className="flex h-16 sm:h-14 flex-wrap sm:flex-nowrap items-center justify-between border-b border-border bg-card px-2 sm:px-4 gap-y-2 py-1 sm:py-0">
+    <header className={cn("flex h-16 sm:h-14 flex-wrap sm:flex-nowrap items-center justify-between border-b border-border bg-card px-2 sm:px-4 gap-y-2 py-1 sm:py-0", className)}>
       {/* Left Side - Breadcrumb */}
       <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
         <div className="flex items-center gap-1.5 text-xs sm:text-sm">
@@ -127,7 +129,7 @@ export function EditorHeader({
               <span className="hidden sm:inline">Tema Global</span>
             </Button>
           </SheetTrigger>
-          <SheetContent className="z-[500] flex w-[400px] flex-col border-l border-border bg-background p-0 sm:w-[540px]">
+          <SheetContent className="flex w-[400px] flex-col border-l border-border bg-background p-0 sm:w-[540px]">
             <SheetHeader className="p-6 pb-0">
               <SheetTitle className="text-foreground">Tema Global</SheetTitle>
               <SheetDescription className="text-muted-foreground">

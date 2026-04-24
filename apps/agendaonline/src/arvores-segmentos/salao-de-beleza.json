@@ -1,0 +1,402 @@
+{
+  "version": "1.0.0",
+  "meta": {
+    "nome": "Salão de Beleza",
+    "slug": "salao-de-beleza",
+    "icone": "💇‍♀️",
+    "emoji": "💇‍♀️",
+    "cor": "#C4956A",
+    "descricao": "Realce sua beleza natural com serviços exclusivos de corte, coloração e tratamentos capilares.",
+    "keywords": ["salão de beleza", "cabeleireiro", "corte feminino", "coloração", "escova", "manicure", "pedicure", "tratamento capilar", "mechas", "hidratação"]
+  },
+
+  "heroPreset": {
+    "badge": "AGENDA ONLINE",
+    "headline": "Seu espaço de beleza, agora digital",
+    "highlight": "Agende seu horário",
+    "ctaText": "Agendar Agora",
+    "imagemSugerida": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80",
+    "subheadline": "Transforme a experiência das suas clientes com agendamento online, gestão de serviços e presença profissional na web."
+  },
+
+  "secoes": [
+    { "type": "hero",           "enabled": true,  "label": "Hero",                "order": 0,  "pro": false },
+    { "type": "trust_badges",   "enabled": true,  "label": "Selos de Confiança",  "order": 1,  "pro": false },
+    { "type": "servicos",       "enabled": true,  "label": "Serviços",            "order": 2,  "pro": false },
+    { "type": "sobre",          "enabled": true,  "label": "Sobre",               "order": 3,  "pro": false },
+    { "type": "antes_depois",   "enabled": true,  "label": "Antes & Depois",      "order": 4,  "pro": false },
+    { "type": "depoimentos",    "enabled": false, "label": "Depoimentos",         "order": 5,  "pro": true  },
+    { "type": "galeria",        "enabled": false, "label": "Galeria",             "order": 6,  "pro": true  },
+    { "type": "equipe",         "enabled": false, "label": "Equipe",              "order": 7,  "pro": true  },
+    { "type": "agendamento",    "enabled": true,  "label": "Agendamento",         "order": 8,  "pro": false },
+    { "type": "faq",            "enabled": true,  "label": "Perguntas Frequentes","order": 9,  "pro": false },
+    { "type": "contato",        "enabled": true,  "label": "Contato",             "order": 10, "pro": false }
+  ],
+
+  "modulosEspeciais": [
+    {
+      "type": "before_after_gallery",
+      "label": "Galeria Antes & Depois",
+      "descricao": "Slider comparativo de transformações para reduzir objeções e aumentar desejo.",
+      "enabled": true,
+      "pro": false,
+      "icon": "ImageIcon"
+    },
+    {
+      "type": "team_showcase",
+      "label": "Equipe do Salão",
+      "descricao": "Apresente os profissionais do salão com foto, especialidade e agenda individual.",
+      "enabled": false,
+      "pro": true,
+      "icon": "Users"
+    },
+    {
+      "type": "portfolio_grid",
+      "label": "Portfólio de Trabalhos",
+      "descricao": "Grade visual com os melhores trabalhos realizados no salão.",
+      "enabled": false,
+      "pro": true,
+      "icon": "Grid3X3"
+    }
+  ],
+
+  "categorias": [
+    {
+      "nome": "Cabelo",
+      "slug": "cabelo",
+      "ordem": 0,
+      "servicos": [
+        {
+          "nome": "Corte Feminino",
+          "slug": "corte-feminino",
+          "descricao": "Corte personalizado com lavagem e finalização.",
+          "duracao": 60,
+          "preco": 80,
+          "imagem": "/images/global-services/corte-feminino.png",
+          "placeholder": "Corte feminino personalizado com lavagem, finalização e secagem profissional.",
+          "features": ["Lavagem premium", "Finalização com secagem", "Consultoria de estilo"],
+          "addons": [
+            { "nome": "Franja modelada", "preco": 15 },
+            { "nome": "Tratamento pós-corte", "preco": 25 }
+          ]
+        },
+        {
+          "nome": "Escova Modeladora",
+          "slug": "escova-modeladora",
+          "descricao": "Escova com volume e movimento para acabamento impecável.",
+          "duracao": 45,
+          "preco": 60,
+          "imagem": "/images/global-services/escova-modeladora.png",
+          "placeholder": "Escova modeladora com volume e movimento para um acabamento impecável.",
+          "features": ["Volume natural", "Movimento e brilho", "Proteção térmica"],
+          "addons": [
+            { "nome": "Escova progressiva", "preco": 150 },
+            { "nome": "Óleo finalizador", "preco": 10 }
+          ]
+        },
+        {
+          "nome": "Corte Masculino",
+          "slug": "corte-masculino",
+          "descricao": "Corte moderno com acabamento na máquina e tesoura.",
+          "duracao": 40,
+          "preco": 50,
+          "imagem": "/images/global-services/corte-masculino-salao.png",
+          "placeholder": "Corte masculino moderno com acabamento na máquina e tesoura.",
+          "features": ["Acabamento perfeito", "Lavagem inclusa", "Design personalizado"],
+          "addons": [
+            { "nome": "Sobrancelha", "preco": 15 },
+            { "nome": "Lavagem extra", "preco": 10 }
+          ]
+        }
+      ]
+    },
+    {
+      "nome": "Coloração & Tratamentos",
+      "slug": "coloracao-tratamentos",
+      "ordem": 1,
+      "servicos": [
+        {
+          "nome": "Coloração Completa",
+          "slug": "coloracao-completa",
+          "descricao": "Transformação de cor com produtos premium.",
+          "duracao": 120,
+          "preco": 180,
+          "imagem": "/images/global-services/coloracao-completa.png",
+          "placeholder": "Transformação de cor com produtos premium e proteção capilar.",
+          "features": ["Produtos importados", "Proteção do fio", "Brilho intenso"],
+          "addons": [
+            { "nome": "Tonalização extra", "preco": 40 },
+            { "nome": "Hidratação pós-coloração", "preco": 50 }
+          ]
+        },
+        {
+          "nome": "Mechas e Luzes",
+          "slug": "mechas-e-luzes",
+          "descricao": "Mechas iluminadas para realçar o tom natural.",
+          "duracao": 150,
+          "preco": 250,
+          "imagem": "/images/global-services/mechas-e-luzes.png",
+          "placeholder": "Mechas iluminadas para realçar o tom natural dos fios.",
+          "features": ["Técnica personalizada", "Reflexos naturais", "Sem danificar o fio"],
+          "addons": [
+            { "nome": "Matização", "preco": 60 },
+            { "nome": "Reconstrução capilar", "preco": 70 }
+          ]
+        },
+        {
+          "nome": "Hidratação Profunda",
+          "slug": "hidratacao-profunda",
+          "descricao": "Tratamento intensivo para recuperar brilho e maciez.",
+          "duracao": 45,
+          "preco": 90,
+          "imagem": "/images/global-services/hidratacao-profunda.png",
+          "placeholder": "Tratamento intensivo para recuperar brilho e maciez dos fios.",
+          "features": ["Recuperação de danos", "Brilho espelhado", "Maciez extrema"],
+          "addons": [
+            { "nome": "Cauterização", "preco": 40 },
+            { "nome": "Ampola premium", "preco": 30 }
+          ]
+        }
+      ]
+    },
+    {
+      "nome": "Mãos & Pés",
+      "slug": "maos-pes",
+      "ordem": 2,
+      "servicos": [
+        {
+          "nome": "Manicure",
+          "slug": "manicure",
+          "descricao": "Cuidado completo das unhas das mãos.",
+          "duracao": 45,
+          "preco": 40,
+          "imagem": "/images/global-services/manicure-salao.png",
+          "placeholder": "Cuticulagem e esmaltação cuidadosa para mãos impecáveis.",
+          "features": ["Cuticulagem perfeita", "Esmaltação premium", "Hidratação das mãos"],
+          "addons": [
+            { "nome": "Esmaltação em gel", "preco": 30 },
+            { "nome": "Decoração (2 unhas)", "preco": 15 }
+          ]
+        },
+        {
+          "nome": "Pedicure",
+          "slug": "pedicure",
+          "descricao": "Cuidado completo das unhas e pés.",
+          "duracao": 60,
+          "preco": 50,
+          "imagem": "/images/global-services/pedicure-salao.png",
+          "placeholder": "Tratamento dos pés com cuticulagem e esmaltação.",
+          "features": ["Cuticulagem completa", "Lixamento perfeito", "Hidratação dos pés"],
+          "addons": [
+            { "nome": "Esfoliação", "preco": 15 },
+            { "nome": "Massagem podal", "preco": 20 }
+          ]
+        },
+        {
+          "nome": "Spa dos Pés",
+          "slug": "spa-dos-pes",
+          "descricao": "Tratamento relaxante e hidratante para os pés.",
+          "duracao": 30,
+          "preco": 60,
+          "imagem": "/images/global-services/spa-dos-pes.png",
+          "placeholder": "Esfoliação e massagem para pés renovados e macios.",
+          "features": ["Esfoliação profunda", "Massagem relaxante", "Máscara hidratante"],
+          "addons": [
+            { "nome": "Parafina quente", "preco": 25 },
+            { "nome": "Peeling enzimático", "preco": 20 }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "faqSugerida": [
+    {
+      "pergunta": "Como faço para agendar um horário?",
+      "resposta": "Você pode agendar diretamente pelo nosso site clicando no botão 'Agendar Agora', ou entre em contato pelo WhatsApp. O agendamento online funciona 24 horas."
+    },
+    {
+      "pergunta": "Qual a política de cancelamento?",
+      "resposta": "Pedimos que cancelamentos sejam feitos com pelo menos 4 horas de antecedência. Cancelamentos de última hora podem estar sujeitos a taxa."
+    },
+    {
+      "pergunta": "Quais formas de pagamento são aceitas?",
+      "resposta": "Aceitamos dinheiro, PIX, cartões de débito e crédito (bandeiras Visa, Mastercard, Elo). Parcelamento disponível para serviços acima de R$ 200."
+    },
+    {
+      "pergunta": "Preciso levar algum produto?",
+      "resposta": "Não! Utilizamos produtos profissionais de alta qualidade. Se você tiver preferência por algum produto específico, pode trazer e informar ao profissional."
+    },
+    {
+      "pergunta": "Atendem sem agendamento?",
+      "resposta": "Priorizamos clientes com agendamento para garantir sua comodidade, mas atendemos por ordem de chegada sempre que houver disponibilidade."
+    },
+    {
+      "pergunta": "Quanto tempo dura cada serviço?",
+      "resposta": "O tempo varia conforme o serviço. Em geral: cortes de 40 a 60 min, coloração de 2h, mechas até 2h30. A duração estimada aparece ao agendar."
+    },
+    {
+      "pergunta": "O salão atende crianças?",
+      "resposta": "Sim! Temos profissionais experientes em cortes infantis. As crianças devem estar acompanhadas de um responsável."
+    },
+    {
+      "pergunta": "Vocês oferecem pacotes ou combos?",
+      "resposta": "Sim, temos combos especiais como Corte + Escova, Manicure + Pedicure, e pacotes mensais com desconto. Consulte nossos serviços para ver as opções."
+    }
+  ],
+
+  "dashboardWidgets": [
+    {
+      "type": "agenda_hoje",
+      "label": "Agenda de Hoje",
+      "descricao": "Visão geral dos agendamentos do dia com status e próximos horários.",
+      "enabled": true,
+      "pro": false,
+      "icon": "Calendar"
+    },
+    {
+      "type": "clientes_ativos",
+      "label": "Clientes Ativos",
+      "descricao": "Total de clientes que agendaram nos últimos 30 dias.",
+      "enabled": true,
+      "pro": false,
+      "icon": "Users"
+    },
+    {
+      "type": "faturamento_mensal",
+      "label": "Faturamento do Mês",
+      "descricao": "Soma dos serviços realizados no mês corrente.",
+      "enabled": true,
+      "pro": false,
+      "icon": "DollarSign"
+    },
+    {
+      "type": "servicos_populares",
+      "label": "Serviços Mais Populares",
+      "descricao": "Ranking dos serviços mais agendados no período.",
+      "enabled": true,
+      "pro": false,
+      "icon": "TrendingUp"
+    },
+    {
+      "type": "taxa_retorno",
+      "label": "Taxa de Retorno",
+      "descricao": "Percentual de clientes que retornam em até 60 dias.",
+      "enabled": false,
+      "pro": true,
+      "icon": "RefreshCw"
+    },
+    {
+      "type": "horarios_ociosos",
+      "label": "Horários Ociosos",
+      "descricao": "Gaps na agenda que poderiam ser preenchidos com promoções relâmpago.",
+      "enabled": false,
+      "pro": true,
+      "icon": "Clock"
+    },
+    {
+      "type": "antes_depois_recentes",
+      "label": "Antes & Depois Recentes",
+      "descricao": "Últimas transformações adicionadas para redes sociais.",
+      "enabled": true,
+      "pro": false,
+      "icon": "ImageIcon"
+    },
+    {
+      "type": "avaliacoes",
+      "label": "Avaliações de Clientes",
+      "descricao": "Nota média e depoimentos recentes dos clientes.",
+      "enabled": false,
+      "pro": true,
+      "icon": "Star"
+    }
+  ],
+
+  "funcionalidadesPro": [
+    {
+      "id": "pro-depoimentos",
+      "nome": "Seção de Depoimentos",
+      "descricao": "Exiba avaliações reais de clientes no seu site para aumentar a confiança.",
+      "icone": "MessageSquare",
+      "ativa": false,
+      "categoria": "conversao"
+    },
+    {
+      "id": "pro-galeria",
+      "nome": "Galeria de Trabalhos",
+      "descricao": "Portfólio visual dos melhores trabalhos realizados no salão.",
+      "icone": "Grid3X3",
+      "ativa": false,
+      "categoria": "marketing"
+    },
+    {
+      "id": "pro-equipe",
+      "nome": "Página da Equipe",
+      "descricao": "Apresente cada profissional com foto, bio e especialidades.",
+      "icone": "Users",
+      "ativa": false,
+      "categoria": "conversao"
+    },
+    {
+      "id": "pro-taxa-retorno",
+      "nome": "Relatório de Retorno",
+      "descricao": "Veja quantos clientes voltam e com qual frequência.",
+      "icone": "RefreshCw",
+      "ativa": false,
+      "categoria": "analytics"
+    },
+    {
+      "id": "pro-horarios-ociosos",
+      "nome": "Horários Ociosos",
+      "descricao": "Identifique gaps na agenda e crie promoções relâmpago.",
+      "icone": "Clock",
+      "ativa": false,
+      "categoria": "gestao"
+    },
+    {
+      "id": "pro-avaliacoes",
+      "nome": "Sistema de Avaliações",
+      "descricao": "Clientes avaliam o serviço — nota aparece no site automaticamente.",
+      "icone": "Star",
+      "ativa": false,
+      "categoria": "conversao"
+    },
+    {
+      "id": "pro-follow-up",
+      "nome": "Follow-up Automático",
+      "descricao": "Lembrete automático por WhatsApp para clientes que não retornam há 30 dias.",
+      "icone": "Bell",
+      "ativa": false,
+      "categoria": "marketing"
+    },
+    {
+      "id": "pro-relatorio-mensal",
+      "nome": "Relatório Mensal",
+      "descricao": "PDF automático com performance do mês: faturamento, clientes, tendências.",
+      "icone": "FileText",
+      "ativa": false,
+      "categoria": "analytics"
+    }
+  ],
+
+  "trustBadges": [
+    { "texto": "Produtos Premium", "icone": "Sparkles" },
+    { "texto": "Ambiente Climatizado", "icone": "Wind" },
+    { "texto": "Estacionamento", "icone": "Car" },
+    { "texto": "Agendamento 24h", "icone": "Clock" },
+    { "texto": "Wi-Fi Grátis", "icone": "Wifi" },
+    { "texto": "Atendimento VIP", "icone": "Crown" }
+  ],
+
+  "copyVoz": {
+    "tom": "Sofisticado, acolhedor e profissional. Transmite exclusividade sem ser frio.",
+    "exemplosCTA": [
+      "Agendar Agora",
+      "Quero Meu Horário",
+      "Reservar Transformação",
+      "Garantir Meu Lugar",
+      "Ver Serviços"
+    ],
+    "fraseImpacto": "Cada detalhe pensado para realçar a sua beleza natural."
+  }
+}

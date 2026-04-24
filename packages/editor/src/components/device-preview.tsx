@@ -21,10 +21,10 @@ interface DevicePreviewProps {
 }
 
 const fontFamilyMap: Record<string, string> = {
-  sans: "font-sans",
-  serif: "font-serif",
-  mono: "font-mono",
-  display: "font-serif",
+  sans: "var(--font-sans)",
+  serif: "var(--font-serif)",
+  mono: "var(--font-mono)",
+  display: "var(--font-display)",
 }
 
 const borderRadiusMap: Record<string, string> = {
@@ -289,12 +289,12 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   }}
                 >
                   <div className="flex items-center">
-                    {header.logo ? (
+                    {header.logo && header.logo.trim() !== "" ? (
                       <img src={header.logo} alt="Logo" style={{ height: header.logoHeight }} className="w-auto object-contain" />
                     ) : (
                       <span
-                        className={cn("font-bold transition-all", primaryFont)}
-                        style={{ fontSize: header.logoHeight * 0.7, color: theme.colors.text }}
+                        className="font-bold transition-all"
+                        style={{ fontSize: header.logoHeight * 0.7, color: theme.colors.text, fontFamily: primaryFont }}
                       >
                         {header.logoText}
                       </span>
@@ -446,10 +446,9 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                           className={cn(
                             "text-3xl font-black leading-tight tracking-tighter w-full",
                             device === "desktop" && "text-6xl",
-                            device === "tablet" && "text-4xl",
-                            primaryFont
+                            device === "tablet" && "text-4xl"
                           )}
-                          style={{ color: theme.colors.text }}
+                          style={{ color: theme.colors.text, fontFamily: primaryFont }}
                         >
                           {renderMarkdown(hero.title || "Por uma cidade de Resultados")}
                         </EditableText>
@@ -470,10 +469,9 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                           accentColor={accentColor}
                           className={cn(
                             "mt-2 w-full text-sm leading-relaxed opacity-90",
-                            device === "desktop" && "mt-4 text-lg",
-                            secondaryFont
+                            device === "desktop" && "mt-4 text-lg"
                           )}
-                          style={{ color: theme.colors.text }}
+                          style={{ color: theme.colors.text, fontFamily: secondaryFont }}
                         >
                           {renderMarkdown(hero.description)}
                         </EditableText>
@@ -581,7 +579,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                           {header.logoText}
                         </div>
                         <p className={cn("text-[10px] opacity-60", secondaryFont)} style={{ color: theme.colors.text }}>
-                          {hero.description.slice(0, 50)}...
+                          {(hero.description || "").slice(0, 50)}...
                         </p>
                       </div>
                       {footer.columns.slice(0, 2).map((col, i) => (
