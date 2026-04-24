@@ -12,13 +12,15 @@ import {
     Shield, 
     User,
     CheckCircle2,
-    XCircle
+    XCircle,
+    Plus
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import Link from "next/link"
 
 export default function AdminClientes() {
     const [clients, setClients] = useState<any[]>([])
@@ -67,14 +69,23 @@ export default function AdminClientes() {
                     <p className="text-stone-500 dark:text-stone-400">Visualize e gerencie todos os usuários da plataforma.</p>
                 </div>
                 
-                <div className="relative max-w-sm w-full">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-                    <Input 
-                        placeholder="Buscar por nome ou e-mail..." 
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="pl-10 h-12 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl"
-                    />
+                <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <div className="relative max-w-sm w-full">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                        <Input 
+                            placeholder="Buscar por nome ou e-mail..." 
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-10 h-12 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl"
+                        />
+                    </div>
+                    
+                    <Link href="/admin/novo">
+                        <Button className="h-12 px-6 rounded-2xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold shadow-lg shadow-amber-500/20 gap-2 shrink-0">
+                            <Plus className="h-5 w-5" />
+                            <span className="hidden sm:inline">Novo Inquilino</span>
+                        </Button>
+                    </Link>
                 </div>
             </div>
 

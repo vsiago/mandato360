@@ -1,9 +1,12 @@
 "use server"
 
 import { db } from "@/db"
-import { user, subscriptions } from "@/db/schema"
+import { user, subscriptions, tenants, categories, services, globalCategories, globalServices, globalPlaceholders, account } from "@/db/schema"
 import { count, eq, and, sql } from "drizzle-orm"
 import { requireRoot } from "@/lib/admin-guard"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { revalidatePath } from "next/cache"
 
 export async function getAdminMetrics() {
     const { error } = await requireRoot()
@@ -54,4 +57,99 @@ export async function updateClient(id: string, data: any) {
 
     await db.update(user).set(data).where(eq(user.id, id))
     return { success: true }
+}
+
+export async function adminCreateTenantAction(data: {
+    name: string;
+    slug: string;
+    businessTypeId: string;
+    theme: string;
+    demoEmail: string;
+    demoPassword: string;
+}) {
+    const { error: rootError } = await requireRoot()
+    if (rootError) throw new Error("Não autorizado")
+
+    try {
+        // 1. Create User via better-auth API (to ensure password hashing etc)
+        const newUser = await auth.api.signUpEmail({
+            body: {
+                email: data.demoEmail,
+                password: data.demoPassword,
+                name: data.name,
+            },
+            headers: await headers()
+        })
+
+        if (!newUser) throw new Error("Erro ao criar usuário demo")
+
+        // 2. Force verify email
+        await db.update(user).set({ emailVerified: true }).where(eq(user.email, data.demoEmail))
+
+        // 3. Create Tenant
+        const tenantResult = await db.insert(tenants).values({
+            slug: data.slug,
+            name: data.name,
+            businessTypeId: data.businessTypeId,
+            theme: data.theme,
+            ownerId: newUser.user.id,
+            onboardingCompleted: true,
+            primaryColor: data.theme === "gold" ? "#d4af37" : "#8c6239",
+            hoverColor: data.theme === "gold" ? "#b8860b" : "#6d4a2a",
+        }).returning()
+
+        const tenantId = tenantResult[0].id
+
+        // 4. Clone global categories & services (Simplified logic)
+        const gCats = await db.query.globalCategories.findMany({
+            where: eq(globalCategories.businessTypeId, data.businessTypeId)
+        })
+
+        const catIdMap = new Map<string, string>()
+
+        for (const gCat of gCats) {
+            const newCatId = crypto.randomUUID()
+            catIdMap.set(gCat.id, newCatId)
+            await db.insert(categories).values({
+                id: newCatId,
+                tenantId,
+                label: gCat.name,
+                slug: gCat.slug,
+                sortOrder: gCat.sortOrder
+            })
+        }
+
+        const gSvcs = await db.query.globalServices.findMany({
+            where: eq(globalServices.businessTypeId, data.businessTypeId)
+        })
+
+        for (const gSvc of gSvcs) {
+            const tenantCatId = catIdMap.get(gSvc.globalCategoryId)
+            if (!tenantCatId) continue
+
+            await db.insert(services).values({
+                tenantId,
+                categoryId: tenantCatId,
+                name: gSvc.name,
+                slug: gSvc.slug,
+                duration: gSvc.defaultDuration,
+                price: gSvc.defaultPrice?.toString() || "0",
+                isActive: true
+            })
+        }
+
+        revalidatePath("/admin/clientes")
+        
+        return { 
+            success: true, 
+            tenantId,
+            siteUrl: `${process.env.NEXT_PUBLIC_APP_URL}/${data.slug}`,
+            demoEmail: data.demoEmail,
+            demoPassword: data.demoPassword
+        }
+
+    } catch (err: any) {
+        console.error("Admin Create Tenant Error:", err)
+        return { success: false, error: err.message || "Erro desconhecido" }
+    }
 }
