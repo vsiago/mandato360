@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { 
     Activity, Award, MapPin, Menu, Phone, ShieldCheck, Star, 
-    ArrowRight, MessageCircle, X, ChevronLeft, ChevronRight, Clock, Instagram, User, Check 
+    ArrowRight, MessageCircle, X, ChevronLeft, ChevronRight, Clock, Instagram, User, Check,
+    Image as ImageIcon
 } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
