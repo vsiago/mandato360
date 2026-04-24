@@ -102,8 +102,17 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
       ],
     },
     plugins: {
-      trust: { badges: tenant.trustBadges },
-      services: { items: tenant.services, categories: tenant.categories },
+      trust: {
+        badges: tenant.trustBadges,
+        autoplay: true,
+        speed: 25,
+      },
+      services: {
+        title: "Nossa *Expertise*",
+        subtitle: "Procedimentos personalizados para valorizar a arquitetura do seu rosto e realçar a sua beleza natural.",
+        items: tenant.services,
+        categories: tenant.categories,
+      },
       about: { founder: tenant.founder },
       beforeAfter: { items: tenant.beforeAfter },
       faq: { items: tenant.faq },
@@ -126,7 +135,17 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
       plugins: {
         ...defaultConfig.plugins,
         ...savedConfig.plugins,
-        services: { items: tenant.services, categories: tenant.categories },
+        trust: {
+          ...defaultConfig.plugins.trust,
+          ...(savedConfig.plugins?.trust || {}),
+          badges: (savedConfig.plugins?.trust?.badges || tenant.trustBadges || defaultConfig.plugins.trust.badges),
+        },
+        services: {
+          ...defaultConfig.plugins.services,
+          ...(savedConfig.plugins?.services || {}),
+          items: tenant.services,
+          categories: tenant.categories,
+        },
         about: { founder: tenant.founder },
         contact: { info: tenant.contact },
       }

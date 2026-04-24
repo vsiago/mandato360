@@ -117,11 +117,20 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             ],
         },
         plugins: {
-            trust: { badges: [
-                { text: "Atendimento VIP", icon: "Star" },
-                { text: "Ambiente Seguro", icon: "ShieldCheck" },
-            ]},
-            services: { items: [], categories: [] },
+            trust: {
+                badges: [
+                    { text: "Atendimento VIP", icon: "Star" },
+                    { text: "Ambiente Seguro", icon: "ShieldCheck" },
+                ],
+                autoplay: true,
+                speed: 25,
+            },
+            services: {
+                title: "Nossa *Expertise*",
+                subtitle: "Procedimentos personalizados para valorizar a arquitetura do seu rosto e realçar a sua beleza natural.",
+                items: [],
+                categories: [],
+            },
             about: { founder: { name: "", bio: "", role: "", imageUrl: "" } },
             beforeAfter: { items: [] },
             faq: { items: [

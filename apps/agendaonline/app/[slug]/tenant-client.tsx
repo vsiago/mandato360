@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { 
     Activity, Award, MapPin, Menu, Phone, ShieldCheck, Star, 
     ArrowRight, MessageCircle, X, ChevronLeft, ChevronRight, Clock, Instagram, User, Check,
-    Image as ImageIcon
+    Image as ImageIcon, Shield, Gem, Zap, Flag, Heart, CheckCircle2
 } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
@@ -462,18 +462,43 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             </div>
                         </section>
                     ),
-                    'trust_badges': (
-                         <div className="bg-slate-900 py-6 overflow-hidden border-y border-white/5">
-                            <motion.div animate={{ x: [0, -1000] }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="flex items-center gap-12 whitespace-nowrap">
-                                {[...data.trustBadges, ...data.trustBadges, ...data.trustBadges].map((badge, i) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <ShieldCheck className="h-5 w-5 text-tenant-primary" />
-                                        <span className="text-white font-bold uppercase tracking-[0.2em] text-[10px]">{typeof badge === 'string' ? badge : (badge as any).text}</span>
-                                    </div>
-                                ))}
-                            </motion.div>
-                        </div>
-                    ),
+                    'trust_badges': (() => {
+                        const trustConfig = editorConfig?.plugins?.trust || {}
+                        const trustSpeed = trustConfig.speed || 25
+                        const trustAutoplay = trustConfig.autoplay !== false
+                        const TRUST_ICON_MAP: Record<string, any> = { Check: CheckCircle2, Award, Star, Shield, ShieldCheck, Gem, Zap, Flag, Heart }
+                        return (
+                            <div className="bg-slate-900 py-6 overflow-hidden border-y border-white/5">
+                                <style dangerouslySetInnerHTML={{ __html: `
+                                    @keyframes public-marquee {
+                                        0% { transform: translateX(0); }
+                                        100% { transform: translateX(-33.333%); }
+                                    }
+                                `}} />
+                                <div
+                                    className="flex items-center gap-12 whitespace-nowrap px-6 w-max"
+                                    style={{
+                                        animationName: 'public-marquee',
+                                        animationDuration: `${trustSpeed}s`,
+                                        animationTimingFunction: 'linear',
+                                        animationIterationCount: 'infinite',
+                                        animationPlayState: trustAutoplay ? 'running' : 'paused',
+                                    }}
+                                >
+                                    {[...data.trustBadges, ...data.trustBadges, ...data.trustBadges].map((badge, i) => {
+                                        const badgeObj = typeof badge === 'string' ? { text: badge, icon: 'ShieldCheck' } : badge as any
+                                        const BadgeIcon = TRUST_ICON_MAP[badgeObj.icon || 'ShieldCheck'] || ShieldCheck
+                                        return (
+                                            <div key={i} className="flex items-center gap-3 shrink-0">
+                                                <BadgeIcon className="h-5 w-5 text-tenant-primary" />
+                                                <span className="text-white font-bold uppercase tracking-[0.2em] text-[10px]">{badgeObj.text}</span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )
+                    })(),
                     'servicos': (
                         <section id="servicos" className="py-24 bg-white">
                             <div className="mx-auto max-w-7xl px-6">
