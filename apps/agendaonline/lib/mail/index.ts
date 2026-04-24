@@ -8,7 +8,9 @@ export interface SendMailOptions {
   subject: string;
   html: string;
   text?: string;
+  from?: string;
 }
+
 
 /**
  * Cria o transportador SMTP usando as credenciais do ambiente
@@ -26,13 +28,13 @@ const transporter = nodemailer.createTransport({
 /**
  * Envia um e-mail transacional
  */
-export async function sendMail({ to, subject, html, text }: SendMailOptions) {
+export async function sendMail({ to, subject, html, text, from }: SendMailOptions) {
   const fromName = process.env.SMTP_FROM_NAME || "AgendaOnline";
   const fromEmail = process.env.SMTP_FROM_EMAIL || "noreply@agendaonline.com.br";
 
   try {
     const info = await transporter.sendMail({
-      from: `"${fromName}" <${fromEmail}>`,
+      from: from || `"${fromName}" <${fromEmail}>`,
       to,
       subject,
       html,

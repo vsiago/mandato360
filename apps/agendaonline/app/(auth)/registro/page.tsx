@@ -44,7 +44,7 @@ function RegistroContent() {
                 onSuccess: () => {
                     setIsLoading(false)
                     toast.success("Conta criada com sucesso!")
-                    router.push(redirectPath)
+                    router.push("/verificar-email")
                 },
                 onError: (ctx) => {
                     setIsLoading(false)

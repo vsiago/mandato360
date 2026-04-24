@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Session } from "better-auth/types";
 
 export default async function authMiddleware(request: NextRequest) {
-    const { data: session } = await betterFetch<Session>(
+    const { data: authData } = await betterFetch<any>(
         "/api/auth/get-session",
         {
             baseURL: request.nextUrl.origin,
@@ -19,9 +19,10 @@ export default async function authMiddleware(request: NextRequest) {
     const isDashboardPage = pathname.startsWith("/painel") ||
         pathname.startsWith("/onboarding") ||
         pathname.startsWith("/editar-site");
+    const isVerificationPage = pathname.startsWith("/verificar-email") || pathname.startsWith("/confirmar");
 
     // ─── Not authenticated ─────────────────────────────────────
-    if (!session) {
+    if (!authData) {
         if (isDashboardPage) {
             return NextResponse.redirect(new URL("/login", request.url));
         }
@@ -38,20 +39,30 @@ export default async function authMiddleware(request: NextRequest) {
     }
 
     // ─── Already authenticated ─────────────────────────────────
-    if (isAuthPage) {
-        // If register/login page has a plan param → go to checkout
-        const plan = request.nextUrl.searchParams.get("plan");
-        if (plan) {
-            const checkoutUrl = new URL("/checkout", request.url);
-            checkoutUrl.searchParams.set("plan", plan);
-            return NextResponse.redirect(checkoutUrl);
+    if (authData) {
+        const isVerified = authData.user?.emailVerified === true;
+
+        // If not verified and trying to access dashboard/checkout
+        if (!isVerified && (isDashboardPage || isCheckoutPage) && !isVerificationPage) {
+            return NextResponse.redirect(new URL("/verificar-email", request.url));
         }
-        return NextResponse.redirect(new URL("/painel", request.url));
+
+        if (isAuthPage) {
+
+            // If register/login page has a plan param → go to checkout
+            const plan = request.nextUrl.searchParams.get("plan");
+            if (plan) {
+                const checkoutUrl = new URL("/checkout", request.url);
+                checkoutUrl.searchParams.set("plan", plan);
+                return NextResponse.redirect(checkoutUrl);
+            }
+            return NextResponse.redirect(new URL("/painel", request.url));
+        }
     }
 
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/painel/:path*", "/onboarding", "/login", "/registro", "/editar-site/:path*", "/checkout", "/checkout/:path*"],
+    matcher: ["/painel/:path*", "/onboarding", "/login", "/registro", "/editar-site/:path*", "/checkout", "/checkout/:path*", "/confirmar", "/verificar-email"],
 };

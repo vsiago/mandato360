@@ -6,19 +6,36 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react"
+import { authClient } from "@/lib/auth-client"
+import { toast } from "sonner"
 
 export default function EsqueciSenhaPage() {
+
     const [isLoading, setIsLoading] = useState(false)
     const [sent, setSent] = useState(false)
+
+    const [email, setEmail] = useState("")
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
-        // TODO: integrate Better-Auth password reset
-        setTimeout(() => {
+        
+        try {
+            const { error } = await authClient.forgetPassword({
+                email,
+                redirectTo: "/esqueci-senha/reset"
+            })
+
+            if (error) {
+                toast.error(error.message || "Erro ao solicitar recuperação.")
+            } else {
+                setSent(true)
+            }
+        } catch (err) {
+            toast.error("Ocorreu um erro inesperado.")
+        } finally {
             setIsLoading(false)
-            setSent(true)
-        }, 1500)
+        }
     }
 
     return (
@@ -59,6 +76,8 @@ export default function EsqueciSenhaPage() {
                             <Input
                                 id="email"
                                 type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 placeholder="seu@email.com"
                                 required
                                 className="h-11 bg-white dark:bg-stone-900 border-stone-300 dark:border-stone-700 rounded-lg focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 dark:focus:border-amber-400 placeholder:text-stone-400 dark:placeholder:text-stone-600"
