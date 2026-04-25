@@ -199,7 +199,27 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
         'beforeAfter': 'Resultados',
         'faq': 'FAQ',
         'contact': 'Contato',
-        'agendamento': 'Agendar'
+        'agendamento': 'Agendar',
+        'antes_depois': 'Resultados'
+    }
+
+    const beforeAfterConfig = editorConfig?.plugins?.beforeAfter || { 
+        enabled: data.beforeAfter && data.beforeAfter.length > 0, 
+        title: "Nossos *Resultados*",
+        subtitle: "Confira as transformações reais de nossos clientes.",
+        items: data.beforeAfter || [] 
+    }
+
+    const servicesConfig = editorConfig?.plugins?.services || {
+        title: "Nossa *Expertise*",
+        subtitle: "Procedimentos personalizados para valorizar a arquitetura do seu rosto e realçar a sua beleza natural.",
+        items: services || [],
+        categories: categories || []
+    }
+
+    const faqConfig = editorConfig?.plugins?.faq || {
+        title: "Principais *Dúvidas*",
+        items: data.faq || []
     }
 
     const navigationSections = (editorConfig?.sectionOrder || [])
@@ -239,7 +259,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
     const activeDesktopGradient = heroDesktop?.gradient?.enabled ? heroDesktop.gradient : editorTheme?.gradient
     const themeGradientStyle = activeDesktopGradient?.enabled
         ? `linear-gradient(${activeDesktopGradient.angle}deg, ${activeDesktopGradient.stops
-            .map((stop: any) => `${stop.color} ${stop.position}%`)
+            .map((stop: any) => `${hexToRgba(stop.color, stop.opacity ?? 100)} ${stop.position}%`)
             .join(", ")})`
         : undefined
 
@@ -666,10 +686,10 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                         <section id="services" className="py-24 bg-white">
                             <div className="mx-auto max-w-7xl px-6">
                                 <div className="mb-16 text-center max-w-3xl mx-auto">
-                                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}>
-                                        Nossa <span className="text-tenant-primary italic">Expertise</span>
-                                    </h2>
-                                    <p className="text-lg text-slate-600">Procedimentos personalizados para valorizar a arquitetura do seu rosto e realçar a sua beleza natural.</p>
+                                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}
+                                        dangerouslySetInnerHTML={{ __html: renderEditorText(servicesConfig.title).replace(/<em>(.*?)<\/em>/g, '<span class="text-tenant-primary italic">$1</span>') }}
+                                    />
+                                    <p className="text-lg text-slate-600">{servicesConfig.subtitle}</p>
                                 </div>
                                 <div className="flex justify-center flex-wrap gap-4 mb-16">
                                     <button onClick={() => setActiveCategory("todos")}
@@ -780,10 +800,18 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             </section>
                         )
                     })(),
-                    'beforeAfter': data.beforeAfter.length > 0 ? (
+                    'beforeAfter': (beforeAfterConfig.enabled && beforeAfterConfig.items?.length > 0) ? (
                         <section id="beforeAfter" className="py-24 bg-(--theme-color-surface) overflow-hidden border-t border-slate-100 flex flex-col items-center">
-                            <div className="mt-8 mb-4 w-full cursor-grab active:cursor-grabbing">
-                                <DraggableCarousel items={data.beforeAfter} />
+                            <div className="mx-auto max-w-7xl px-6 w-full">
+                                <div className="mb-16 text-center max-w-3xl mx-auto">
+                                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }} 
+                                        dangerouslySetInnerHTML={{ __html: renderEditorText(beforeAfterConfig.title).replace(/<em>(.*?)<\/em>/g, '<span class="text-tenant-primary italic">$1</span>') }} 
+                                    />
+                                    <p className="text-lg text-slate-600">{beforeAfterConfig.subtitle}</p>
+                                </div>
+                                <div className="mt-8 mb-4 w-full cursor-grab active:cursor-grabbing">
+                                    <DraggableCarousel items={beforeAfterConfig.items} />
+                                </div>
                             </div>
                         </section>
                     ) : null,
@@ -791,9 +819,9 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                          <section id="faq" className="py-24 bg-white border-t border-slate-100">
                             <div className="mx-auto max-w-3xl px-6">
                                 <div className="mb-16 text-center">
-                                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}>
-                                        Principais <span className="text-tenant-primary italic">Dúvidas</span>
-                                    </h2>
+                                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}
+                                        dangerouslySetInnerHTML={{ __html: renderEditorText(faqConfig.title).replace(/<em>(.*?)<\/em>/g, '<span class="text-tenant-primary italic">$1</span>') }}
+                                    />
                                 </div>
                                  {isMounted && (
                                     <Accordion type="single" collapsible className="space-y-4">

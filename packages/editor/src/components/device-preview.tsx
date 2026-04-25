@@ -510,7 +510,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                         className="absolute inset-0 z-20"
                         style={{
                           background: `linear-gradient(${activeGradient.angle}deg, ${activeGradient.stops
-                            .map((stop) => `${stop.color} ${stop.position}%`)
+                            .map((stop) => `${hexToRgba(stop.color, stop.opacity ?? 100)} ${stop.position}%`)
                             .join(", ")})`,
                           opacity: activeGradient.opacity / 100,
                         }}
