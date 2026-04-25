@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 
+import { DraggableCarousel } from "@/components/draggable-carousel"
+
 /* ═══════════════════════════════════════════
    PREVIEW — Layout idêntico ao /[slug] (tenant-client.tsx)
    ═══════════════════════════════════════════ */
@@ -20,8 +22,8 @@ function BeforeAfterPreview({ config, device, themeColors }: PluginSectionProps)
   const subtitle = config.subtitle || "Confira as transformações reais de nossos clientes."
 
   if (items.length === 0) return (
-    <div className="py-20 px-6 bg-white border-b border-slate-100 flex flex-col items-center justify-center text-center space-y-4">
-      <div className="p-4 rounded-full bg-slate-50 border border-slate-100">
+    <div className="py-20 px-6 bg-slate-50 border-b border-slate-100 flex flex-col items-center justify-center text-center space-y-4">
+      <div className="p-4 rounded-full bg-white border border-slate-200">
         <ArrowLeftRight className="h-8 w-8 text-slate-300" />
       </div>
       <p className="text-sm text-slate-400 font-medium tracking-tight">Seção de Resultados vazia.<br/>Adicione fotos na sidebar para visualizar.</p>
@@ -29,8 +31,9 @@ function BeforeAfterPreview({ config, device, themeColors }: PluginSectionProps)
   )
 
   return (
-    <div className="py-20 px-6 bg-white border-t border-slate-100">
-      <div className="max-w-5xl mx-auto">
+    <div className="py-20 px-6 bg-slate-50 border-t border-slate-100">
+      <div className="max-w-7xl mx-auto">
+        {/* Section Header */}
         <div className="mb-12 text-center max-w-3xl mx-auto">
           <h2
             className="text-2xl font-bold tracking-tight text-slate-900 mb-4"
@@ -47,40 +50,8 @@ function BeforeAfterPreview({ config, device, themeColors }: PluginSectionProps)
           </p>
         </div>
 
-        <div className={cn(
-          "grid gap-12",
-          device === "mobile" ? "grid-cols-1" : "grid-cols-2"
-        )}>
-          {items.map((item: any, i: number) => (
-            <div key={i} className="space-y-4 group">
-              <div className="relative aspect-square rounded-[2rem] overflow-hidden shadow-2xl border-8 border-white bg-slate-50 group-hover:scale-[1.02] transition-all duration-500">
-                <div className="absolute inset-0 flex">
-                  {/* Antes */}
-                  <div className="flex-1 overflow-hidden relative bg-slate-100 border-r-2 border-white/50">
-                    {item.before ? (
-                      <img src={item.before} alt="Antes" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-slate-50 text-[10px] font-black uppercase text-slate-300">Sem foto</div>
-                    )}
-                    <div className="absolute top-4 left-4 px-2.5 py-1 bg-black/60 backdrop-blur-md rounded-full text-[9px] font-black text-white uppercase tracking-widest border border-white/10 shadow-lg">Antes</div>
-                  </div>
-                  {/* Depois */}
-                  <div className="flex-1 overflow-hidden relative bg-slate-100">
-                    {item.after ? (
-                      <img src={item.after} alt="Depois" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-slate-50 text-[10px] font-black uppercase text-slate-300">Sem foto</div>
-                    )}
-                    <div className="absolute top-4 right-4 px-2.5 py-1 bg-emerald-500/90 backdrop-blur-md rounded-full text-[9px] font-black text-white uppercase tracking-widest border border-white/10 shadow-lg">Depois</div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-center">
-                <h3 className="font-black text-slate-900 text-sm tracking-tight uppercase">{item.title}</h3>
-                <div className="h-1 w-12 bg-slate-100 rounded-full mt-2 group-hover:w-20 transition-all duration-500 group-hover:bg-emerald-500/30" />
-              </div>
-            </div>
-          ))}
+        <div className="mt-8 mb-4 w-full">
+            <DraggableCarousel items={items} />
         </div>
       </div>
     </div>
