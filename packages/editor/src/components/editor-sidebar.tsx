@@ -534,10 +534,17 @@ export function EditorSidebar({
           </p>
         </div>
 
-        {/* Layout & Dimensions - Only for Hero (Pinned at top for visibility) */}
+        {/* Layout & Dimensions - Only for Hero */}
         {activeSection === "hero" && (
-          <div className="border-b border-border p-4 bg-muted/20">
-            <div className="space-y-4 rounded-lg bg-background p-3 border border-border/50 shadow-sm">
+          <AccordionItem
+            id="layout"
+            icon={Wand2}
+            label="Personalizar"
+            isOpen={openAccordion === "layout"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
                   <div className="flex items-center">
@@ -571,7 +578,7 @@ export function EditorSidebar({
                 </div>
               )}
             </div>
-          </div>
+          </AccordionItem>
         )}
 
         {/* Colors & Gradient - Only for Hero (NOW DEVICE-AWARE) */}

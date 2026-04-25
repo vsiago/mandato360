@@ -410,7 +410,6 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                                 ...elStyle('hero', 'hero-badge')
                                             }}
                                         >
-                                            <Activity className="w-3 h-3 md:w-3.5 md:h-3.5" style={{ color: themePrimary }} />
                                             <span className="text-[10px] md:text-xs font-medium uppercase tracking-widest" dangerouslySetInnerHTML={{ __html: renderEditorText(heroBadge) }} />
                                         </div>
                                     )}

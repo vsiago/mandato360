@@ -5,7 +5,7 @@ import type { ComponentType } from "react"
 // ─── Device & Section Types ───
 export type DeviceType = "mobile" | "tablet" | "desktop"
 export type SectionType = "header" | "hero" | "footer"
-export type AccordionType = "theme" | "colors" | "image" | "position" | "effects" | "content" | "header-content"
+export type AccordionType = "theme" | "colors" | "image" | "position" | "effects" | "content" | "header-content" | "layout"
 export type ThemePresetType = "neutral" | "classic" | "hightech" | "emerald" | "custom"
 export type OrientationType = "left" | "center" | "right"
 export type FontFamily = "sans" | "serif" | "mono" | "display"
