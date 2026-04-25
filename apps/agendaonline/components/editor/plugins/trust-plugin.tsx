@@ -111,6 +111,18 @@ function TrustSidebar({ config, onChange, accentColor = "#10b981" }: PluginSideb
                             "text-sm font-medium transition-colors duration-200",
                             isConteudoOpen ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
                         )}>Conteúdo</span>
+                        {badges.length > 0 && (
+                            <span 
+                                className="ml-2 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full border px-1.5 text-[10px] font-bold transition-all duration-300"
+                                style={{ 
+                                    backgroundColor: `${accentColor}15`, 
+                                    borderColor: `${accentColor}30`,
+                                    color: accentColor
+                                }}
+                            >
+                                {badges.length}
+                            </span>
+                        )}
                     </div>
                     <ChevronDown
                         className={cn(

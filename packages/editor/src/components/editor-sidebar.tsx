@@ -377,6 +377,7 @@ export function EditorSidebar({
             <PluginSidebar
               config={pluginConfig}
               accentColor={accentColor}
+              onImageUpload={onImageUpload}
               onChange={(updates) => onPluginConfigChange(activePlugin.id, updates)}
             />
           </div>

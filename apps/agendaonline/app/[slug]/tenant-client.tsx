@@ -627,42 +627,53 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             />
                         </div>
                     ),
-                    'about': (
-                        <section id="about" className="relative py-24 lg:py-32 bg-white overflow-hidden">
-                            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,var(--tenant-primary)_0%,transparent_40%)] opacity-[0.03]" />
-                            <div className="mx-auto max-w-7xl px-6 relative z-10">
-                                <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-                                    <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="relative pb-10">
-                                        <div className="absolute -inset-4 lg:-inset-8 bg-tenant-primary/10 rounded-(--theme-card-radius) blur-3xl opacity-60" />
-                                        <div className="relative aspect-4/5 max-w-md mx-auto rounded-(--theme-card-radius) bg-(--theme-color-surface) overflow-hidden shadow-(--theme-card-shadow) border border-slate-100 group">
-                                            {data.founder.imageUrl ? (
-                                                <Image src={data.founder.imageUrl} alt={data.founder.name || 'Fundador(a)'} fill className="object-cover object-top transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 50vw" />
-                                            ) : (
-                                                <div className="w-full h-full flex flex-col items-center justify-center transition-transform duration-700 group-hover:scale-105 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-                                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/40 rounded-full blur-2xl"></div>
-                                                    <div className="relative z-10 w-40 h-40 rounded-full bg-white/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white flex items-center justify-center backdrop-blur-sm"><User className="w-20 h-20 text-slate-400" strokeWidth={1.5} /></div>
+                    'about': (() => {
+                        const aboutConfig = editorConfig?.plugins?.about || {}
+                        const founder = aboutConfig.founder || data.founder || {}
+                        const badge = aboutConfig.badge || "Compromisso com a Excelência"
+                        const title = aboutConfig.title || "A *Expert* cuidando da sua autoestima."
+                        const bio = aboutConfig.bio || founder.bio || 'Apaixonado(a) por transformar vidas através da beleza e do cuidado. Cada cliente é único e merece uma experiência personalizada.'
+                        const name = founder.name && founder.name !== 'Seu Nome' ? founder.name : data.name
+                        const role = founder.role || 'Fundador(a) & Especialista'
+                        const imageUrl = founder.imageUrl || data.founder.imageUrl
+
+                        return (
+                            <section id="about" className="relative py-24 lg:py-32 bg-white overflow-hidden">
+                                <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,var(--tenant-primary)_0%,transparent_40%)] opacity-[0.03]" />
+                                <div className="mx-auto max-w-7xl px-6 relative z-10">
+                                    <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+                                        <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="relative pb-10">
+                                            <div className="absolute -inset-4 lg:-inset-8 bg-tenant-primary/10 rounded-(--theme-card-radius) blur-3xl opacity-60" />
+                                            <div className="relative aspect-4/5 max-w-md mx-auto rounded-(--theme-card-radius) bg-(--theme-color-surface) overflow-hidden shadow-(--theme-card-shadow) border border-slate-100 group">
+                                                {imageUrl ? (
+                                                    <Image src={imageUrl} alt={name} fill className="object-cover object-top transition-transform duration-700 group-hover:scale-105" sizes="(max-width: 768px) 100vw, 50vw" />
+                                                ) : (
+                                                    <div className="w-full h-full flex flex-col items-center justify-center transition-transform duration-700 group-hover:scale-105 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)' }}>
+                                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-white/40 rounded-full blur-2xl"></div>
+                                                        <div className="relative z-10 w-40 h-40 rounded-full bg-white/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white flex items-center justify-center backdrop-blur-sm"><User className="w-20 h-20 text-slate-400" strokeWidth={1.5} /></div>
+                                                    </div>
+                                                )}
+                                                <div className="absolute bottom-6 left-6 right-6 p-5 bg-white/70 backdrop-blur-xl rounded-(--theme-card-radius) border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.05)] transform transition-transform duration-500 group-hover:-translate-y-2">
+                                                    <p className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-tenant-primary mb-1">{role}</p>
+                                                    <h4 className="font-bold text-slate-900 text-lg">{name}</h4>
                                                 </div>
-                                            )}
-                                            <div className="absolute bottom-6 left-6 right-6 p-5 bg-white/70 backdrop-blur-xl rounded-(--theme-card-radius) border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.05)] transform transition-transform duration-500 group-hover:-translate-y-2">
-                                                <p className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-tenant-primary mb-1">{data.founder.role || 'Fundador(a) & Especialista'}</p>
-                                                <h4 className="font-bold text-slate-900 text-lg">{data.founder.name && data.founder.name !== 'Seu Nome' ? data.founder.name : data.name}</h4>
                                             </div>
-                                        </div>
-                                    </motion.div>
-                                    <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }} className="space-y-8">
-                                        <div className="inline-flex items-center gap-2 rounded-(--theme-btn-radius) border border-(--tenant-primary)/20 bg-(--tenant-primary)/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-(--tenant-primary)"><Star className="h-3.5 w-3.5 fill-tenant-primary" /> Compromisso com a Excelência</div>
-                                        <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.1]" style={{ fontFamily: 'var(--theme-font-heading)' }}>A <span className="text-tenant-primary italic">Expert</span> cuidando da sua autoestima.</h2>
-                                        <div className="w-16 h-1 bg-tenant-primary/20 rounded-(--theme-btn-radius)" />
-                                        <p className="text-xl text-slate-600 leading-relaxed font-light italic" style={elStyle('about', 'about-bio')}>&quot;{data.founder.bio || 'Apaixonado(a) por transformar vidas através da beleza e do cuidado. Cada cliente é único e merece uma experiência personalizada.'}&quot;</p>
-                                        <div className="pt-8 border-t border-slate-100">
-                                            <h3 className="text-3xl font-bold text-tenant-primary" style={{ fontFamily: 'var(--theme-font-heading)', ...elStyle('about', 'about-name') }}>{data.founder.name && data.founder.name !== 'Seu Nome' ? data.founder.name : data.name}</h3>
-                                            <p className="text-sm text-slate-400 font-medium tracking-widest uppercase mt-1" style={elStyle('about', 'about-role')}>{data.founder.role || 'Fundador(a) & Especialista'}</p>
-                                        </div>
-                                    </motion.div>
+                                        </motion.div>
+                                        <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.2 }} className="space-y-8">
+                                            <div className="inline-flex items-center gap-2 rounded-(--theme-btn-radius) border border-(--tenant-primary)/20 bg-(--tenant-primary)/5 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-(--tenant-primary)"><Star className="h-3.5 w-3.5 fill-tenant-primary" /> {badge}</div>
+                                            <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-[1.1]" style={{ fontFamily: 'var(--theme-font-heading)' }} dangerouslySetInnerHTML={{ __html: renderEditorText(title).replace(/<em>(.*?)<\/em>/g, '<span class="text-tenant-primary italic">$1</span>') }} />
+                                            <div className="w-16 h-1 bg-tenant-primary/20 rounded-(--theme-btn-radius)" />
+                                            <p className="text-xl text-slate-600 leading-relaxed font-light italic" style={elStyle('about', 'about-bio')}>&quot;{bio}&quot;</p>
+                                            <div className="pt-8 border-t border-slate-100">
+                                                <h3 className="text-3xl font-bold text-tenant-primary" style={{ fontFamily: 'var(--theme-font-heading)', ...elStyle('about', 'about-name') }}>{name}</h3>
+                                                <p className="text-sm text-slate-400 font-medium tracking-widest uppercase mt-1" style={elStyle('about', 'about-role')}>{role}</p>
+                                            </div>
+                                        </motion.div>
+                                    </div>
                                 </div>
-                            </div>
-                        </section>
-                    ),
+                            </section>
+                        )
+                    })(),
                     'beforeAfter': data.beforeAfter.length > 0 ? (
                         <section id="beforeAfter" className="py-24 bg-(--theme-color-surface) overflow-hidden border-t border-slate-100 flex flex-col items-center">
                             <div className="mt-8 mb-4 w-full cursor-grab active:cursor-grabbing">

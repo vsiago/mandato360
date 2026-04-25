@@ -207,6 +207,7 @@ export interface PluginSidebarProps {
   config: any
   onChange: (updates: any) => void
   accentColor?: string
+  onImageUpload?: (file: File) => Promise<string>
 }
 
 export interface EditorPlugin {
