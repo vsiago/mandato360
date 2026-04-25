@@ -8,8 +8,23 @@ import { Button } from "@/components/ui/button"
 import { 
     Activity, Award, MapPin, Menu, Phone, ShieldCheck, Star, 
     ArrowRight, MessageCircle, X, ChevronLeft, ChevronRight, Clock, Instagram, User, Check,
-    Image as ImageIcon, Shield, Gem, Zap, Flag, Heart, CheckCircle2
+    Image as ImageIcon, Shield, Gem, Zap, Flag, Heart, CheckCircle2,
+    Calendar,
+    MessageSquare,
+    Info
 } from "lucide-react"
+
+const PUBLIC_ICON_MAP: Record<string, any> = {
+    ArrowRight,
+    ChevronRight,
+    Calendar,
+    MessageSquare,
+    Phone,
+    Zap,
+    Star,
+    Info
+}
+
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
@@ -125,6 +140,8 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
             description: hero.description,
             ctaPrimary: hero.ctaPrimary,
             ctaSecondary: hero.ctaSecondary,
+            buttonPrimary: hero.buttonPrimary,
+            buttonSecondary: hero.buttonSecondary,
             badge: hero.badge,
             orientation: hero.orientation,
             autoHeight: hero.autoHeight,
@@ -492,32 +509,116 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                         <span dangerouslySetInnerHTML={{ __html: renderEditorText(heroDesc) }} />
                                     </p>
                                     <div className={cn("flex flex-wrap gap-3 md:gap-4 mt-2", isCenter && "justify-center")}>
-                                        <Button 
-                                            onClick={() => handleOpenBooking()}
-                                            className="font-medium text-xs md:text-sm lg:text-base px-6 py-3 md:px-7 md:py-4 lg:px-9 lg:py-5 transition-transform hover:scale-105 active:scale-95 shadow-xl h-auto border-none" 
-                                            style={{ 
+                                        {/* Primary Button */}
+                                        {(() => {
+                                            const btn = effectiveHero?.buttonPrimary || { text: heroCtaPrimary, link: "#agendamento" }
+                                            const IconLeft = btn.iconLeft ? (PUBLIC_ICON_MAP[btn.iconLeft] || null) : null
+                                            const IconRight = btn.iconRight ? (PUBLIC_ICON_MAP[btn.iconRight] || null) : null
+                                            
+                                            const btnStyle: React.CSSProperties = {
                                                 borderRadius: 'var(--theme-btn-radius)',
-                                                backgroundColor: themePrimary,
-                                                color: themeText,
+                                                color: btn.textColor || themeText,
+                                                paddingLeft: `${btn.paddingX ?? 24}px`,
+                                                paddingRight: `${btn.paddingX ?? 24}px`,
+                                                paddingTop: `${btn.paddingY ?? 12}px`,
+                                                paddingBottom: `${btn.paddingY ?? 12}px`,
+                                                height: `${btn.height ?? 48}px`,
+                                                width: btn.width === 'full' ? '100%' : (btn.width === 'auto' || !btn.width ? 'auto' : `${btn.width}px`),
+                                                fontSize: btn.fontSize ? `${btn.fontSize}px` : undefined,
                                                 ...elStyle('hero', 'hero-cta-primary')
-                                            }}
-                                        >
-                                            {heroCtaPrimary} <ArrowRight className="h-4 w-4 ml-2" />
-                                        </Button>
-                                        <Link href="#servicos">
-                                            <Button 
-                                                variant="outline" 
-                                                className="border-2 bg-transparent font-medium text-xs md:text-sm lg:text-base px-6 py-3 md:px-7 md:py-4 lg:px-9 lg:py-5 transition-transform hover:scale-105 hover:bg-white/10 h-auto" 
-                                                style={{ 
-                                                    borderRadius: 'var(--theme-btn-radius)',
-                                                    borderColor: themeText,
-                                                    color: themeText,
-                                                    ...elStyle('hero', 'hero-cta-secondary')
-                                                }}
-                                            >
-                                                {heroCtaSecondary}
-                                            </Button>
-                                        </Link>
+                                            }
+
+                                            if (btn.gradient?.enabled) {
+                                                const stops = btn.gradient.stops.map(s => `${hexToRgba(s.color, s.opacity ?? 100)} ${s.position}%`).join(', ')
+                                                btnStyle.background = `linear-gradient(${btn.gradient.angle}deg, ${stops})`
+                                                btnStyle.opacity = (btn.gradient.opacity ?? 100) / 100
+                                            } else {
+                                                btnStyle.backgroundColor = btn.backgroundColor || themePrimary
+                                            }
+
+                                            const content = (
+                                                <>
+                                                    {IconLeft && <IconLeft className="shrink-0" style={{ width: btn.iconSize || 16, height: btn.iconSize || 16, strokeWidth: btn.iconWeight || 2, color: btn.iconColor || 'inherit' }} />}
+                                                    {btn.text}
+                                                    {IconRight && <IconRight className="shrink-0" style={{ width: btn.iconSize || 16, height: btn.iconSize || 16, strokeWidth: btn.iconWeight || 2, color: btn.iconColor || 'inherit' }} />}
+                                                </>
+                                            )
+
+                                            if (btn.link === "#agendamento" || btn.link === "#agenda") {
+                                                return (
+                                                    <Button 
+                                                        onClick={() => handleOpenBooking()}
+                                                        className={cn(
+                                                            "font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-auto border-none flex items-center justify-center gap-2",
+                                                            !btn.fontSize && "text-xs md:text-sm lg:text-base"
+                                                        )}
+                                                        style={btnStyle}
+                                                    >
+                                                        {content}
+                                                    </Button>
+                                                )
+                                            }
+
+                                            return (
+                                                <Link href={btn.link || "#"}>
+                                                    <Button 
+                                                        className={cn(
+                                                            "font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-auto border-none flex items-center justify-center gap-2",
+                                                            !btn.fontSize && "text-xs md:text-sm lg:text-base"
+                                                        )}
+                                                        style={btnStyle}
+                                                    >
+                                                        {content}
+                                                    </Button>
+                                                </Link>
+                                            )
+                                        })()}
+
+                                        {/* Secondary Button */}
+                                        {(() => {
+                                            const btn = effectiveHero?.buttonSecondary || { text: heroCtaSecondary, link: "#servicos", outline: true }
+                                            const IconLeft = btn.iconLeft ? (PUBLIC_ICON_MAP[btn.iconLeft] || null) : null
+                                            const IconRight = btn.iconRight ? (PUBLIC_ICON_MAP[btn.iconRight] || null) : null
+                                            
+                                            const btnStyle: React.CSSProperties = {
+                                                borderRadius: 'var(--theme-btn-radius)',
+                                                color: btn.textColor || themeText,
+                                                paddingLeft: `${btn.paddingX ?? 24}px`,
+                                                paddingRight: `${btn.paddingX ?? 24}px`,
+                                                paddingTop: `${btn.paddingY ?? 12}px`,
+                                                paddingBottom: `${btn.paddingY ?? 12}px`,
+                                                height: `${btn.height ?? 48}px`,
+                                                width: btn.width === 'full' ? '100%' : (btn.width === 'auto' || !btn.width ? 'auto' : `${btn.width}px`),
+                                                fontSize: btn.fontSize ? `${btn.fontSize}px` : undefined,
+                                                border: btn.outline ? `2px solid ${btn.textColor || themeText}` : undefined,
+                                                ...elStyle('hero', 'hero-cta-secondary')
+                                            }
+
+                                            if (btn.gradient?.enabled) {
+                                                const stops = btn.gradient.stops.map(s => `${hexToRgba(s.color, s.opacity ?? 100)} ${s.position}%`).join(', ')
+                                                btnStyle.background = `linear-gradient(${btn.gradient.angle}deg, ${stops})`
+                                                btnStyle.opacity = (btn.gradient.opacity ?? 100) / 100
+                                            } else {
+                                                btnStyle.backgroundColor = btn.backgroundColor || (btn.outline ? 'transparent' : themeSecondary)
+                                            }
+
+                                            return (
+                                                <Link href={btn.link || "#"}>
+                                                    <Button 
+                                                        variant={btn.outline ? "outline" : "default"}
+                                                        className={cn(
+                                                            "font-bold transition-transform hover:scale-105 active:scale-95 h-auto flex items-center justify-center gap-2",
+                                                            !btn.fontSize && "text-xs md:text-sm lg:text-base"
+                                                        )}
+                                                        style={btnStyle}
+                                                    >
+                                                        {IconLeft && <IconLeft className="shrink-0" style={{ width: btn.iconSize || 16, height: btn.iconSize || 16, strokeWidth: btn.iconWeight || 2, color: btn.iconColor || 'inherit' }} />}
+                                                        {btn.text}
+                                                        {IconRight && <IconRight className="shrink-0" style={{ width: btn.iconSize || 16, height: btn.iconSize || 16, strokeWidth: btn.iconWeight || 2, color: btn.iconColor || 'inherit' }} />}
+                                                    </Button>
+                                                </Link>
+                                            )
+                                        })()}
                                     </div>
                                 </motion.div>
                             </div>

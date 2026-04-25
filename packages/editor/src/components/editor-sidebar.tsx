@@ -15,7 +15,25 @@ import {
   Type,
   Layers,
   Loader2,
+  MousePointer2,
+  RotateCcw,
+  Layout,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  ChevronRight,
+  ArrowRight,
+  Calendar,
+  MessageSquare,
+  Phone,
+  Info,
+  Check,
+  Star,
+  Zap,
 } from "lucide-react"
+
+// ... (existing imports and helpers)
+
 import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Label } from "./ui/label"
@@ -30,8 +48,318 @@ import type {
   AccordionType,
   HeroOverridableProps,
   ImagePosition,
+  ButtonConfig,
 } from "../types"
 import { resolveHero, hasOverride } from "../hooks/use-resolved-config"
+
+const ICON_OPTIONS = [
+  { id: "ArrowRight", icon: ArrowRight },
+  { id: "ChevronRight", icon: ChevronRight },
+  { id: "Calendar", icon: Calendar },
+  { id: "MessageSquare", icon: MessageSquare },
+  { id: "Phone", icon: Phone },
+  { id: "Zap", icon: Zap },
+  { id: "Star", icon: Star },
+  { id: "Info", icon: Info },
+]
+
+interface ButtonEditorProps {
+  label: string
+  config: Partial<ButtonConfig>
+  defaultConfig: Partial<ButtonConfig>
+  accentColor: string
+  onChange: (updates: Partial<ButtonConfig>) => void
+  onReset: () => void
+}
+
+const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onReset }: ButtonEditorProps) => {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between border-b border-border pb-2">
+        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{label}</Label>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={onReset}
+          className="h-6 gap-1 px-1.5 text-[9px] font-bold uppercase text-muted-foreground hover:text-foreground"
+        >
+          <RotateCcw className="h-3 w-3" /> Reset
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        <div className="space-y-1.5">
+          <Label className="text-[11px] font-medium text-foreground/70">Texto do Botão</Label>
+          <Input
+            value={config.text || defaultConfig.text || ""}
+            onChange={(e) => onChange({ text: e.target.value })}
+            placeholder="Ex: Agendar Agora"
+            className="h-8 text-[11px] border-border/50 bg-background"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label className="text-[11px] font-medium text-foreground/70">Link ou Âncora (#)</Label>
+          <Input
+            value={config.link || defaultConfig.link || ""}
+            onChange={(e) => onChange({ link: e.target.value })}
+            placeholder="Ex: #agenda ou /contato"
+            className="h-8 text-[11px] border-border/50 bg-background font-mono"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-[11px] font-medium text-foreground/70">Icon Esquerda</Label>
+            <div className="flex flex-wrap gap-1">
+              <button
+                onClick={() => onChange({ iconLeft: undefined })}
+                className={cn(
+                  "h-7 w-7 rounded border border-border flex items-center justify-center transition-all",
+                  !config.iconLeft ? "bg-accent text-accent-foreground border-accent" : "hover:bg-muted"
+                )}
+              >
+                <X className="h-3 w-3" />
+              </button>
+              {ICON_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => onChange({ iconLeft: opt.id })}
+                  className={cn(
+                    "h-7 w-7 rounded border border-border flex items-center justify-center transition-all",
+                    config.iconLeft === opt.id ? "bg-accent text-accent-foreground border-accent" : "hover:bg-muted"
+                  )}
+                >
+                  <opt.icon className="h-3 w-3" />
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-[11px] font-medium text-foreground/70">Icon Direita</Label>
+            <div className="flex flex-wrap gap-1">
+              <button
+                onClick={() => onChange({ iconRight: undefined })}
+                className={cn(
+                  "h-7 w-7 rounded border border-border flex items-center justify-center transition-all",
+                  !config.iconRight ? "bg-accent text-accent-foreground border-accent" : "hover:bg-muted"
+                )}
+              >
+                <X className="h-3 w-3" />
+              </button>
+              {ICON_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => onChange({ iconRight: opt.id })}
+                  className={cn(
+                    "h-7 w-7 rounded border border-border flex items-center justify-center transition-all",
+                    config.iconRight === opt.id ? "bg-accent text-accent-foreground border-accent" : "hover:bg-muted"
+                  )}
+                >
+                  <opt.icon className="h-3 w-3" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3 border-t border-border pt-3">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label className="text-[10px] text-muted-foreground">Padding X</Label>
+                <span className="text-[10px] font-mono">{config.paddingX ?? 24}px</span>
+              </div>
+              <Slider
+                value={[config.paddingX ?? 24]}
+                onValueChange={([val]) => onChange({ paddingX: val })}
+                min={8}
+                max={64}
+                step={1}
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label className="text-[10px] text-muted-foreground">Padding Y</Label>
+                <span className="text-[10px] font-mono">{config.paddingY ?? 12}px</span>
+              </div>
+              <Slider
+                value={[config.paddingY ?? 12]}
+                onValueChange={([val]) => onChange({ paddingY: val })}
+                min={4}
+                max={32}
+                step={1}
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label className="text-[10px] text-muted-foreground">Altura</Label>
+                <span className="text-[10px] font-mono">{config.height ?? 48}px</span>
+              </div>
+              <Slider
+                value={[config.height ?? 48]}
+                onValueChange={([val]) => onChange({ height: val })}
+                min={32}
+                max={80}
+                step={1}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] text-muted-foreground">Largura</Label>
+              <div className="grid grid-cols-2 gap-1 rounded bg-muted p-0.5">
+                <button
+                  onClick={() => onChange({ width: 'auto' })}
+                  className={cn(
+                    "px-2 py-1 text-[8px] font-bold uppercase rounded",
+                    (config.width === 'auto' || !config.width) ? "bg-background shadow-sm" : "text-muted-foreground"
+                  )}
+                >
+                  Auto
+                </button>
+                <button
+                  onClick={() => onChange({ width: 'full' })}
+                  className={cn(
+                    "px-2 py-1 text-[8px] font-bold uppercase rounded",
+                    config.width === 'full' ? "bg-background shadow-sm" : "text-muted-foreground"
+                  )}
+                >
+                  Full
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 border-t border-border pt-3 mt-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label className="text-[10px] text-muted-foreground">Tam. Texto</Label>
+                  <span className="text-[10px] font-mono">{config.fontSize ?? 12}px</span>
+                </div>
+                <Slider
+                  value={[config.fontSize ?? 12]}
+                  onValueChange={([val]) => onChange({ fontSize: val })}
+                  min={10}
+                  max={24}
+                  step={1}
+                />
+              </div>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label className="text-[10px] text-muted-foreground">Tam. Ícone</Label>
+                  <span className="text-[10px] font-mono">{config.iconSize ?? 16}px</span>
+                </div>
+                <Slider
+                  value={[config.iconSize ?? 16]}
+                  onValueChange={([val]) => onChange({ iconSize: val })}
+                  min={10}
+                  max={32}
+                  step={1}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <Label className="text-[10px] text-muted-foreground">Peso Ícone (Stroke)</Label>
+                <span className="text-[10px] font-mono">{config.iconWeight ?? 2}px</span>
+              </div>
+              <Slider
+                value={[config.iconWeight ?? 2]}
+                onValueChange={([val]) => onChange({ iconWeight: val })}
+                min={1}
+                max={4}
+                step={0.5}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3 border-t border-border pt-3">
+           <div className="flex items-center justify-between">
+            <Label className="text-[11px] font-medium text-foreground/70">Cores Personalizadas</Label>
+            <Switch 
+              checked={!!config.backgroundColor} 
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  onChange({ backgroundColor: accentColor, textColor: '#ffffff' })
+                } else {
+                  onChange({ backgroundColor: undefined, textColor: undefined })
+                }
+              }}
+            />
+          </div>
+          
+          {config.backgroundColor && (
+            <div className="space-y-3 p-3 rounded-lg border border-border/50 bg-muted/20">
+              <div className="flex items-center justify-between">
+                <Label className="text-[10px] text-muted-foreground">Fundo</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={config.backgroundColor}
+                    onChange={(e) => onChange({ backgroundColor: e.target.value })}
+                    className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
+                  />
+                  <Input
+                    value={config.backgroundColor}
+                    onChange={(e) => onChange({ backgroundColor: e.target.value })}
+                    className="h-7 w-20 border-border/50 bg-background font-mono text-[9px]"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <Label className="text-[10px] text-muted-foreground">Texto</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={config.textColor || '#ffffff'}
+                    onChange={(e) => onChange({ textColor: e.target.value })}
+                    className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
+                  />
+                  <Input
+                    value={config.textColor || '#ffffff'}
+                    onChange={(e) => onChange({ textColor: e.target.value })}
+                    className="h-7 w-20 border-border/50 bg-background font-mono text-[9px]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label className="text-[10px] text-muted-foreground">Ícones</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={config.iconColor || config.textColor || '#ffffff'}
+                    onChange={(e) => onChange({ iconColor: e.target.value })}
+                    className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
+                  />
+                  <Input
+                    value={config.iconColor || config.textColor || '#ffffff'}
+                    onChange={(e) => onChange({ iconColor: e.target.value })}
+                    className="h-7 w-20 border-border/50 bg-background font-mono text-[9px]"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-border/30">
+                <GradientControls
+                  title="Gradiente do Botão"
+                  gradient={config.gradient || { enabled: false, angle: 90, opacity: 100, stops: [{ color: config.backgroundColor || accentColor, position: 0 }, { color: '#000000', position: 100 }] }}
+                  onUpdate={(updates) => onChange({ gradient: { ...(config.gradient || { enabled: false, angle: 90, opacity: 100, stops: [{ color: config.backgroundColor || accentColor, position: 0 }, { color: '#000000', position: 100 }] }), ...updates } })}
+                  onApplyPreset={(updates) => onChange({ ...updates })}
+                  accentColor={accentColor}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 interface EditorSidebarProps {
   config: EditorConfig
@@ -44,6 +372,8 @@ interface EditorSidebarProps {
   onHeroReset?: (device: DeviceType, prop: keyof HeroOverridableProps) => void
   onPluginConfigChange: (pluginId: string, updates: any) => void
   onImageUpload?: (file: File) => Promise<string>
+  openAccordion: AccordionType | null
+  onToggleAccordion: (id: AccordionType | null) => void
   className?: string
   placeholders?: {
     title?: string
@@ -122,6 +452,7 @@ const AccordionItem = ({
 interface GradientControlsProps {
   gradient: GradientConfig
   onUpdate: (updates: Partial<GradientConfig>) => void
+  onApplyPreset?: (updates: { gradient: GradientConfig; textColor?: string; iconColor?: string }) => void
   title?: string
   showEnabled?: boolean
   accentColor?: string
@@ -130,12 +461,86 @@ interface GradientControlsProps {
 const GradientControls = ({
   gradient,
   onUpdate,
+  onApplyPreset,
   title = "Gradiente",
   showEnabled = true,
   accentColor = "#10b981",
 }: GradientControlsProps) => {
   const angleRef = useRef<HTMLDivElement>(null)
   const [isDraggingAngle, setIsDraggingAngle] = useState(false)
+
+  const GRADIENT_PRESETS = [
+    { 
+      name: "Black", 
+      stops: [{ color: '#1a1a1a', position: 0, opacity: 100 }, { color: '#000000', position: 100, opacity: 100 }],
+      angle: 135,
+      textColor: '#ffffff',
+      iconColor: '#ffffff'
+    },
+    { 
+      name: "White", 
+      stops: [{ color: '#ffffff', position: 0, opacity: 100 }, { color: '#f8fafc', position: 100, opacity: 100 }],
+      angle: 135,
+      textColor: '#000000',
+      iconColor: '#000000'
+    },
+    { 
+      name: "Elegante", 
+      stops: [{ color: accentColor, position: 0, opacity: 100 }, { color: accentColor, position: 100, opacity: 60 }],
+      angle: 135,
+      textColor: '#ffffff',
+      iconColor: '#ffffff'
+    },
+    { 
+      name: "Profundo", 
+      stops: [{ color: accentColor, position: 0, opacity: 100 }, { color: '#000000', position: 100, opacity: 100 }],
+      angle: 135,
+      textColor: '#ffffff',
+      iconColor: '#ffffff'
+    },
+    { 
+      name: "Suave", 
+      stops: [{ color: '#ffffff', position: 0, opacity: 100 }, { color: accentColor, position: 100, opacity: 100 }],
+      angle: 135,
+      textColor: accentColor,
+      iconColor: accentColor
+    },
+    { 
+      name: "Aurora", 
+      stops: [{ color: '#00f2fe', position: 0, opacity: 100 }, { color: '#4facfe', position: 100, opacity: 100 }],
+      angle: 135,
+      textColor: '#ffffff',
+      iconColor: '#ffffff'
+    },
+    { 
+      name: "Sunset", 
+      stops: [{ color: '#fa709a', position: 0, opacity: 100 }, { color: '#fee140', position: 100, opacity: 100 }],
+      angle: 135,
+      textColor: '#ffffff',
+      iconColor: '#ffffff'
+    },
+    { 
+      name: "Oceano", 
+      stops: [{ color: '#43e97b', position: 0, opacity: 100 }, { color: '#38f9d7', position: 100, opacity: 100 }],
+      angle: 135,
+      textColor: '#ffffff',
+      iconColor: '#ffffff'
+    },
+    { 
+      name: "Glassy", 
+      stops: [{ color: '#ffffff', position: 0, opacity: 20 }, { color: '#ffffff', position: 100, opacity: 5 }],
+      angle: 135,
+      textColor: '#ffffff',
+      iconColor: '#ffffff'
+    },
+    { 
+      name: "Minimal", 
+      stops: [{ color: accentColor, position: 0, opacity: 40 }, { color: 'transparent', position: 100, opacity: 0 }],
+      angle: 135,
+      textColor: accentColor,
+      iconColor: accentColor
+    },
+  ]
 
   return (
     <div className="space-y-3 border-t border-border pt-4">
@@ -148,6 +553,48 @@ const GradientControls = ({
           />
         )}
       </div>
+
+      {gradient.enabled && (
+        <div className="space-y-2 mb-6">
+          <Label className="text-[10px] uppercase font-bold text-muted-foreground/60 px-1">Presets Premium</Label>
+          <div className="flex gap-3 overflow-x-auto pb-3 px-1 scrollbar-hide snap-x">
+            {GRADIENT_PRESETS.map((preset) => (
+              <button
+                key={preset.name}
+                onClick={() => {
+                  const updates = {
+                    gradient: { 
+                      enabled: true, 
+                      stops: preset.stops,
+                      angle: preset.angle 
+                    },
+                    textColor: preset.textColor,
+                    iconColor: preset.iconColor
+                  }
+                  
+                  if (onApplyPreset) {
+                    onApplyPreset(updates)
+                  } else {
+                    onUpdate(updates.gradient)
+                  }
+                }}
+                className="flex flex-col items-center gap-1.5 shrink-0 snap-start group"
+              >
+                <div 
+                  className={cn(
+                    "h-12 w-12 rounded-full border-2 border-border transition-all group-hover:scale-110 group-hover:border-accent group-active:scale-95 shadow-sm",
+                    "flex items-center justify-center overflow-hidden"
+                  )}
+                  style={{ 
+                    background: `linear-gradient(${preset.angle}deg, ${preset.stops.map(s => `${hexToRgba(s.color, s.opacity)} ${s.position}%`).join(', ')})` 
+                  }}
+                />
+                <span className="text-[9px] font-bold uppercase text-muted-foreground/70 group-hover:text-foreground transition-colors">{preset.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {(gradient.enabled || !showEnabled) && (
         <>
           {/* Visual Angle Control */}
@@ -332,10 +779,11 @@ export function EditorSidebar({
   onHeroReset,
   onPluginConfigChange,
   onImageUpload,
+  openAccordion,
+  onToggleAccordion,
   className,
   placeholders,
 }: EditorSidebarProps) {
-  const [openAccordion, setOpenAccordion] = useState<AccordionType | null>("theme")
   const [imageDevice, setImageDevice] = useState<DeviceType>(device)
   const [isUploading, setIsUploading] = useState(false)
 
@@ -363,15 +811,26 @@ export function EditorSidebar({
     return (
       <aside className={cn("flex h-full w-72 shrink-0 flex-col bg-background lg:w-80", className)}>
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {/* Section Title */}
-          <div className="border-b border-border p-4 border-l" style={{ borderLeftColor: accentColor }}>
-            <div className="mb-0.5 flex items-center gap-2">
-              <Layers className="h-3.5 w-3.5" style={{ color: accentColor }} />
-              <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/90">
+          {/* Section Title - Premium Glassmorphism Redesign */}
+          <div className="relative border-b border-border p-5 overflow-hidden group bg-gradient-to-br from-white/[0.04] to-transparent backdrop-blur-md border-l-2" style={{ borderLeftColor: accentColor }}>
+            {/* Subtle background glow */}
+            <div 
+              className="absolute -right-4 -top-4 h-24 w-24 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-25"
+              style={{ backgroundColor: accentColor }}
+            />
+            
+            <div className="flex items-center gap-2.5 mb-1.5">
+              <div className="p-1.5 rounded-lg bg-muted/40 border border-border/50 shadow-inner">
+                <Layers className="h-3.5 w-3.5" style={{ color: accentColor }} />
+              </div>
+              <h2 className="text-[12px] font-black uppercase tracking-[0.15em] text-foreground/90">
                 {activePlugin.label}
               </h2>
             </div>
-            <p className="text-[10px] text-muted-foreground/70 font-medium">Personalize esta seção</p>
+            
+            <p className="text-[10px] text-muted-foreground/60 font-medium tracking-tight">
+              Personalize esta seção e seus componentes
+            </p>
           </div>
           <div className="w-full">
             <PluginSidebar
@@ -564,7 +1023,7 @@ export function EditorSidebar({
   }
 
   const toggleAccordion = (id: AccordionType) => {
-    setOpenAccordion(openAccordion === id ? null : id)
+    onToggleAccordion(openAccordion === id ? null : id)
   }
 
   const info = sectionTitle[activeSection] || { title: activeSection, desc: "Editar seção" }
@@ -573,23 +1032,38 @@ export function EditorSidebar({
     <aside className={cn("flex h-full w-72 shrink-0 flex-col bg-background lg:w-80", className)}>
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto custom-scrollbar">
-        {/* Section Title */}
-        <div className="border-b border-border p-4 border-l" style={{ borderLeftColor: accentColor }}>
-          <div className="mb-0.5 flex items-center gap-2">
-            <Layers className="h-3.5 w-3.5" style={{ color: accentColor }} />
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.1em] text-foreground/90">
-              {info.title}
-            </h2>
+        {/* Section Title - Premium Glassmorphism Redesign */}
+        <div className="relative border-b border-border p-5 overflow-hidden group bg-gradient-to-br from-white/[0.04] to-transparent backdrop-blur-md border-l-2" style={{ borderLeftColor: accentColor }}>
+          {/* Subtle background glow */}
+          <div 
+            className="absolute -right-4 -top-4 h-24 w-24 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-25"
+            style={{ backgroundColor: accentColor }}
+          />
+          
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 rounded-lg bg-muted/40 border border-border/50 shadow-inner">
+                <Layers className="h-3.5 w-3.5" style={{ color: accentColor }} />
+              </div>
+              <h2 className="text-[12px] font-black uppercase tracking-[0.15em] text-foreground/90">
+                {info.title}
+              </h2>
+            </div>
+            
             {activeSection === "hero" && device !== "mobile" && (
-              <span className="ml-auto text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded" style={{ backgroundColor: `${accentColor}20`, color: accentColor }}>
-                {device === "tablet" ? "Tablet" : "Desktop"}
-              </span>
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-border/50 bg-background/50 backdrop-blur-sm shadow-sm">
+                <div className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
+                <span className="text-[8px] font-black uppercase tracking-tighter text-foreground/70">
+                  {device === "tablet" ? "Tablet" : "Desktop"}
+                </span>
+              </div>
             )}
           </div>
-          <p className="text-[10px] text-muted-foreground/70 font-medium">
+          
+          <p className="text-[10px] text-muted-foreground/60 font-medium tracking-tight">
             {info.desc}
             {activeSection === "hero" && device !== "mobile" && (
-              <span className="ml-1 opacity-70">— editando override para {device}</span>
+              <span className="ml-1 opacity-50 italic">— modo override {device}</span>
             )}
           </p>
         </div>
@@ -929,33 +1403,15 @@ export function EditorSidebar({
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <div className="flex items-center mb-1.5">
-                      <Label className="text-xs text-muted-foreground">CTA Primário</Label>
-                      <OverrideIndicator active={isOverridden('ctaPrimary')} onReset={() => resetOverride('ctaPrimary')} accentColor={accentColor} />
-                    </div>
-                    <Input
-                      value={resolvedHero.ctaPrimary}
-                      onChange={(e) => updateHero({ ctaPrimary: e.target.value })}
-                      placeholder={placeholders?.ctaPrimary || "Texto do botão"}
-                      className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center mb-1.5">
-                      <Label className="text-xs text-muted-foreground">CTA Secundário</Label>
-                      <OverrideIndicator active={isOverridden('ctaSecondary')} onReset={() => resetOverride('ctaSecondary')} accentColor={accentColor} />
-                    </div>
-                    <Input
-                      value={resolvedHero.ctaSecondary}
-                      onChange={(e) => updateHero({ ctaSecondary: e.target.value })}
-                      placeholder={placeholders?.ctaSecondary || "Texto do botão"}
-                      className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
-                    />
-                  </div>
-                </div>
               </>
+            )}
+
+            {activeSection === "hero" && (
+              <div className="space-y-4">
+                <p className="text-[10px] font-medium text-muted-foreground/60 italic border-t border-border/30 pt-4">
+                  Dica: Para configurações avançadas, use os acordeões de botões abaixo.
+                </p>
+              </div>
             )}
 
             {activeSection === "footer" && (
@@ -1256,6 +1712,58 @@ export function EditorSidebar({
                 )}
               </div>
             </div>
+          </AccordionItem>
+        )}
+
+        {/* Primary Button - Only for Hero */}
+        {activeSection === "hero" && (
+          <AccordionItem
+            id="button-primary"
+            icon={MousePointer2}
+            label="Botão Primário"
+            isOpen={openAccordion === "button-primary"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <ButtonEditor
+              label="Botão Primário"
+              config={resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
+              defaultConfig={{ text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
+              accentColor={accentColor}
+              onChange={(updates) => updateHero({ 
+                buttonPrimary: { 
+                  ...(resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }), 
+                  ...updates 
+                } 
+              })}
+              onReset={() => resetOverride('buttonPrimary')}
+            />
+          </AccordionItem>
+        )}
+
+        {/* Secondary Button - Only for Hero */}
+        {activeSection === "hero" && (
+          <AccordionItem
+            id="button-secondary"
+            icon={MousePointer2}
+            label="Botão Secundário"
+            isOpen={openAccordion === "button-secondary"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <ButtonEditor
+              label="Botão Secundário"
+              config={resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }}
+              defaultConfig={{ text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }}
+              accentColor={accentColor}
+              onChange={(updates) => updateHero({ 
+                buttonSecondary: { 
+                  ...(resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }), 
+                  ...updates 
+                } 
+              })}
+              onReset={() => resetOverride('buttonSecondary')}
+            />
           </AccordionItem>
         )}
       </div>

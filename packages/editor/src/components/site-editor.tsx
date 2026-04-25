@@ -13,6 +13,7 @@ import { useState } from "react"
 import { Sheet, SheetContent, SheetTitle } from "./ui/sheet"
 import { Settings, Layers } from "lucide-react"
 import { Button } from "./ui/button"
+import type { AccordionType } from "../types"
 
 export function SiteEditor({
   initialConfig,
@@ -38,6 +39,17 @@ export function SiteEditor({
   const [isLibraryOpen, setIsLibraryOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileConfigOpen, setMobileConfigOpen] = useState(false)
+  const [openAccordion, setOpenAccordion] = useState<AccordionType | null>("theme")
+
+  // Sync openAccordion when activeSection changes
+  useEffect(() => {
+    if (editor.activeSection === "header") setOpenAccordion("header-content")
+    else if (editor.activeSection === "hero") setOpenAccordion("content")
+    else if (editor.activeSection === "footer") setOpenAccordion("content")
+    else setOpenAccordion(null)
+  }, [editor.activeSection])
+
+  // ... (rest of the component)
 
   // Onboarding Logic: Automatically open library if only core sections exist
   useEffect(() => {
@@ -148,6 +160,7 @@ export function SiteEditor({
             plugins={plugins}
             accentColor={accentColor}
             onConfigChange={editor.updateConfig}
+            onAccordionToggle={(id) => setOpenAccordion(id as AccordionType)}
             placeholders={placeholders}
           />
         </div>
@@ -165,6 +178,8 @@ export function SiteEditor({
             onHeroReset={editor.resetHeroOverride}
             onPluginConfigChange={editor.updatePluginConfig}
             onImageUpload={onImageUpload}
+            openAccordion={openAccordion}
+            onToggleAccordion={setOpenAccordion}
             placeholders={placeholders}
           />
         </div>
@@ -184,6 +199,8 @@ export function SiteEditor({
               onHeroReset={editor.resetHeroOverride}
               onPluginConfigChange={editor.updatePluginConfig}
               onImageUpload={onImageUpload}
+              openAccordion={openAccordion}
+              onToggleAccordion={setOpenAccordion}
               placeholders={placeholders}
               className="w-full flex-1"
             />

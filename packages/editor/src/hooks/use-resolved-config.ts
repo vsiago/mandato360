@@ -14,6 +14,8 @@ export interface ResolvedHero {
   description: string
   ctaPrimary: string
   ctaSecondary: string
+  buttonPrimary?: HeroConfig["buttonPrimary"]
+  buttonSecondary?: HeroConfig["buttonSecondary"]
   badge: string
   autoHeight: boolean
   height: number
@@ -40,6 +42,8 @@ export function resolveHero(hero: HeroConfig, device: DeviceType): ResolvedHero 
     description: hero.description,
     ctaPrimary: hero.ctaPrimary,
     ctaSecondary: hero.ctaSecondary,
+    buttonPrimary: hero.buttonPrimary,
+    buttonSecondary: hero.buttonSecondary,
     badge: hero.badge,
     autoHeight: hero.autoHeight,
     height: hero.height,
@@ -80,6 +84,8 @@ function applyOverrides(target: ResolvedHero, overrides: HeroOverridableProps): 
   if (overrides.description !== undefined) target.description = overrides.description
   if (overrides.ctaPrimary !== undefined) target.ctaPrimary = overrides.ctaPrimary
   if (overrides.ctaSecondary !== undefined) target.ctaSecondary = overrides.ctaSecondary
+  if (overrides.buttonPrimary !== undefined) target.buttonPrimary = { ...target.buttonPrimary, ...overrides.buttonPrimary }
+  if (overrides.buttonSecondary !== undefined) target.buttonSecondary = { ...target.buttonSecondary, ...overrides.buttonSecondary }
   if (overrides.badge !== undefined) target.badge = overrides.badge
   if (overrides.orientation !== undefined) target.orientation = overrides.orientation
   if (overrides.autoHeight !== undefined) target.autoHeight = overrides.autoHeight

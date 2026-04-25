@@ -5,7 +5,7 @@ import type { ComponentType } from "react"
 // ─── Device & Section Types ───
 export type DeviceType = "mobile" | "tablet" | "desktop"
 export type SectionType = "header" | "hero" | "footer"
-export type AccordionType = "theme" | "colors" | "image" | "position" | "effects" | "content" | "header-content" | "layout"
+export type AccordionType = "theme" | "colors" | "image" | "position" | "effects" | "content" | "header-content" | "layout" | "button-primary" | "button-secondary"
 export type ThemePresetType = "neutral" | "classic" | "hightech" | "emerald" | "custom"
 export type OrientationType = "left" | "center" | "right"
 export type FontFamily = "sans" | "serif" | "mono" | "display"
@@ -82,6 +82,26 @@ export interface HeaderConfig {
   }
 }
 
+// ─── Button Config ───
+export interface ButtonConfig {
+  text: string
+  link: string
+  iconLeft?: string
+  iconRight?: string
+  paddingX?: number
+  paddingY?: number
+  height?: number
+  width?: 'auto' | 'full' | number
+  backgroundColor?: string
+  textColor?: string
+  gradient?: GradientConfig
+  outline?: boolean
+  fontSize?: number
+  iconSize?: number
+  iconWeight?: number
+  iconColor?: string
+}
+
 // ─── Hero Overridable Props (per-breakpoint) ───
 export interface HeroOverridableProps {
   title?: string
@@ -89,6 +109,8 @@ export interface HeroOverridableProps {
   description?: string
   ctaPrimary?: string
   ctaSecondary?: string
+  buttonPrimary?: Partial<ButtonConfig>
+  buttonSecondary?: Partial<ButtonConfig>
   badge?: string
   orientation?: OrientationType
   autoHeight?: boolean
@@ -116,6 +138,8 @@ export interface HeroConfig {
   description: string
   ctaPrimary: string
   ctaSecondary: string
+  buttonPrimary?: ButtonConfig
+  buttonSecondary?: ButtonConfig
   badge: string
   images: {
     mobile: string | null

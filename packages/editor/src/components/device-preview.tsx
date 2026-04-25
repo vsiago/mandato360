@@ -3,7 +3,37 @@
 import { useState, useEffect, useRef } from "react"
 import { cn, hexToRgba } from "../lib/utils"
 import type { EditorConfig, DeviceType, EditorPlugin } from "../types"
-import { Heart, Menu, Globe, Share2, MessageCircle, Link2, Send, Plus, Minus, Maximize2 } from "lucide-react"
+import { 
+  Heart, 
+  Menu, 
+  Globe, 
+  Share2, 
+  MessageCircle, 
+  Link2, 
+  Send, 
+  Plus, 
+  Minus, 
+  Maximize2,
+  ArrowRight,
+  ChevronRight,
+  Calendar,
+  MessageSquare,
+  Phone,
+  Zap,
+  Star,
+  Info
+} from "lucide-react"
+
+const ICON_MAP: Record<string, any> = {
+  ArrowRight,
+  ChevronRight,
+  Calendar,
+  MessageSquare,
+  Phone,
+  Zap,
+  Star,
+  Info
+}
 import { Slider } from "./ui/slider"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
 import { resolveHero } from "../hooks/use-resolved-config"
@@ -18,6 +48,7 @@ interface DevicePreviewProps {
   plugins: EditorPlugin[]
   accentColor?: string
   onConfigChange?: (config: any) => void
+  onAccordionToggle?: (id: string) => void
   placeholders?: {
     title?: string
     description?: string
@@ -42,7 +73,7 @@ const borderRadiusMap: Record<string, string> = {
   full: "rounded-full",
 }
 
-export function DevicePreview({ config, device, activeSection, sectionOrder, plugins, accentColor = "#10b981", onConfigChange, placeholders }: DevicePreviewProps) {
+export function DevicePreview({ config, device, activeSection, sectionOrder, plugins, accentColor = "#10b981", onConfigChange, onAccordionToggle, placeholders }: DevicePreviewProps) {
   const [zoom, setZoom] = useState(100)
   const [isScrolled, setIsScrolled] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
@@ -577,7 +608,6 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                         >
                           {renderMarkdown(resolvedHero.description || placeholders?.description || "Seja bem-vindo ao nosso espaço.")}
                         </EditableText>
-
                         {/* CTAs */}
                         <div className={cn(
                           "mt-4 flex flex-wrap gap-2 w-full",
@@ -586,28 +616,92 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                           resolvedHero.orientation === "center" && "justify-center",
                           resolvedHero.orientation === "right" && "justify-end"
                         )}>
-                          <button
-                            className={cn(
-                              "px-4 py-2 text-xs font-medium transition-transform hover:scale-105",
-                              device === "mobile" && "w-full py-3 text-sm",
-                              device === "desktop" && "px-5 py-2.5 text-sm",
-                              btnRadius, primaryFont
-                            )}
-                            style={{ backgroundColor: theme.colors.primary, color: theme.colors.text }}
-                          >
-                            {resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar Agora"}
-                          </button>
-                          <button
-                            className={cn(
-                              "border-2 px-4 py-2 text-xs font-medium transition-transform hover:scale-105",
-                              device === "mobile" && "w-full py-3 text-sm",
-                              device === "desktop" && "px-5 py-2.5 text-sm",
-                              btnRadius, primaryFont
-                            )}
-                            style={{ borderColor: theme.colors.text, color: theme.colors.text }}
-                          >
-                            {resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços"}
-                          </button>
+                          {/* Primary Button */}
+                          {(() => {
+                            const btn = resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar Agora", link: "#agendamento" }
+                            const IconLeft = btn.iconLeft ? (ICON_MAP[btn.iconLeft] || null) : null
+                            const IconRight = btn.iconRight ? (ICON_MAP[btn.iconRight] || null) : null
+                            
+                            const btnStyle: React.CSSProperties = {
+                              color: btn.textColor || theme.colors.text,
+                              paddingLeft: `${btn.paddingX ?? 24}px`,
+                              paddingRight: `${btn.paddingX ?? 24}px`,
+                              paddingTop: `${btn.paddingY ?? 12}px`,
+                              paddingBottom: `${btn.paddingY ?? 12}px`,
+                              height: `${btn.height ?? 48}px`,
+                              width: btn.width === 'full' ? '100%' : (btn.width === 'auto' || !btn.width ? 'auto' : `${btn.width}px`),
+                              fontSize: btn.fontSize ? `${btn.fontSize}px` : undefined,
+                              fontFamily: primaryFont,
+                            }
+
+                            if (btn.gradient?.enabled) {
+                              const stops = btn.gradient.stops.map(s => `${hexToRgba(s.color, s.opacity ?? 100)} ${s.position}%`).join(', ')
+                              btnStyle.background = `linear-gradient(${btn.gradient.angle}deg, ${stops})`
+                              btnStyle.opacity = (btn.gradient.opacity ?? 100) / 100
+                            } else {
+                              btnStyle.backgroundColor = btn.backgroundColor || theme.colors.primary
+                            }
+
+                            return (
+                              <button
+                                onClick={() => onAccordionToggle?.('button-primary')}
+                                className={cn(
+                                  "inline-flex items-center justify-center gap-2 font-bold transition-all hover:scale-105 active:scale-95 shadow-lg",
+                                  btnRadius,
+                                  !btn.fontSize && "text-xs"
+                                )}
+                                style={btnStyle}
+                              >
+                                {IconLeft && <IconLeft className="shrink-0" style={{ width: btn.iconSize || 16, height: btn.iconSize || 16, strokeWidth: btn.iconWeight || 2, color: btn.iconColor || 'inherit' }} />}
+                                {btn.text}
+                                {IconRight && <IconRight className="shrink-0" style={{ width: btn.iconSize || 16, height: btn.iconSize || 16, strokeWidth: btn.iconWeight || 2, color: btn.iconColor || 'inherit' }} />}
+                              </button>
+                            )
+                          })()}
+
+                          {/* Secondary Button */}
+                          {(() => {
+                            const btn = resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }
+                            const IconLeft = btn.iconLeft ? (ICON_MAP[btn.iconLeft] || null) : null
+                            const IconRight = btn.iconRight ? (ICON_MAP[btn.iconRight] || null) : null
+                            
+                            const btnStyle: React.CSSProperties = {
+                              color: btn.textColor || theme.colors.text,
+                              paddingLeft: `${btn.paddingX ?? 24}px`,
+                              paddingRight: `${btn.paddingX ?? 24}px`,
+                              paddingTop: `${btn.paddingY ?? 12}px`,
+                              paddingBottom: `${btn.paddingY ?? 12}px`,
+                              height: `${btn.height ?? 48}px`,
+                              width: btn.width === 'full' ? '100%' : (btn.width === 'auto' || !btn.width ? 'auto' : `${btn.width}px`),
+                              fontSize: btn.fontSize ? `${btn.fontSize}px` : undefined,
+                              border: btn.outline ? `2px solid ${btn.textColor || theme.colors.text}` : undefined,
+                              fontFamily: primaryFont,
+                            }
+
+                            if (btn.gradient?.enabled) {
+                              const stops = btn.gradient.stops.map(s => `${hexToRgba(s.color, s.opacity ?? 100)} ${s.position}%`).join(', ')
+                              btnStyle.background = `linear-gradient(${btn.gradient.angle}deg, ${stops})`
+                              btnStyle.opacity = (btn.gradient.opacity ?? 100) / 100
+                            } else {
+                              btnStyle.backgroundColor = btn.backgroundColor || (btn.outline ? 'transparent' : theme.colors.secondary)
+                            }
+
+                            return (
+                              <button
+                                onClick={() => onAccordionToggle?.('button-secondary')}
+                                className={cn(
+                                  "inline-flex items-center justify-center gap-2 font-bold transition-all hover:scale-105 active:scale-95",
+                                  btnRadius,
+                                  !btn.fontSize && "text-xs"
+                                )}
+                                style={btnStyle}
+                              >
+                                {IconLeft && <IconLeft className="shrink-0" style={{ width: btn.iconSize || 16, height: btn.iconSize || 16, strokeWidth: btn.iconWeight || 2, color: btn.iconColor || 'inherit' }} />}
+                                {btn.text}
+                                {IconRight && <IconRight className="shrink-0" style={{ width: btn.iconSize || 16, height: btn.iconSize || 16, strokeWidth: btn.iconWeight || 2, color: btn.iconColor || 'inherit' }} />}
+                              </button>
+                            )
+                          })()}
                         </div>
                       </div>
                     </div>
