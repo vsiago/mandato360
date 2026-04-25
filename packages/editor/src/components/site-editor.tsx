@@ -27,6 +27,7 @@ export function SiteEditor({
   accentColor = "#10b981",
   onImageUpload,
   placeholders,
+  onExit,
 }: SiteEditorProps) {
   const editor = useEditor({
     initialConfig,
@@ -119,6 +120,7 @@ export function SiteEditor({
         previewUrl={previewUrl}
         tenantName={tenantName}
         accentColor={accentColor}
+        onExit={onExit}
       />
       <div className="flex flex-1 overflow-hidden relative">
         {/* Section Navigation (Desktop) */}

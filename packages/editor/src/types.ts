@@ -280,4 +280,6 @@ export interface SiteEditorProps {
     ctaPrimary?: string
     ctaSecondary?: string
   }
+  /** Callback for exit/back button */
+  onExit?: () => void
 }

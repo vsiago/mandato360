@@ -1,8 +1,17 @@
 "use client"
 
-import { Smartphone, Tablet, Monitor, ExternalLink, Save, Loader2, Palette, Undo2, Redo2 } from "lucide-react"
+import * as React from "react"
+import { Smartphone, Tablet, Monitor, ExternalLink, Save, Loader2, Palette, Undo2, Redo2, ChevronLeft } from "lucide-react"
 import { Button } from "./ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "./ui/sheet"
+import { 
+    Dialog, 
+    DialogContent, 
+    DialogDescription, 
+    DialogFooter, 
+    DialogHeader, 
+    DialogTitle 
+} from "./ui/dialog"
 import { GlobalThemeSettings } from "./global-theme-settings"
 import { cn } from "../lib/utils"
 import type { DeviceType, EditorConfig } from "../types"
@@ -24,6 +33,7 @@ interface EditorHeaderProps {
   tenantName?: string
   accentColor?: string
   className?: string
+  onExit?: () => void
 }
 
 const devices: { type: DeviceType; icon: typeof Smartphone; label: string }[] = [
@@ -49,21 +59,99 @@ export function EditorHeader({
   tenantName,
   accentColor = "#10b981",
   className,
+  onExit,
 }: EditorHeaderProps) {
+  const [showExitDialog, setShowExitDialog] = React.useState(false)
+
+  const handleExit = () => {
+    if (hasUnsavedChanges) {
+      setShowExitDialog(true)
+    } else {
+      onExit?.()
+    }
+  }
+
+  const handleSaveAndExit = async () => {
+    await onSave()
+    setShowExitDialog(false)
+    // Wait a bit for the save to complete and state to update if needed
+    setTimeout(() => {
+        onExit?.()
+    }, 500)
+  }
+
   return (
     <header className={cn("flex h-16 sm:h-14 flex-wrap sm:flex-nowrap items-center justify-between border-b border-border bg-card px-2 sm:px-4 gap-y-2 py-1 sm:py-0", className)}>
-      {/* Left Side - Breadcrumb */}
-      <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-        <div className="flex items-center gap-1.5 text-xs sm:text-sm">
-          {tenantName && (
-            <>
-              <span className="font-medium text-foreground max-w-[100px] sm:max-w-none truncate">{tenantName}</span>
-              <span className="text-muted-foreground/30">/</span>
-            </>
-          )}
-          <span className="text-muted-foreground hidden xs:inline">Editor Visual</span>
+      {/* Left Side - Back Button & Breadcrumb */}
+      <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div className="flex items-center gap-2">
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleExit}
+                className="h-8 gap-1.5 px-2 text-muted-foreground hover:text-foreground hover:bg-muted"
+            >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="text-xs font-bold uppercase tracking-widest hidden xs:inline">Voltar e Sair</span>
+            </Button>
+            
+            <div className="mx-1 h-4 w-px bg-border hidden sm:block" />
+
+            <div className="flex items-center gap-1.5 text-xs sm:text-sm">
+            {tenantName && (
+                <>
+                <span className="font-bold text-foreground max-w-[100px] sm:max-w-none truncate uppercase tracking-tighter">{tenantName}</span>
+                <span className="text-muted-foreground/30">/</span>
+                </>
+            )}
+            <span className="text-muted-foreground hidden lg:inline font-medium">Editor Visual</span>
+            </div>
         </div>
         
+        {/* Exit Confirmation Dialog */}
+        <Dialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+            <DialogContent className="max-w-md border-border bg-card shadow-2xl">
+                <DialogHeader className="space-y-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/20">
+                        <Save className="h-6 w-6 text-amber-500" />
+                    </div>
+                    <div className="space-y-1">
+                        <DialogTitle className="text-xl font-bold text-foreground">Salvar alterações?</DialogTitle>
+                        <DialogDescription className="text-muted-foreground leading-relaxed">
+                            Existem alterações não salvas no seu site. Deseja salvar seu progresso antes de sair?
+                        </DialogDescription>
+                    </div>
+                </DialogHeader>
+                <DialogFooter className="flex-col sm:flex-row gap-2 mt-4">
+                    <Button 
+                        variant="outline" 
+                        onClick={() => setShowExitDialog(false)}
+                        className="w-full sm:w-auto border-border bg-transparent hover:bg-muted text-foreground"
+                    >
+                        Cancelar
+                    </Button>
+                    <div className="flex flex-col sm:flex-row gap-2 flex-1 sm:justify-end">
+                        <Button 
+                            variant="ghost" 
+                            onClick={() => { setShowExitDialog(false); onExit?.() }}
+                            className="w-full sm:w-auto text-muted-foreground hover:text-red-400 hover:bg-red-400/5"
+                        >
+                            Sair sem salvar
+                        </Button>
+                        <Button 
+                            onClick={handleSaveAndExit}
+                            disabled={isSaving}
+                            className="w-full sm:w-auto font-bold text-white shadow-lg shadow-emerald-500/20"
+                            style={{ backgroundColor: accentColor }}
+                        >
+                            {isSaving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                            Salvar e Sair
+                        </Button>
+                    </div>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
         {/* Save Button (Mobile position) */}
         <div className="sm:hidden flex items-center gap-2">
           {hasUnsavedChanges && (

@@ -12,11 +12,13 @@ import { tenantToEditorConfig, editorConfigToTenant } from "@/lib/editor-adapter
 import { AGENDA_PLUGINS } from "@/components/editor/plugins"
 import { saveTenantAction } from "@/lib/actions/tenant"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 /* ─── Page ─── */
 export default function EditarSitePage() {
     const [data, setData] = useState<TenantData | null>(null)
     const [loading, setLoading] = useState(true)
+    const router = useRouter()
 
     useEffect(() => {
         getMyTenant().then(tenantData => {
@@ -85,6 +87,7 @@ export default function EditarSitePage() {
                 ctaPrimary: data.ctaText,
                 ctaSecondary: "Ver Serviços"
             }}
+            onExit={() => router.push("/painel")}
         />
     )
 }
