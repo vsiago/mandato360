@@ -82,29 +82,26 @@ export function EditorHeader({
 
   return (
     <header className={cn("flex h-16 sm:h-14 flex-wrap sm:flex-nowrap items-center justify-between border-b border-border bg-card px-2 sm:px-4 gap-y-2 py-1 sm:py-0", className)}>
-      {/* Left Side - Back Button & Breadcrumb */}
+      {/* Left Side - Exit & Context */}
       <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
         <div className="flex items-center gap-2">
             <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleExit}
-                className="h-8 gap-1.5 px-2 text-muted-foreground hover:text-foreground hover:bg-muted"
+                className="h-9 gap-2 px-3 text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all active:scale-95 group"
             >
-                <ChevronLeft className="h-4 w-4" />
-                <span className="text-xs font-bold uppercase tracking-widest hidden xs:inline">Voltar e Sair</span>
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-muted group-hover:bg-background transition-colors">
+                    <ChevronLeft className="h-4 w-4" />
+                </div>
+                <span className="text-xs font-bold uppercase tracking-widest hidden xs:inline">Sair do Editor</span>
             </Button>
             
-            <div className="mx-1 h-4 w-px bg-border hidden sm:block" />
+            <div className="mx-1 h-6 w-px bg-border/60 hidden sm:block" />
 
-            <div className="flex items-center gap-1.5 text-xs sm:text-sm">
-            {tenantName && (
-                <>
-                <span className="font-bold text-foreground max-w-[100px] sm:max-w-none truncate uppercase tracking-tighter">{tenantName}</span>
-                <span className="text-muted-foreground/30">/</span>
-                </>
-            )}
-            <span className="text-muted-foreground hidden lg:inline font-medium">Editor Visual</span>
+            <div className="flex items-center gap-2 text-xs sm:text-sm pl-1">
+                <span className="text-muted-foreground/60 font-medium tracking-tight uppercase">Visual</span>
+                <span className="text-foreground font-bold tracking-tight uppercase">Editor</span>
             </div>
         </div>
         
