@@ -65,10 +65,21 @@ export interface HeaderConfig {
   backgroundColor: string
   logoHeight: number
   gradient: GradientConfig
-  sticky: boolean
+  behavior: "fixed" | "static"
   height: number
   showCta: boolean
   ctaText: string
+  scrolled: {
+    enabled: boolean
+    height: number
+    backgroundColor: string
+    colors: {
+      logo: string
+      menu: string
+      cta: string
+      hamburger: string
+    }
+  }
 }
 
 // ─── Hero Overridable Props (per-breakpoint) ───

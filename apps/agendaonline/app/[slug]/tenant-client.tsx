@@ -179,13 +179,22 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
             .join(", ")})`
         : undefined
 
-    const headerBgStyle = isScrolled
-        ? { backgroundColor: data.headerBgColor || '#0f172acc' }
+    const isHeaderScrolled = isScrolled && headerConfig.behavior === 'fixed' && headerConfig.scrolled?.enabled
+    
+    const headerBgStyle = isHeaderScrolled
+        ? { backgroundColor: headerConfig.scrolled.backgroundColor || themePrimary }
         : headerConfig.menuStyle === 'solid'
-            ? { backgroundColor: headerConfig.backgroundColor || '#0f172a' }
+            ? { backgroundColor: headerConfig.backgroundColor || themeBg }
             : headerConfig.menuStyle === 'gradient'
                 ? { background: headerGradientStyle, opacity: (headerGradient.opacity ?? 100) / 100 }
                 : { backgroundColor: 'transparent' }
+
+    const headerColors = isHeaderScrolled ? headerConfig.scrolled.colors : {
+        logo: themeText,
+        menu: themeText,
+        cta: themeText,
+        hamburger: themeText
+    }
 
     // Hero-level gradient (device-aware), fallback to theme gradient
     const activeDesktopGradient = heroDesktop?.gradient?.enabled ? heroDesktop.gradient : editorTheme?.gradient
@@ -236,36 +245,42 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
 
             {/* Nav */}
             <nav 
-                className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'backdrop-blur-lg border-b border-white/5 shadow-xl' : ''}`} 
-                style={{ top: 0, height: isScrolled ? 'auto' : (headerConfig.height || 80) }}
+                className={cn(
+                    "left-0 right-0 z-50 transition-all duration-300",
+                    headerConfig.behavior === 'fixed' ? 'fixed' : 'relative',
+                    isHeaderScrolled ? 'backdrop-blur-lg border-b border-white/5 shadow-xl' : ''
+                )} 
+                style={{ top: 0, height: isHeaderScrolled ? (headerConfig.scrolled?.height || 64) : (headerConfig.height || 80) }}
             >
                 {/* Background Layer */}
                 <div 
                     className="absolute inset-0 -z-10 transition-all duration-300"
                     style={headerBgStyle}
                 />
-                <div className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-300 ${!isScrolled ? 'h-full' : 'py-3'}`}>
+                <div className={`mx-auto flex max-w-7xl items-center justify-between px-6 h-full transition-all duration-300`}>
                     <Link href="#inicio" className="flex items-center group">
                         {data.logoUrl ? (
                             <img src={data.logoUrl} alt={data.name}
-                                className={`w-auto object-contain transition-all duration-300 group-hover:scale-105 ${!isScrolled ? 'h-16' : 'h-12 brightness-0 invert'}`} />
+                                className={`w-auto object-contain transition-all duration-300 group-hover:scale-105`} 
+                                style={{ height: isHeaderScrolled ? (headerConfig.logoHeight * 0.8) : headerConfig.logoHeight }}
+                            />
                         ) : (
-                            <span className={`font-bold text-white transition-all duration-300 ${!isScrolled ? 'text-2xl' : 'text-lg'}`} style={{ fontFamily: 'var(--theme-font-heading)' }}>{data.name}</span>
+                            <span className={`font-bold transition-all duration-300`} style={{ fontFamily: 'var(--theme-font-heading)', color: headerColors.logo, fontSize: isHeaderScrolled ? '1.25rem' : '1.5rem' }}>{data.name}</span>
                         )}
                     </Link>
                     <div className="hidden items-center gap-8 lg:flex">
-                        {["Início", "Serviços", "Dúvidas", "Contato"].map((item) => (
-                            <Link key={item} href={`#${item.toLowerCase().replace('í', 'i')}`}
-                                className="text-sm font-bold text-white hover:text-white/80 transition-colors">{item}</Link>
+                        {headerConfig.menuItems?.map((item: string) => (
+                            <Link key={item} href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
+                                className="text-sm font-bold transition-colors" style={{ color: headerColors.menu }}>{item}</Link>
                         ))}
                         <Link href={`https://wa.me/${data.contact.whatsapp}?text=Ol%C3%A1%20${encodeURIComponent(data.name)}%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio.`} target="_blank">
-                            <Button size="sm" className="bg-tenant-primary text-white hover:opacity-90 font-bold rounded-(--theme-btn-radius) px-6 shadow-sm border-none">Agendar Agora</Button>
+                            <Button size="sm" className="hover:opacity-90 font-bold rounded-(--theme-btn-radius) px-6 shadow-sm border-none transition-all duration-300" style={{ backgroundColor: themePrimary, color: headerColors.cta }}>{headerConfig.ctaText || "Agendar Agora"}</Button>
                         </Link>
                     </div>
                     <div className="lg:hidden">
                         <Sheet>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" className="transition-all p-0 duration-300 text-white hover:bg-white/10 hover:backdrop-blur-md rounded-xl w-14 h-14 flex items-center justify-center active:scale-95">
+                                <Button variant="ghost" className="transition-all p-0 duration-300 hover:bg-white/10 hover:backdrop-blur-md rounded-xl w-14 h-14 flex items-center justify-center active:scale-95" style={{ color: headerColors.hamburger }}>
                                     <Menu size={32} style={{ width: '32px', height: '32px' }} strokeWidth={1.2} />
                                 </Button>
                             </SheetTrigger>

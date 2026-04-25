@@ -456,6 +456,27 @@ export function EditorSidebar({
       },
     })
   }
+  
+  const updateHeaderScrolled = (updates: Partial<EditorConfig["header"]["scrolled"]>) => {
+    onConfigChange({
+      header: {
+        ...config.header,
+        scrolled: { ...config.header.scrolled, ...updates },
+      },
+    })
+  }
+
+  const updateHeaderScrolledColors = (updates: Partial<EditorConfig["header"]["scrolled"]["colors"]>) => {
+    onConfigChange({
+      header: {
+        ...config.header,
+        scrolled: {
+          ...config.header.scrolled,
+          colors: { ...config.header.scrolled.colors, ...updates },
+        },
+      },
+    })
+  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -705,6 +726,96 @@ export function EditorSidebar({
                     className="touch-none"
                   />
                 </div>
+
+                <div className="border-t border-border pt-4">
+                  <Label className="mb-3 block text-xs font-medium uppercase tracking-wider text-muted-foreground">Comportamento</Label>
+                  <div className="grid grid-cols-2 gap-1.5 rounded-lg bg-muted p-1">
+                    {(["fixed", "static"] as const).map((behavior) => (
+                      <button
+                        key={behavior}
+                        onClick={() => updateHeader({ behavior })}
+                        className={cn(
+                          "rounded-md px-1 py-1.5 text-[9px] font-bold transition-all uppercase tracking-wider",
+                          config.header.behavior === behavior
+                            ? "bg-white/10 text-foreground shadow-sm"
+                            : "text-muted-foreground/70 hover:text-muted-foreground"
+                        )}
+                      >
+                        {behavior === "fixed" ? "Fixo" : "Estático"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {config.header.behavior === "fixed" && (
+                  <div className="space-y-4 border-t border-border pt-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Estado Scrolled</Label>
+                      <Switch
+                        checked={config.header.scrolled.enabled}
+                        onCheckedChange={(enabled) => updateHeaderScrolled({ enabled })}
+                      />
+                    </div>
+
+                    {config.header.scrolled.enabled && (
+                      <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-3">
+                        <div>
+                          <div className="mb-2 flex items-center justify-between">
+                            <Label className="text-[10px] text-muted-foreground">Altura no Scroll</Label>
+                            <span className="text-[10px] font-mono text-muted-foreground">{config.header.scrolled.height}px</span>
+                          </div>
+                          <Slider
+                            value={[config.header.scrolled.height]}
+                            onValueChange={([height]) => updateHeaderScrolled({ height })}
+                            min={40}
+                            max={120}
+                            step={1}
+                            className="touch-none"
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-3">
+                          <Label className="text-[10px] text-muted-foreground">Fundo no Scroll</Label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={config.header.scrolled.backgroundColor}
+                              onChange={(e) => updateHeaderScrolled({ backgroundColor: e.target.value })}
+                              className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
+                            />
+                            <Input
+                              value={config.header.scrolled.backgroundColor}
+                              onChange={(e) => updateHeaderScrolled({ backgroundColor: e.target.value })}
+                              className="h-7 w-16 border-border/50 bg-input font-mono text-[9px] text-foreground/60"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 border-t border-border/50 pt-3">
+                           <Label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">Cores dos Elementos</Label>
+                           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                              {[
+                                { key: 'logo', label: 'Logo' },
+                                { key: 'menu', label: 'Menu' },
+                                { key: 'cta', label: 'Botão CTA' },
+                                { key: 'hamburger', label: 'Hamburger' }
+                              ].map(({ key, label }) => (
+                                <div key={key} className="flex items-center justify-between gap-2">
+                                  <span className="text-[9px] text-muted-foreground">{label}</span>
+                                  <input
+                                    type="color"
+                                    value={(config.header.scrolled.colors as any)[key]}
+                                    onChange={(e) => updateHeaderScrolledColors({ [key]: e.target.value })}
+                                    className="h-5 w-5 cursor-pointer rounded border-0 bg-transparent"
+                                  />
+                                </div>
+                              ))}
+                           </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {config.header.menuStyle === "solid" && (
                   <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
                     <Label className="text-xs text-muted-foreground">Cor de Fundo</Label>

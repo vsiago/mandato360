@@ -47,10 +47,21 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
           { color: tenant.colors.primary, position: 100, opacity: 0 },
         ],
       },
-      sticky: true,
+      behavior: "fixed",
       height: 80,
       showCta: true,
       ctaText: tenant.ctaText || "Agendar",
+      scrolled: {
+        enabled: true,
+        height: 64,
+        backgroundColor: tenant.colors.primary,
+        colors: {
+          logo: "#ffffff",
+          menu: "#ffffff",
+          cta: "#ffffff",
+          hamburger: "#ffffff",
+        }
+      }
     },
     hero: {
       orientation: tenant.heroImageSettings?.layout || "left",
@@ -132,7 +143,20 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
       ...savedConfig,
       // Ensure nested objects are also merged or exist
       theme: { ...defaultConfig.theme, ...savedConfig.theme },
-      header: { ...defaultConfig.header, ...savedConfig.header, logo: tenant.logoUrl, logoText: tenant.name },
+      header: { 
+        ...defaultConfig.header, 
+        ...savedConfig.header, 
+        logo: tenant.logoUrl, 
+        logoText: tenant.name,
+        scrolled: {
+          ...defaultConfig.header.scrolled,
+          ...(savedConfig.header?.scrolled || {}),
+          colors: {
+            ...defaultConfig.header.scrolled.colors,
+            ...(savedConfig.header?.scrolled?.colors || {})
+          }
+        }
+      },
       hero: { ...defaultConfig.hero, ...savedConfig.hero },
       footer: { ...defaultConfig.footer, ...savedConfig.footer },
       plugins: {

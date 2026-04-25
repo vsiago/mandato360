@@ -44,6 +44,7 @@ const borderRadiusMap: Record<string, string> = {
 
 export function DevicePreview({ config, device, activeSection, sectionOrder, plugins, accentColor = "#10b981", onConfigChange, placeholders }: DevicePreviewProps) {
   const [zoom, setZoom] = useState(100)
+  const [isScrolled, setIsScrolled] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
   const [isTyping, setIsTyping] = useState(false)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
@@ -92,6 +93,19 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
 
     return () => clearTimeout(timeoutId)
   }, [activeSection])
+
+  // Simulated Scroll Logic
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      setIsScrolled(container.scrollTop > 24)
+    }
+
+    container.addEventListener("scroll", handleScroll, { passive: true })
+    return () => container.removeEventListener("scroll", handleScroll)
+  }, [scrollContainerRef])
 
   const handleToolbarAction = (action: string) => {
     if (!editingField || !onConfigChange) return
@@ -181,6 +195,16 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
   // Plugin sections to render between hero and footer
   const pluginMap = new Map(plugins.map((p) => [p.id, p]))
   const middleSections = sectionOrder.filter((id) => id !== "header" && id !== "hero" && id !== "footer")
+
+  const isHeaderScrolled = header.behavior === "fixed" && header.scrolled.enabled && isScrolled
+  const currentHeaderHeight = isHeaderScrolled ? header.scrolled.height : header.height
+  
+  const headerColors = isHeaderScrolled ? header.scrolled.colors : {
+    logo: theme.colors.text,
+    menu: theme.colors.text,
+    cta: theme.colors.text,
+    hamburger: theme.colors.text
+  }
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-transparent">
@@ -298,36 +322,38 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                 <header
                   data-section-id="header"
                   className={cn(
-                    "relative z-50 flex shrink-0 items-center justify-between px-4 transition-all",
+                    "z-50 flex shrink-0 items-center justify-between px-4 transition-all duration-300",
                     device === "desktop" && "px-8",
-                    header.menuStyle === "solid" && "backdrop-blur-md",
-                    (header.menuStyle === "transparent" || header.menuStyle === "gradient" || header.menuStyle === "solid") && "absolute top-0 left-0 right-0",
+                    header.behavior === "fixed" ? "sticky top-0" : "relative",
+                    isHeaderScrolled && "shadow-lg backdrop-blur-lg",
                     activeSection === "header" && "ring-2 ring-inset"
                   )}
                   style={{
-                    height: header.height,
+                    height: currentHeaderHeight,
                     ...(activeSection === "header" ? { ringColor: accentColor, boxShadow: `inset 0 0 0 2px ${accentColor}` } : {}),
                   }}
                 >
                   {/* Background Layer */}
                   <div 
-                    className="absolute inset-0 -z-10 transition-opacity"
+                    className="absolute inset-0 -z-10 transition-all duration-300"
                     style={{
-                      background: header.menuStyle === "solid"
+                      background: isHeaderScrolled 
+                        ? header.scrolled.backgroundColor 
+                        : header.menuStyle === "solid"
                         ? header.backgroundColor
                         : header.menuStyle === "gradient" && header.gradient.stops.length > 0
                         ? headerGradientStyle
                         : "transparent",
-                      opacity: header.menuStyle === "gradient" ? (header.gradient.opacity ?? 100) / 100 : 1,
+                      opacity: (!isHeaderScrolled && header.menuStyle === "gradient") ? (header.gradient.opacity ?? 100) / 100 : 1,
                     }}
                   />
                   <div className="flex items-center">
                     {header.logo && header.logo.trim() !== "" ? (
-                      <img src={header.logo} alt="Logo" style={{ height: header.logoHeight }} className="w-auto object-contain" />
+                      <img src={header.logo} alt="Logo" style={{ height: isHeaderScrolled ? header.logoHeight * 0.8 : header.logoHeight, filter: isHeaderScrolled ? 'none' : undefined }} className="w-auto object-contain transition-all duration-300" />
                     ) : (
                       <span
-                        className="font-bold transition-all"
-                        style={{ fontSize: header.logoHeight * 0.7, color: theme.colors.text, fontFamily: primaryFont }}
+                        className="font-bold transition-all duration-300"
+                        style={{ fontSize: (isHeaderScrolled ? header.logoHeight * 0.8 : header.logoHeight) * 0.7, color: headerColors.logo, fontFamily: primaryFont }}
                       >
                         {header.logoText}
                       </span>
@@ -336,18 +362,18 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   {device === "desktop" ? (
                     <nav className="flex items-center gap-6">
                       {header.menuItems.map((item, i) => (
-                        <span key={i} className={cn("text-sm font-medium opacity-90 transition-opacity hover:opacity-100", secondaryFont)} style={{ color: theme.colors.text }}>
+                        <span key={i} className={cn("text-sm font-medium opacity-90 transition-all duration-300 hover:opacity-100", secondaryFont)} style={{ color: headerColors.menu }}>
                           {item}
                         </span>
                       ))}
                       {header.showCta && (
-                        <button className={cn("px-4 py-2 text-sm font-medium transition-transform hover:scale-105", btnRadius, primaryFont)} style={{ backgroundColor: theme.colors.primary, color: theme.colors.text }}>
+                        <button className={cn("px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105", btnRadius, primaryFont)} style={{ backgroundColor: isHeaderScrolled ? theme.colors.primary : theme.colors.primary, color: headerColors.cta }}>
                           {header.ctaText}
                         </button>
                       )}
                     </nav>
                   ) : (
-                    <button className={cn("p-2", btnRadius)} style={{ color: theme.colors.text }}>
+                    <button className={cn("p-2 transition-colors duration-300", btnRadius)} style={{ color: headerColors.hamburger }}>
                       <Menu className="h-5 w-5" />
                     </button>
                   )}
@@ -359,6 +385,11 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                     "flex flex-col relative overflow-hidden shrink-0",
                     resolvedHero.autoHeight !== false ? "relative min-h-full" : "h-auto"
                   )}
+                  style={{
+                    marginTop: (header.behavior === "fixed" && (header.menuStyle === "transparent" || header.menuStyle === "gradient" || header.menuStyle === "solid")) 
+                      ? -header.height 
+                      : 0
+                  }}
                 >
                   {/* === HERO === */}
                   <div
