@@ -571,6 +571,82 @@ export function EditorSidebar({
           </p>
         </div>
 
+        {/* Header Content */}
+        {activeSection === "header" && (
+          <AccordionItem
+            id="header-content"
+            icon={Palette}
+            label="Conteúdo"
+            isOpen={openAccordion === "header-content"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Logo do Header</Label>
+                {config.header.logo ? (
+                  <div className="relative group">
+                    <div className="flex h-24 w-full items-center justify-center rounded-lg border border-border bg-muted p-4">
+                      <img src={config.header.logo} alt="Logo Preview" className="max-h-full max-w-full object-contain" />
+                    </div>
+                    <button
+                      onClick={removeHeaderLogo}
+                      className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className={cn(
+                    "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors hover:bg-muted",
+                    isUploading && "pointer-events-none opacity-50"
+                  )} style={{ borderColor: `${accentColor}50` }}>
+                    {isUploading ? (
+                      <Loader2 className="h-6 w-6 animate-spin" style={{ color: accentColor }} />
+                    ) : (
+                      <Upload className="h-6 w-6" style={{ color: accentColor }} />
+                    )}
+                    <span className="text-xs font-medium" style={{ color: accentColor }}>
+                      {isUploading ? "Enviando..." : "Upload Logo (PNG, SVG)"}
+                    </span>
+                    <input type="file" accept="image/*" onChange={handleHeaderLogoUpload} className="hidden" disabled={isUploading} />
+                  </label>
+                )}
+                <div>
+                  <Label className="mb-1.5 block text-xs text-muted-foreground">Texto do Logo (Backup)</Label>
+                  <Input
+                    value={config.header.logoText || ""}
+                    onChange={(e) => updateHeader({ logoText: e.target.value })}
+                    placeholder="Nome do Logo"
+                    className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
+                  />
+                </div>
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Tamanho do Logo</Label>
+                    <span className="text-xs font-mono text-muted-foreground">{config.header.logoHeight}px</span>
+                  </div>
+                  <Slider
+                    value={[config.header.logoHeight]}
+                    onValueChange={([logoHeight]) => updateHeader({ logoHeight })}
+                    min={16}
+                    max={80}
+                    step={1}
+                    className="touch-none"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-between border-t border-border pt-4">
+                <Label className="text-xs text-muted-foreground">Mostrar CTA</Label>
+                <Switch
+                  checked={config.header.showCta}
+                  onCheckedChange={(showCta) => updateHeader({ showCta })}
+                />
+              </div>
+            </div>
+          </AccordionItem>
+        )}
+
         {/* Content \u2014 Section-specific (Moved to top) */}
         <AccordionItem
           id="content"
@@ -898,81 +974,6 @@ export function EditorSidebar({
           </AccordionItem>
         )}
 
-        {/* Header Content */}
-        {activeSection === "header" && (
-          <AccordionItem
-            id="header-content"
-            icon={Palette}
-            label="Conteúdo"
-            isOpen={openAccordion === "header-content"}
-            accentColor={accentColor}
-            onToggle={toggleAccordion}
-          >
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Logo do Header</Label>
-                {config.header.logo ? (
-                  <div className="relative group">
-                    <div className="flex h-24 w-full items-center justify-center rounded-lg border border-border bg-muted p-4">
-                      <img src={config.header.logo} alt="Logo Preview" className="max-h-full max-w-full object-contain" />
-                    </div>
-                    <button
-                      onClick={removeHeaderLogo}
-                      className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-foreground opacity-0 transition-opacity group-hover:opacity-100"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <label className={cn(
-                    "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors hover:bg-muted",
-                    isUploading && "pointer-events-none opacity-50"
-                  )} style={{ borderColor: `${accentColor}50` }}>
-                    {isUploading ? (
-                      <Loader2 className="h-6 w-6 animate-spin" style={{ color: accentColor }} />
-                    ) : (
-                      <Upload className="h-6 w-6" style={{ color: accentColor }} />
-                    )}
-                    <span className="text-xs font-medium" style={{ color: accentColor }}>
-                      {isUploading ? "Enviando..." : "Upload Logo (PNG, SVG)"}
-                    </span>
-                    <input type="file" accept="image/*" onChange={handleHeaderLogoUpload} className="hidden" disabled={isUploading} />
-                  </label>
-                )}
-                <div>
-                  <Label className="mb-1.5 block text-xs text-muted-foreground">Texto do Logo (Backup)</Label>
-                  <Input
-                    value={config.header.logoText || ""}
-                    onChange={(e) => updateHeader({ logoText: e.target.value })}
-                    placeholder="Nome do Logo"
-                    className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
-                  />
-                </div>
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <Label className="text-xs text-muted-foreground">Tamanho do Logo</Label>
-                    <span className="text-xs font-mono text-muted-foreground">{config.header.logoHeight}px</span>
-                  </div>
-                  <Slider
-                    value={[config.header.logoHeight]}
-                    onValueChange={([logoHeight]) => updateHeader({ logoHeight })}
-                    min={16}
-                    max={80}
-                    step={1}
-                    className="touch-none"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-between border-t border-border pt-4">
-                <Label className="text-xs text-muted-foreground">Mostrar CTA</Label>
-                <Switch
-                  checked={config.header.showCta}
-                  onCheckedChange={(showCta) => updateHeader({ showCta })}
-                />
-              </div>
-            </div>
-          </AccordionItem>
-        )}
 
         {/* Image - Only for Hero */}
         {activeSection === "hero" && (
