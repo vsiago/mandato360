@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, Shield } from "lucide-react"
+import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, Shield, Users, DollarSign, BarChart3, Star, Headset, ChevronRight } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -19,12 +19,30 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const NAV_ITEMS = [
-    { href: "/painel", label: "Painel", icon: LayoutDashboard },
-    { href: "/agenda", label: "Agenda", icon: Calendar },
-    { href: "/servicos", label: "Serviços", icon: Scissors },
-    { href: "/antes-depois", label: "Fotos", icon: ImageIcon },
+const NAV_GROUPS = [
+    {
+        label: "PRINCIPAL",
+        items: [
+            { href: "/painel", label: "Painel", icon: LayoutDashboard },
+            { href: "/agenda", label: "Agenda", icon: Calendar },
+            { href: "/servicos", label: "Serviços", icon: Scissors },
+            { href: "/clientes", label: "Clientes", icon: Users },
+            { href: "/financeiro", label: "Financeiro", icon: DollarSign },
+            { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
+            { href: "/configuracoes", label: "Configurações", icon: Settings },
+        ]
+    },
+    {
+        label: "CONTEÚDO",
+        items: [
+            { href: "/editar-site", label: "Site", icon: Globe },
+            { href: "/antes-depois", label: "Fotos", icon: ImageIcon },
+            { href: "/depoimentos", label: "Depoimentos", icon: Star },
+        ]
+    }
 ]
+
+const NAV_ITEMS = NAV_GROUPS.flatMap(group => group.items)
 
 const USER_DROPDOWN_ITEMS = [
     { href: "/assinatura", label: "Assinatura", icon: CreditCard },
@@ -84,12 +102,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 DESKTOP SIDEBAR — hidden on mobile
                ══════════════════════════════════════════════ */}
             <aside className={cn(
-                "hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-stone-50/50 dark:bg-stone-950/50 border-r border-stone-200/60 dark:border-stone-800/60 transition-all duration-300",
+                "hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-[#0c0c0e] border-r border-stone-800/40 transition-all duration-300",
                 isEditorPage ? "w-16" : "w-64"
             )}>
 
                 {/* Logo */}
-                <div className={cn("h-16 flex items-center border-b border-stone-100 dark:border-stone-800/60", isEditorPage ? "px-0 justify-center" : "px-5")}>
+                <div className={cn("h-20 flex items-center border-b border-stone-800/20", isEditorPage ? "px-0 justify-center" : "px-6")}>
                     <Link href="/painel" className="flex items-center gap-2.5">
                         <img
                             src={isEditorPage ? "/logo-agenda-online-icon.svg" : "/logo-agenda-online.svg"}
@@ -100,76 +118,100 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
 
                 {/* Navigation */}
-                <nav className={cn("flex-1 overflow-y-auto custom-scrollbar", isEditorPage ? "px-1.5 py-3" : "px-3 py-10")}>
-                    {!isEditorPage && <p className="px-5 mb-5 text-[10px] font-bold text-stone-400/40 uppercase tracking-[0.25em]">Menu Principal</p>}
-                    <div className="space-y-2">
-                        {NAV_ITEMS.map((item) => {
-                            const isActive = pathname === item.href
-                            return (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    title={item.label}
-                                    className={cn(
-                                        "group flex items-center rounded-2xl text-[14px] transition-all duration-300 relative",
-                                        isEditorPage ? "justify-center py-3" : "gap-4 px-5 py-3.5",
-                                        isActive
-                                            ? "bg-stone-200/50 dark:bg-stone-800/25 text-stone-900 dark:text-stone-100 shadow-xs"
-                                            : "text-stone-500/80 hover:text-stone-700 dark:hover:text-stone-300 hover:bg-amber-500/10 hover:shadow-[inset_3px_0_0_rgba(251,191,36,0.3)]"
-                                    )}
-                                >
-                                    <item.icon className={cn(
-                                        "h-4.5 w-4.5 transition-all duration-300 shrink-0",
-                                        isActive ? "text-amber-500 dark:text-amber-400" : "text-stone-400/80 group-hover:text-stone-600 dark:group-hover:text-stone-300"
-                                    )} />
-                                    {!isEditorPage && <span className={cn("transition-colors", isActive ? "font-semibold" : "font-medium")}>{item.label}</span>}
-                                </Link>
-                            )
-                        })}
+                <nav className={cn("flex-1 overflow-y-auto custom-scrollbar", isEditorPage ? "px-1.5 py-4" : "px-0 py-6")}>
+                    {NAV_GROUPS.map((group, groupIdx) => (
+                        <div key={group.label} className={cn(groupIdx > 0 && "mt-8")}>
+                            {!isEditorPage && (
+                                <p className="px-6 mb-4 text-[10px] font-bold text-stone-500/50 uppercase tracking-[0.2em]">
+                                    {group.label}
+                                </p>
+                            )}
+                            <div className="space-y-1">
+                                {group.items.map((item) => {
+                                    const isActive = pathname === item.href
+                                    return (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            title={item.label}
+                                            className={cn(
+                                                "group flex items-center text-[14px] transition-all duration-300 relative",
+                                                isEditorPage ? "justify-center py-3 px-2 rounded-xl mx-2" : "gap-4 px-6 py-3.5",
+                                                isActive
+                                                    ? "text-amber-500 bg-linear-to-r from-amber-500/10 to-transparent border-l-2 border-amber-500"
+                                                    : "text-stone-400 hover:text-stone-100 hover:bg-stone-800/20 border-l-2 border-transparent"
+                                            )}
+                                        >
+                                            <item.icon className={cn(
+                                                "h-5 w-5 transition-all duration-300 shrink-0",
+                                                isActive ? "text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "text-stone-500 group-hover:text-stone-300"
+                                            )} />
+                                            {!isEditorPage && (
+                                                <span className={cn(
+                                                    "transition-colors tracking-wide",
+                                                    isActive ? "font-semibold" : "font-medium"
+                                                )}>
+                                                    {item.label}
+                                                </span>
+                                            )}
+                                            
+                                            {/* Active Glow Effect */}
+                                            {isActive && !isEditorPage && (
+                                                <div className="absolute inset-0 bg-amber-500/5 blur-xl -z-10" />
+                                            )}
+                                        </Link>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    ))}
 
-                        {/* Admin Link */}
-                        {(session?.user?.role === "admin" || session?.user?.role === "superadmin") && (
+                    {/* Admin Link — Kept outside groups for prominence or can be added to PRINCIPAL */}
+                    {(session?.user?.role === "admin" || session?.user?.role === "superadmin") && (
+                        <div className="mt-8">
+                            {!isEditorPage && <p className="px-6 mb-4 text-[10px] font-bold text-stone-500/50 uppercase tracking-[0.2em]">SISTEMA</p>}
                             <Link
                                 href="/admin"
                                 title="Administração"
                                 className={cn(
-                                    "group flex items-center rounded-2xl text-[14px] transition-all duration-300 relative mt-4",
-                                    isEditorPage ? "justify-center py-3" : "gap-4 px-5 py-3.5",
+                                    "group flex items-center text-[14px] transition-all duration-300 relative",
+                                    isEditorPage ? "justify-center py-3 px-2 rounded-xl mx-2" : "gap-4 px-6 py-3.5",
                                     pathname.startsWith("/admin")
-                                        ? "bg-amber-500/10 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 shadow-xs"
-                                        : "text-stone-500/80 hover:text-stone-700 dark:hover:text-stone-300 hover:bg-amber-500/10 hover:shadow-[inset_3px_0_0_rgba(251,191,36,0.3)]"
+                                        ? "text-amber-500 bg-linear-to-r from-amber-500/10 to-transparent border-l-2 border-amber-500"
+                                        : "text-stone-400 hover:text-stone-100 hover:bg-stone-800/20 border-l-2 border-transparent"
                                 )}
                             >
                                 <Shield className={cn(
-                                    "h-4.5 w-4.5 transition-all duration-300 shrink-0",
-                                    pathname.startsWith("/admin") ? "text-amber-500 dark:text-amber-400" : "text-stone-400/80 group-hover:text-stone-600 dark:group-hover:text-stone-300"
+                                    "h-5 w-5 transition-all duration-300 shrink-0",
+                                    pathname.startsWith("/admin") ? "text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "text-stone-500 group-hover:text-stone-300"
                                 )} />
-                                {!isEditorPage && <span className={cn("transition-colors", pathname.startsWith("/admin") ? "font-semibold" : "font-medium")}>Administração</span>}
+                                {!isEditorPage && <span className={cn("transition-colors tracking-wide", pathname.startsWith("/admin") ? "font-semibold" : "font-medium")}>Administração</span>}
                             </Link>
-                        )}
-                    </div>
-
+                        </div>
+                    )}
                 </nav>
 
-                {/* Footer — Quiet UI "Editar Site" Button */}
+                {/* Footer Help Card */}
                 {!isEditorPage && (
                     <div className="p-4 mt-auto">
-                        <Link href="/editar-site">
-                            <button className="w-full group flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-stone-200/60 dark:border-stone-800/60 bg-white/50 dark:bg-stone-900/50 text-sm font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800/80 hover:text-foreground hover:border-amber-500/30 transition-all duration-300">
-                                <div className="flex items-center gap-3">
-                                    <Globe className="h-4.5 w-4.5 text-stone-400 group-hover:text-amber-500 transition-colors" />
-                                    <span>Editar Site</span>
-                                </div>
-                                <div className="h-2 w-2 rounded-full bg-amber-500/20 group-hover:bg-amber-500 transition-colors" />
-                            </button>
-                        </Link>
+                        <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-800/40 flex items-center gap-3 group cursor-pointer hover:bg-stone-900/60 transition-all duration-300">
+                            <div className="h-10 w-10 rounded-xl bg-stone-800/50 flex items-center justify-center shrink-0 border border-stone-700/30">
+                                <Headset className="h-5 w-5 text-stone-500 group-hover:text-amber-500 transition-colors" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs font-semibold text-stone-200 truncate">Precisa de ajuda?</p>
+                                <p className="text-[10px] text-stone-500 truncate">Acesse nossa central</p>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-stone-600 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all" />
+                        </div>
                     </div>
                 )}
+                
                 {isEditorPage && (
-                    <div className="p-3 mt-auto border-t border-stone-100 dark:border-stone-800/60">
+                    <div className="p-3 mt-auto border-t border-stone-800/40">
                         <Link href="/painel" title="Voltar ao Painel"
-                            className="flex items-center justify-center py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
-                            <LogOut className="h-4.5 w-4.5" />
+                            className="flex items-center justify-center py-3 rounded-xl text-stone-500 hover:bg-stone-800/40 hover:text-stone-200 transition-all">
+                            <LogOut className="h-5 w-5" />
                         </Link>
                     </div>
                 )}
