@@ -25,6 +25,7 @@ export function SiteEditor({
   className,
   accentColor = "#10b981",
   onImageUpload,
+  placeholders,
 }: SiteEditorProps) {
   const editor = useEditor({
     initialConfig,
@@ -147,6 +148,7 @@ export function SiteEditor({
             plugins={plugins}
             accentColor={accentColor}
             onConfigChange={editor.updateConfig}
+            placeholders={placeholders}
           />
         </div>
 
@@ -163,6 +165,7 @@ export function SiteEditor({
             onHeroReset={editor.resetHeroOverride}
             onPluginConfigChange={editor.updatePluginConfig}
             onImageUpload={onImageUpload}
+            placeholders={placeholders}
           />
         </div>
 
@@ -181,6 +184,7 @@ export function SiteEditor({
               onHeroReset={editor.resetHeroOverride}
               onPluginConfigChange={editor.updatePluginConfig}
               onImageUpload={onImageUpload}
+              placeholders={placeholders}
               className="w-full flex-1"
             />
           </SheetContent>

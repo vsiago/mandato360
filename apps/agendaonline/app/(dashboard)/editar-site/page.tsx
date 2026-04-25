@@ -60,6 +60,13 @@ export default function EditarSitePage() {
             plugins={AGENDA_PLUGINS}
             accentColor={data.colors.primary}
             previewUrl={`/${data.slug || normalizeSlug(data.name)}`}
+            placeholders={{
+                title: data.heroHeadline,
+                description: data.description,
+                badge: data.heroBadge,
+                ctaPrimary: data.ctaText,
+                ctaSecondary: "Ver Serviços"
+            }}
         />
     )
 }

@@ -18,6 +18,13 @@ interface DevicePreviewProps {
   plugins: EditorPlugin[]
   accentColor?: string
   onConfigChange?: (config: any) => void
+  placeholders?: {
+    title?: string
+    description?: string
+    badge?: string
+    ctaPrimary?: string
+    ctaSecondary?: string
+  }
 }
 
 const fontFamilyMap: Record<string, string> = {
@@ -35,7 +42,7 @@ const borderRadiusMap: Record<string, string> = {
   full: "rounded-full",
 }
 
-export function DevicePreview({ config, device, activeSection, sectionOrder, plugins, accentColor = "#10b981", onConfigChange }: DevicePreviewProps) {
+export function DevicePreview({ config, device, activeSection, sectionOrder, plugins, accentColor = "#10b981", onConfigChange, placeholders }: DevicePreviewProps) {
   const [zoom, setZoom] = useState(100)
   const [editingField, setEditingField] = useState<string | null>(null)
   const [isTyping, setIsTyping] = useState(false)
@@ -426,7 +433,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                       )}>
                         {/* Badge */}
                         <EditableText
-                          value={hero.badge}
+                          value={resolvedHero.badge || ""}
                           field="hero.badge"
                           onChange={(val) => onConfigChange?.({ hero: { ...hero, badge: val } })}
                           isEditing={editingField === "hero.badge"}
@@ -438,16 +445,15 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                           }}
                           onStartTyping={() => setIsTyping(true)}
                           accentColor={accentColor}
-                          className={cn("mb-3 inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest transition-transform hover:scale-105", btnRadius)}
-                          style={{ backgroundColor: `${theme.colors.primary}30`, color: theme.colors.text }}
+                          className={cn("mb-5 md:mb-6 inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-xs font-medium uppercase tracking-widest border border-white/10 transition-transform hover:scale-105", btnRadius)}
+                          style={{ backgroundColor: `${theme.colors.primary}4d`, color: theme.colors.text }}
                         >
-                          <Heart className="h-3 w-3" style={{ color: theme.colors.primary }} />
-                          {renderMarkdown(hero.badge)}
+                          {renderMarkdown(resolvedHero.badge || placeholders?.badge || "NOVIDADE")}
                         </EditableText>
 
                         {/* Title */}
                         <EditableText
-                          value={hero.title || "Por uma cidade de Resultados"}
+                          value={resolvedHero.title || ""}
                           field="hero.title"
                           onChange={(val) => onConfigChange?.({ hero: { ...hero, title: val } })}
                           isEditing={editingField === "hero.title"}
@@ -466,12 +472,12 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                           )}
                           style={{ color: theme.colors.text, fontFamily: primaryFont }}
                         >
-                          {renderMarkdown(hero.title || "Por uma cidade de Resultados")}
+                          {renderMarkdown(resolvedHero.title || placeholders?.title || "Por uma cidade de Resultados")}
                         </EditableText>
 
                         {/* Description */}
                         <EditableText
-                          value={hero.description}
+                          value={resolvedHero.description || ""}
                           field="hero.description"
                           onChange={(val) => onConfigChange?.({ hero: { ...hero, description: val } })}
                           isEditing={editingField === "hero.description"}
@@ -489,7 +495,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                           )}
                           style={{ color: theme.colors.text, fontFamily: secondaryFont }}
                         >
-                          {renderMarkdown(hero.description)}
+                          {renderMarkdown(resolvedHero.description || placeholders?.description || "Seja bem-vindo ao nosso espaço.")}
                         </EditableText>
 
                         {/* CTAs */}
@@ -509,7 +515,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                             )}
                             style={{ backgroundColor: theme.colors.primary, color: theme.colors.text }}
                           >
-                            {hero.ctaPrimary}
+                            {resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar Agora"}
                           </button>
                           <button
                             className={cn(
@@ -520,7 +526,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                             )}
                             style={{ borderColor: theme.colors.text, color: theme.colors.text }}
                           >
-                            {hero.ctaSecondary}
+                            {resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços"}
                           </button>
                         </div>
                       </div>
@@ -685,7 +691,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
         activeFormats={(() => {
           if (!editingField) return {};
           const fieldKey = editingField.split('.')[1] as keyof typeof hero;
-          const val = ((hero as any)[fieldKey] || "") as string;
+          const val = ((resolvedHero as any)[fieldKey] || "") as string;
           return {
             bold: val.includes('**'),
             italic: val.includes('*') && (!val.includes('**') || /^\*\*\*(.*)\*\*\*$/.test(val)),

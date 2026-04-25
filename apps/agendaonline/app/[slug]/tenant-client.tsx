@@ -28,11 +28,13 @@ import { cn } from "@/lib/utils"
 function renderEditorText(text: string = "") {
     if (!text) return ""
     return text
+        .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/__(.*?)__/g, '<u>$1</u>')
-        .replace(/<lg>(.*?)<\/lg>/g, '<span class="text-1.2em font-black">$1</span>')
-        .replace(/<sm>(.*?)<\/sm>/g, '<span class="text-0.8em opacity-80">$1</span>')
+        .replace(/<lg>(.*?)<\/lg>/g, '<span class="text-[1.25em]">$1</span>')
+        .replace(/<md>(.*?)<\/md>/g, '<span class="text-[1em]">$1</span>')
+        .replace(/<sm>(.*?)<\/sm>/g, '<span class="text-[0.75em]">$1</span>')
 }
 
 interface TenantClientProps {
@@ -280,7 +282,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
 
             {/* ─── DYNAMIC SECTION ENGINE ─── */}
             {(() => {
-                const hero = editorConfig?.hero || {}
+                const hero = effectiveHero || {}
                 
                 // High-Fidelity Detection (including responsive overrides from editor)
                 const desktopOverride = hero.overrides?.desktop?.orientation
@@ -305,16 +307,11 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                         <section
                             id="inicio"
                             className={cn(
-                                "relative overflow-hidden",
-                                (effectiveHero?.autoHeight !== false) ? "min-h-[90vh] lg:min-h-screen" : "h-auto",
-                                isCenter 
-                                    ? "flex flex-col justify-center items-center"
-                                    : "pb-10 lg:pb-0 flex items-center"
+                                "relative overflow-hidden flex flex-col justify-center min-h-0",
+                                (effectiveHero?.autoHeight !== false) ? "min-h-[90vh] lg:min-h-screen flex-1" : "shrink-0"
                             )}
                             style={{ 
                                 backgroundColor: themeBg,
-                                paddingTop: isCenter ? '6rem' : '8rem',
-                                paddingBottom: isCenter ? '4rem' : undefined,
                                 height: (effectiveHero?.autoHeight !== false) ? undefined : `${effectiveHero?.height || 600}px`,
                             }}
                         >
@@ -392,12 +389,15 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             {vignetteStyle && <div className="absolute inset-0 z-[3]" style={{ background: vignetteStyle }} />}
 
                             {/* LAYER 5 — Content */}
-                            <div className={cn("relative z-10 mx-auto max-w-7xl px-6 w-full h-full flex items-center pointer-events-none", isScrolled ? "pt-16" : "pt-20 md:pt-24")}>
+                            <div className={cn(
+                                "relative z-40 mx-auto w-full max-w-7xl px-6 pt-24 pb-12 flex flex-col pointer-events-none",
+                                isCenter ? "items-center text-center" : isRight ? "items-end text-right" : "items-start text-left"
+                            )}>
                                 <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} 
                                     className={cn(
-                                        "w-full flex-1 flex flex-col transition-all duration-500 pointer-events-auto py-12",
+                                        "flex flex-col w-full pointer-events-auto transition-all duration-500",
                                         isCenter ? "items-center text-center" : isRight ? "items-end text-right" : "items-start text-left",
-                                        (isLeft || isRight) && "lg:max-w-[60%]"
+                                        (isLeft || isRight) && "lg:max-w-[50%]"
                                     )}
                                 >
                                     {heroBadge && (

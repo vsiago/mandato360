@@ -45,6 +45,13 @@ interface EditorSidebarProps {
   onPluginConfigChange: (pluginId: string, updates: any) => void
   onImageUpload?: (file: File) => Promise<string>
   className?: string
+  placeholders?: {
+    title?: string
+    description?: string
+    badge?: string
+    ctaPrimary?: string
+    ctaSecondary?: string
+  }
 }
 
 /** Small indicator dot: purple = override active, click to reset */
@@ -297,6 +304,7 @@ export function EditorSidebar({
   onPluginConfigChange,
   onImageUpload,
   className,
+  placeholders,
 }: EditorSidebarProps) {
   const [openAccordion, setOpenAccordion] = useState<AccordionType | null>("theme")
   const [imageDevice, setImageDevice] = useState<DeviceType>(device)
@@ -825,9 +833,21 @@ export function EditorSidebar({
                   <Input
                     value={resolvedHero.badge}
                     onChange={(e) => updateHero({ badge: e.target.value })}
-                    placeholder="Texto do badge"
+                    placeholder={placeholders?.badge || "Texto do badge"}
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
+                  <div className="flex items-center gap-1 mt-2">
+                    {["✨", "🔥", "💎", "⭐", "🚀", "❤️", "📍"].map((emoji) => (
+                      <button
+                        key={emoji}
+                        onClick={() => updateHero({ badge: `${emoji} ${resolvedHero.badge || ''}`.trim() })}
+                        className="w-6 h-6 flex items-center justify-center rounded hover:bg-muted text-xs transition-colors border border-border/50 bg-background shadow-sm"
+                        title={`Adicionar emoji ${emoji}`}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <div className="flex items-center mb-1.5">
@@ -837,7 +857,7 @@ export function EditorSidebar({
                   <Input
                     value={resolvedHero.title}
                     onChange={(e) => updateHero({ title: e.target.value })}
-                    placeholder="Título principal"
+                    placeholder={placeholders?.title || "Título principal"}
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
                 </div>
@@ -849,7 +869,7 @@ export function EditorSidebar({
                   <Input
                     value={resolvedHero.description}
                     onChange={(e) => updateHero({ description: e.target.value })}
-                    placeholder="Descrição"
+                    placeholder={placeholders?.description || "Descrição"}
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
                 </div>
@@ -862,6 +882,7 @@ export function EditorSidebar({
                     <Input
                       value={resolvedHero.ctaPrimary}
                       onChange={(e) => updateHero({ ctaPrimary: e.target.value })}
+                      placeholder={placeholders?.ctaPrimary || "Texto do botão"}
                       className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                     />
                   </div>
@@ -873,6 +894,7 @@ export function EditorSidebar({
                     <Input
                       value={resolvedHero.ctaSecondary}
                       onChange={(e) => updateHero({ ctaSecondary: e.target.value })}
+                      placeholder={placeholders?.ctaSecondary || "Texto do botão"}
                       className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                     />
                   </div>

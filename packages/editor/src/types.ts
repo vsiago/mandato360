@@ -231,5 +231,14 @@ export interface SiteEditorProps {
   /** Additional className for the root container */
   className?: string
   /** Accent color inherited from host app (used for active states, indicators) */
+  /** Accent color inherited from host app (used for active states, indicators) */
   accentColor?: string
+  /** Default text placeholders for hero content (business type specific) */
+  placeholders?: {
+    title?: string
+    description?: string
+    badge?: string
+    ctaPrimary?: string
+    ctaSecondary?: string
+  }
 }
