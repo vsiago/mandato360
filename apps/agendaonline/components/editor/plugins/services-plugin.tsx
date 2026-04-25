@@ -1,7 +1,7 @@
 "use client"
 
 import { EditorPlugin, PluginSectionProps, PluginSidebarProps } from "@mandato360/editor"
-import { Scissors, Plus, Trash2, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react"
+import { Scissors, Plus, Trash2, ChevronDown, ChevronUp, Image as ImageIcon, Type, Layers } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -143,10 +143,14 @@ function ServicesPreview({ config, device, themeColors }: PluginSectionProps) {
 /* ═══════════════════════════════════════════
    SIDEBAR — Edição completa com categorias
    ═══════════════════════════════════════════ */
-function ServicesSidebar({ config, onChange }: PluginSidebarProps) {
+function ServicesSidebar({ config, onChange, accentColor = "#10b981" }: PluginSidebarProps) {
     const items = config.items || []
     const cats = config.categories || []
     const [expandedService, setExpandedService] = useState<number | null>(null)
+
+    const [isCabecalhoOpen, setIsCabecalhoOpen] = useState(false)
+    const [isCategoriasOpen, setIsCategoriasOpen] = useState(false)
+    const [isConteudoOpen, setIsConteudoOpen] = useState(false)
 
     const updateItem = (index: number, updates: any) => {
         const newItems = [...items]
@@ -195,187 +199,286 @@ function ServicesSidebar({ config, onChange }: PluginSidebarProps) {
     }
 
     return (
-        <div className="space-y-6 p-4">
-            {/* Section Settings */}
-            <div className="space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
-                    Configurações da Seção
-                </p>
-                <div className="rounded-xl border border-border bg-muted/15 p-3.5 space-y-4">
-                    <div className="space-y-1">
-                        <Label className="text-[11px] font-medium text-foreground/70">Título da Seção</Label>
-                        <Input
-                            value={config.title || "Nossa Expertise"}
-                            onChange={(e) => onChange({ ...config, title: e.target.value })}
-                            className="h-8 text-[11px] border-border/50 bg-background"
-                            placeholder="Nossa *Expertise*"
-                        />
-                        <p className="text-[9px] text-muted-foreground/40">Use *texto* para itálico colorido</p>
+        <div className="flex-1">
+            {/* Cabeçalho Accordion */}
+            <div className="border-b border-border">
+                <button
+                    onClick={() => setIsCabecalhoOpen(!isCabecalhoOpen)}
+                    className={cn(
+                        "group flex w-full items-center justify-between p-4 text-left transition-all duration-200 hover:bg-muted",
+                        isCabecalhoOpen && "bg-muted/50"
+                    )}
+                >
+                    <div className="flex items-center gap-3">
+                        <Type className={cn(
+                            "h-4 w-4 transition-colors duration-200",
+                            isCabecalhoOpen ? "text-current" : "text-muted-foreground/50 group-hover:text-foreground"
+                        )} style={isCabecalhoOpen ? { color: accentColor } : undefined} />
+                        <span className={cn(
+                            "text-sm font-medium transition-colors duration-200",
+                            isCabecalhoOpen ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                        )}>Cabeçalho</span>
                     </div>
-                    <div className="space-y-1">
-                        <Label className="text-[11px] font-medium text-foreground/70">Subtítulo</Label>
-                        <textarea
-                            value={config.subtitle || ""}
-                            onChange={(e) => onChange({ ...config, subtitle: e.target.value })}
-                            className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-[11px] text-foreground outline-none resize-none min-h-[50px]"
-                            placeholder="Descrição da seção de serviços..."
-                        />
+                    <ChevronDown
+                        className={cn(
+                            "h-3.5 w-3.5 text-muted-foreground/50 transition-transform duration-300",
+                            isCabecalhoOpen && "rotate-180 text-muted-foreground"
+                        )}
+                    />
+                </button>
+                {isCabecalhoOpen && (
+                    <div className="space-y-4 px-4 pb-4 pt-2">
+                        <div className="rounded-xl border border-border bg-muted/15 p-3.5 space-y-4">
+                            <div className="space-y-1">
+                                <Label className="text-[11px] font-medium text-foreground/70">Título da Seção</Label>
+                                <Input
+                                    value={config.title || "Nossa Expertise"}
+                                    onChange={(e) => onChange({ ...config, title: e.target.value })}
+                                    className="h-8 text-[11px] border-border/50 bg-background"
+                                    placeholder="Nossa *Expertise*"
+                                />
+                                <p className="text-[9px] text-muted-foreground/40">Use *texto* para itálico colorido</p>
+                            </div>
+                            <div className="space-y-1">
+                                <Label className="text-[11px] font-medium text-foreground/70">Subtítulo</Label>
+                                <textarea
+                                    value={config.subtitle || ""}
+                                    onChange={(e) => onChange({ ...config, subtitle: e.target.value })}
+                                    className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-[11px] text-foreground outline-none resize-none min-h-[50px]"
+                                    placeholder="Descrição da seção de serviços..."
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
-            {/* Categories */}
-            <div className="space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
-                    Categorias ({cats.length})
-                </p>
-                <div className="space-y-2">
-                    {cats.map((cat: any, i: number) => (
-                        <div key={cat.id || i} className="flex items-center gap-2">
-                            <Input
-                                value={cat.label}
-                                onChange={(e) => updateCategory(i, { label: e.target.value })}
-                                className="h-8 text-[11px] border-border/50 bg-background flex-1"
-                            />
+            {/* Categorias Accordion */}
+            <div className="border-b border-border">
+                <button
+                    onClick={() => setIsCategoriasOpen(!isCategoriasOpen)}
+                    className={cn(
+                        "group flex w-full items-center justify-between p-4 text-left transition-all duration-200 hover:bg-muted",
+                        isCategoriasOpen && "bg-muted/50"
+                    )}
+                >
+                    <div className="flex items-center gap-3">
+                        <Layers className={cn(
+                            "h-4 w-4 transition-colors duration-200",
+                            isCategoriasOpen ? "text-current" : "text-muted-foreground/50 group-hover:text-foreground"
+                        )} style={isCategoriasOpen ? { color: accentColor } : undefined} />
+                        <span className={cn(
+                            "text-sm font-medium transition-colors duration-200",
+                            isCategoriasOpen ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                        )}>Categorias</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span 
+                            className="flex items-center justify-center text-[10px] font-bold px-2 h-5 min-w-[1.25rem] rounded-full border shadow-sm transition-colors"
+                            style={{ 
+                                backgroundColor: `${accentColor}15`, 
+                                borderColor: `${accentColor}30`,
+                                color: accentColor 
+                            }}
+                        >
+                            {cats.length}
+                        </span>
+                        <ChevronDown
+                            className={cn(
+                                "h-3.5 w-3.5 text-muted-foreground/50 transition-transform duration-300",
+                                isCategoriasOpen && "rotate-180 text-muted-foreground"
+                            )}
+                        />
+                    </div>
+                </button>
+                {isCategoriasOpen && (
+                    <div className="space-y-4 px-4 pb-4 pt-2">
+                        <div className="space-y-2">
+                            {cats.map((cat: any, i: number) => (
+                                <div key={cat.id || i} className="flex items-center gap-2">
+                                    <Input
+                                        value={cat.label}
+                                        onChange={(e) => updateCategory(i, { label: e.target.value })}
+                                        className="h-8 text-[11px] border-border/50 bg-background flex-1"
+                                    />
+                                    <button
+                                        onClick={() => removeCategory(i)}
+                                        className="h-8 w-8 flex items-center justify-center text-muted-foreground/30 hover:text-red-500 rounded transition-colors shrink-0"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
+                            ))}
                             <button
-                                onClick={() => removeCategory(i)}
-                                className="h-8 w-8 flex items-center justify-center text-muted-foreground/30 hover:text-red-500 rounded transition-colors shrink-0"
+                                onClick={addCategory}
+                                className="w-full h-8 rounded-lg border border-dashed border-border text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all flex items-center justify-center gap-2"
                             >
-                                <Trash2 className="h-3.5 w-3.5" />
+                                <Plus className="h-3 w-3" /> Categoria
                             </button>
                         </div>
-                    ))}
-                    <button
-                        onClick={addCategory}
-                        className="w-full h-8 rounded-lg border border-dashed border-border text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all flex items-center justify-center gap-2"
-                    >
-                        <Plus className="h-3 w-3" /> Categoria
-                    </button>
-                </div>
+                    </div>
+                )}
             </div>
 
-            {/* Services */}
-            <div className="space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
-                    Serviços ({items.length})
-                </p>
-                <div className="space-y-2">
-                    {items.map((item: any, i: number) => {
-                        const isExpanded = expandedService === i
-                        const categoryLabel = cats.find((c: any) => c.id === item.categoryId)?.label || "Sem categoria"
+            {/* Conteúdo Accordion */}
+            <div className="border-b border-border">
+                <button
+                    onClick={() => setIsConteudoOpen(!isConteudoOpen)}
+                    className={cn(
+                        "group flex w-full items-center justify-between p-4 text-left transition-all duration-200 hover:bg-muted",
+                        isConteudoOpen && "bg-muted/50"
+                    )}
+                >
+                    <div className="flex items-center gap-3">
+                        <Scissors className={cn(
+                            "h-4 w-4 transition-colors duration-200",
+                            isConteudoOpen ? "text-current" : "text-muted-foreground/50 group-hover:text-foreground"
+                        )} style={isConteudoOpen ? { color: accentColor } : undefined} />
+                        <span className={cn(
+                            "text-sm font-medium transition-colors duration-200",
+                            isConteudoOpen ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                        )}>Conteúdo</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span 
+                            className="flex items-center justify-center text-[10px] font-bold px-2 h-5 min-w-[1.25rem] rounded-full border shadow-sm transition-colors"
+                            style={{ 
+                                backgroundColor: `${accentColor}15`, 
+                                borderColor: `${accentColor}30`,
+                                color: accentColor 
+                            }}
+                        >
+                            {items.length}
+                        </span>
+                        <ChevronDown
+                            className={cn(
+                                "h-3.5 w-3.5 text-muted-foreground/50 transition-transform duration-300",
+                                isConteudoOpen && "rotate-180 text-muted-foreground"
+                            )}
+                        />
+                    </div>
+                </button>
+                {isConteudoOpen && (
+                    <div className="space-y-4 px-4 pb-4 pt-2">
+                        <div className="space-y-2">
+                            {items.map((item: any, i: number) => {
+                                const isExpanded = expandedService === i
+                                const categoryLabel = cats.find((c: any) => c.id === item.categoryId)?.label || "Sem categoria"
 
-                        return (
-                            <div key={item.id || i} className="rounded-xl border border-border bg-muted/15 overflow-hidden">
-                                {/* Collapsed Header */}
-                                <button
-                                    onClick={() => setExpandedService(isExpanded ? null : i)}
-                                    className="w-full flex items-center gap-3 p-3 hover:bg-muted/30 transition-colors"
-                                >
-                                    <div className="h-8 w-8 rounded-lg bg-muted/30 flex items-center justify-center shrink-0 overflow-hidden">
-                                        {item.image ? (
-                                            <img src={item.image} alt="" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <Scissors className="h-3.5 w-3.5 text-muted-foreground/40" />
-                                        )}
-                                    </div>
-                                    <div className="flex-1 text-left min-w-0">
-                                        <p className="text-[11px] font-bold text-foreground truncate">{item.name}</p>
-                                        <p className="text-[9px] text-muted-foreground/50">{categoryLabel} · R$ {item.price || 0}</p>
-                                    </div>
-                                    {isExpanded ? (
-                                        <ChevronUp className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
-                                    ) : (
-                                        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
-                                    )}
-                                </button>
-
-                                {/* Expanded Content */}
-                                {isExpanded && (
-                                    <div className="border-t border-border p-3.5 space-y-3">
-                                        <div className="space-y-1">
-                                            <Label className="text-[11px] font-medium text-foreground/70">Nome</Label>
-                                            <Input
-                                                value={item.name}
-                                                onChange={(e) => updateItem(i, { name: e.target.value })}
-                                                className="h-8 text-[11px] border-border/50 bg-background"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-1">
-                                            <Label className="text-[11px] font-medium text-foreground/70">Descrição</Label>
-                                            <textarea
-                                                value={item.description || ""}
-                                                onChange={(e) => updateItem(i, { description: e.target.value })}
-                                                className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-[11px] text-foreground outline-none resize-none min-h-[50px]"
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <div className="space-y-1">
-                                                <Label className="text-[11px] font-medium text-foreground/70">Preço (R$)</Label>
-                                                <Input
-                                                    type="number"
-                                                    value={item.price || 0}
-                                                    onChange={(e) => updateItem(i, { price: parseFloat(e.target.value) || 0 })}
-                                                    className="h-8 text-[11px] border-border/50 bg-background"
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <Label className="text-[11px] font-medium text-foreground/70">Duração (min)</Label>
-                                                <Input
-                                                    type="number"
-                                                    value={item.duration || 60}
-                                                    onChange={(e) => updateItem(i, { duration: parseInt(e.target.value) || 60 })}
-                                                    className="h-8 text-[11px] border-border/50 bg-background"
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {cats.length > 0 && (
-                                            <div className="space-y-1">
-                                                <Label className="text-[11px] font-medium text-foreground/70">Categoria</Label>
-                                                <select
-                                                    value={item.categoryId || ""}
-                                                    onChange={(e) => updateItem(i, { categoryId: e.target.value })}
-                                                    className="w-full h-8 rounded-lg border border-border/50 bg-background text-[11px] px-3 outline-none text-foreground"
-                                                >
-                                                    <option value="">Sem categoria</option>
-                                                    {cats.map((cat: any) => (
-                                                        <option key={cat.id} value={cat.id}>{cat.label}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        )}
-
-                                        <div className="space-y-1">
-                                            <Label className="text-[11px] font-medium text-foreground/70">URL da Imagem</Label>
-                                            <Input
-                                                value={item.image || ""}
-                                                onChange={(e) => updateItem(i, { image: e.target.value })}
-                                                className="h-8 text-[11px] border-border/50 bg-background font-mono"
-                                                placeholder="https://..."
-                                            />
-                                        </div>
-
+                                return (
+                                    <div key={item.id || i} className="rounded-xl border border-border bg-muted/15 overflow-hidden">
+                                        {/* Collapsed Header */}
                                         <button
-                                            onClick={() => removeItem(i)}
-                                            className="w-full h-8 rounded-lg border border-red-500/20 text-red-500 text-[10px] font-bold uppercase tracking-wider hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
+                                            onClick={() => setExpandedService(isExpanded ? null : i)}
+                                            className="w-full flex items-center gap-3 p-3 hover:bg-muted/30 transition-colors"
                                         >
-                                            <Trash2 className="h-3 w-3" /> Remover Serviço
+                                            <div className="h-8 w-8 rounded-lg bg-muted/30 flex items-center justify-center shrink-0 overflow-hidden">
+                                                {item.image ? (
+                                                    <img src={item.image} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <Scissors className="h-3.5 w-3.5 text-muted-foreground/40" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1 text-left min-w-0">
+                                                <p className="text-[11px] font-bold text-foreground truncate">{item.name}</p>
+                                                <p className="text-[9px] text-muted-foreground/50">{categoryLabel} · R$ {item.price || 0}</p>
+                                            </div>
+                                            {isExpanded ? (
+                                                <ChevronUp className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+                                            ) : (
+                                                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+                                            )}
                                         </button>
-                                    </div>
-                                )}
-                            </div>
-                        )
-                    })}
 
-                    <button
-                        onClick={() => addItem()}
-                        className="w-full h-9 rounded-lg border border-dashed border-border text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all flex items-center justify-center gap-2"
-                    >
-                        <Plus className="h-3.5 w-3.5" /> Adicionar Serviço
-                    </button>
-                </div>
+                                        {/* Expanded Content */}
+                                        {isExpanded && (
+                                            <div className="border-t border-border p-3.5 space-y-3">
+                                                <div className="space-y-1">
+                                                    <Label className="text-[11px] font-medium text-foreground/70">Nome</Label>
+                                                    <Input
+                                                        value={item.name}
+                                                        onChange={(e) => updateItem(i, { name: e.target.value })}
+                                                        className="h-8 text-[11px] border-border/50 bg-background"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-1">
+                                                    <Label className="text-[11px] font-medium text-foreground/70">Descrição</Label>
+                                                    <textarea
+                                                        value={item.description || ""}
+                                                        onChange={(e) => updateItem(i, { description: e.target.value })}
+                                                        className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-[11px] text-foreground outline-none resize-none min-h-[50px]"
+                                                    />
+                                                </div>
+
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="space-y-1">
+                                                        <Label className="text-[11px] font-medium text-foreground/70">Preço (R$)</Label>
+                                                        <Input
+                                                            type="number"
+                                                            value={item.price || 0}
+                                                            onChange={(e) => updateItem(i, { price: parseFloat(e.target.value) || 0 })}
+                                                            className="h-8 text-[11px] border-border/50 bg-background"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <Label className="text-[11px] font-medium text-foreground/70">Duração (min)</Label>
+                                                        <Input
+                                                            type="number"
+                                                            value={item.duration || 60}
+                                                            onChange={(e) => updateItem(i, { duration: parseInt(e.target.value) || 60 })}
+                                                            className="h-8 text-[11px] border-border/50 bg-background"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {cats.length > 0 && (
+                                                    <div className="space-y-1">
+                                                        <Label className="text-[11px] font-medium text-foreground/70">Categoria</Label>
+                                                        <select
+                                                            value={item.categoryId || ""}
+                                                            onChange={(e) => updateItem(i, { categoryId: e.target.value })}
+                                                            className="w-full h-8 rounded-lg border border-border/50 bg-background text-[11px] px-3 outline-none text-foreground"
+                                                        >
+                                                            <option value="">Sem categoria</option>
+                                                            {cats.map((cat: any) => (
+                                                                <option key={cat.id} value={cat.id}>{cat.label}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
+
+                                                <div className="space-y-1">
+                                                    <Label className="text-[11px] font-medium text-foreground/70">URL da Imagem</Label>
+                                                    <Input
+                                                        value={item.image || ""}
+                                                        onChange={(e) => updateItem(i, { image: e.target.value })}
+                                                        className="h-8 text-[11px] border-border/50 bg-background font-mono"
+                                                        placeholder="https://..."
+                                                    />
+                                                </div>
+
+                                                <button
+                                                    onClick={() => removeItem(i)}
+                                                    className="w-full h-8 rounded-lg border border-red-500/20 text-red-500 text-[10px] font-bold uppercase tracking-wider hover:bg-red-500/10 transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Trash2 className="h-3 w-3" /> Remover Serviço
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )
+                            })}
+
+                            <button
+                                onClick={() => addItem()}
+                                className="w-full h-9 rounded-lg border border-dashed border-border text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Plus className="h-3.5 w-3.5" /> Adicionar Serviço
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )
