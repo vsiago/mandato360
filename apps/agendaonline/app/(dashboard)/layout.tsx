@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, Shield, Users, DollarSign, BarChart3, Star, Headset, ChevronRight } from "lucide-react"
+import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, Shield, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, Plug, Layout, Puzzle } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -21,23 +21,35 @@ import {
 
 const NAV_GROUPS = [
     {
-        label: "PRINCIPAL",
+        label: "SITE",
         items: [
-            { href: "/painel", label: "Painel", icon: LayoutDashboard },
+            { href: "/editar-site", label: "Editor de Site", icon: Globe },
+        ]
+    },
+    {
+        label: "GESTÃO",
+        items: [
+            { href: "/painel", label: "Painel", icon: BarChart3 },
             { href: "/agenda", label: "Agenda", icon: Calendar },
             { href: "/servicos", label: "Serviços", icon: Scissors },
             { href: "/clientes", label: "Clientes", icon: Users },
             { href: "/financeiro", label: "Financeiro", icon: DollarSign },
             { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
-            { href: "/configuracoes", label: "Configurações", icon: Settings },
         ]
     },
     {
         label: "CONTEÚDO",
         items: [
-            { href: "/editar-site", label: "Site", icon: Globe },
             { href: "/antes-depois", label: "Fotos", icon: ImageIcon },
             { href: "/depoimentos", label: "Depoimentos", icon: Star },
+            { href: "/faq", label: "Perguntas (FAQ)", icon: HelpCircle },
+        ]
+    },
+    {
+        label: "SISTEMA",
+        items: [
+            { href: "/configuracoes", label: "Configurações", icon: Settings },
+            { href: "/assinatura", label: "Assinatura", icon: CreditCard },
         ]
     }
 ]
@@ -168,8 +180,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                     {/* Admin Link — Kept outside groups for prominence or can be added to PRINCIPAL */}
                     {(session?.user?.role === "admin" || session?.user?.role === "superadmin") && (
-                        <div className="mt-8">
-                            {!isEditorPage && <p className="px-6 mb-4 text-[10px] font-bold text-stone-500/50 uppercase tracking-[0.2em]">SISTEMA</p>}
+                        <div className="mt-1">
                             <Link
                                 href="/admin"
                                 title="Administração"
