@@ -522,9 +522,10 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                         const trustConfig = editorConfig?.plugins?.trust || {}
                         const trustSpeed = trustConfig.speed || 25
                         const trustAutoplay = trustConfig.autoplay !== false
+                        const trustBg = trustConfig.backgroundColor || "#0f172a"
                         const TRUST_ICON_MAP: Record<string, any> = { Check: CheckCircle2, Award, Star, Shield, ShieldCheck, Gem, Zap, Flag, Heart }
                         return (
-                            <div id="trust" className="bg-slate-900 py-6 overflow-hidden border-y border-white/5">
+                            <div id="trust" className="py-6 overflow-hidden border-y border-white/5 relative" style={{ backgroundColor: trustBg }}>
                                 <style dangerouslySetInnerHTML={{ __html: `
                                     @keyframes public-marquee {
                                         0% { transform: translateX(0); }

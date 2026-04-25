@@ -43,7 +43,10 @@ function TrustPreview({ config, themeColors }: PluginSectionProps) {
     const loopedBadges = [...badges, ...badges, ...badges]
 
     return (
-        <div className="bg-slate-900 py-4 overflow-hidden border-y border-white/5 relative">
+        <div 
+            className="py-4 overflow-hidden border-y border-white/5 relative"
+            style={{ backgroundColor: config.backgroundColor || "#0f172a" }}
+        >
             <style dangerouslySetInnerHTML={{ __html: `
                 @keyframes trust-marquee {
                     0% { transform: translateX(0); }
@@ -98,6 +101,22 @@ function TrustSidebar({ config, onChange }: PluginSidebarProps) {
                             checked={autoplay}
                             onCheckedChange={(checked) => onChange({ ...config, autoplay: checked })}
                         />
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border/50 pt-3">
+                        <Label className="text-[11px] font-medium text-foreground/70">Cor de Fundo</Label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="color"
+                                value={config.backgroundColor || "#0f172a"}
+                                onChange={(e) => onChange({ ...config, backgroundColor: e.target.value })}
+                                className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
+                            />
+                            <Input
+                                value={config.backgroundColor || "#0f172a"}
+                                onChange={(e) => onChange({ ...config, backgroundColor: e.target.value })}
+                                className="h-7 w-20 border-border/50 bg-input font-mono text-[9px] text-foreground/60"
+                            />
+                        </div>
                     </div>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
@@ -207,5 +226,6 @@ export const trustPlugin: EditorPlugin = {
         ],
         autoplay: true,
         speed: 25,
+        backgroundColor: "#0f172a",
     }
 }
