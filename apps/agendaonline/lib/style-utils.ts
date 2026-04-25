@@ -2,20 +2,25 @@ import type { TenantData, SectionStyle, ElementStyle, Breakpoint, GradientStop }
 
 /* ─── Gradient CSS Builder ─── */
 
+export function hexToRgba(hex: string, opacity: number = 100) {
+    if (!hex || hex === 'transparent') return 'transparent'
+    let color = hex.replace('#', '')
+    if (color.length === 3) {
+        color = color.split('').map(c => c + c).join('')
+    }
+    const r = parseInt(color.substring(0, 2), 16) || 0
+    const g = parseInt(color.substring(2, 4), 16) || 0
+    const b = parseInt(color.substring(4, 6), 16) || 0
+    return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`
+}
+
 export function buildGradientString(gradient?: import("./tenant-types").Gradient): string | undefined {
     if (!gradient || !gradient.stops || gradient.stops.length === 0) return undefined
     const { angle, stops, type = 'linear' } = gradient
     const sortedStops = [...stops].sort((a, b) => a.position - b.position)
     
     const stopsCSS = sortedStops.map(s => {
-        let color = s.color
-        if (color.startsWith('#')) {
-            const r = parseInt(color.slice(1, 3), 16) || 0
-            const g = parseInt(color.slice(3, 5), 16) || 0
-            const b = parseInt(color.slice(5, 7), 16) || 0
-            color = `rgba(${r}, ${g}, ${b}, ${s.opacity / 100})`
-        }
-        return `${color} ${s.position}%`
+        return `${hexToRgba(s.color, s.opacity ?? 100)} ${s.position}%`
     }).join(', ')
     
     if (type === 'radial') {

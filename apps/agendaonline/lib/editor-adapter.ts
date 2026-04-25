@@ -39,10 +39,13 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
       backgroundColor: "#0f172a",
       logoHeight: 32,
       gradient: {
-        enabled: false,
-        angle: 180,
+        enabled: true,
+        angle: 90,
         opacity: 100,
-        stops: [],
+        stops: [
+          { color: tenant.colors.primary, position: 0, opacity: 100 },
+          { color: tenant.colors.primary, position: 100, opacity: 0 },
+        ],
       },
       sticky: true,
       height: 80,

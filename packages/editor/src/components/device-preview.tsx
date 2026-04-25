@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { cn } from "../lib/utils"
+import { cn, hexToRgba } from "../lib/utils"
 import type { EditorConfig, DeviceType, EditorPlugin } from "../types"
 import { Heart, Menu, Globe, Share2, MessageCircle, Link2, Send, Plus, Minus, Maximize2 } from "lucide-react"
 import { Slider } from "./ui/slider"
@@ -160,12 +160,12 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
   const activeGradient = resolvedHero.gradient?.enabled ? resolvedHero.gradient : theme.gradient
   const gradientStyle = activeGradient.enabled
     ? `linear-gradient(${activeGradient.angle}deg, ${activeGradient.stops
-        .map((stop) => `${stop.color} ${stop.position}%`)
+        .map((stop) => `${hexToRgba(stop.color, stop.opacity ?? 100)} ${stop.position}%`)
         .join(", ")})`
     : undefined
 
   const headerGradientStyle = `linear-gradient(${header.gradient.angle}deg, ${header.gradient.stops
-    .map((stop) => `${stop.color} ${stop.position}%`)
+    .map((stop) => `${hexToRgba(stop.color, stop.opacity ?? 100)} ${stop.position}%`)
     .join(", ")})`
 
   const vignetteStyle = resolvedHero.vignette.enabled
@@ -305,16 +305,22 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                     activeSection === "header" && "ring-2 ring-inset"
                   )}
                   style={{
-                    background: header.menuStyle === "solid"
-                      ? header.backgroundColor
-                      : header.menuStyle === "gradient"
-                      ? headerGradientStyle
-                      : "transparent",
-                    opacity: header.menuStyle === "gradient" ? header.gradient.opacity / 100 : 1,
                     height: header.height,
                     ...(activeSection === "header" ? { ringColor: accentColor, boxShadow: `inset 0 0 0 2px ${accentColor}` } : {}),
                   }}
                 >
+                  {/* Background Layer */}
+                  <div 
+                    className="absolute inset-0 -z-10 transition-opacity"
+                    style={{
+                      background: header.menuStyle === "solid"
+                        ? header.backgroundColor
+                        : header.menuStyle === "gradient" && header.gradient.stops.length > 0
+                        ? headerGradientStyle
+                        : "transparent",
+                      opacity: header.menuStyle === "gradient" ? (header.gradient.opacity ?? 100) / 100 : 1,
+                    }}
+                  />
                   <div className="flex items-center">
                     {header.logo && header.logo.trim() !== "" ? (
                       <img src={header.logo} alt="Logo" style={{ height: header.logoHeight }} className="w-auto object-contain" />

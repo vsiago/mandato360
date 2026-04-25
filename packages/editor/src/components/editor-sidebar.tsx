@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useCallback, useEffect } from "react"
-import { cn } from "../lib/utils"
+import { cn, hexToRgba } from "../lib/utils"
 import {
   Palette,
   Image,
@@ -240,44 +240,73 @@ const GradientControls = ({
               )}
             </div>
             {gradient.stops.map((stop, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={stop.color === "transparent" ? "#ffffff" : stop.color}
-                  onChange={(e) => {
-                    const newStops = [...gradient.stops]
-                    newStops[index] = { ...stop, color: e.target.value }
-                    onUpdate({ stops: newStops })
-                  }}
-                  className="h-7 w-7 cursor-pointer rounded border-0 bg-transparent"
-                />
-                <Slider
-                  value={[stop.position]}
-                  onValueChange={([position]) => {
-                    const newStops = [...gradient.stops]
-                    newStops[index] = { ...stop, position }
-                    onUpdate({ stops: newStops })
-                  }}
-                  max={100}
-                  step={1}
-                  className="flex-1 touch-none"
-                />
-                <span className="w-8 text-right text-xs font-mono text-muted-foreground">
-                  {stop.position}%
-                </span>
-                {gradient.stops.length > 2 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const newStops = gradient.stops.filter((_, i) => i !== index)
-                      onUpdate({ stops: newStops })
-                    }}
-                    className="h-6 w-6 p-0 text-muted-foreground/50 hover:text-red-500"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                )}
+              <div key={index} className="space-y-2 rounded-lg border border-border/50 bg-muted/30 p-2.5">
+                <div className="flex items-center gap-3">
+                  <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-md border border-border shadow-sm">
+                    <input
+                      type="color"
+                      value={stop.color === "transparent" ? "#ffffff" : stop.color}
+                      onChange={(e) => {
+                        const newStops = [...gradient.stops]
+                        newStops[index] = { ...stop, color: e.target.value }
+                        onUpdate({ stops: newStops })
+                      }}
+                      className="absolute inset-0 h-[150%] w-[150%] -translate-x-1/4 -translate-y-1/4 cursor-pointer border-0 bg-transparent"
+                    />
+                  </div>
+                  
+                  <div className="flex flex-1 flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Posição</span>
+                      <span className="text-[10px] font-mono font-bold text-muted-foreground">{stop.position}%</span>
+                    </div>
+                    <Slider
+                      value={[stop.position]}
+                      onValueChange={([position]) => {
+                        const newStops = [...gradient.stops]
+                        newStops[index] = { ...stop, position }
+                        onUpdate({ stops: newStops })
+                      }}
+                      max={100}
+                      step={1}
+                      className="touch-none"
+                    />
+                  </div>
+
+                  {gradient.stops.length > 2 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        const newStops = gradient.stops.filter((_, i) => i !== index)
+                        onUpdate({ stops: newStops })
+                      }}
+                      className="h-6 w-6 p-0 text-muted-foreground/30 hover:text-red-500"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3 border-t border-border/40 pt-2">
+                  <div className="flex flex-1 flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Opacidade</span>
+                      <span className="text-[10px] font-mono font-bold text-muted-foreground">{stop.opacity ?? 100}%</span>
+                    </div>
+                    <Slider
+                      value={[stop.opacity ?? 100]}
+                      onValueChange={([opacity]) => {
+                        const newStops = [...gradient.stops]
+                        newStops[index] = { ...stop, opacity }
+                        onUpdate({ stops: newStops })
+                      }}
+                      max={100}
+                      step={1}
+                      className="touch-none"
+                    />
+                  </div>
+                </div>
               </div>
             ))}
         </>
@@ -560,7 +589,20 @@ export function EditorSidebar({
                     {(["transparent", "solid", "gradient"] as const).map((style) => (
                       <button
                         key={style}
-                        onClick={() => onConfigChange({ header: { ...config.header, menuStyle: style } })}
+                        onClick={() => {
+                          const updates: any = { menuStyle: style }
+                          if (style === "gradient" && (!config.header.gradient.stops || config.header.gradient.stops.length === 0)) {
+                            updates.gradient = {
+                              ...config.header.gradient,
+                              angle: 90,
+                              stops: [
+                                { color: theme.colors.primary, position: 0, opacity: 100 },
+                                { color: theme.colors.primary, position: 100, opacity: 0 }
+                              ]
+                            }
+                          }
+                          onConfigChange({ header: { ...config.header, ...updates } })
+                        }}
                         className={cn(
                           "rounded-md px-1 py-1.5 text-[9px] font-bold transition-all uppercase tracking-wider",
                           config.header.menuStyle === style

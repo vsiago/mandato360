@@ -20,7 +20,7 @@ import { SchedulingSection } from "@/components/scheduling-section"
 import { DraggableCarousel } from "@/components/draggable-carousel"
 import { TenantWhatsapp } from "@/components/tenant-whatsapp"
 import type { TenantData } from "@/lib/tenant-types"
-import { resolveSectionBackground, resolveElementStyle, elementStyleToCSS, buildGoogleFontsUrl, getFontStack } from "@/lib/style-utils"
+import { resolveSectionBackground, resolveElementStyle, elementStyleToCSS, buildGoogleFontsUrl, getFontStack, hexToRgba } from "@/lib/style-utils"
 import { getTheme, generateThemeCSS, getHeroImageForNiche } from "@/src/themes"
 import { cn } from "@/lib/utils"
 
@@ -170,6 +170,23 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
         ? { backgroundColor: effectiveOverlay.color || '#000000', opacity: (effectiveOverlay.opacity ?? 30) / 100 }
         : undefined
 
+    // ─── Header Parity Logic ───
+    const headerConfig = editorConfig?.header || {}
+    const headerGradient = headerConfig.gradient || {}
+    const headerGradientStyle = headerConfig.menuStyle === 'gradient' && headerGradient.stops?.length > 0
+        ? `linear-gradient(${headerGradient.angle ?? 180}deg, ${headerGradient.stops
+            .map((stop: any) => `${hexToRgba(stop.color, stop.opacity ?? 100)} ${stop.position}%`)
+            .join(", ")})`
+        : undefined
+
+    const headerBgStyle = isScrolled
+        ? { backgroundColor: data.headerBgColor || '#0f172acc' }
+        : headerConfig.menuStyle === 'solid'
+            ? { backgroundColor: headerConfig.backgroundColor || '#0f172a' }
+            : headerConfig.menuStyle === 'gradient'
+                ? { background: headerGradientStyle, opacity: (headerGradient.opacity ?? 100) / 100 }
+                : { backgroundColor: 'transparent' }
+
     // Hero-level gradient (device-aware), fallback to theme gradient
     const activeDesktopGradient = heroDesktop?.gradient?.enabled ? heroDesktop.gradient : editorTheme?.gradient
     const themeGradientStyle = activeDesktopGradient?.enabled
@@ -218,8 +235,16 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
             `}} />
 
             {/* Nav */}
-            <nav className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'backdrop-blur-lg border-b border-white/5 shadow-xl' : 'bg-transparent'}`} style={{ top: 0, ...(isScrolled ? { backgroundColor: data.headerBgColor || '#0f172acc' } : {}) }}>
-                <div className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-300 ${!isScrolled ? 'py-6' : 'py-3'}`}>
+            <nav 
+                className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'backdrop-blur-lg border-b border-white/5 shadow-xl' : ''}`} 
+                style={{ top: 0, height: isScrolled ? 'auto' : (headerConfig.height || 80) }}
+            >
+                {/* Background Layer */}
+                <div 
+                    className="absolute inset-0 -z-10 transition-all duration-300"
+                    style={headerBgStyle}
+                />
+                <div className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-all duration-300 ${!isScrolled ? 'h-full' : 'py-3'}`}>
                     <Link href="#inicio" className="flex items-center group">
                         {data.logoUrl ? (
                             <img src={data.logoUrl} alt={data.name}
