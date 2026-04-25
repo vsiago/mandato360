@@ -373,9 +373,10 @@ export function EditorSidebar({
             </div>
             <p className="text-[10px] text-muted-foreground/70 font-medium">Personalize esta seção</p>
           </div>
-          <div className="p-4">
+          <div className="w-full">
             <PluginSidebar
               config={pluginConfig}
+              accentColor={accentColor}
               onChange={(updates) => onPluginConfigChange(activePlugin.id, updates)}
             />
           </div>

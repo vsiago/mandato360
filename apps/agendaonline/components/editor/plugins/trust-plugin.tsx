@@ -1,7 +1,9 @@
 "use client"
 
+import { useState } from "react"
+
 import { EditorPlugin, PluginSectionProps, PluginSidebarProps } from "@mandato360/editor"
-import { Award, Plus, Trash2, CheckCircle2, Star, Shield, Gem, Zap, Flag, Heart, ShieldCheck } from "lucide-react"
+import { Award, Plus, Trash2, CheckCircle2, Star, Shield, Gem, Zap, Flag, Heart, ShieldCheck, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
@@ -82,69 +84,96 @@ function TrustPreview({ config, themeColors }: PluginSectionProps) {
 /* ═══════════════════════════════════════════
    SIDEBAR — Controles avançados (Mandato360 parity)
    ═══════════════════════════════════════════ */
-function TrustSidebar({ config, onChange }: PluginSidebarProps) {
+function TrustSidebar({ config, onChange, accentColor = "#10b981" }: PluginSidebarProps) {
     const badges = config.badges || []
     const autoplay = config.autoplay !== false
     const speed = config.speed || 25
+    const [isPersonalizarOpen, setIsPersonalizarOpen] = useState(true)
 
     return (
         <div className="space-y-6">
-            {/* Global Settings */}
-            <div className="space-y-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
-                    Configurações Globais
-                </p>
-                <div className="rounded-xl border border-border bg-muted/15 p-3.5 space-y-4">
-                    <div className="flex items-center justify-between">
-                        <Label className="text-xs font-medium text-foreground/70">Autoplay</Label>
-                        <Switch
-                            checked={autoplay}
-                            onCheckedChange={(checked) => onChange({ ...config, autoplay: checked })}
-                        />
+            {/* Personalizar Accordion (Design System Parity) */}
+            <div className="border-b border-border">
+                <button
+                    onClick={() => setIsPersonalizarOpen(!isPersonalizarOpen)}
+                    className={cn(
+                        "group flex w-full items-center justify-between p-4 text-left transition-all duration-200 hover:bg-muted",
+                        isPersonalizarOpen && "bg-muted/50"
+                    )}
+                >
+                    <div className="flex items-center gap-3">
+                        <Zap className={cn(
+                            "h-4 w-4 transition-colors duration-200",
+                            isPersonalizarOpen ? "text-current" : "text-muted-foreground/50 group-hover:text-foreground"
+                        )} style={isPersonalizarOpen ? { color: accentColor } : undefined} />
+                        <span className={cn(
+                            "text-sm font-medium transition-colors duration-200",
+                            isPersonalizarOpen ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                        )}>Personalizar</span>
                     </div>
-                    <div className="flex items-center justify-between border-t border-border/50 pt-3">
-                        <Label className="text-[11px] font-medium text-foreground/70">Cor de Fundo</Label>
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="color"
-                                value={config.backgroundColor || "#0f172a"}
-                                onChange={(e) => onChange({ ...config, backgroundColor: e.target.value })}
-                                className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
-                            />
-                            <Input
-                                value={config.backgroundColor || "#0f172a"}
-                                onChange={(e) => onChange({ ...config, backgroundColor: e.target.value })}
-                                className="h-7 w-20 border-border/50 bg-input font-mono text-[9px] text-foreground/60"
-                            />
+                    <ChevronDown
+                        className={cn(
+                            "h-3.5 w-3.5 text-muted-foreground/50 transition-transform duration-300",
+                            isPersonalizarOpen && "rotate-180 text-muted-foreground"
+                        )}
+                    />
+                </button>
+                {isPersonalizarOpen && (
+                    <div className="space-y-4 px-4 pb-4 pt-2">
+                        <div className="rounded-xl border border-border bg-muted/15 p-3.5 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <Label className="text-xs font-medium text-foreground/70">Autoplay</Label>
+                                <Switch
+                                    checked={autoplay}
+                                    onCheckedChange={(checked) => onChange({ ...config, autoplay: checked })}
+                                />
+                            </div>
+                            <div className="flex items-center justify-between border-t border-border/50 pt-3">
+                                <Label className="text-[11px] font-medium text-foreground/70">Cor de Fundo</Label>
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="color"
+                                        value={config.backgroundColor || "#0f172a"}
+                                        onChange={(e) => onChange({ ...config, backgroundColor: e.target.value })}
+                                        className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
+                                    />
+                                    <Input
+                                        value={config.backgroundColor || "#0f172a"}
+                                        onChange={(e) => onChange({ ...config, backgroundColor: e.target.value })}
+                                        className="h-7 w-20 border-border/50 bg-input font-mono text-[9px] text-foreground/60"
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-[11px] font-medium text-foreground/70">Velocidade</Label>
+                                </div>
+                                <div className="flex items-center justify-between mb-1.5">
+                                    <span className="text-[9px] text-muted-foreground">Tempo do loop</span>
+                                    <span className="text-[10px] font-mono font-bold" style={{ color: accentColor }}>{speed}s</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min={5}
+                                    max={60}
+                                    step={1}
+                                    value={speed}
+                                    onChange={(e) => onChange({ ...config, speed: parseInt(e.target.value) })}
+                                    className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
+                                    style={{ accentColor: accentColor }}
+                                />
+                                <div className="flex justify-between text-[8px] text-muted-foreground/40">
+                                    <span>5s (rápido)</span>
+                                    <span>60s (lento)</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                            <Label className="text-[11px] font-medium text-foreground/70">Velocidade</Label>
-                        </div>
-                        <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[9px] text-muted-foreground">Tempo do loop</span>
-                            <span className="text-[10px] font-mono font-bold text-emerald-500">{speed}s</span>
-                        </div>
-                        <input
-                            type="range"
-                            min={5}
-                            max={60}
-                            step={1}
-                            value={speed}
-                            onChange={(e) => onChange({ ...config, speed: parseInt(e.target.value) })}
-                            className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-emerald-500"
-                        />
-                        <div className="flex justify-between text-[8px] text-muted-foreground/40">
-                            <span>5s (rápido)</span>
-                            <span>60s (lento)</span>
-                        </div>
-                    </div>
-                </div>
+                )}
             </div>
 
             {/* Badges List */}
-            <div className="space-y-3">
+            <div className="space-y-3 px-4 pb-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
                     Destaques ({badges.length})
                 </p>

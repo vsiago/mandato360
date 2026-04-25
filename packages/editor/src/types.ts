@@ -206,6 +206,7 @@ export interface PluginSectionProps {
 export interface PluginSidebarProps {
   config: any
   onChange: (updates: any) => void
+  accentColor?: string
 }
 
 export interface EditorPlugin {

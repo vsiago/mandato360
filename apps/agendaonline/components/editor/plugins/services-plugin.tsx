@@ -195,7 +195,7 @@ function ServicesSidebar({ config, onChange }: PluginSidebarProps) {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-4">
             {/* Section Settings */}
             <div className="space-y-3">
                 <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
