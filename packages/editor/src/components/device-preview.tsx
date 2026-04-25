@@ -301,7 +301,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                     "relative z-50 flex shrink-0 items-center justify-between px-4 transition-all",
                     device === "desktop" && "px-8",
                     header.menuStyle === "solid" && "backdrop-blur-md",
-                    (header.menuStyle === "transparent" || header.menuStyle === "gradient") && "absolute top-0 left-0 right-0",
+                    (header.menuStyle === "transparent" || header.menuStyle === "gradient" || header.menuStyle === "solid") && "absolute top-0 left-0 right-0",
                     activeSection === "header" && "ring-2 ring-inset"
                   )}
                   style={{
