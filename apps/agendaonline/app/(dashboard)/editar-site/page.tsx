@@ -41,6 +41,23 @@ export default function EditarSitePage() {
         }
     }
 
+    const handleImageUpload = async (file: File): Promise<string> => {
+        const formData = new FormData()
+        formData.append("file", file)
+
+        const response = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+        })
+
+        if (!response.ok) {
+            throw new Error("Falha no upload")
+        }
+
+        const data = await response.json()
+        return data.url
+    }
+
     if (loading || !data) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#0f0f12]">
@@ -60,6 +77,7 @@ export default function EditarSitePage() {
             plugins={AGENDA_PLUGINS}
             accentColor={data.colors.primary}
             previewUrl={`/${data.slug || normalizeSlug(data.name)}`}
+            onImageUpload={handleImageUpload}
             placeholders={{
                 title: data.heroHeadline,
                 description: data.description,
