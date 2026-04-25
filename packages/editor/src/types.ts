@@ -179,6 +179,8 @@ export interface EditorConfig {
   plugins?: Record<string, any>
   /** Ordering of all sections (core + plugins) */
   sectionOrder?: string[]
+  /** UI State for Header Preview (not persisted) */
+  headerPreviewView?: 'top' | 'scrolled'
 }
 
 // ─── Theme Presets ───

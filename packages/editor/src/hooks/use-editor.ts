@@ -49,13 +49,12 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
       return { ...state, savedSuccessfully: action.success }
 
     case 'UPDATE_CONFIG': {
-      const newConfig = { ...currentConfig }
+      const newConfig = { ...currentConfig, ...action.updates }
       const updates = action.updates
-      if (updates.theme) newConfig.theme = { ...newConfig.theme, ...updates.theme }
-      if (updates.header) newConfig.header = { ...newConfig.header, ...updates.header }
-      if (updates.hero) newConfig.hero = { ...newConfig.hero, ...updates.hero }
-      if (updates.footer) newConfig.footer = { ...newConfig.footer, ...updates.footer }
-      if (updates.sectionOrder) newConfig.sectionOrder = updates.sectionOrder
+      if (updates.theme) newConfig.theme = { ...currentConfig.theme, ...updates.theme }
+      if (updates.header) newConfig.header = { ...currentConfig.header, ...updates.header }
+      if (updates.hero) newConfig.hero = { ...currentConfig.hero, ...updates.hero }
+      if (updates.footer) newConfig.footer = { ...currentConfig.footer, ...updates.footer }
       return pushHistory(newConfig)
     }
 

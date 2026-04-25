@@ -107,6 +107,18 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
     return () => container.removeEventListener("scroll", handleScroll)
   }, [scrollContainerRef])
 
+  // Auto-scroll when enabling scrolled state or switching view for feedback
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    if (config.headerPreviewView === "scrolled") {
+      container.scrollTo({ top: 60, behavior: "smooth" })
+    } else if (config.headerPreviewView === "top") {
+      container.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }, [config.headerPreviewView])
+
   const handleToolbarAction = (action: string) => {
     if (!editingField || !onConfigChange) return
 
