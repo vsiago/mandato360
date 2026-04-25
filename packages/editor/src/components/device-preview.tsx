@@ -359,7 +359,13 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                       opacity: (!isHeaderScrolled && header.menuStyle === "gradient") ? (header.gradient.opacity ?? 100) / 100 : 1,
                     }}
                   />
-                  <div className="flex items-center">
+                  <div 
+                    className="flex items-center cursor-pointer"
+                    onClick={() => {
+                        const container = scrollContainerRef.current
+                        if (container) container.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                  >
                     {header.logo && header.logo.trim() !== "" ? (
                       <img src={header.logo} alt="Logo" style={{ height: isHeaderScrolled ? header.logoHeight * 0.8 : header.logoHeight, filter: isHeaderScrolled ? 'none' : undefined }} className="w-auto object-contain transition-all duration-300" />
                     ) : (
@@ -373,11 +379,15 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   </div>
                   {device === "desktop" ? (
                     <nav className="flex items-center gap-6">
-                      {header.menuItems.map((item, i) => (
-                        <span key={i} className={cn("text-sm font-medium opacity-90 transition-all duration-300 hover:opacity-100", secondaryFont)} style={{ color: headerColors.menu }}>
-                          {item}
-                        </span>
-                      ))}
+                      {middleSections.filter(id => id !== "trust").map((id) => {
+                        const plugin = pluginMap.get(id)
+                        if (!plugin) return null
+                        return (
+                          <span key={id} className={cn("text-sm font-medium opacity-90 transition-all duration-300 hover:opacity-100 cursor-pointer", secondaryFont)} style={{ color: headerColors.menu }}>
+                            {plugin.label}
+                          </span>
+                        )
+                      })}
                       {header.showCta && (
                         <button className={cn("px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105", btnRadius, primaryFont)} style={{ backgroundColor: isHeaderScrolled ? theme.colors.primary : theme.colors.primary, color: headerColors.cta }}>
                           {header.ctaText}

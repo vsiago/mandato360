@@ -170,6 +170,23 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
         ? { backgroundColor: effectiveOverlay.color || '#000000', opacity: (effectiveOverlay.opacity ?? 30) / 100 }
         : undefined
 
+    const SECTION_LABELS: Record<string, string> = {
+        'trust': 'Destaques',
+        'services': 'Serviços',
+        'about': 'Sobre',
+        'beforeAfter': 'Resultados',
+        'faq': 'FAQ',
+        'contact': 'Contato',
+        'agendamento': 'Agendar'
+    }
+
+    const navigationSections = (editorConfig?.sectionOrder || [])
+        .filter(id => id !== 'header' && id !== 'hero' && id !== 'footer' && id !== 'trust')
+        .map(id => ({
+            id,
+            label: SECTION_LABELS[id] || id
+        }))
+
     // ─── Header Parity Logic ───
     const headerConfig = editorConfig?.header || {}
     const headerGradient = headerConfig.gradient || {}
@@ -258,7 +275,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                     style={headerBgStyle}
                 />
                 <div className={`mx-auto flex max-w-7xl items-center justify-between px-6 h-full transition-all duration-300`}>
-                    <Link href="#inicio" className="flex items-center group">
+                    <Link href="#" className="flex items-center group">
                         {data.logoUrl ? (
                             <img src={data.logoUrl} alt={data.name}
                                 className={`w-auto object-contain transition-all duration-300 group-hover:scale-105`} 
@@ -269,9 +286,9 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                         )}
                     </Link>
                     <div className="hidden items-center gap-8 lg:flex">
-                        {headerConfig.menuItems?.map((item: string) => (
-                            <Link key={item} href={`#${item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`}
-                                className="text-sm font-bold transition-colors" style={{ color: headerColors.menu }}>{item}</Link>
+                        {navigationSections.map((item) => (
+                            <Link key={item.id} href={`#${item.id}`}
+                                className="text-sm font-bold transition-colors" style={{ color: headerColors.menu }}>{item.label}</Link>
                         ))}
                         <Link href={`https://wa.me/${data.contact.whatsapp}?text=Ol%C3%A1%20${encodeURIComponent(data.name)}%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio.`} target="_blank">
                             <Button size="sm" className="hover:opacity-90 font-bold rounded-(--theme-btn-radius) px-6 shadow-sm border-none transition-all duration-300" style={{ backgroundColor: themePrimary, color: headerColors.cta }}>{headerConfig.ctaText || "Agendar Agora"}</Button>
@@ -297,11 +314,11 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                     </div>
                                 </SheetHeader>
                                 <div className="flex flex-col flex-1 gap-1 px-4 py-6 overflow-y-auto">
-                                    {["Início", "Serviços", "Dúvidas", "Contato"].map((item) => (
-                                        <SheetClose asChild key={item}>
-                                            <Link href={`#${item.toLowerCase().replace('í', 'i')}`}
+                                    {navigationSections.map((item) => (
+                                        <SheetClose asChild key={item.id}>
+                                            <Link href={`#${item.id}`}
                                                 className="group flex items-center justify-between text-[17px] font-medium text-slate-600 hover:text-tenant-primary hover:bg-white hover:shadow-sm px-5 py-4 rounded-2xl transition-all duration-300">
-                                                {item}
+                                                {item.label}
                                                 <ArrowRight className="h-4 w-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-tenant-primary" />
                                             </Link>
                                         </SheetClose>
@@ -501,13 +518,13 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             </div>
                         </section>
                     ),
-                    'trust_badges': (() => {
+                    'trust': (() => {
                         const trustConfig = editorConfig?.plugins?.trust || {}
                         const trustSpeed = trustConfig.speed || 25
                         const trustAutoplay = trustConfig.autoplay !== false
                         const TRUST_ICON_MAP: Record<string, any> = { Check: CheckCircle2, Award, Star, Shield, ShieldCheck, Gem, Zap, Flag, Heart }
                         return (
-                            <div className="bg-slate-900 py-6 overflow-hidden border-y border-white/5">
+                            <div id="trust" className="bg-slate-900 py-6 overflow-hidden border-y border-white/5">
                                 <style dangerouslySetInnerHTML={{ __html: `
                                     @keyframes public-marquee {
                                         0% { transform: translateX(0); }
@@ -538,8 +555,8 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             </div>
                         )
                     })(),
-                    'servicos': (
-                        <section id="servicos" className="py-24 bg-white">
+                    'services': (
+                        <section id="services" className="py-24 bg-white">
                             <div className="mx-auto max-w-7xl px-6">
                                 <div className="mb-16 text-center max-w-3xl mx-auto">
                                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}>
@@ -601,14 +618,16 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                         </section>
                     ),
                     'agendamento': (
-                        <SchedulingSection 
-                            tenantId={data.id || ""} 
-                            whatsappNumber={data.contact.whatsapp} 
-                            services={services}
-                        />
+                        <div id="agendamento">
+                            <SchedulingSection 
+                                tenantId={data.id || ""} 
+                                whatsappNumber={data.contact.whatsapp} 
+                                services={services}
+                            />
+                        </div>
                     ),
-                    'sobre': (
-                        <section id="sobre" className="relative py-24 lg:py-32 bg-white overflow-hidden">
+                    'about': (
+                        <section id="about" className="relative py-24 lg:py-32 bg-white overflow-hidden">
                             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,var(--tenant-primary)_0%,transparent_40%)] opacity-[0.03]" />
                             <div className="mx-auto max-w-7xl px-6 relative z-10">
                                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
@@ -643,15 +662,15 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             </div>
                         </section>
                     ),
-                    'antes_depois': data.beforeAfter.length > 0 ? (
-                        <section className="py-24 bg-(--theme-color-surface) overflow-hidden border-t border-slate-100 flex flex-col items-center">
+                    'beforeAfter': data.beforeAfter.length > 0 ? (
+                        <section id="beforeAfter" className="py-24 bg-(--theme-color-surface) overflow-hidden border-t border-slate-100 flex flex-col items-center">
                             <div className="mt-8 mb-4 w-full cursor-grab active:cursor-grabbing">
                                 <DraggableCarousel items={data.beforeAfter} />
                             </div>
                         </section>
                     ) : null,
                     'faq': (
-                         <section id="duvidas" className="py-24 bg-white border-t border-slate-100">
+                         <section id="faq" className="py-24 bg-white border-t border-slate-100">
                             <div className="mx-auto max-w-3xl px-6">
                                 <div className="mb-16 text-center">
                                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}>
@@ -706,16 +725,21 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                 }
 
                 // If no sections config exist, fallback to the traditional order
-                const defaultOrder = ['hero', 'trust_badges', 'servicos', 'agendamento', 'sobre', 'antes_depois', 'faq', 'contato']
+                const defaultOrder = ['hero', 'trust', 'services', 'agendamento', 'about', 'beforeAfter', 'faq', 'contact']
                 const seq = data.sections && data.sections.length > 0 
                                 ? [...data.sections].sort((a,b) => a.order - b.order)
                                 : defaultOrder.map((type, i) => ({ type, enabled: true, pro: false, order: i }))
 
                 return seq.map((sec, idx) => {
+                    const type = sec.type === 'trust_badges' ? 'trust' : 
+                                sec.type === 'servicos' ? 'services' :
+                                sec.type === 'sobre' ? 'about' :
+                                sec.type === 'antes_depois' ? 'beforeAfter' : sec.type
+
                     if (!sec.enabled) return null
                     if (sec.pro && data.plan !== 'premium' && data.plan !== 'profissional') return null
                     
-                    return <React.Fragment key={`${sec.type}-${idx}`}>{elements[sec.type] || null}</React.Fragment>
+                    return <React.Fragment key={`${type}-${idx}`}>{elements[type] || null}</React.Fragment>
                 })
             })()}
 
