@@ -41,10 +41,10 @@ function AboutPreview({ config, device, themeColors }: PluginSectionProps) {
             className="relative"
           >
             <div 
-              className="absolute -inset-4 lg:-inset-8 rounded-3xl blur-3xl opacity-60" 
+              className="absolute -inset-4 lg:-inset-8 rounded-(--theme-card-radius) blur-3xl opacity-60" 
               style={{ backgroundColor: `${themeColors.primary}15` }}
             />
-            <div className="relative aspect-[4/5] max-w-md mx-auto rounded-3xl bg-slate-50 overflow-hidden shadow-2xl border border-slate-100 group">
+            <div className="relative aspect-[4/5] max-w-md mx-auto rounded-(--theme-card-radius) bg-slate-50 overflow-hidden shadow-2xl border border-slate-100 group">
               {founder.imageUrl ? (
                 <img 
                   src={founder.imageUrl} 
@@ -61,7 +61,7 @@ function AboutPreview({ config, device, themeColors }: PluginSectionProps) {
               )}
               
               {/* Floating Name Card */}
-              <div className="absolute bottom-6 left-6 right-6 p-5 bg-white/70 backdrop-blur-xl rounded-2xl border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.05)] transform transition-transform duration-500 group-hover:-translate-y-2">
+              <div className="absolute bottom-6 left-6 right-6 p-5 bg-white/70 backdrop-blur-xl rounded-(--theme-card-radius) border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.05)] transform transition-transform duration-500 group-hover:-translate-y-2">
                 <p className="text-[8px] font-extrabold uppercase tracking-[0.2em] mb-1" style={{ color: themeColors.primary }}>
                   {role}
                 </p>

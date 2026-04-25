@@ -98,6 +98,11 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
         if (editorTheme.designSystem) {
             activeTheme.buttons.style = editorTheme.designSystem.borderRadius === 'full' ? 'pill' :
                                         editorTheme.designSystem.borderRadius === 'none' ? 'sharp' : 'soft'
+            
+            activeTheme.cards.borderRadius = editorTheme.designSystem.borderRadius === 'full' ? '20px' :
+                                             editorTheme.designSystem.borderRadius === 'none' ? '0px' :
+                                             editorTheme.designSystem.borderRadius === 'sm' ? '4px' :
+                                             editorTheme.designSystem.borderRadius === 'md' ? '8px' : '12px'
         }
     }
     const themeCSSVars = generateThemeCSS(activeTheme, "light")

@@ -1,7 +1,7 @@
 "use client"
 
 import { EditorPlugin, PluginSectionProps, PluginSidebarProps } from "@mandato360/editor"
-import { Scissors, Plus, Trash2, ChevronDown, ChevronUp, Image as ImageIcon, Type, Layers } from "lucide-react"
+import { Scissors, Plus, Trash2, ChevronDown, ChevronUp, Image as ImageIcon, Type, Layers, Upload, Loader2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -48,7 +48,7 @@ function ServicesPreview({ config, device, themeColors }: PluginSectionProps) {
                 {cats.length > 0 && (
                     <div className="flex justify-center flex-wrap gap-3 mb-12">
                         <div
-                            className="px-5 py-2 rounded-full text-xs font-bold tracking-wide shadow-sm"
+                            className="px-5 py-2 rounded-(--theme-btn-radius) text-xs font-bold tracking-wide shadow-sm"
                             style={{ backgroundColor: themeColors.primary, color: '#fff' }}
                         >
                             Todos
@@ -56,7 +56,7 @@ function ServicesPreview({ config, device, themeColors }: PluginSectionProps) {
                         {cats.map((cat: any) => (
                             <div
                                 key={cat.id}
-                                className="px-5 py-2 rounded-full text-xs font-bold tracking-wide bg-slate-100 text-slate-500"
+                                className="px-5 py-2 rounded-(--theme-btn-radius) text-xs font-bold tracking-wide bg-slate-100 text-slate-500"
                             >
                                 {cat.label}
                             </div>
@@ -92,7 +92,7 @@ function ServicesPreview({ config, device, themeColors }: PluginSectionProps) {
                                     {categoryServices.map((service: any, i: number) => (
                                         <div
                                             key={i}
-                                            className="group bg-white rounded-2xl border border-slate-100 hover:border-opacity-20 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden shadow-sm"
+                                            className="group bg-white rounded-(--theme-card-radius) border border-slate-100 hover:border-opacity-20 hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden shadow-sm"
                                             style={{ ['--hover-border' as any]: `${themeColors.primary}33` }}
                                         >
                                             {/* Image Area */}
@@ -115,7 +115,7 @@ function ServicesPreview({ config, device, themeColors }: PluginSectionProps) {
                                                 <p className="text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2">{service.description}</p>
                                                 <div className="mt-auto flex items-center gap-3">
                                                     <button
-                                                        className="flex-1 flex items-center justify-center text-white font-bold rounded-xl h-10 text-xs transition-all shadow-sm"
+                                                        className="flex-1 flex items-center justify-center text-white font-bold rounded-(--theme-btn-radius) h-10 text-xs transition-all shadow-sm"
                                                         style={{ backgroundColor: themeColors.primary }}
                                                     >
                                                         Agendar
@@ -143,10 +143,11 @@ function ServicesPreview({ config, device, themeColors }: PluginSectionProps) {
 /* ═══════════════════════════════════════════
    SIDEBAR — Edição completa com categorias
    ═══════════════════════════════════════════ */
-function ServicesSidebar({ config, onChange, accentColor = "#10b981" }: PluginSidebarProps) {
+function ServicesSidebar({ config, onChange, accentColor = "#10b981", onImageUpload }: PluginSidebarProps) {
     const items = config.items || []
     const cats = config.categories || []
     const [expandedService, setExpandedService] = useState<number | null>(null)
+    const [uploadingIndex, setUploadingIndex] = useState<number | null>(null)
 
     const [isCabecalhoOpen, setIsCabecalhoOpen] = useState(false)
     const [isCategoriasOpen, setIsCategoriasOpen] = useState(false)
@@ -448,8 +449,56 @@ function ServicesSidebar({ config, onChange, accentColor = "#10b981" }: PluginSi
                                                     </div>
                                                 )}
 
-                                                <div className="space-y-1">
-                                                    <Label className="text-[11px] font-medium text-foreground/70">URL da Imagem</Label>
+                                                <div className="space-y-2">
+                                                    <Label className="text-[11px] font-medium text-foreground/70">Imagem do Serviço</Label>
+                                                    {item.image ? (
+                                                        <div className="relative aspect-video rounded-lg overflow-hidden border border-border group/img">
+                                                            <img src={item.image} alt="" className="w-full h-full object-cover" />
+                                                            <button
+                                                                onClick={() => updateItem(i, { image: "" })}
+                                                                className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity"
+                                                            >
+                                                                <X className="h-3 w-3" />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <label className={cn(
+                                                            "flex flex-col items-center justify-center gap-2 py-6 rounded-xl border-2 border-dashed border-border/50 hover:bg-muted/30 cursor-pointer transition-colors",
+                                                            uploadingIndex === i && "pointer-events-none opacity-50"
+                                                        )}>
+                                                            {uploadingIndex === i ? (
+                                                                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground/40" />
+                                                            ) : (
+                                                                <Upload className="h-5 w-5 text-muted-foreground/40" />
+                                                            )}
+                                                            <span className="text-[10px] text-muted-foreground/60">
+                                                                {uploadingIndex === i ? "Enviando..." : "Upload de foto"}
+                                                            </span>
+                                                            <input
+                                                                type="file"
+                                                                accept="image/*"
+                                                                className="hidden"
+                                                                onChange={async (e) => {
+                                                                    const file = e.target.files?.[0]
+                                                                    if (!file || !onImageUpload) return
+                                                                    setUploadingIndex(i)
+                                                                    try {
+                                                                        const url = await onImageUpload(file)
+                                                                        updateItem(i, { image: url })
+                                                                    } catch (err) {
+                                                                        console.error("Upload failed", err)
+                                                                    } finally {
+                                                                        setUploadingIndex(null)
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </label>
+                                                    )}
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-px bg-border/30 flex-1" />
+                                                        <span className="text-[9px] text-muted-foreground/30 uppercase font-bold">ou URL</span>
+                                                        <div className="h-px bg-border/30 flex-1" />
+                                                    </div>
                                                     <Input
                                                         value={item.image || ""}
                                                         onChange={(e) => updateItem(i, { image: e.target.value })}

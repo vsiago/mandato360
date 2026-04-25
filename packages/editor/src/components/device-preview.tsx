@@ -218,6 +218,26 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
     hamburger: theme.colors.text
   }
 
+  // Design System Variables for Plugins (Parity with generateThemeCSS)
+  const borderRadiusValues: Record<string, string> = {
+    none: "0px",
+    sm: "4px",
+    md: "8px",
+    lg: "12px",
+    full: "20px", // Cards shouldn't be circles even when buttons are pills
+  }
+
+  const themeVariables = {
+    "--theme-card-radius": borderRadiusValues[designSystem.borderRadius || "lg"],
+    "--theme-btn-radius": designSystem.borderRadius === 'full' ? '9999px' : 
+                          designSystem.borderRadius === 'none' ? '0px' : 
+                          designSystem.borderRadius === 'soft' ? '4px' : '12px',
+    "--theme-color-primary": theme.colors.primary,
+    "--theme-color-secondary": theme.colors.secondary,
+    "--theme-color-background": theme.colors.background,
+    "--theme-color-text": theme.colors.text,
+  } as React.CSSProperties
+
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-transparent">
       {/* Zoom Controls */}
@@ -324,6 +344,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                 device === "tablet" && "rounded-2xl aspect-[3/4]",
                 device === "desktop" && (config.hero.autoHeight !== false ? "h-full min-h-[600px] max-h-[900px]" : "min-h-[600px] max-h-[80vh]")
               )}
+              style={themeVariables}
             >
               {/* Full Page Preview */}
               <div className={cn(
