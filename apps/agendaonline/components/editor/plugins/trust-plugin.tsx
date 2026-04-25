@@ -3,7 +3,7 @@
 import { useState } from "react"
 
 import { EditorPlugin, PluginSectionProps, PluginSidebarProps } from "@mandato360/editor"
-import { Award, Plus, Trash2, CheckCircle2, Star, Shield, Gem, Zap, Flag, Heart, ShieldCheck, ChevronDown } from "lucide-react"
+import { Award, Plus, Trash2, CheckCircle2, Star, Shield, Gem, Zap, Flag, Heart, ShieldCheck, ChevronDown, Type } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
@@ -88,10 +88,106 @@ function TrustSidebar({ config, onChange, accentColor = "#10b981" }: PluginSideb
     const badges = config.badges || []
     const autoplay = config.autoplay !== false
     const speed = config.speed || 25
-    const [isPersonalizarOpen, setIsPersonalizarOpen] = useState(true)
+    const [isPersonalizarOpen, setIsPersonalizarOpen] = useState(false)
+    const [isConteudoOpen, setIsConteudoOpen] = useState(false)
 
     return (
-        <div className="space-y-6">
+        <div className="flex-1">
+            {/* Conteúdo Accordion */}
+            <div className="border-b border-border">
+                <button
+                    onClick={() => setIsConteudoOpen(!isConteudoOpen)}
+                    className={cn(
+                        "group flex w-full items-center justify-between p-4 text-left transition-all duration-200 hover:bg-muted",
+                        isConteudoOpen && "bg-muted/50"
+                    )}
+                >
+                    <div className="flex items-center gap-3">
+                        <Type className={cn(
+                            "h-4 w-4 transition-colors duration-200",
+                            isConteudoOpen ? "text-current" : "text-muted-foreground/50 group-hover:text-foreground"
+                        )} style={isConteudoOpen ? { color: accentColor } : undefined} />
+                        <span className={cn(
+                            "text-sm font-medium transition-colors duration-200",
+                            isConteudoOpen ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                        )}>Conteúdo</span>
+                    </div>
+                    <ChevronDown
+                        className={cn(
+                            "h-3.5 w-3.5 text-muted-foreground/50 transition-transform duration-300",
+                            isConteudoOpen && "rotate-180 text-muted-foreground"
+                        )}
+                    />
+                </button>
+                {isConteudoOpen && (
+                    <div className="space-y-3 px-4 pb-4">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
+                            Destaques ({badges.length})
+                        </p>
+                        <div className="space-y-3">
+                            {badges.map((badge: any, i: number) => (
+                                <div key={i} className="rounded-xl border border-border bg-muted/15 p-3.5 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex-1 space-y-1">
+                                            <Label className="text-[11px] font-medium text-foreground/70">Texto</Label>
+                                            <Input
+                                                value={badge.text}
+                                                onChange={(e) => {
+                                                    const newBadges = [...badges]
+                                                    newBadges[i] = { ...badge, text: e.target.value }
+                                                    onChange({ ...config, badges: newBadges })
+                                                }}
+                                                className="h-8 text-[11px] border-border/50 bg-background"
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                const newBadges = badges.filter((_: any, idx: number) => idx !== i)
+                                                onChange({ ...config, badges: newBadges })
+                                            }}
+                                            className="h-8 w-8 flex items-center justify-center text-muted-foreground/30 hover:text-red-500 mt-6 rounded transition-colors"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <Label className="text-[11px] font-medium text-foreground/70">Ícone</Label>
+                                        <div className="grid grid-cols-4 gap-1.5">
+                                            {ICON_OPTIONS.map((opt) => (
+                                                <button
+                                                    key={opt.id}
+                                                    onClick={() => {
+                                                        const newBadges = [...badges]
+                                                        newBadges[i] = { ...badge, icon: opt.id }
+                                                        onChange({ ...config, badges: newBadges })
+                                                    }}
+                                                    className={cn(
+                                                        "flex h-8 items-center justify-center rounded border transition-all hover:bg-muted",
+                                                        (badge.icon || "ShieldCheck") === opt.id
+                                                            ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500"
+                                                            : "border-border text-muted-foreground/40"
+                                                    )}
+                                                >
+                                                    <opt.icon className="h-3.5 w-3.5" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            <button
+                                onClick={() => onChange({ ...config, badges: [...badges, { text: "Novo Destaque", icon: "ShieldCheck" }] })}
+                                className="w-full h-9 rounded-lg border border-dashed border-border text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Plus className="h-3.5 w-3.5" /> Adicionar Destaque
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
             {/* Personalizar Accordion (Design System Parity) */}
             <div className="border-b border-border">
                 <button
@@ -170,73 +266,6 @@ function TrustSidebar({ config, onChange, accentColor = "#10b981" }: PluginSideb
                         </div>
                     </div>
                 )}
-            </div>
-
-            {/* Badges List */}
-            <div className="space-y-3 px-4 pb-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-muted-foreground/50">
-                    Destaques ({badges.length})
-                </p>
-                <div className="space-y-3">
-                    {badges.map((badge: any, i: number) => (
-                        <div key={i} className="rounded-xl border border-border bg-muted/15 p-3.5 space-y-3">
-                            <div className="flex items-center gap-2">
-                                <div className="flex-1 space-y-1">
-                                    <Label className="text-[11px] font-medium text-foreground/70">Texto</Label>
-                                    <Input
-                                        value={badge.text}
-                                        onChange={(e) => {
-                                            const newBadges = [...badges]
-                                            newBadges[i] = { ...badge, text: e.target.value }
-                                            onChange({ ...config, badges: newBadges })
-                                        }}
-                                        className="h-8 text-[11px] border-border/50 bg-background"
-                                    />
-                                </div>
-                                <button
-                                    onClick={() => {
-                                        const newBadges = badges.filter((_: any, idx: number) => idx !== i)
-                                        onChange({ ...config, badges: newBadges })
-                                    }}
-                                    className="h-8 w-8 flex items-center justify-center text-muted-foreground/30 hover:text-red-500 mt-6 rounded transition-colors"
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </button>
-                            </div>
-
-                            <div className="space-y-1">
-                                <Label className="text-[11px] font-medium text-foreground/70">Ícone</Label>
-                                <div className="grid grid-cols-4 gap-1.5">
-                                    {ICON_OPTIONS.map((opt) => (
-                                        <button
-                                            key={opt.id}
-                                            onClick={() => {
-                                                const newBadges = [...badges]
-                                                newBadges[i] = { ...badge, icon: opt.id }
-                                                onChange({ ...config, badges: newBadges })
-                                            }}
-                                            className={cn(
-                                                "flex h-8 items-center justify-center rounded border transition-all hover:bg-muted",
-                                                (badge.icon || "ShieldCheck") === opt.id
-                                                    ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500"
-                                                    : "border-border text-muted-foreground/40"
-                                            )}
-                                        >
-                                            <opt.icon className="h-3.5 w-3.5" />
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-
-                    <button
-                        onClick={() => onChange({ ...config, badges: [...badges, { text: "Novo Destaque", icon: "ShieldCheck" }] })}
-                        className="w-full h-9 rounded-lg border border-dashed border-border text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all flex items-center justify-center gap-2"
-                    >
-                        <Plus className="h-3.5 w-3.5" /> Adicionar Destaque
-                    </button>
-                </div>
             </div>
         </div>
     )
