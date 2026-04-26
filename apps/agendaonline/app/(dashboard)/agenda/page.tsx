@@ -431,7 +431,7 @@ export default function AgendaPage() {
                                     variant="ghost" size="sm" 
                                     onClick={() => setViewMode('month')}
                                     className={cn(
-                                        "h-9 rounded-l-lg rounded-r-none px-5 font-bold text-[11px] tracking-wider transition-all flex items-center gap-2",
+                                        "h-8 rounded-l-lg rounded-r-none px-5 font-bold text-[11px] tracking-wider transition-all flex items-center gap-2",
                                         viewMode === 'month' ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-400 hover:text-white"
                                     )}
                                 >
@@ -442,7 +442,7 @@ export default function AgendaPage() {
                                     variant="ghost" size="sm" 
                                     onClick={() => setViewMode('week')}
                                     className={cn(
-                                        "h-9 rounded-r-lg rounded-l-none px-5 font-bold text-[11px] tracking-wider transition-all flex items-center gap-2",
+                                        "h-8 rounded-r-lg rounded-l-none px-5 font-bold text-[11px] tracking-wider transition-all flex items-center gap-2",
                                         viewMode === 'week' ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-400 hover:text-white"
                                     )}
                                 >
