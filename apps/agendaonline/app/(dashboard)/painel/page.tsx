@@ -8,8 +8,10 @@ import {
     CalendarDays, TrendingUp, Users, ArrowRight, CheckSquare,
     ExternalLink, Globe, Eye, DollarSign,
     Clock, BarChart3, CheckCircle2, X, Scissors,
-    Loader2, Share2, Info
+    Loader2, Share2, Info, ChevronRight, Pencil, Plus, MoreVertical,
+    Lightbulb, ChevronDown
 } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -58,12 +60,12 @@ function PainelContent() {
 
     const checklistItems = [
         { label: "Site publicado", done: !!tenant?.slug, href: "/editar-site" },
-        { label: "Configurar WhatsApp", done: !!tenant?.contact?.whatsapp, href: "/configuracoes" },
-        { label: "Adicionar logotipo", done: !!tenant?.logoUrl, href: "/configuracoes" },
-        { label: "Cadastrar serviços", done: serviceCount > 0, href: "/servicos" },
-        { label: "Antes e Depois", done: (tenant?.beforeAfter?.length || 0) > 0, href: "/antes-depois" },
-        { label: "Foto de Quem somos", done: !!tenant?.founder?.imageUrl, href: "/editar-site" },
-        { label: "Foto do chat", done: !!tenant?.chat?.avatarUrl, href: "/configuracoes" },
+        { label: "WhatsApp conectado", done: !!tenant?.contact?.whatsapp, href: "/configuracoes" },
+        { label: "Adicionar serviços", done: serviceCount > 0, href: "/servicos" },
+        { label: "Foto de perfil", done: !!tenant?.logoUrl, href: "/configuracoes" },
+        { label: "Foto de capa", done: (tenant?.beforeAfter?.length || 0) > 0, href: "/antes-depois" },
+        { label: "Sobre você", done: !!tenant?.founder?.imageUrl, href: "/editar-site" },
+        { label: "Horário de atendimento", done: !!tenant?.chat?.avatarUrl, href: "/configuracoes" },
     ]
 
     const completedCount = checklistItems.filter(i => i.done).length
@@ -91,12 +93,12 @@ function PainelContent() {
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white dark:bg-stone-900 rounded-[32px] border border-amber-500/20 p-8 max-w-md w-full text-center shadow-2xl"
+                        className="bg-white dark:bg-stone-900 rounded-3xl border border-brand-primary/20 p-8 max-w-md w-full text-center shadow-2xl"
                     >
-                        <div className="h-20 w-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-amber-500/20">
-                            <Clock className="h-10 w-10 text-amber-500" />
+                        <div className="h-20 w-20 bg-brand-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-brand-primary/20">
+                            <Clock className="h-10 w-10 text-brand-primary" />
                         </div>
-                        <h2 className="text-3xl font-bold mb-4 text-foreground" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        <h2 className="text-3xl font-bold mb-4 text-foreground">
                             Periodo de Teste Expirou
                         </h2>
                         <p className="text-muted-foreground mb-8 text-sm">
@@ -104,7 +106,9 @@ function PainelContent() {
                         </p>
                         <div className="space-y-3">
                             <Link href="/checkout?plan=profissional" className="block">
-                                <Button className="w-full btn-gold-solid h-14 rounded-2xl text-base font-bold">
+                                <Button 
+                                    className="w-full text-stone-950 h-14 rounded-xl text-base font-bold shadow-xl shadow-brand-secondary/20 transition-all hover:scale-[1.02] bg-brand-gold"
+                                >
                                     Ativar Minha Assinatura
                                 </Button>
                             </Link>
@@ -114,27 +118,27 @@ function PainelContent() {
                                 </Button>
                             </Link>
                         </div>
-                        <p className="mt-8 text-[10px] text-stone-500 uppercase tracking-widest font-bold">
-                            Agenda Online • Ativação Imediata
-                        </p>
                     </motion.div>
                 </div>
             )}
 
             {/* ── Trial Banner ── */}
             {tenant?.trialStatus && !tenant.trialStatus.isExpired && tenant.plan === "free" && (
-                <div className="relative group rounded-2xl overflow-hidden border border-amber-500/20 bg-amber-500/5 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="relative group rounded-2xl overflow-hidden border border-brand-primary/20 bg-brand-primary/5 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
                     <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 bg-amber-500/10 rounded-xl flex items-center justify-center border border-amber-500/20">
-                            <Clock className="h-5 w-5 text-amber-500" />
+                        <div className="h-10 w-10 bg-brand-primary/10 rounded-xl flex items-center justify-center border border-brand-primary/20">
+                            <Clock className="h-5 w-5 text-brand-primary" />
                         </div>
                         <div>
                             <p className="text-sm font-bold text-foreground">Seu período de teste está ativo</p>
-                            <p className="text-xs text-muted-foreground">Você tem mais <span className="text-amber-500 font-bold">{tenant.trialStatus.daysLeft} dias</span> de acesso gratuito.</p>
+                            <p className="text-xs text-muted-foreground">Você tem mais <span className="text-brand-primary font-bold">{tenant.trialStatus.daysLeft} dias</span> de acesso gratuito.</p>
                         </div>
                     </div>
                     <Link href="/checkout?plan=profissional">
-                        <Button size="sm" className="btn-gold-solid rounded-xl px-6 h-10 text-xs font-bold shadow-lg shadow-amber-500/20 border-0">
+                        <Button 
+                            size="sm" 
+                            className="text-stone-950 rounded-xl px-6 h-10 text-xs font-bold shadow-lg shadow-brand-secondary/20 border-0 transition-all hover:scale-105 bg-brand-gold"
+                        >
                             Ativar Assinatura
                         </Button>
                     </Link>
@@ -142,209 +146,270 @@ function PainelContent() {
             )}
 
             {/* ── Header ── */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
-                <div>
-                    <h2 className="text-3xl font-bold text-foreground tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
-                        <span className="text-gold-smooth">{greeting()},</span> {displayName}
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-2">
+                <div className="flex-1">
+                    <h2 className="text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        {greeting()}, <span className="text-brand-primary">{displayName}!</span> 👋
                     </h2>
                     <p className="text-sm text-muted-foreground mt-1">
-                        Gerencie seu negócio e acompanhe seus resultados.
+                        Aqui está o que acontece no seu negócio hoje.
                     </p>
                 </div>
-                <Link href="/agenda">
-                    <Button className="btn-gold-solid rounded-xl px-6 h-11 font-bold shadow-lg shadow-amber-500/10">
-                        <CalendarDays className="h-4 w-4 mr-2" /> Abrir Agenda
-                    </Button>
-                </Link>
+                
+                <div className="flex flex-wrap items-center gap-3">
+                    <Link href="/agenda">
+                        <Button 
+                            className="text-stone-950 rounded-xl px-6 h-12 font-bold shadow-lg shadow-brand-secondary/10 flex items-center gap-2 transition-all hover:scale-105 bg-brand-gold"
+                        >
+                            <CalendarDays className="h-5 w-5" /> Abrir Agenda <ChevronRight className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                    <Link href={`/${tenant?.slug || ""}`} target="_blank">
+                        <Button variant="outline" className="border-stone-800 bg-transparent hover:bg-stone-900 text-white rounded-xl px-6 h-12 font-bold flex items-center gap-2">
+                            <ExternalLink className="h-5 w-5" /> Ver Meu Site
+                        </Button>
+                    </Link>
+
+                    {/* User Profile */}
+                    <div className="flex items-center gap-3 ml-2 pl-4 border-l border-stone-800">
+                        <Avatar className="h-10 w-10 border border-stone-800">
+                            <AvatarImage src={tenant?.founder?.imageUrl || ""} />
+                            <AvatarFallback className="bg-brand-primary/10 text-brand-primary font-bold">
+                                {displayName.substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="hidden sm:block text-left">
+                            <p className="text-xs font-bold text-foreground leading-none">{displayName}</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">{tenant?.contact?.email || "admin@agenda.com"}</p>
+                        </div>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                </div>
             </div>
 
-            {/* ── Minimalist Metrics Strip ── */}
-            <div className="relative rounded-2xl border border-stone-200/50 dark:border-white/5 bg-white/50 dark:bg-stone-900/40 backdrop-blur-md px-2 py-6 shadow-sm overflow-hidden">
-                <div className="absolute inset-0 pointer-events-none opacity-20" 
-                    style={{ background: 'radial-gradient(circle at 20% 0%, rgba(232,168,58,0.15) 0%, transparent 50%)' }} />
-                
-                <div className="grid grid-cols-2 lg:grid-cols-4 relative z-10">
+            {/* ── Quick Actions ── */}
+            <div className="space-y-4">
+                <h3 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest px-1">AÇÕES RÁPIDAS</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                        { icon: CalendarDays, label: "Agendamentos", value: "0", sub: "Hoje" },
-                        { icon: Users, label: "Clientes", value: "0", sub: "Total" },
-                        { icon: Scissors, label: "Serviços ativos", value: String(serviceCount), sub: "Catálogo" },
-                        { icon: Eye, label: "Visitas no site", value: "—", sub: "Mês" },
-                    ].map((card, i) => (
-                        <div key={i} className={cn(
-                            "flex flex-col items-center justify-center text-center px-4",
-                            i < 3 && "border-r border-stone-200/50 dark:border-white/5",
-                            i >= 2 && "mt-6 lg:mt-0"
-                        )}>
-                            <div className="flex items-center gap-1.5 mb-1">
-                                <card.icon className="h-3.5 w-3.5 text-amber-500/70" />
-                                <span className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 tracking-widest">{card.sub}</span>
+                        { href: "/agenda?action=new", icon: CalendarDays, title: "Novo Agendamento", desc: "Criar um novo horário" },
+                        { href: "/servicos", icon: Scissors, title: "Gerenciar Serviços", desc: "Adicionar ou editar serviços" },
+                        { href: "/editar-site", icon: Pencil, title: "Editar Site", desc: "Personalize seu site público" },
+                        { href: "#", icon: Share2, title: "Compartilhar Link", desc: "Compartilhe seu site", action: () => {
+                            if (tenant?.slug) {
+                                navigator.clipboard.writeText(`${window.location.origin}/${tenant.slug}`);
+                                toast.success("Link copiado!");
+                            }
+                        }},
+                    ].map((item, i) => (
+                        <div 
+                            key={i} 
+                            onClick={() => item.action ? item.action() : null}
+                            className="group cursor-pointer bg-stone-900/40 hover:bg-stone-900/60 border border-white/5 p-4 rounded-2xl flex items-center gap-4 transition-all"
+                        >
+                            <div 
+                                className="h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 bg-stone-900/50 group-hover:border-brand-primary/30 transition-colors"
+                            >
+                                <item.icon className="h-6 w-6 text-stone-500 group-hover:text-brand-primary transition-colors" />
                             </div>
-                            <p className="text-2xl font-bold tracking-tighter text-foreground leading-none">{card.value}</p>
-                            <p className="text-[11px] text-muted-foreground mt-1.5 font-medium">{card.label}</p>
+                            <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-bold text-foreground group-hover:text-brand-primary transition-colors">{item.title}</h4>
+                                <p className="text-[10px] text-muted-foreground truncate">{item.desc}</p>
+                            </div>
+                            <ChevronRight className="h-4 w-4 text-stone-700 group-hover:text-brand-primary group-hover:translate-x-1 transition-all" />
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* ── Compact Setup Checklist ── */}
+            {/* ── Setup Checklist (Refined Horizontal Style) ── */}
             {showChecklist && (
-                <div className="relative rounded-2xl border border-amber-500/10 dark:border-white/5 p-4 animate-in fade-in slide-in-from-top-2 duration-500 bg-white dark:bg-stone-900/40 backdrop-blur-md overflow-hidden shadow-sm">
-                    {allDone && (
-                        <button
-                            onClick={handleDismissChecklist}
-                            className="absolute top-3 right-3 z-10 h-6 w-6 rounded-full flex items-center justify-center text-stone-400 hover:text-foreground hover:bg-stone-100 dark:hover:bg-stone-800 transition-all"
-                        >
-                            <X className="h-3 w-3" />
-                        </button>
-                    )}
+                <div className="bg-stone-900/60 border border-white/5 rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden">
                     
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="relative h-10 w-10 flex items-center justify-center shrink-0">
-                                <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-                                    <circle cx="18" cy="18" r="16" fill="none" className="stroke-stone-100 dark:stroke-stone-800" strokeWidth="3" />
-                                    <circle cx="18" cy="18" r="16" fill="none" className="stroke-amber-500 transition-all duration-1000" strokeWidth="3" strokeDasharray={`${progress}, 100`} strokeLinecap="round" />
-                                </svg>
-                                <span className="absolute text-[10px] font-bold text-amber-600 dark:text-amber-400">{progress}%</span>
-                            </div>
-                            <div>
-                                <h3 className="text-sm font-bold tracking-tight text-foreground">Configuração da Agenda</h3>
-                                <p className="text-[11px] text-muted-foreground">
-                                    {allDone ? "Tudo pronto para começar!" : `${completedCount} de ${checklistItems.length} etapas concluídas`}
-                                </p>
-                            </div>
+                    {/* Left Section: Progress & Info */}
+                    <div className="flex items-center gap-6 pr-8 lg:border-r border-white/5 shrink-0">
+                        <div className="relative h-20 w-20 flex items-center justify-center shrink-0">
+                            <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" r="16" fill="none" className="stroke-stone-800" strokeWidth="3" />
+                                <circle 
+                                    cx="18" cy="18" r="16" fill="none" 
+                                    className="stroke-brand-primary transition-all duration-1000" 
+                                    strokeWidth="3" 
+                                    strokeDasharray={`${progress}, 100`} 
+                                    strokeLinecap="round" 
+                                />
+                            </svg>
+                            <span className="absolute text-lg font-bold text-foreground">{progress}%</span>
                         </div>
-
-                        <div className="flex flex-wrap gap-2">
-                            {checklistItems.map((item, i) => (
-                                <Link
-                                    key={i}
-                                    href={item.done ? "#" : item.href}
-                                    className={cn(
-                                        "flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border transition-all text-[10px] font-semibold",
-                                        item.done
-                                            ? "bg-green-500/10 border-green-500/20 text-green-700 dark:text-green-400 opacity-60"
-                                            : "bg-stone-100 dark:bg-stone-800 border-transparent text-stone-600 dark:text-stone-400 hover:border-amber-500/30 hover:text-foreground"
-                                    )}
-                                >
-                                    {item.done ? <CheckCircle2 className="h-3 w-3" /> : <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />}
-                                    {item.label}
-                                </Link>
-                            ))}
+                        <div className="space-y-1">
+                            <h3 className="text-xl font-bold text-foreground tracking-tight">Configuração da Agenda</h3>
+                            <p className="text-[13px] text-muted-foreground">
+                                {completedCount} de {checklistItems.length} etapas concluídas
+                            </p>
+                            <p className="text-[11px] text-stone-500 max-w-[200px]">Complete as etapas e destaque seu negócio.</p>
                         </div>
+                    </div>
 
-                        {allDone && (
-                            <Button onClick={handleDismissChecklist} size="sm" className="btn-gold-solid rounded-full text-[10px] h-8 px-4 font-bold shrink-0">
-                                Ocultar Checklist
+                    {/* Middle Section: Stepper */}
+                    <div className="flex-1 w-full lg:w-auto">
+                        <div className="relative flex justify-between items-start w-full px-4">
+                            {/* Connector Line */}
+                            <div className="absolute top-3.5 left-8 right-8 h-[1px] bg-stone-800 z-0" />
+                            
+                            {checklistItems.map((item, i) => {
+                                const isActive = !item.done && (i === 0 || checklistItems[i-1].done)
+                                return (
+                                    <div key={i} className="relative z-10 flex flex-col items-center gap-4 w-16">
+                                        <div className={cn(
+                                            "h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all border-2",
+                                            item.done 
+                                                ? "bg-green-500/80 border-green-500/20 text-stone-950" 
+                                                : isActive 
+                                                    ? "bg-brand-primary border-brand-primary text-stone-950 shadow-lg shadow-brand-secondary/40 scale-110" 
+                                                    : "bg-stone-900 border-stone-800 text-stone-500"
+                                        )}>
+                                            {item.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
+                                        </div>
+                                        <span className={cn(
+                                            "text-[10px] text-center font-medium leading-tight whitespace-pre-line",
+                                            item.done ? "text-green-500/60" : isActive ? "text-brand-primary font-bold" : "text-stone-500"
+                                        )}>
+                                            {item.label.replace(" ", "\n")}
+                                        </span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Right Section: Action Button */}
+                    <div className="shrink-0">
+                        <Link href="/configuracoes">
+                            <Button 
+                                className="text-stone-950 rounded-xl px-8 h-14 font-bold shadow-xl shadow-brand-secondary/10 transition-all hover:scale-[1.02] bg-brand-gold"
+                            >
+                                Continuar configuração
                             </Button>
-                        )}
+                        </Link>
                     </div>
                 </div>
             )}
 
-            {/* ── Quick Shortcuts ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                    { href: "/editar-site", icon: Globe, title: "Editar Site", desc: "Personalize seu site público" },
-                    { href: "/servicos", icon: Scissors, title: "Serviços", desc: "Gerenciar catálogo e preços" },
-                    ...(tenant?.slug ? [{ href: `/${tenant.slug}`, icon: ExternalLink, title: "Ver Meu Site", desc: `/${tenant.slug}`, external: true }] : []),
-                ].map((item, i) => {
-                    const Inner = (
-                        <div className="group relative rounded-2xl border border-stone-200/50 dark:border-white/5 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-500/5 bg-white/50 dark:bg-stone-900/40 backdrop-blur-md flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-500/10 border border-amber-500/20 group-hover:bg-amber-500 group-hover:text-white transition-all">
-                                <item.icon className="h-5 w-5 text-amber-600 dark:text-amber-400 group-hover:text-white" />
-                            </div>
-                            <div className="min-w-0">
-                                <p className="text-sm font-bold text-foreground tracking-tight">{item.title}</p>
-                                <p className={cn("text-[10px] text-muted-foreground truncate", (item as any).external && "font-mono")}>{item.desc}</p>
-                            </div>
-                            <ArrowRight className="h-4 w-4 text-amber-500/30 ml-auto shrink-0 group-hover:text-amber-500 group-hover:translate-x-1 transition-all" />
-                        </div>
-                    )
-
-                    return (item as any).external ? (
-                        <a key={i} href={item.href} target="_blank" rel="noopener noreferrer">{Inner}</a>
-                    ) : (
-                        <Link key={i} href={item.href}>{Inner}</Link>
-                    )
-                })}
-            </div>
-
-
-            {/* ── Insights Row ── */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-4 pb-8 min-h-[400px]">
-                {/* ── Agendamentos Chart ── */}
-                <div className="relative rounded-2xl border border-stone-200/50 dark:border-white/5 p-6 bg-white/50 dark:bg-stone-900/40 backdrop-blur-md shadow-sm flex flex-col">
-                    <div className="flex items-center justify-between mb-6">
+            {/* ── Main Content Grid ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-8">
+                
+                {/* ── Left Column: Agendamentos ── */}
+                <div className="lg:col-span-5 bg-stone-900/40 border border-white/5 rounded-2xl overflow-hidden flex flex-col min-h-[500px]">
+                    <div className="p-6 flex items-center justify-between border-b border-white/5">
                         <div className="flex items-center gap-2">
-                            <BarChart3 className="h-4 w-4 text-amber-500" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Atividade</span>
+                            <CalendarDays className="h-5 w-5 text-brand-primary" />
+                            <h3 className="font-bold text-foreground">Próximos agendamentos</h3>
                         </div>
-                        <span className="text-[11px] font-bold text-foreground">0 Agendamentos</span>
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-stone-900 border border-stone-800 rounded-xl cursor-pointer">
+                            <span className="text-[10px] font-bold text-foreground">Hoje</span>
+                            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                        </div>
                     </div>
-                    <div className="flex items-end gap-2 h-24 mt-auto">
-                        {[0, 0, 0, 0, 0, 0, 0].map((val, i) => {
-                            const days = ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
-                            return (
-                                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                                    <div className="w-full rounded-full bg-stone-100 dark:bg-stone-800/50 h-2 relative overflow-hidden">
-                                        <div className="absolute bottom-0 left-0 right-0 bg-amber-500/20" style={{ height: '4px' }} />
-                                    </div>
-                                    <span className="text-[9px] text-muted-foreground font-bold">{days[i]}</span>
+
+                    <div className="p-6 space-y-3">
+                        {[
+                            { time: "10:00", name: "João Silva", service: "Corte de Cabelo", status: "Confirmado", initials: "JS" },
+                            { time: "14:30", name: "Ana Martins", service: "Coloração", status: "Confirmado", initials: "AM" },
+                            { time: "16:00", name: "Carlos Pereira", service: "Barba", status: "Confirmado", initials: "CP" },
+                        ].map((apt, i) => (
+                            <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-stone-900/20 border border-white/5 border-l-2 border-l-brand-primary hover:bg-white/5 transition-all group">
+                                <div className="text-center w-12 shrink-0">
+                                    <p className="text-sm font-bold text-stone-400 group-hover:text-brand-primary transition-colors">{apt.time}</p>
+                                    <p className="text-[9px] text-stone-500 uppercase font-bold tracking-wider mt-0.5">Hoje</p>
                                 </div>
-                            )
-                        })}
+                                <div className="flex-1 flex items-center gap-3">
+                                    <div className="h-10 w-10 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-[10px] font-bold text-stone-400">
+                                        {apt.initials}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-bold text-foreground truncate">{apt.name}</p>
+                                        <p className="text-[10px] text-muted-foreground truncate">{apt.service}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-stone-900/50 text-green-500/80 text-[9px] font-bold px-2.5 py-1 rounded-full border border-green-500/20 uppercase tracking-wider transition-colors group-hover:border-green-500/40">
+                                        Confirmado
+                                    </div>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-stone-600 hover:text-foreground">
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                </div>
 
-                {/* ── Próximos Agendamentos ── */}
-                <div className="relative rounded-2xl border border-stone-200/50 dark:border-white/5 p-6 bg-white/50 dark:bg-stone-900/40 backdrop-blur-md shadow-sm flex flex-col">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-amber-500" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Próximos</span>
-                        </div>
-                        <div className="bg-green-500/10 text-green-600 dark:text-green-400 text-[9px] font-bold px-2 py-0.5 rounded-full border border-green-500/10">
-                            HOJE
-                        </div>
-                    </div>
-                    
-                    <div className="flex-1 flex flex-col items-center justify-center py-2 text-center">
-                        <p className="text-xs text-muted-foreground mb-4">Nenhum agendamento para hoje</p>
-                        <div className="w-full flex flex-col gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                    if (tenant?.slug) {
-                                        navigator.clipboard.writeText(`${window.location.origin}/${tenant.slug}`);
-                                        toast.success("Link copiado!");
-                                    }
-                                }}
-                                className="w-full rounded-xl text-[10px] font-bold border-amber-500/20 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all text-amber-600 dark:text-amber-400 h-9"
-                            >
-                                <Share2 className="h-3 w-3 mr-1.5" /> Copiar Link
+                    <div className="p-6 pt-0 mt-auto">
+                        <Link href="/agenda">
+                            <Button variant="outline" className="w-full border-stone-800 hover:bg-stone-900 rounded-2xl h-12 text-xs font-bold text-brand-primary flex items-center justify-center gap-2">
+                                <CalendarDays className="h-4 w-4" /> Ver agenda completa <ChevronRight className="h-3 w-3" />
                             </Button>
-                        </div>
+                        </Link>
                     </div>
                 </div>
 
-                {/* ── Faturamento ── */}
-                <div className="relative rounded-2xl border border-stone-200/50 dark:border-white/5 p-6 bg-white/50 dark:bg-stone-900/40 backdrop-blur-md shadow-sm flex flex-col">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-amber-500" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-stone-500">Faturamento</span>
+                {/* ── Right Column: Metrics Grid & Tip Card ── */}
+                <div className="lg:col-span-7 space-y-6">
+                    {/* Metrics Grid (2 columns) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {[
+                            { title: "Faturamento do mês", value: "R$ 0,00", sub: "0% em relação ao mês anterior", icon: DollarSign, chart: true },
+                            { title: "Clientes", value: "0", sub: "Total de clientes cadastrados", icon: Users },
+                            { title: "Serviços ativos", value: String(serviceCount), sub: "Serviços cadastrados", icon: Scissors },
+                            { title: "Agendamentos hoje", value: "0", sub: "Total de agendamentos", icon: CalendarDays },
+                        ].map((m, i) => (
+                            <div key={i} className="group cursor-pointer bg-stone-900/40 border border-white/5 p-6 rounded-2xl hover:bg-stone-900/60 transition-all relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+                                <div className="flex items-start justify-between">
+                                    <div className="h-10 w-10 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center group-hover:border-brand-primary/30 transition-colors">
+                                        <m.icon className="h-5 w-5 text-stone-500 group-hover:text-brand-primary transition-colors" />
+                                    </div>
+                                    <ChevronRight className="h-4 w-4 text-stone-700 group-hover:text-brand-primary transition-all" />
+                                </div>
+                                
+                                <div>
+                                    <p className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">{m.title}</p>
+                                    <p className="text-2xl font-bold text-foreground tracking-tight mt-1">{m.value}</p>
+                                    <p className="text-[10px] text-muted-foreground mt-1">{m.sub}</p>
+                                </div>
+
+                                {m.chart && (
+                                    <div className="absolute bottom-6 right-6 opacity-20 group-hover:opacity-60 transition-opacity">
+                                        <TrendingUp className="h-10 w-10 text-brand-primary" />
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Tip Card (Full width horizontal) */}
+                    <div className="bg-stone-900/40 border border-white/5 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-4">
+                            <div className="h-14 w-14 rounded-full bg-stone-900 border border-white/5 flex items-center justify-center shrink-0">
+                                <Lightbulb className="h-7 w-7 text-stone-500" />
+                            </div>
+                            <div className="max-w-[400px]">
+                                <h4 className="text-sm font-bold text-foreground mb-1">Dica para você</h4>
+                                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                    Complete seu perfil com foto e descrição para transmitir mais confiança aos seus clientes.
+                                </p>
+                            </div>
                         </div>
-                        <TrendingUp className="h-3.5 w-3.5 text-stone-300" />
+                        <Link href="/configuracoes">
+                            <Button variant="outline" className="border-stone-800 hover:bg-stone-900 text-brand-primary text-[11px] font-bold h-11 px-6 rounded-xl transition-all whitespace-nowrap">
+                                Ir para perfil
+                            </Button>
+                        </Link>
                     </div>
-                    <div className="mt-auto">
-                        <p className="text-3xl font-bold tracking-tighter text-foreground leading-none">R$ 0</p>
-                        <p className="text-[11px] text-muted-foreground mt-2 font-medium">Acumulado do mês</p>
-                    </div>
-                    <div className="mt-6 pt-4 border-t border-stone-100 dark:border-white/5 flex items-center justify-between">
-                        <span className="text-[10px] text-muted-foreground font-bold">MÊS ANTERIOR</span>
-                        <span className="text-[10px] font-bold text-foreground">R$ 0</span>
+
+                    {/* Footer */}
+                    <div className="pt-4 text-center lg:text-right">
+                        <p className="text-[10px] text-stone-600 font-medium uppercase tracking-[0.2em]">
+                            © 2024 AgendaOnline. Todos os direitos reservados.
+                        </p>
                     </div>
                 </div>
             </div>

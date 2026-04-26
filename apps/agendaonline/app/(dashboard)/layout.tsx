@@ -150,13 +150,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                 "group flex items-center text-[14px] transition-all duration-300 relative",
                                                 isEditorPage ? "justify-center py-3 px-2 rounded-xl mx-2" : "gap-4 px-6 py-3.5",
                                                 isActive
-                                                    ? "text-amber-500 bg-linear-to-r from-amber-500/10 to-transparent border-l-2 border-amber-500"
+                                                    ? "text-brand-primary bg-gradient-to-r from-brand-primary/10 to-transparent border-l-2 border-brand-primary"
                                                     : "text-stone-400 hover:text-stone-100 hover:bg-stone-800/20 border-l-2 border-transparent"
                                             )}
                                         >
                                             <item.icon className={cn(
                                                 "h-5 w-5 transition-all duration-300 shrink-0",
-                                                isActive ? "text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "text-stone-500 group-hover:text-stone-300"
+                                                isActive ? "text-brand-primary drop-shadow-[0_0_8px_rgba(202,145,42,0.4)]" : "text-stone-500 group-hover:text-stone-300"
                                             )} />
                                             {!isEditorPage && (
                                                 <span className={cn(
@@ -169,7 +169,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             
                                             {/* Active Glow Effect */}
                                             {isActive && !isEditorPage && (
-                                                <div className="absolute inset-0 bg-amber-500/5 blur-xl -z-10" />
+                                                <div className="absolute inset-0 bg-brand-primary/5 blur-xl -z-10" />
                                             )}
                                         </Link>
                                     )
@@ -188,13 +188,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     "group flex items-center text-[14px] transition-all duration-300 relative",
                                     isEditorPage ? "justify-center py-3 px-2 rounded-xl mx-2" : "gap-4 px-6 py-3.5",
                                     pathname.startsWith("/admin")
-                                        ? "text-amber-500 bg-linear-to-r from-amber-500/10 to-transparent border-l-2 border-amber-500"
+                                        ? "text-brand-primary bg-gradient-to-r from-brand-primary/10 to-transparent border-l-2 border-brand-primary"
                                         : "text-stone-400 hover:text-stone-100 hover:bg-stone-800/20 border-l-2 border-transparent"
                                 )}
                             >
                                 <Shield className={cn(
                                     "h-5 w-5 transition-all duration-300 shrink-0",
-                                    pathname.startsWith("/admin") ? "text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "text-stone-500 group-hover:text-stone-300"
+                                    pathname.startsWith("/admin") ? "text-brand-primary drop-shadow-[0_0_8px_rgba(202,145,42,0.4)]" : "text-stone-500 group-hover:text-stone-300"
                                 )} />
                                 {!isEditorPage && <span className={cn("transition-colors tracking-wide", pathname.startsWith("/admin") ? "font-semibold" : "font-medium")}>Administração</span>}
                             </Link>
@@ -207,13 +207,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="p-4 mt-auto">
                         <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-800/40 flex items-center gap-3 group cursor-pointer hover:bg-stone-900/60 transition-all duration-300">
                             <div className="h-10 w-10 rounded-xl bg-stone-800/50 flex items-center justify-center shrink-0 border border-stone-700/30">
-                                <Headset className="h-5 w-5 text-stone-500 group-hover:text-amber-500 transition-colors" />
+                                <Headset className="h-5 w-5 text-stone-500 group-hover:text-brand-primary transition-colors" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-xs font-semibold text-stone-200 truncate">Precisa de ajuda?</p>
                                 <p className="text-[10px] text-stone-500 truncate">Acesse nossa central</p>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-stone-600 group-hover:text-amber-500 group-hover:translate-x-0.5 transition-all" />
+                            <ChevronRight className="h-4 w-4 text-stone-600 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" />
                         </div>
                     </div>
                 )}
@@ -233,7 +233,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                ══════════════════════════════════════════════ */}
             <div className={cn("flex flex-col min-h-screen pb-20 lg:pb-0 transition-all duration-300", isEditorPage ? "lg:ml-16" : "lg:ml-64")}>
 
-                <header className="sticky top-0 z-20 bg-[#F6F3ED]/80 dark:bg-stone-950/60 backdrop-blur-xl border-b border-stone-200/50 dark:border-stone-800/40 h-16 px-5 flex items-center justify-between transition-colors shadow-[0_2px_15px_-3px_rgba(0,0,0,0.02)]">
+                <header className="sticky top-0 z-20 bg-[#F6F3ED]/80 dark:bg-stone-950/60 backdrop-blur-xl border-b border-stone-200/50 dark:border-stone-800/40 h-16 px-5 flex items-center justify-between transition-colors shadow-sm">
                     {/* Mobile logo + Page title */}
                     <div className="flex items-center gap-3">
                         <Link href="/painel" className="lg:hidden flex items-center gap-2">
@@ -336,7 +336,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 className={cn(
                                     "flex flex-col items-center justify-center gap-1 w-18 h-13 rounded-2xl transition-all duration-300 relative overflow-hidden",
                                     isActive
-                                        ? "text-amber-700 dark:text-amber-400 bg-linear-to-b from-stone-50/50 to-amber-50/80 dark:from-stone-900/40 dark:to-amber-900/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02),inset_0_0_0_1px_rgba(251,191,36,0.15)] dark:shadow-[inset_0_2px_4px_rgba(0,0,0,0.1),inset_0_0_0_1px_rgba(251,191,36,0.1)]"
+                                        ? "text-brand-secondary dark:text-brand-primary bg-gradient-to-b from-stone-50/50 to-brand-primary/10 dark:from-stone-900/40 dark:to-brand-primary/10 shadow-brand-primary/15 dark:shadow-brand-primary/10"
                                         : "text-stone-500/80 dark:text-stone-400/80 hover:bg-stone-100/50 dark:hover:bg-stone-900/50 hover:text-stone-700 dark:hover:text-stone-300"
                                 )}
                             >
