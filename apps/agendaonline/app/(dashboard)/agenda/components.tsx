@@ -1,0 +1,374 @@
+"use client"
+
+import React from "react"
+import { cn } from "@/lib/utils"
+import {
+    CalendarDays, Clock, CheckCircle2, XCircle, Plus, ChevronLeft, ChevronRight,
+    MessageCircle, MoreVertical, Pencil, Trash2, UserPlus, X, Zap, Phone, Calendar as CalendarIcon, Lock
+} from "lucide-react"
+import {
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
+
+const WEEKDAYS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"]
+const MONTH_NAMES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+
+/* ═══════════════════════════════════════════
+   DESKTOP: Appointment Details Panel
+   ═══════════════════════════════════════════ */
+export function DesktopDetailsPanel({ apt, onEdit, onComplete, onDetails, onConfirm, onDelete, onSaveClient }: {
+    apt: any | null
+    onEdit: (a: any) => void
+    onComplete: (a: any) => void
+    onDetails: (a: any) => void
+    onConfirm: (time: string) => void
+    onDelete: (id: string) => void
+    onSaveClient: (a: any) => void
+}) {
+    if (!apt) return (
+        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-6 flex flex-col items-center justify-center min-h-[260px]">
+            <CalendarDays className="h-10 w-10 text-stone-700 mb-3" />
+            <p className="text-sm font-semibold text-stone-500">Selecione um agendamento</p>
+            <p className="text-xs text-stone-600 mt-1">Clique em um card na timeline</p>
+        </div>
+    )
+
+    return (
+        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em]">
+                    Detalhes do Agendamento
+                </h3>
+            </div>
+            {/* Client info */}
+            <div className="flex items-center gap-3 mb-5">
+                <div className={cn(
+                    "h-12 w-12 rounded-full flex items-center justify-center text-sm font-black border-2 shrink-0",
+                    apt.status === 'confirmed' ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                        : apt.status === 'completed' ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
+                            : "bg-amber-400/10 border-amber-400/30 text-amber-400"
+                )}>
+                    {apt.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{apt.name}</p>
+                    {apt.phone && (
+                        <p className="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
+                            {apt.phone}
+                        </p>
+                    )}
+                </div>
+                <div className="flex items-center gap-2">
+                    {apt.phone && (
+                        <>
+                            <a href={`tel:${apt.phone}`} className="h-8 w-8 rounded-full bg-stone-800 border border-white/5 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-all">
+                                <Phone className="h-3.5 w-3.5" />
+                            </a>
+                            <a href={`https://wa.me/${apt.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="h-8 w-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 hover:bg-green-500/20 transition-all">
+                                <MessageCircle className="h-3.5 w-3.5" />
+                            </a>
+                        </>
+                    )}
+                </div>
+            </div>
+            {/* Details grid */}
+            <div className="space-y-3 mb-6">
+                {[
+                    { label: "Serviço", value: apt.service },
+                    { label: "Valor", value: apt.price },
+                    { label: "Data", value: "26 de abril de 2025" }, // Hardcoded for design match, should use apt.date formatted
+                    { label: "Horário", value: apt.time },
+                    { label: "Duração", value: "50 min" }, // Mock data to match design
+                    ...(apt.notes ? [{ label: "Observações", value: apt.notes }] : [])
+                ].map(row => (
+                    <div key={row.label} className="flex items-start gap-3">
+                        <span className="text-[10px] text-stone-500 w-20 shrink-0 pt-0.5">{row.label}</span>
+                        <span className="text-xs text-stone-300 font-medium">{row.value}</span>
+                    </div>
+                ))}
+            </div>
+            {/* Actions */}
+            <div className="grid grid-cols-4 gap-2 border-t border-white/5 pt-5">
+                <button onClick={() => onEdit(apt)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-amber-400 transition-colors group cursor-pointer">
+                    <div className="h-10 w-10 rounded-xl bg-amber-400/5 border border-amber-400/10 flex items-center justify-center group-hover:bg-amber-400/10 group-hover:border-amber-400/20 transition-all">
+                        <Pencil className="h-4 w-4 text-amber-400" />
+                    </div>
+                    <span className="text-[10px] font-medium">Editar</span>
+                </button>
+                <button onClick={() => onEdit(apt)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-amber-400 transition-colors group cursor-pointer">
+                    <div className="h-10 w-10 rounded-xl bg-amber-400/5 border border-amber-400/10 flex items-center justify-center group-hover:bg-amber-400/10 group-hover:border-amber-400/20 transition-all">
+                        <CalendarIcon className="h-4 w-4 text-amber-400" />
+                    </div>
+                    <span className="text-[10px] font-medium">Reagendar</span>
+                </button>
+                <button onClick={() => apt.status === 'completed' ? onDetails(apt) : onComplete(apt)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-emerald-500 transition-colors group cursor-pointer">
+                    <div className="h-10 w-10 rounded-xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/10 group-hover:border-emerald-500/20 transition-all">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                    </div>
+                    <span className="text-[10px] font-medium">Concluir</span>
+                </button>
+                <button onClick={() => onDelete(apt.id)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-red-500 transition-colors group cursor-pointer">
+                    <div className="h-10 w-10 rounded-xl bg-red-500/5 border border-red-500/10 flex items-center justify-center group-hover:bg-red-500/10 group-hover:border-red-500/20 transition-all">
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                    </div>
+                    <span className="text-[10px] font-medium">Cancelar</span>
+                </button>
+            </div>
+        </div>
+    )
+}
+
+/* ═══════════════════════════════════════════
+   DESKTOP: States Panel (all appointments list)
+   ═══════════════════════════════════════════ */
+export function DesktopStatesPanel({ appointments, onSelect, selectedId }: {
+    appointments: any[]
+    onSelect: (a: any) => void
+    selectedId?: string
+}) {
+    const allItems = [...appointments].sort((a, b) => a.time.localeCompare(b.time))
+
+    return (
+        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+            <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] mb-1">
+                Estados dos Agendamentos
+            </h3>
+            <p className="text-[9px] text-stone-500 mb-4">Todos os estados visuais</p>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                {allItems.map((apt) => {
+                    const isBlocked = apt.status === 'blocked'
+                    const isFree = apt.status === 'liberado'
+                    if (isFree) return null
+
+                    return (
+                        <button
+                            key={apt.id || apt.time}
+                            onClick={() => !isBlocked && onSelect(apt)}
+                            className={cn(
+                                "w-full text-left p-3 rounded-xl border transition-all flex items-start gap-3 cursor-pointer",
+                                selectedId === apt.id ? "border-brand-primary/30 bg-brand-primary/5" :
+                                    isBlocked ? "border-red-500/20 bg-red-500/[0.05]" :
+                                        apt.status === 'confirmed' ? "border-emerald-500/20 bg-emerald-500/[0.05]" :
+                                            apt.status === 'pending' ? "border-amber-400/20 bg-amber-400/[0.05]" :
+                                                "border-white/5 bg-stone-900/20 hover:border-white/10 hover:bg-stone-900/40"
+                            )}
+                        >
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                    <p className={cn("text-xs font-bold truncate", isBlocked ? "text-red-500" : "text-foreground")}>
+                                        {isBlocked ? "Horário Bloqueado" : apt.name}
+                                    </p>
+                                    {!isBlocked && (
+                                        <div className={cn(
+                                            "text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full tracking-wider shrink-0 border",
+                                            apt.status === 'confirmed' || apt.status === 'completed' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20"
+                                                : "text-amber-500 bg-amber-400/10 border-amber-400/20"
+                                        )}>
+                                            {apt.status === 'completed' ? 'Concluído' : apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
+                                        </div>
+                                    )}
+                                </div>
+                                <p className="text-[10px] text-stone-500 truncate">
+                                    {isBlocked ? "Indisponível para clientes" : `${apt.service} · ${apt.price}`}
+                                </p>
+                            </div>
+                            {!isBlocked && (
+                                <div className="h-7 w-7 rounded-full overflow-hidden border border-white/10 shrink-0">
+                                    {/* Mock Avatar based on name initials, in a real scenario would use an image */}
+                                    <div className="h-full w-full bg-stone-800 flex items-center justify-center text-[9px] font-bold text-stone-400">
+                                        {apt.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+                                    </div>
+                                </div>
+                            )}
+                            {isBlocked && (
+                                <div className="h-7 w-7 rounded-full flex items-center justify-center shrink-0">
+                                    <Lock className="h-4 w-4 text-red-500" />
+                                </div>
+                            )}
+                        </button>
+                    )
+                })}
+                {/* Adding a mock Free slot to match the design bottom element */}
+                <div className="w-full text-left p-3 rounded-xl border border-white/5 bg-stone-900/20 border-dashed flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="h-7 w-7 rounded-lg bg-stone-800 flex items-center justify-center text-stone-500 shrink-0">
+                            <Plus className="h-4 w-4" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium text-stone-400">Horário Livre</p>
+                            <p className="text-[9px] text-stone-600">Disponível para agendamento</p>
+                        </div>
+                    </div>
+                    <div className="h-6 w-6 rounded border border-white/10 flex items-center justify-center text-stone-500">
+                        <Plus className="h-3 w-3" />
+                    </div>
+                </div>
+
+                {allItems.length === 0 && (
+                    <p className="text-xs text-stone-600 text-center py-4">Nenhum agendamento</p>
+                )}
+            </div>
+        </div>
+    )
+}
+
+/* ═══════════════════════════════════════════
+   DESKTOP: Monthly Mini Calendar
+   ═══════════════════════════════════════════ */
+export function DesktopMiniCalendar({ currentMonth, setCurrentMonth, selectedDate, setSelectedDate, appointments, isDayFullyBlocked }: {
+    currentMonth: Date
+    setCurrentMonth: (d: Date) => void
+    selectedDate: string
+    setSelectedDate: (d: string) => void
+    appointments: Record<string, any[]>
+    isDayFullyBlocked: (d: string) => boolean
+}) {
+    const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate()
+    const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay()
+
+    const getDateKey = (day: number) => {
+        const m = (currentMonth.getMonth() + 1).toString().padStart(2, "0")
+        const d = day.toString().padStart(2, "0")
+        return `${currentMonth.getFullYear()}-${m}-${d}`
+    }
+
+    return (
+        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+            <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] mb-4">Visão Mensal</h3>
+            <div className="flex items-center justify-between mb-5">
+                <span className="text-sm font-bold text-foreground capitalize">{MONTH_NAMES[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
+                <div className="flex gap-2">
+                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="h-7 w-7 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => setCurrentMonth(new Date())} className="h-7 px-3 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-xs font-semibold text-stone-300 hover:text-white transition-all cursor-pointer">
+                        Hoje
+                    </button>
+                </div>
+            </div>
+            <div className="grid grid-cols-7 gap-y-3 mb-2">
+                {WEEKDAYS.map(d => <div key={d} className="text-center text-[9px] font-bold text-stone-500 uppercase tracking-widest">{d}</div>)}
+            </div>
+            <div className="grid grid-cols-7 gap-y-4">
+                {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
+                {Array.from({ length: daysInMonth }).map((_, i) => {
+                    const day = i + 1
+                    const dateKey = getDateKey(day)
+                    const isSelected = dateKey === selectedDate
+                    const apts = appointments[dateKey] || []
+                    const isToday = dateKey === new Date().toISOString().split('T')[0]
+                    const blocked = isDayFullyBlocked(dateKey)
+                    return (
+                        <button key={day} onClick={() => setSelectedDate(dateKey)}
+                            className={cn(
+                                "h-8 w-8 mx-auto rounded-full text-xs font-bold transition-all relative flex flex-col items-center justify-center cursor-pointer",
+                                isSelected ? "bg-brand-gold text-stone-950 shadow-[0_0_10px_rgba(245,204,112,0.3)]" :
+                                    isToday ? "text-brand-primary border border-brand-primary/30" :
+                                        blocked ? "text-stone-600" : "text-stone-300 hover:bg-stone-800 hover:text-white"
+                            )}>
+                            <span>{day}</span>
+                            <div className="flex gap-0.5 absolute -bottom-2">
+                                {apts.length > 0 && (
+                                    <>
+                                        {apts.some(a => a.status === 'confirmed' || a.status === 'completed') && <div className="h-1 w-1 rounded-full bg-emerald-500" />}
+                                        {apts.some(a => a.status === 'pending') && <div className="h-1 w-1 rounded-full bg-brand-primary" />}
+                                        {apts.some(a => a.status === 'blocked') && <div className="h-1 w-1 rounded-full bg-red-500" />}
+                                    </>
+                                )}
+                            </div>
+                        </button>
+                    )
+                })}
+            </div>
+            {/* Legend */}
+            <div className="flex items-center justify-between gap-2 mt-6 pt-4 border-t border-white/5">
+                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /><span className="text-[9px] text-stone-500 font-medium">Tem agendamentos</span></div>
+                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-red-500" /><span className="text-[9px] text-stone-500 font-medium">Bloqueado</span></div>
+                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-stone-600" /><span className="text-[9px] text-stone-500 font-medium">Sem agendamentos</span></div>
+            </div>
+        </div>
+    )
+}
+
+/* ═══════════════════════════════════════════
+   DESKTOP: Day Summary
+   ═══════════════════════════════════════════ */
+export function DesktopDaySummary({ summary }: {
+    summary: { total: number; confirmed: number; pending: number; blocked: number; free: number; completed: number }
+}) {
+    return (
+        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+            <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] mb-4">Resumo do Dia</h3>
+            <div className="grid grid-cols-3 gap-2 mb-2">
+                <div className="col-span-1 rounded-xl bg-stone-900/50 border border-white/5 p-3">
+                    <p className="text-xl font-bold text-stone-300 mb-1">{summary.total + summary.completed}</p>
+                    <p className="text-[9px] text-stone-500 leading-tight">Total de<br />agendamentos</p>
+                </div>
+                <div className="col-span-1 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10 p-3 relative overflow-hidden">
+                    <CheckCircle2 className="absolute -bottom-2 -right-2 h-10 w-10 text-emerald-500/10" />
+                    <p className="text-xl font-bold text-emerald-500 mb-1">{summary.confirmed}</p>
+                    <p className="text-[9px] text-emerald-500/70 leading-tight">Confirmados</p>
+                </div>
+                <div className="col-span-1 rounded-xl bg-brand-primary/[0.03] border border-brand-primary/10 p-3 relative overflow-hidden">
+                    <CalendarDays className="absolute -bottom-2 -right-2 h-10 w-10 text-brand-primary/10" />
+                    <p className="text-xl font-bold text-brand-primary mb-1">{summary.pending}</p>
+                    <p className="text-[9px] text-brand-primary/70 leading-tight">Pendentes</p>
+                </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+                <div className="col-span-1 rounded-xl bg-red-500/[0.03] border border-red-500/10 p-3">
+                    <p className="text-xl font-bold text-red-500 mb-1">{summary.blocked}</p>
+                    <p className="text-[9px] text-red-500/70 leading-tight">Bloqueados</p>
+                </div>
+                <div className="col-span-1 rounded-xl bg-stone-900/50 border border-white/5 p-3">
+                    <p className="text-xl font-bold text-stone-300 mb-1">{summary.free}</p>
+                    <p className="text-[9px] text-stone-500 leading-tight"><Clock className="inline h-2.5 w-2.5 mb-0.5 mr-0.5" />Horários livres</p>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+/* ═══════════════════════════════════════════
+   DESKTOP: Free Slots Grid
+   ═══════════════════════════════════════════ */
+export function DesktopFreeSlots({ slots, onAddAt, maxShow = 6 }: {
+    slots: string[]
+    onAddAt: (time: string) => void
+    maxShow?: number
+}) {
+    const [showAll, setShowAll] = React.useState(false)
+    const visible = showAll ? slots : slots.slice(0, maxShow)
+
+    return (
+        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+            <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] mb-4">Próximos Horários Livres</h3>
+            {slots.length === 0 ? (
+                <p className="text-xs text-stone-600 text-center py-3">Nenhum horário livre</p>
+            ) : (
+                <>
+                    <div className="grid grid-cols-4 gap-2">
+                        {visible.map(time => (
+                            <button key={time} onClick={() => onAddAt(time)}
+                                className="h-9 rounded-xl bg-stone-900/60 border border-white/5 text-xs font-semibold text-stone-300 hover:border-brand-primary/30 hover:text-brand-primary hover:bg-brand-primary/5 transition-all cursor-pointer">
+                                {time}
+                            </button>
+                        ))}
+                        {slots.length > maxShow && !showAll && (
+                            <button onClick={() => setShowAll(true)}
+                                className="h-9 col-span-2 rounded-xl text-[10px] font-bold text-brand-primary border border-white/5 hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-all cursor-pointer">
+                                Ver todos
+                            </button>
+                        )}
+                        {showAll && (
+                            <button onClick={() => setShowAll(false)}
+                                className="h-9 col-span-4 mt-1 rounded-xl text-[10px] font-bold text-stone-400 border border-white/5 hover:bg-white/5 transition-all cursor-pointer">
+                                Mostrar menos
+                            </button>
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
+    )
+}

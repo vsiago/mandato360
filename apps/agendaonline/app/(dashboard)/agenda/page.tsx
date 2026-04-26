@@ -1,13 +1,14 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
     MessageCircle, MoreVertical, Filter, UserPlus, TrendingUp, Users, Calendar as CalendarIcon, ChevronDown,
-    Pencil, Trash2, Smartphone, X, LayoutGrid, Play
+    Pencil, Trash2, Smartphone, X, LayoutGrid, Play, CalendarSearch, Zap, Lock
 } from "lucide-react"
 import { toast } from "sonner"
+import { DesktopDetailsPanel, DesktopStatesPanel, DesktopMiniCalendar, DesktopDaySummary, DesktopFreeSlots } from "./components"
 import { Button } from "@/components/ui/button"
 import { AppointmentModal } from "@/components/AppointmentModal"
 import { 
@@ -59,10 +60,10 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-/* ─── Static Constants ─── */
+/* â”€â”€â”€ Static Constants â”€â”€â”€ */
 
 const MONTH_NAMES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-const WEEKDAYS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"]
+const WEEKDAYS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÃB"]
 
 const TIME_SLOTS = [
     "00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", 
@@ -111,6 +112,8 @@ export default function AgendaPage() {
     const [dateToUnblock, setDateToUnblock] = useState<string | null>(null)
     const [isUnblockConfirmOpen, setIsUnblockConfirmOpen] = useState(false)
     const [isBusinessHoursModalOpen, setIsBusinessHoursModalOpen] = useState(false)
+    const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false)
+    const datePickerRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         async function loadInitialData() {
@@ -252,7 +255,7 @@ export default function AgendaPage() {
 
     const dayAppointments = appointments[selectedDate] || []
 
-    // ── Metrics Calculation ──
+    // â”€â”€ Metrics Calculation â”€â”€
     const todayAppointmentsCount = dayAppointments.filter(a => a.status === 'confirmed' || a.status === 'completed' || a.status === 'pending').length;
     
     const next7DaysCount = Object.entries(appointments).reduce((acc, [date, apts]) => {
@@ -283,6 +286,66 @@ export default function AgendaPage() {
         const occ = dayAppointments.filter(a => a.status === 'confirmed' || a.status === 'completed' || a.status === 'pending').length;
         return `${Math.round((occ / bSlots.length) * 100)}%`;
     })();
+
+    // â”€â”€ Mobile-First Computed Values â”€â”€
+    const occupancyNumber = parseInt(occupancyRate) || 0;
+
+    const freeSlotCount = (() => {
+        if (!tenant?.businessHours) return 0;
+        const dw = new Date(selectedDate + 'T12:00:00').getDay().toString();
+        const conf = tenant.businessHours[dw];
+        if (!conf?.isOpen) return 0;
+        const sM = parseInt(conf.start.split(':')[0]) * 60 + parseInt(conf.start.split(':')[1]);
+        const eM = parseInt(conf.end.split(':')[0]) * 60 + parseInt(conf.end.split(':')[1]);
+        const bSlots = TIME_SLOTS.filter(t => {
+            const [h, m] = t.split(':').map(Number);
+            const mins = h * 60 + m;
+            return mins >= sM && mins < eM;
+        });
+        const occupied = dayAppointments.filter(a => a.status !== 'blocked').length;
+        return Math.max(0, bSlots.length - occupied);
+    })();
+
+    const datePickerDays = useMemo(() => {
+        const days: { date: Date; dateKey: string; dayNum: number; dayName: string; isToday: boolean }[] = [];
+        const today = new Date();
+        today.setHours(12, 0, 0, 0);
+        for (let i = -3; i <= 10; i++) {
+            const d = new Date(today);
+            d.setDate(d.getDate() + i);
+            const dk = d.toISOString().split('T')[0];
+            days.push({
+                date: d,
+                dateKey: dk,
+                dayNum: d.getDate(),
+                dayName: WEEKDAYS[d.getDay()],
+                isToday: i === 0
+            });
+        }
+        return days;
+    }, []);
+
+    const filteredTimeSlots = useMemo(() => {
+        if (!tenant?.businessHours) return TIME_SLOTS;
+        const dw = new Date(selectedDate + 'T12:00:00').getDay().toString();
+        const conf = tenant.businessHours[dw];
+        if (!conf?.isOpen) return [];
+        const sM = parseInt(conf.start.split(':')[0]) * 60 + parseInt(conf.start.split(':')[1]);
+        const eM = parseInt(conf.end.split(':')[0]) * 60 + parseInt(conf.end.split(':')[1]);
+        return TIME_SLOTS.filter(t => {
+            const [h, m] = t.split(':').map(Number);
+            const mins = h * 60 + m;
+            return mins >= sM && mins < eM;
+        });
+    }, [selectedDate, tenant?.businessHours]);
+
+    // Include out-of-hours slots that have appointments (manually opened or blocked)
+    const visibleTimeSlots = useMemo(() => {
+        const extra = dayAppointments
+            .filter(a => !filteredTimeSlots.includes(a.time))
+            .map(a => a.time);
+        return [...new Set([...filteredTimeSlots, ...extra])].sort();
+    }, [filteredTimeSlots, dayAppointments]);
 
     const handleBlockDay = async (dateKey: string) => {
         if (!tenantId) return;
@@ -554,592 +617,449 @@ export default function AgendaPage() {
 
     const selectedDateObj = new Date(selectedDate + "T12:00:00")
 
+    // ── Desktop-specific state ──
+    const [selectedAppointment, setSelectedAppointment] = useState<any>(null)
+
+    // Auto-select first appointment when day changes
+    useEffect(() => {
+        const realApts = dayAppointments.filter(a => a.status !== 'blocked' && a.status !== 'liberado')
+        if (realApts.length > 0 && !selectedAppointment) {
+            setSelectedAppointment(realApts[0])
+        } else if (realApts.length === 0) {
+            setSelectedAppointment(null)
+        }
+    }, [selectedDate, dayAppointments.length])
+
+    // Day summary stats for desktop
+    const daySummary = useMemo(() => {
+        const confirmed = dayAppointments.filter(a => a.status === 'confirmed').length
+        const pending = dayAppointments.filter(a => a.status === 'pending').length
+        const blocked = dayAppointments.filter(a => a.status === 'blocked').length
+        const completed = dayAppointments.filter(a => a.status === 'completed').length
+        const total = confirmed + pending + completed
+        return { total, confirmed, pending, blocked, completed, free: freeSlotCount }
+    }, [dayAppointments, freeSlotCount])
+
+    // Free time slots list for desktop sidebar
+    const freeTimeSlots = useMemo(() => {
+        return filteredTimeSlots.filter(time => !dayAppointments.some(a => a.time === time))
+    }, [filteredTimeSlots, dayAppointments])
+
     return (
-        <div className="h-[calc(100vh-140px)] flex flex-col space-y-6 animate-in fade-in duration-700 overflow-hidden">
-            {/* ── Header ── */}
-            <div className="shrink-0 flex flex-col sm:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-5">
-                    <div className="h-12 w-12 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center shrink-0 shadow-lg">
-                        <CalendarDays className="h-6 w-6 text-brand-primary" />
+        <div className="h-[calc(100vh-140px)] flex flex-col animate-in fade-in duration-700 overflow-hidden">
+
+            {/* ═══════════════════════════════════════════════════════
+                DESKTOP LAYOUT (≥ lg) — 3-column grid
+               ═══════════════════════════════════════════════════════ */}
+            <div className="hidden lg:flex flex-col h-full overflow-hidden">
+                {/* Desktop Header */}
+                <div className="shrink-0 flex items-center justify-between px-2 py-3 gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-10 w-10 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center shrink-0">
+                            <CalendarDays className="h-5 w-5 text-brand-primary" />
+                        </div>
+                        <div className="min-w-0">
+                            <h2 className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>Sua Agenda</h2>
+                            <p className="text-[11px] text-stone-500 font-medium">Gerencie seus horários e atendimentos com eficiência.</p>
+                        </div>
                     </div>
-                    <div>
-                        <h2 className="text-3xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>Sua Agenda</h2>
-                        <p className="text-xs text-stone-400 font-medium tracking-tight">Gerencie seus horários e atendimentos.</p>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button onClick={() => setIsBusinessHoursModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-800 bg-stone-900/40 text-stone-300 hover:text-white hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                            <Clock className="h-4 w-4" /> Funcionamento
+                        </button>
+                        <button onClick={() => setIsCalendarModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-800 bg-stone-900/40 text-stone-300 hover:text-white hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                            <Filter className="h-4 w-4" /> Filtrar
+                        </button>
+                        <button onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }} className="h-9 px-4 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-stone-950 transition-all hover:scale-[1.02] text-xs flex items-center gap-2 cursor-pointer">
+                            <Plus className="h-4 w-4" /> Novo Agendamento <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
+                        </button>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <Button 
-                        variant="outline" 
-                        onClick={() => setIsBusinessHoursModalOpen(true)}
-                        className="h-10 rounded-xl px-4 border-stone-800 bg-stone-900/40 text-stone-300 hover:bg-stone-800 hover:text-white transition-all text-xs cursor-pointer"
-                    >
-                        <Clock className="h-3.5 w-3.5 mr-2" /> Funcionamento
-                    </Button>
-                    <Button variant="outline" className="h-10 rounded-xl px-4 border-stone-800 bg-stone-900/40 text-stone-300 hover:bg-stone-800 hover:text-white transition-all text-xs cursor-pointer">
-                        <Filter className="h-3.5 w-3.5 mr-2" /> Filtrar
-                    </Button>
-                    <Button 
-                        onClick={() => { setActiveTime(TIME_SLOTS[0]); setIsAddModalOpen(true); }}
-                        className="h-10 rounded-xl px-5 font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-stone-950 transition-all hover:scale-[1.02] text-xs cursor-pointer"
-                    >
-                        <Plus className="h-4 w-4 mr-2" /> Novo Agendamento
-                    </Button>
-                </div>
-            </div>
-
-            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
-                {/* ── Left Column ── */}
-                <div className="lg:col-span-7 flex flex-col gap-4 min-h-0 h-full">
-                    {/* Calendar Card */}
-                    <div className="flex-1 h-full min-h-0 bg-stone-900/40 border border-white/5 rounded-2xl p-6 pb-4 backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
-                        {/* Calendar Toolbar */}
-                        <div className="shrink-0 flex flex-wrap items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => {
-                                        const today = new Date();
-                                        setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
-                                        setSelectedDate(today.toISOString().split('T')[0]);
-                                    }}
-                                    className="h-9 px-4 bg-stone-900/60 border border-stone-800 rounded-xl text-[10px] uppercase tracking-widest font-black text-stone-400 hover:text-white hover:bg-stone-800 transition-all active:scale-95 cursor-pointer"
-                                >
-                                    Hoje
-                                </Button>
-
-                                <Select 
-                                    value={currentMonth.getMonth().toString()} 
-                                    onValueChange={(val) => {
-                                        const newMonth = parseInt(val);
-                                        setCurrentMonth(new Date(currentMonth.getFullYear(), newMonth, 1));
-                                    }}
-                                >
-                                    <SelectTrigger className="h-9 w-[140px] bg-stone-900/60 border-stone-800 rounded-xl text-xs font-bold text-foreground focus:ring-0 focus:ring-offset-0 hover:bg-stone-800 transition-colors">
-                                        <SelectValue placeholder="Mês" />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-stone-950 border-white/10 rounded-2xl p-1 shadow-2xl">
-                                        <SelectGroup>
-                                            {MONTH_NAMES.map((name, i) => (
-                                                <SelectItem key={i} value={i.toString()} className="rounded-xl focus:bg-stone-900 text-xs font-medium">
-                                                    {name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-
-                                <div className="flex items-center gap-1">
-                                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-500 hover:text-white hover:bg-stone-800"
-                                        onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}>
-                                        <ChevronLeft className="h-4.5 w-4.5" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-500 hover:text-white hover:bg-stone-800"
-                                        onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}>
-                                        <ChevronRight className="h-4.5 w-4.5" />
-                                    </Button>
-                                </div>
+                {/* Desktop 3-column body */}
+                <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_minmax(300px,360px)_minmax(300px,360px)] gap-4 px-2 pb-2">
+                    {/* ── LEFT COLUMN: Timeline ── */}
+                    <div className="flex flex-col min-h-0 gap-4 relative">
+                        {/* Date picker Card */}
+                        <div className="shrink-0 h-[116px] rounded-2xl border border-white/5 bg-[#121212] flex items-center shadow-lg relative overflow-hidden">
+                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-white/[0.03] hover:bg-white/[0.06] transition-all shrink-0 border-r border-white/5 cursor-pointer">
+                                <ChevronLeft className="h-6 w-6" />
+                            </button>
+                            
+                            <div className="flex-1 flex justify-around items-center px-4 gap-1">
+                                {datePickerDays.slice(0, 7).map((day, i) => {
+                                    const isSelected = day.dateKey === selectedDate
+                                    const apts = appointments[day.dateKey] || []
+                                    const hasApts = apts.some(a => a.status === 'confirmed' || a.status === 'completed' || a.status === 'pending')
+                                    const isBlocked = isDayFullyBlocked(day.dateKey)
+                                    
+                                    return (
+                                        <React.Fragment key={day.dateKey}>
+                                            <button onClick={() => { setSelectedDate(day.dateKey); setSelectedAppointment(null); }}
+                                                className={cn(
+                                                    "flex flex-col items-center justify-center flex-1 min-w-0 max-w-[88px] h-[100px] rounded-[18px] transition-all cursor-pointer border relative overflow-hidden",
+                                                    isSelected ? "bg-brand-gold/[0.04] border-brand-gold/30 shadow-[inset_0_0_20px_rgba(245,204,112,0.03)]" :
+                                                        isBlocked ? "border-transparent opacity-50" :
+                                                            "border-transparent hover:bg-white/[0.02]"
+                                                )}>
+                                                <span className={cn("text-[9px] 2xl:text-[11px] font-bold tracking-[0.1em] uppercase mb-1.5", isSelected ? "text-stone-300" : "text-stone-400")}>{day.dayName}</span>
+                                                <span className={cn("text-[20px] 2xl:text-[28px] font-bold leading-none mb-2.5 transition-all", isSelected ? "text-white" : "text-stone-200")}>{day.dayNum}</span>
+                                                
+                                                <div className="flex gap-1.5 h-1.5">
+                                                    {isBlocked ? <div className="h-1.5 w-1.5 rounded-full bg-red-500/60" /> :
+                                                        isSelected ? (
+                                                            <div className="h-1.5 w-1.5 rounded-full bg-brand-gold shadow-[0_0_6px_rgba(245,204,112,0.6)]" />
+                                                        ) : hasApts ? (
+                                                            <>
+                                                                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                                                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                                            </>
+                                                        ) : (
+                                                            <div className="h-1.5 w-1.5 rounded-full bg-stone-600" />
+                                                        )}
+                                                </div>
+                                            </button>
+                                            
+                                            {i < 6 && (
+                                                <div className="w-[1px] h-14 bg-gradient-to-b from-transparent via-white/10 to-transparent opacity-50" />
+                                            )}
+                                        </React.Fragment>
+                                    )
+                                })}
                             </div>
 
-                            <div className="flex items-center bg-stone-900/60 p-0.5 rounded-xl border border-stone-800">
-                                <Button 
-                                    variant="ghost" size="sm" 
-                                    onClick={() => setViewMode('month')}
-                                    className={cn(
-                                        "h-8 rounded-l-lg rounded-r-none px-5 font-bold text-[11px] tracking-wider transition-all flex items-center gap-2",
-                                        viewMode === 'month' ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-400 hover:text-white"
-                                    )}
-                                >
-                                    <CalendarIcon className="h-4 w-4" />
-                                    <span>Mês</span>
-                                </Button>
-                                <Button 
-                                    variant="ghost" size="sm" 
-                                    onClick={() => setViewMode('week')}
-                                    className={cn(
-                                        "h-8 rounded-r-lg rounded-l-none px-5 font-bold text-[11px] tracking-wider transition-all flex items-center gap-2",
-                                        viewMode === 'week' ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-400 hover:text-white"
-                                    )}
-                                >
-                                    <LayoutGrid className="h-4 w-4" />
-                                    <span>Semana</span>
-                                </Button>
-                            </div>
+                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-white/[0.03] hover:bg-white/[0.06] transition-all shrink-0 border-l border-white/5 cursor-pointer">
+                                <ChevronRight className="h-6 w-6" />
+                            </button>
                         </div>
 
-                        {viewMode === 'month' && (
-                            <div className="flex-1 flex flex-col h-full min-h-0 gap-2">
-                                {/* Weekdays Header */}
-                                <div className="shrink-0 grid grid-cols-7 gap-1">
-                                    {WEEKDAYS.map(d => (
-                                        <div key={d} className="text-center text-[9px] font-black text-stone-600 uppercase tracking-widest py-1">{d}</div>
-                                    ))}
-                                </div>
-
-                                {/* Calendar Days */}
-                                <div className="flex-1 flex flex-col h-full min-h-0">
-                                    <div 
-                                        className="grid grid-cols-7 gap-0 border border-stone-800/40 rounded-2xl overflow-hidden shadow-2xl shadow-stone-950/50 flex-1 h-full"
-                                        style={{ gridTemplateRows: `repeat(${numRows}, 1fr)` }}
-                                    >
-                                        {Array.from({ length: firstDay }).map((_, i) => (
-                                            <div key={`e-${i}`} className="border-r border-b border-white/[0.03] bg-stone-900/10" />
-                                        ))}
-                                        {Array.from({ length: daysInMonth }).map((_, i) => {
-                                            const day = i + 1
-                                            const dateKey = getDateKey(day)
-                                            const isSelected = dateKey === selectedDate
-                                            const apts = appointments[dateKey] || []
-                                            const isToday = dateKey === new Date().toISOString().split('T')[0]
-                                            const isBlocked = isDayFullyBlocked(dateKey)
-
-                                            return (
-                                                <div key={day} onClick={() => setSelectedDate(dateKey)}
-                                                    className={cn(
-                                                        "w-full h-full text-sm font-bold transition-all relative flex flex-col items-center justify-center gap-1 group cursor-pointer border-r border-b border-white/[0.03]",
-                                                        isSelected
-                                                            ? (isBlocked ? "bg-red-500/10 text-red-500 z-10" : "bg-brand-gold text-stone-950 z-10")
-                                                            : (isBlocked ? "text-stone-600 bg-stone-900/20" : "text-stone-400 hover:bg-stone-800/40 hover:text-white")
-                                                    )}
-                                                >
-                                                    <span className="text-xs lg:text-sm">{day}</span>
-                                                    <div className="flex gap-1">
-                                                        {apts.slice(0, 2).map((a, idx) => (
-                                                            <div key={idx} className={cn(
-                                                                "h-1 w-1 rounded-full",
-                                                                isSelected ? (isBlocked ? "bg-red-500/40" : "bg-stone-950/40") : 
-                                                                a.status === 'completed' ? "bg-emerald-500" :
-                                                                a.status === 'confirmed' ? "bg-green-500" :
-                                                                a.status === 'pending' ? "bg-blue-500" : "bg-stone-500"
-                                                            )} />
-                                                        ))}
-                                                    </div>
-                                                    
-                                                    {isToday && !isSelected && (
-                                                        <div className="absolute top-1 right-1 h-1 w-1 rounded-full bg-brand-primary" />
-                                                    )}
-                                                    
-                                                    {isBlocked && (
-                                                        <div className="absolute inset-0 pointer-events-none px-4.5 flex items-center justify-center">
-                                                            <svg className="w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                                                <line x1="10" y1="20" x2="90" y2="80" stroke="currentColor" strokeWidth="2" className="text-red-500" />
-                                                                <line x1="90" y1="20" x2="10" y2="80" stroke="currentColor" strokeWidth="2" className="text-red-500" />
-                                                            </svg>
-                                                        </div>
-                                                    )}
-
-                                                    {isBlocked ? (
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); setDateToUnblock(dateKey); setIsUnblockConfirmOpen(true); }}
-                                                            className="absolute top-1 left-1 h-4 w-4 rounded-full bg-stone-900/80 text-stone-600 hover:text-emerald-500 hover:bg-emerald-500/10 border border-white/5 flex items-center justify-center z-20 transition-colors"
-                                                            title="Desbloquear Dia"
-                                                        >
-                                                            <CheckCircle2 className="h-2.5 w-2.5" />
-                                                        </button>
-                                                    ) : (
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); setDateToBlock(dateKey); setIsBlockConfirmOpen(true); }}
-                                                            className="absolute top-1 left-1 h-4 w-4 rounded-full bg-stone-900/80 hover:bg-red-500/20 text-stone-600 hover:text-red-500 border border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20"
-                                                            title="Bloquear Dia Inteiro"
-                                                        >
-                                                            <X className="h-2.5 w-2.5" />
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </div>
+                        {/* Timeline Card */}
+                        <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-white/5 bg-[#121212] overflow-hidden shadow-lg relative">
+                            {/* Selected Date Header */}
+                            <div className="shrink-0 px-8 pt-7 pb-4">
+                                <h3 className="text-[11px] font-bold text-stone-300 uppercase tracking-widest">
+                                    {new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(selectedDate + "T12:00:00"))}
+                                </h3>
                             </div>
-                        )}
-
-                        {viewMode === 'week' && (
-                            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-                                {/* Week Tabs */}
-                                <div className="flex items-center gap-1 p-1 bg-stone-900/40 rounded-xl border border-white/5 mb-4 shrink-0">
-                                    {Array.from({ length: Math.ceil((daysInMonth + firstDay) / 7) }).map((_, i) => (
-                                        <button 
-                                            key={i} 
-                                            onClick={() => setSelectedWeek(i)}
-                                            className={cn(
-                                                "h-7 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex-1",
-                                                selectedWeek === i ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-500 hover:text-stone-300"
-                                            )}
-                                        >
-                                            Semana {i + 1}
-                                        </button>
-                                    ))}
-                                </div>
-
-                                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                                    <Accordion type="single" collapsible className="space-y-3">
-                                        {Array.from({ length: 7 }).map((_, i) => {
-                                            const dayIdx = (selectedWeek * 7) - firstDay + i + 1;
-                                            if (dayIdx <= 0 || dayIdx > daysInMonth) return null;
-                                            
-                                            const dateKey = getDateKey(dayIdx);
-                                            const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayIdx);
-                                            const apts = appointments[dateKey] || [];
-                                            const dayName = WEEKDAYS[date.getDay()];
-                                            
-                                            return (
-                                                <AccordionItem key={dateKey} value={dateKey} className="border border-white/5 bg-stone-900/20 rounded-2xl overflow-hidden px-1">
-                                                    <AccordionTrigger className="hover:no-underline p-4 py-3 group">
-                                                        <div className="flex items-center justify-between w-full pr-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="h-8 w-8 rounded-lg bg-stone-950 flex flex-col items-center justify-center border border-white/5">
-                                                                    <span className="text-[10px] font-black text-brand-gold uppercase">{dayName.slice(0,3)}</span>
-                                                                    <span className="text-xs font-bold text-white">{dayIdx}</span>
-                                                                </div>
-                                                                <div className="text-left">
-                                                                    <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest block">{date.toLocaleDateString('pt-BR', { month: 'long' })}</span>
-                                                                    <span className="text-[9px] font-bold text-stone-600">{apts.length} agendamentos</span>
-                                                                </div>
-                                                            </div>
-                                                            <div 
-                                                                role="button"
-                                                                onClick={(e) => { e.stopPropagation(); handleBlockDay(dateKey); }}
-                                                                className="h-7 rounded-lg text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 hover:bg-red-500/10 px-2 flex items-center justify-center transition-all cursor-pointer"
-                                                            >
-                                                                Bloquear Dia
-                                                            </div>
-                                                        </div>
-                                                    </AccordionTrigger>
-                                                    <AccordionContent className="px-4 pb-4">
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                                                            {TIME_SLOTS.map(time => {
-                                                                const apt = apts.find(a => a.time === time);
-                                                                return (
-                                                                    <div key={time} className={cn(
-                                                                        "p-2.5 rounded-xl border flex items-center justify-between transition-all group/slot",
-                                                                        apt ? (apt.status === 'blocked' ? "bg-red-500/[0.02] border-red-500/10" : "bg-stone-900/60 border-white/5 shadow-sm") 
-                                                                            : "bg-transparent border-white/[0.02] border-dashed hover:border-brand-primary/20"
-                                                                    )}>
-                                                                        <div className="flex items-center gap-2.5 min-w-0">
-                                                                            <span className="text-[10px] font-black text-stone-500 w-8">{time}</span>
-                                                                            {apt ? (
-                                                                                <div className="min-w-0">
-                                                                                    <div className="text-[11px] font-bold text-foreground truncate">{apt.name}</div>
-                                                                                    <div className="text-[9px] text-stone-500 truncate">{apt.status === 'blocked' ? "Horário Bloqueado" : apt.service}</div>
-                                                                                </div>
-                                                                            ) : (
-                                                                                <span className="text-[9px] font-bold text-stone-700 uppercase tracking-widest">Disponível</span>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="flex items-center gap-1 opacity-0 group-hover/slot:opacity-100 transition-opacity">
-                                                                            {!apt ? (
-                                                                                <Button size="icon" variant="ghost" onClick={() => { setSelectedDate(dateKey); setActiveTime(time); setIsAddModalOpen(true); }} className="h-6 w-6 rounded-lg text-brand-primary hover:bg-brand-primary/10">
-                                                                                    <Plus className="h-3 w-3" />
-                                                                                </Button>
-                                                                            ) : (
-                                                                                <Button size="icon" variant="ghost" onClick={() => { if(apt.status === 'blocked') toggleSlot(time); }} className="h-6 w-6 rounded-lg text-stone-500 hover:text-white">
-                                                                                    {apt.status === 'blocked' ? <CheckCircle2 className="h-3 w-3 text-emerald-500" /> : <MoreVertical className="h-3 w-3" />}
-                                                                                </Button>
-                                                                            )}
-                                                                        </div>
-                                                                    </div>
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            )
-                                        })}
-                                    </Accordion>
-                                </div>
-                            </div>
-                        )}
-
-                        {viewMode === 'day' && (
-                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                                <div className="space-y-3">
-                                    {TIME_SLOTS.map(time => {
+                            
+                            {/* Timeline scroll */}
+                            <div className="flex-1 min-h-0 overflow-hidden relative">
+                                <div className="absolute left-[57px] top-4 bottom-4 w-px bg-white/[0.04] pointer-events-none z-0" />
+                                <TooltipProvider>
+                                    <div ref={timelineRef} className="h-full overflow-y-auto px-8 py-4 space-y-0 custom-scrollbar scroll-smooth relative z-10">
+                                    {visibleTimeSlots.map((time) => {
+                                        const isToday = selectedDate === currentTime.toISOString().split('T')[0]
+                                        const nowTime = currentTime.getHours() * 60 + currentTime.getMinutes()
+                                        const [slotH, slotM] = time.split(':').map(Number)
+                                        const slotMins = slotH * 60 + slotM
+                                        const isCurrentSlot = isToday && slotMins <= nowTime && slotMins + 60 > nowTime
                                         const apt = dayAppointments.find(a => a.time === time)
+                                        const isOpenByConfig = isTimeOpen(selectedDate, time)
+                                        const isBlocked = apt?.status === "blocked"
+                                        const isLiberado = apt?.status === "liberado"
+                                        const isUnavailable = !isOpenByConfig && !isLiberado
                                         return (
-                                            <div key={time} className={cn(
-                                                "group border rounded-2xl p-4 transition-all flex items-center justify-between",
-                                                apt ? "bg-stone-900/60 border-white/10 shadow-lg" : "bg-transparent border-white/5 border-dashed hover:border-brand-primary/30"
-                                            )}>
-                                                <div className="flex items-center gap-6">
-                                                    <div className="text-sm font-black text-stone-500 w-12">{time}</div>
-                                                    {apt ? (
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="h-10 w-10 rounded-full bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center text-brand-gold text-xs font-black">
-                                                                {apt.name[0]}
+                                            <div key={time} id={`slot-${time}`} className={cn("flex gap-8 items-start transition-all duration-300 relative group/row", isUnavailable && !apt ? "opacity-50" : "opacity-100")}>
+                                                <div className="w-[50px] shrink-0 flex items-center justify-center pt-3 relative z-10">
+                                                    <span className={cn("text-[13px] font-medium tabular-nums", isCurrentSlot ? "text-brand-primary" : "text-stone-300")}>{time}</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0 pb-3">
+                                                    {apt && !isBlocked && !isLiberado ? (
+                                                        <div onClick={() => setSelectedAppointment(apt)} className={cn(
+                                                            "rounded-[14px] p-4 transition-all cursor-pointer border-y border-r border-white/[0.04]",
+                                                            selectedAppointment?.id === apt.id ? "ring-1 ring-brand-primary/40 shadow-[0_0_15px_rgba(245,204,112,0.1)]" : "",
+                                                            apt.status === 'completed' ? "bg-gradient-to-r from-emerald-500/10 to-transparent border-l-4 border-l-emerald-500" :
+                                                                apt.status === 'confirmed' ? "bg-gradient-to-r from-emerald-500/10 to-transparent border-l-4 border-l-emerald-500" :
+                                                                    "bg-gradient-to-r from-amber-500/10 to-transparent border-l-4 border-l-amber-500"
+                                                        )}>
+                                                            <div className="flex items-center justify-between gap-3">
+                                                                <div className="flex flex-col min-w-0 flex-1">
+                                                                    <h4 className="text-[15px] font-bold text-white truncate mb-0.5">{apt.name}</h4>
+                                                                    <p className="text-[12px] text-stone-400 truncate">{apt.service} • <span className="text-stone-300">{apt.price}</span></p>
+                                                                </div>
+                                                                <div className="flex items-center gap-3 shrink-0">
+                                                                    <div className={cn("text-[9px] font-bold uppercase px-2.5 py-1 rounded-sm tracking-wider",
+                                                                        apt.status === 'completed' ? "text-emerald-400 bg-emerald-500/10" :
+                                                                            apt.status === 'confirmed' ? "text-emerald-400 bg-emerald-500/10" :
+                                                                                "text-amber-400 bg-amber-500/10"
+                                                                    )}>{apt.status === 'completed' ? 'Concluído' : apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}</div>
+                                                                    
+                                                                    <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 bg-stone-800 flex items-center justify-center text-[10px] font-bold text-stone-400 ml-1">
+                                                                        {apt.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+                                                                    </div>
+
+                                                                    <DropdownMenu>
+                                                                        <DropdownMenuTrigger asChild>
+                                                                            <button onClick={e => e.stopPropagation()} className="h-8 w-8 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">
+                                                                                <MoreVertical className="h-5 w-5" />
+                                                                            </button>
+                                                                        </DropdownMenuTrigger>
+                                                                        <DropdownMenuContent align="end" sideOffset={4} className="w-44 bg-stone-950 border border-white/10 rounded-xl p-1 shadow-2xl">
+                                                                            <DropdownMenuItem onClick={() => handleEdit(apt)} className="rounded-lg text-xs gap-2 py-1.5 cursor-pointer"><Pencil className="h-3 w-3" /> Editar</DropdownMenuItem>
+                                                                            <DropdownMenuItem onClick={() => confirmAppointment(time)} className="rounded-lg text-xs gap-2 py-1.5 cursor-pointer"><CheckCircle2 className="h-3 w-3 text-green-500" /> Confirmar</DropdownMenuItem>
+                                                                            <DropdownMenuItem onClick={() => handleDelete(apt.id)} className="rounded-lg text-xs gap-2 py-1.5 text-red-500 cursor-pointer"><Trash2 className="h-3 w-3" /> Excluir</DropdownMenuItem>
+                                                                        </DropdownMenuContent>
+                                                                    </DropdownMenu>
+                                                                </div>
                                                             </div>
+                                                        </div>
+                                                    ) : isBlocked ? (
+                                                        <div className="rounded-[14px] p-4 bg-gradient-to-r from-red-500/10 to-transparent border-y border-r border-white/[0.04] border-l-4 border-l-red-500 flex items-center gap-4">
+                                                            <div className="h-10 w-10 rounded-[10px] border border-red-500/20 flex items-center justify-center shrink-0 bg-red-500/5"><Lock className="h-4 w-4 text-red-500" /></div>
                                                             <div>
-                                                                <h4 className="text-sm font-bold text-foreground">{apt.name}</h4>
-                                                                <p className="text-[11px] text-stone-500">{apt.service} • {apt.price}</p>
+                                                                <p className="text-[13px] font-bold text-red-500 uppercase tracking-wider mb-0.5">Horário Bloqueado</p>
+                                                                <p className="text-[12px] text-red-500/60">Indisponível para clientes</p>
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <span className="text-[11px] font-bold text-stone-700 uppercase tracking-widest">Horário disponível</span>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    {!apt && (
-                                                        <Button size="sm" variant="ghost" className="h-8 rounded-xl text-[10px] font-black uppercase tracking-widest text-brand-primary hover:bg-brand-primary/10 px-4"
-                                                            onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }}>
-                                                            Agendar
-                                                        </Button>
-                                                    )}
-                                                    {apt && (
-                                                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-xl text-stone-500 hover:text-white">
-                                                            <MoreVertical className="h-4 w-4" />
-                                                        </Button>
+                                                        <div className="rounded-[14px] p-3 pl-4 bg-stone-900/40 border border-white/5 hover:border-white/10 flex items-center justify-between group/empty transition-all">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="h-10 w-10 rounded-[10px] border border-dashed border-white/10 flex items-center justify-center text-stone-500">
+                                                                    <LayoutGrid className="h-4 w-4 opacity-50" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[13px] font-bold text-stone-400 uppercase tracking-wider mb-0.5">Horário Livre</p>
+                                                                    <p className="text-[12px] text-stone-500">Disponível para agendamento</p>
+                                                                </div>
+                                                            </div>
+                                                            <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer">
+                                                                <Plus className="h-5 w-5" />
+                                                            </button>
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>
                                         )
                                     })}
                                 </div>
-                            </div>
-                        )}
-
-                        {/* Legend */}
-                        <div className="shrink-0 flex flex-wrap items-center justify-center gap-5">
-                            {Object.entries(STATUS_MAP).map(([key, data]) => (
-                                <div key={key} className="flex items-center gap-1.5">
-                                    <div className={cn("h-1.5 w-1.5 rounded-full", data.color)} />
-                                    <span className="text-[9px] font-black text-stone-600 uppercase tracking-widest">{data.label}</span>
-                                </div>
-                            ))}
+                            </TooltipProvider>
                         </div>
-                    </div>
-
-                    {/* Metrics Bar */}
-                    <div className="shrink-0 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                        {[
-                            { label: "Agendamentos hoje", value: todayAppointmentsCount.toString(), sub: "Veja seu dia completo", icon: CalendarDays },
-                            { label: "Próximos 7 dias", value: next7DaysCount.toString(), sub: "Agendamentos", icon: CalendarIcon },
-                            { label: "Taxa de ocupação", value: occupancyRate, sub: "Da sua agenda", icon: TrendingUp },
-                            { 
-                                label: "Horário disponível", 
-                                value: (() => {
-                                    if (!tenant?.businessHours) return "08:00 - 18:00";
-                                    const dayOfWeek = new Date(selectedDate + 'T12:00:00').getDay().toString();
-                                    const config = tenant.businessHours[dayOfWeek];
-                                    return config?.isOpen ? `${config.start} - ${config.end}` : "Fechado";
-                                })(), 
-                                sub: "Seu horário de trabalho", 
-                                icon: Clock 
-                            },
-                        ].map((m, i) => (
-                            <div key={i} className="group cursor-pointer bg-stone-900/40 border border-white/5 p-4 rounded-2xl hover:bg-stone-900/60 transition-all flex items-center gap-4 relative overflow-hidden">
-                                <div className="h-10 w-10 shrink-0 rounded-full bg-stone-950 border border-white/5 flex items-center justify-center relative z-10 group-hover:border-brand-primary/20 transition-colors">
-                                    <m.icon className="h-4.5 w-4.5 text-stone-500 group-hover:text-brand-primary transition-colors" />
-                                    <div className="absolute inset-0 rounded-full bg-brand-primary/5 opacity-0 group-hover:opacity-100 transition-opacity blur-md" />
-                                </div>
-                                <div className="flex-1 min-w-0 relative z-10">
-                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-0.5 truncate">{m.label}</p>
-                                    <p className="text-sm font-bold text-foreground leading-none mb-1">{m.value}</p>
-                                    <p className="text-[9px] text-stone-600 font-medium truncate">{m.sub}</p>
-                                </div>
-                                <ChevronRight className="h-3.5 w-3.5 text-stone-700 group-hover:text-brand-primary transition-all absolute right-4 top-1/2 -translate-y-1/2" />
-                            </div>
-                        ))}
                     </div>
                 </div>
 
-                {/* ── Right Column ── */}
-                <div className="lg:col-span-5 bg-stone-900/40 border border-white/5 rounded-2xl flex flex-col h-full min-h-0 overflow-hidden backdrop-blur-xl relative">
-                    {/* ── Digital Time Track (Fixed Viewport) ── */}
-                    <div className="absolute left-10 top-20 bottom-0 w-px bg-gradient-to-b from-transparent via-brand-primary/40 to-transparent pointer-events-none z-10 hidden lg:block" />
-
-                    <div className="shrink-0 p-5 border-b border-white/5 flex items-center justify-between relative z-20 bg-stone-950/40 backdrop-blur-md">
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-stone-950 border border-white/5 flex items-center justify-center shadow-inner">
-                                <Clock className="h-5 w-5 text-brand-primary" />
-                            </div>
-                            <div>
-                                <h3 className="text-[11px] font-black text-stone-500 uppercase tracking-widest">Cronograma do dia</h3>
-                                <p className="text-xs font-bold text-foreground mt-0.5">{selectedDateObj.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <button 
-                                onClick={() => setIsPixModalOpen(true)}
-                                className="flex items-center gap-2 cursor-pointer h-7 px-3 rounded-lg border border-white/5 bg-stone-950 text-[9px] font-bold text-stone-500 uppercase tracking-widest hover:text-amber-500 transition-all group"
-                                title="Configurar PIX do Estabelecimento"
-                            >
-                                <Smartphone className="h-3 w-3 group-hover:scale-110 transition-transform" />
-                                <span>Configurar PIX</span>
-                            </button>
-                            <div className="bg-brand-primary/10 text-[9px] font-black text-brand-primary px-2 py-0.5 rounded-full border border-brand-primary/20 uppercase tracking-wider">
-                                {dayAppointments.length} agendamento{dayAppointments.length !== 1 ? 's' : ''}
-                            </div>
-                        </div>
+                {/* ── CENTER COLUMN: Details + States ── */}
+                    <div className="flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+                        <DesktopDetailsPanel
+                            apt={selectedAppointment}
+                            onEdit={handleEdit}
+                            onComplete={(a) => { setAppointmentToComplete(a); setIsCompleteModalOpen(true); }}
+                            onDetails={(a) => { setAppointmentToComplete(a); setIsDetailsModalOpen(true); }}
+                            onConfirm={confirmAppointment}
+                            onDelete={handleDelete}
+                            onSaveClient={(a) => { setClientToSave(a); setIsSaveClientModalOpen(true); }}
+                        />
+                        <DesktopStatesPanel
+                            appointments={dayAppointments}
+                            onSelect={setSelectedAppointment}
+                            selectedId={selectedAppointment?.id}
+                        />
                     </div>
 
-                    <TooltipProvider>
-                        <div 
-                            ref={timelineRef}
-                            className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar scroll-smooth relative z-20"
-                        >
-                            {TIME_SLOTS.map((time) => {
-                             const isToday = selectedDate === currentTime.toISOString().split('T')[0];
-                             const nowTime = currentTime.getHours() * 60 + currentTime.getMinutes();
-                             const nextSlot = TIME_SLOTS.find(t => {
-                                 const [h, m] = t.split(':').map(Number);
-                                 return (h * 60 + m) > nowTime;
-                             }) || "08:00";
-                             const isNextSlot = isToday && time === nextSlot;
+                    {/* ── RIGHT COLUMN: Calendar + Summary + Free Slots ── */}
+                    <div className="flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+                        <DesktopMiniCalendar
+                            currentMonth={currentMonth}
+                            setCurrentMonth={setCurrentMonth}
+                            selectedDate={selectedDate}
+                            setSelectedDate={(d) => { setSelectedDate(d); setSelectedAppointment(null); }}
+                            appointments={appointments}
+                            isDayFullyBlocked={isDayFullyBlocked}
+                        />
+                        <DesktopDaySummary summary={daySummary} />
+                        <DesktopFreeSlots slots={freeTimeSlots} onAddAt={(time) => { setActiveTime(time); setIsAddModalOpen(true); }} />
+                    </div>
+                </div>
+            </div>
+            
+            <div className="lg:hidden flex flex-col flex-1 min-h-0 h-full overflow-hidden">
+            <div className="shrink-0 flex items-center justify-between px-2 py-3 gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-10 w-10 rounded-full border border-white/10 overflow-hidden shrink-0">
+                        <div className="h-full w-full bg-stone-800 flex items-center justify-center text-xs font-bold text-stone-400">
+                            {tenant?.name?.[0]?.toUpperCase() || "A"}
+                        </div>
+                    </div>
+                    <div className="min-w-0">
+                        <h2 className="text-[15px] font-bold text-foreground leading-tight truncate">Olá, Anderson</h2>
+                        <p className="text-[11px] text-stone-500 font-medium tracking-tight capitalize">
+                            {selectedDateObj.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                    <button
+                        onClick={() => setIsCalendarModalOpen(true)}
+                        className="h-10 w-10 rounded-full bg-stone-900/60 border border-white/5 text-stone-400 hover:text-white transition-all flex items-center justify-center cursor-pointer"
+                        title="Calendário completo"
+                    >
+                        <Filter className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }}
+                        className="h-10 w-10 rounded-full shadow-lg shadow-brand-secondary/20 bg-brand-gold text-stone-950 transition-all hover:scale-[1.02] flex items-center justify-center cursor-pointer"
+                    >
+                        <Plus className="h-5 w-5" />
+                    </button>
+                </div>
+            </div>
 
-                             const apt = dayAppointments.find(a => a.time === time);
-                             const isOpenByConfig = isTimeOpen(selectedDate, time);
-                             const isBlocked = apt?.status === "blocked";
-                             const isLiberado = apt?.status === "liberado";
-                             const isUnavailable = !isOpenByConfig && !isLiberado;
+            {/* ═══ DATE PICKER HORIZONTAL (iOS-style) ═══ */}
+            <div className="shrink-0 px-2 pb-3">
+                <div ref={datePickerRef} className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 snap-x snap-mandatory">
+                    {datePickerDays.map((day) => {
+                        const isSelected = day.dateKey === selectedDate;
+                        const apts = appointments[day.dateKey] || [];
+                        const hasApts = apts.some(a => a.status === 'confirmed' || a.status === 'completed' || a.status === 'pending');
+                        const isBlocked = isDayFullyBlocked(day.dateKey);
+                        const isOpen = isDateOpen(day.dateKey);
+                        return (
+                            <button
+                                key={day.dateKey}
+                                onClick={() => setSelectedDate(day.dateKey)}
+                                className={cn(
+                                    "flex flex-col items-center justify-center min-w-[54px] h-[72px] rounded-2xl transition-all snap-center cursor-pointer shrink-0 relative border",
+                                    isSelected
+                                        ? "bg-stone-900/80 border-brand-primary/50 text-brand-primary"
+                                        : isBlocked
+                                            ? "border-transparent text-stone-600"
+                                            : !isOpen
+                                                ? "border-transparent text-stone-600"
+                                                : "border-transparent text-stone-400 hover:bg-stone-900/40"
+                                )}
+                            >
+                                <span className={cn("text-[10px] font-bold uppercase tracking-wider", isSelected ? "text-brand-primary" : "text-stone-500")}>{day.dayName}</span>
+                                <span className={cn("text-lg font-black leading-none mt-0.5", isSelected ? "text-foreground" : "text-stone-300")}>{day.dayNum}</span>
+                                <div className="flex gap-1 mt-1.5">
+                                    {isBlocked ? (
+                                        <div className="h-1.5 w-1.5 rounded-full bg-red-500/60" />
+                                    ) : hasApts ? (
+                                        <>
+                                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                        </>
+                                    ) : (
+                                        <div className={cn("h-1.5 w-1.5 rounded-full", isSelected ? "bg-brand-primary" : "bg-stone-700")} />
+                                    )}
+                                </div>
+                                {day.isToday && !isSelected && (
+                                    <div className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-brand-primary border-2 border-stone-950" />
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* ─── INSIGHT BAR ─── */}
+            <div className="shrink-0 mx-1 mb-3 p-3 rounded-2xl bg-stone-900/40 border border-white/5 flex items-center gap-4">
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                        <Zap className="h-3.5 w-3.5 text-brand-primary shrink-0" />
+                        <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest truncate">
+                            {occupancyNumber}% ocupado Â· {freeSlotCount} {freeSlotCount === 1 ? 'horário livre' : 'horários livres'}
+                        </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden">
+                        <div
+                            className={cn("h-full rounded-full transition-all duration-700", occupancyNumber >= 80 ? "bg-gradient-to-r from-amber-500 to-red-500" : "bg-gradient-to-r from-emerald-500/80 to-brand-primary/80")}
+                            style={{ width: `${Math.min(occupancyNumber, 100)}%` }}
+                        />
+                    </div>
+                </div>
+                <div className="text-right shrink-0">
+                    <p className="text-lg font-bold text-foreground leading-none">{todayAppointmentsCount}</p>
+                    <p className="text-[9px] text-stone-500 font-medium">agendados</p>
+                </div>
+            </div>
+
+            {/* â•â•â• TIMELINE DO DIA (Core UX) â•â•â• */}
+            <div className="flex-1 min-h-0 overflow-hidden flex flex-col relative">
+                {/* Timeline vertical line */}
+                <div className="absolute left-[29px] top-0 bottom-0 w-px bg-gradient-to-b from-brand-primary/30 via-brand-primary/10 to-transparent pointer-events-none z-0" />
+
+                <TooltipProvider>
+                    <div ref={timelineRef} className="flex-1 overflow-y-auto px-1 py-2 space-y-2 custom-scrollbar scroll-smooth relative z-10">
+                        {visibleTimeSlots.map((time) => {
+                            const isToday = selectedDate === currentTime.toISOString().split('T')[0];
+                            const nowTime = currentTime.getHours() * 60 + currentTime.getMinutes();
+                            const [slotH, slotM] = time.split(':').map(Number);
+                            const slotMins = slotH * 60 + slotM;
+                            const isCurrentSlot = isToday && slotMins <= nowTime && slotMins + 60 > nowTime;
+
+                            const apt = dayAppointments.find(a => a.time === time);
+                            const isOpenByConfig = isTimeOpen(selectedDate, time);
+                            const isBlocked = apt?.status === "blocked";
+                            const isLiberado = apt?.status === "liberado";
+                            const isUnavailable = !isOpenByConfig && !isLiberado;
 
                             return (
-                                <div 
-                                    key={time} 
-                                    id={`slot-${time}`}
-                                    className={cn(
-                                        "flex gap-3 items-center transition-all duration-500 relative", 
-                                        isUnavailable && !apt ? "opacity-90" : "opacity-100",
-                                        isNextSlot && "z-10"
-                                    )}
-                                >
-                                    {isNextSlot && (
-                                        <>
-                                            {/* Digital Pointer */}
-                                            <div className="absolute -left-3 top-1/2 -translate-y-1/2 z-30 flex items-center group/pointer">
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <div className="flex items-center">
-                                                            <svg 
-                                                                viewBox="0 0 10 20" 
-                                                                className="h-3.5 w-2 fill-brand-primary text-brand-primary drop-shadow-[0_0_8px_rgba(var(--brand-primary-rgb),0.6)] cursor-help transition-transform group-hover/pointer:scale-110"
-                                                            >
-                                                                <path d="M0 2 L10 10 L0 18 Z" fill="currentColor" />
-                                                            </svg>
-                                                        </div>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent hideArrow side="right" className="bg-stone-950 border-brand-primary/20 text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary px-3 py-1 shadow-2xl backdrop-blur-md">
-                                                        Próximo horário
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </div>
-
-                                            {/* Scanning Line Effect */}
-                                            <div className="absolute left-10 right-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-brand-primary/20 to-transparent pointer-events-none z-10" />
-                                        </>
-                                    )}
-                                    <div className="w-10 shrink-0 flex justify-center relative">
-                                        <div className="absolute top-1/2 -translate-y-1/2 h-5 w-9 bg-stone-950 z-10 rounded-md" />
-                                        <span className={cn(
-                                            "tabular-nums tracking-tighter transition-all duration-300 relative z-20",
-                                            apt && !isBlocked && !isLiberado 
-                                                ? "text-xs font-black text-white" 
-                                                : isUnavailable ? "text-[10px] font-bold text-stone-700" : "text-[10px] font-bold text-stone-600"
-                                        )}>
-                                            {time}
-                                        </span>
+                                <div key={time} id={`slot-${time}`} className={cn("flex gap-2 items-start transition-all duration-300 relative group/row", isUnavailable && !apt ? "opacity-50" : "opacity-100")}>
+                                    {/* Time + dot */}
+                                    <div className="w-[58px] shrink-0 flex items-center gap-1.5 pt-3 relative z-10">
+                                        <div className={cn("h-2 w-2 rounded-full shrink-0 border-2 transition-all",
+                                            isCurrentSlot ? "bg-brand-primary border-brand-primary shadow-[0_0_8px_rgba(245,204,112,0.4)]" :
+                                            apt && !isBlocked && !isLiberado ? "bg-stone-600 border-stone-500" :
+                                            isBlocked ? "bg-red-500/40 border-red-500/30" :
+                                            "bg-stone-800 border-stone-700"
+                                        )} />
+                                        <span className={cn("text-[11px] font-bold tabular-nums tracking-tight",
+                                            isCurrentSlot ? "text-brand-primary" :
+                                            apt && !isBlocked && !isLiberado ? "text-foreground" :
+                                            "text-stone-600"
+                                        )}>{time}</span>
                                     </div>
 
+                                    {/* Card */}
                                     <div className="flex-1 min-w-0">
                                         {apt && !isBlocked && !isLiberado ? (
+                                            /* ── Appointment Card ── */
                                             <div className={cn(
-                                                "border transition-all group relative overflow-hidden h-16 flex items-center rounded-2xl p-2 px-3",
-                                                apt.status === 'completed' 
-                                                    ? "bg-emerald-500/[0.04] border-emerald-500/10 hover:bg-emerald-500/[0.06] hover:border-emerald-500/20 shadow-inner shadow-emerald-500/[0.02]" 
-                                                    : "bg-stone-900/40 border-white/[0.03] hover:bg-stone-900/60 hover:border-white/[0.08]"
-                                            )}>
-                                                <div className="flex items-center justify-between w-full gap-3">
-                                                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                                        <div className={cn(
-                                                            "h-9 w-9 rounded-full flex items-center justify-center text-[10px] font-black border shrink-0 shadow-inner",
-                                                            apt.status === 'completed' 
-                                                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
-                                                                : "bg-stone-950 border-white/5 text-stone-600"
-                                                        )}>
-                                                            {apt.name.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <div className="flex items-center gap-2 mb-0.5">
-                                                                <h4 className={cn(
-                                                                    "text-sm font-bold truncate tracking-tight",
-                                                                    apt.status === 'completed' ? "text-emerald-500/90" : "text-foreground"
-                                                                )}>{apt.name}</h4>
-                                                                <div className={cn(
-                                                                    "text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full tracking-[0.1em] shrink-0 border",
-                                                                    apt.status === 'completed' ? "text-emerald-500 bg-emerald-500/20 border-emerald-500/30" :
-                                                                    apt.status === 'confirmed' ? "text-emerald-500/80 bg-emerald-500/[0.03] border-emerald-500/10" : 
-                                                                    "text-blue-500/60 bg-blue-500/5 border-white/5"
-                                                                )}>
-                                                                    {apt.status === 'completed' ? 'Concluído' : apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
-                                                                </div>
-                                                            </div>
-                                                            <p className="text-[10px] text-stone-500 font-medium truncate">
-                                                                {apt.service} • <span className="text-brand-primary/80 font-bold">{apt.price}</span>
-                                                            </p>
-                                                        </div>
+                                                "border rounded-xl p-3 transition-all relative overflow-hidden group/card cursor-pointer active:scale-[0.98]",
+                                                apt.status === 'completed'
+                                                    ? "bg-emerald-500/[0.05] border-emerald-500/20"
+                                                    : apt.status === 'confirmed'
+                                                        ? "bg-gradient-to-r from-emerald-500/[0.08] to-emerald-500/[0.02] border-emerald-500/20"
+                                                        : "bg-gradient-to-r from-amber-500/[0.08] to-amber-500/[0.02] border-amber-500/20"
+                                            )} onClick={() => { setAppointmentToComplete(apt); apt.status === 'completed' ? setIsDetailsModalOpen(true) : setIsCompleteModalOpen(true); }}>
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="flex flex-col min-w-0 flex-1">
+                                                        <h4 className="text-sm font-bold text-foreground truncate">{apt.name}</h4>
+                                                        <p className="text-[11px] text-stone-400 truncate">{apt.service} • <span className="font-semibold">{apt.price}</span></p>
                                                     </div>
-
+                                                    {/* Quick actions & Avatar */}
                                                     <div className="flex items-center gap-2 shrink-0">
-                                                        {apt.status === 'completed' ? (
-                                                            <button 
-                                                                onClick={() => { setAppointmentToComplete(apt); setIsDetailsModalOpen(true); }}
-                                                                className="h-8 px-3 rounded-lg border border-white/[0.05] bg-stone-950 text-stone-500 text-[9px] font-bold uppercase tracking-wider hover:bg-stone-900 hover:text-stone-300 transition-all active:scale-[0.98] shadow-sm cursor-pointer"
-                                                            >
-                                                                Ver detalhes
-                                                            </button>
-                                                        ) : (
-                                                            <button 
-                                                                onClick={() => { setAppointmentToComplete(apt); setIsCompleteModalOpen(true); }}
-                                                                className="h-8 px-3 rounded-lg border border-white/[0.05] bg-stone-950 text-emerald-500/90 text-[9px] font-bold uppercase tracking-wider hover:bg-emerald-500/[0.08] hover:border-emerald-500/20 hover:text-emerald-400 transition-all active:scale-[0.98] shadow-sm cursor-pointer"
-                                                            >
-                                                                Concluir
-                                                            </button>
-                                                        )}
+                                                        <div className={cn("text-[9px] font-black uppercase px-2 py-1 rounded-full tracking-wider border",
+                                                            apt.status === 'completed' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" :
+                                                                apt.status === 'confirmed' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" :
+                                                                    "text-amber-500 bg-amber-500/10 border-amber-500/20"
+                                                        )}>{apt.status === 'completed' ? 'Concluído' : apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}</div>
                                                         
-                                                        <div className="flex items-center gap-2">
-                                                            <a 
-                                                                href={`https://wa.me/${apt.phone?.replace(/\D/g, '')}`} 
-                                                                target="_blank" 
-                                                                rel="noopener noreferrer" 
-                                                                className="h-8 w-8 rounded-lg bg-stone-950 flex items-center justify-center text-green-500 border border-white/5 hover:bg-green-500/10 hover:border-green-500/20 transition-all shadow-sm"
-                                                            >
-                                                                <MessageCircle className="h-4 w-4" />
-                                                            </a>
-                                                            
+                                                        <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 shrink-0">
+                                                            <div className="h-full w-full bg-stone-800 flex items-center justify-center text-[10px] font-bold text-stone-400">
+                                                                {apt.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
+                                                            </div>
+                                                        </div>
+
+                                                        <div onClick={(e) => e.stopPropagation()}>
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <button className="h-8 w-8 rounded-lg bg-stone-950 flex items-center justify-center text-stone-600 hover:text-white border border-white/5 hover:border-white/10 transition-all outline-none">
+                                                                    <button className="h-7 w-7 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">
                                                                         <MoreVertical className="h-4 w-4" />
                                                                     </button>
                                                                 </DropdownMenuTrigger>
-                                                                <DropdownMenuContent 
-                                                                    align="end" 
-                                                                    sideOffset={4}
-                                                                    className="w-48 bg-stone-950 border border-white/10 rounded-2xl p-1 shadow-2xl"
-                                                                >
+                                                                <DropdownMenuContent align="end" sideOffset={4} className="w-48 bg-stone-950 border border-white/10 rounded-2xl p-1 shadow-2xl">
                                                                     {!apt.customerId && (
-                                                                        <DropdownMenuItem 
-                                                                            onClick={() => { setClientToSave(apt); setIsSaveClientModalOpen(true); }}
-                                                                            className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2"
-                                                                        >
+                                                                        <DropdownMenuItem onClick={() => { setClientToSave(apt); setIsSaveClientModalOpen(true); }} className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2">
                                                                             <UserPlus className="h-3.5 w-3.5" /> Salvar Cliente
                                                                         </DropdownMenuItem>
                                                                     )}
-                                                                    <DropdownMenuItem 
-                                                                        onClick={() => { setEditingAppointment(apt); setIsAddModalOpen(true); }} 
-                                                                        className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2"
-                                                                    >
-                                                                        <Pencil className="h-3.5 w-3.5" /> Editar Dados
+                                                                    <DropdownMenuItem onClick={() => handleEdit(apt)} className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2">
+                                                                        <Pencil className="h-3.5 w-3.5" /> Editar
                                                                     </DropdownMenuItem>
-                                                                    <DropdownMenuItem 
-                                                                        onClick={() => confirmAppointment(time)} 
-                                                                        className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2"
-                                                                    >
-                                                                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> Confirmar Presença
+                                                                    <DropdownMenuItem onClick={() => confirmAppointment(time)} className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2">
+                                                                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> Confirmar
                                                                     </DropdownMenuItem>
-                                                                    <DropdownMenuItem 
-                                                                        onClick={() => handleDelete(apt.id)} 
-                                                                        className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2 text-red-500"
-                                                                    >
+                                                                    <DropdownMenuItem onClick={() => handleDelete(apt.id)} className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2 text-red-500">
                                                                         <Trash2 className="h-3.5 w-3.5" /> Excluir
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuContent>
@@ -1149,83 +1069,124 @@ export default function AgendaPage() {
                                                 </div>
                                             </div>
                                         ) : (
+                                            /* ── Empty / Blocked / Unavailable slot ── */
                                             <div className={cn(
-                                                "border transition-all group relative overflow-hidden h-16 flex items-center rounded-2xl p-2 px-4 justify-between",
-                                                isBlocked 
-                                                    ? "bg-red-500/[0.03] border-red-500/10 hover:border-red-500/20 shadow-inner" 
-                                                    : isUnavailable
-                                                        ? "bg-stone-900/10 border-white/[0.03] hover:bg-stone-900/30 hover:border-white/5"
-                                                        : "bg-stone-900/20 border-white/[0.03] hover:bg-stone-900/40 hover:border-white/[0.08]"
+                                                "border rounded-xl p-3 transition-all flex items-center justify-between",
+                                                isBlocked ? "bg-gradient-to-r from-red-500/[0.08] to-red-500/[0.02] border-red-500/20"
+                                                    : isUnavailable ? "bg-stone-900/10 border-white/[0.02]"
+                                                        : "bg-stone-900/40 border-white/5 hover:border-brand-primary/30"
                                             )}>
-                                                <div className="flex items-center gap-3">
-                                                    <div className={cn(
-                                                        "h-8 w-8 rounded-full border flex items-center justify-center shrink-0 transition-all",
-                                                        isBlocked ? "bg-red-500/10 border-red-500/20 text-red-500" : 
-                                                        isUnavailable ? "bg-stone-950 border-white/5 text-stone-500 group-hover:text-amber-500" :
-                                                        "bg-stone-950 border-white/5 text-stone-600 group-hover:border-brand-gold/20 group-hover:text-brand-gold"
-                                                    )}>
-                                                        {isBlocked ? <XCircle className="h-4 w-4" /> : isUnavailable ? <AlertCircle className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                                                    </div>
-                                                    <div>
-                                                        <span className={cn(
-                                                            "text-[10px] font-black uppercase tracking-widest block mb-0.5",
-                                                            isBlocked ? "text-red-500/70" : 
-                                                            isUnavailable ? "text-stone-500 group-hover:text-stone-400" :
-                                                            "text-stone-600 group-hover:text-stone-300 transition-colors"
-                                                        )}>
-                                                            {isBlocked ? "Horário Bloqueado" : isUnavailable ? "Fora do Horário" : "Horário Livre"}
-                                                        </span>
-                                                        <span className={cn(
-                                                            "text-[9px] font-bold",
-                                                            isBlocked ? "text-red-500/40" : 
-                                                            isUnavailable ? "text-stone-700 group-hover:text-stone-600" :
-                                                            "text-stone-700"
-                                                        )}>
-                                                            {isBlocked ? "Indisponível para clientes" : isUnavailable ? "Liberação manual necessária" : "Disponível para agendamento"}
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center gap-2">
-                                                    {isUnavailable ? (
-                                                        <button 
-                                                            onClick={() => toggleSlot(time)}
-                                                            className="h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-stone-950"
-                                                        >
-                                                            Liberar Horário
-                                                        </button>
+                                                <div className="flex items-center gap-4">
+                                                    {isBlocked ? (
+                                                        <div className="h-8 w-8 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                                                            <Lock className="h-4 w-4 text-red-500" />
+                                                        </div>
+                                                    ) : isUnavailable ? (
+                                                        <div className="h-8 w-8 rounded-full bg-stone-900/50 border border-white/[0.05] flex items-center justify-center shrink-0">
+                                                            <Clock className="h-4 w-4 text-stone-700" />
+                                                        </div>
                                                     ) : (
-                                                        <button 
-                                                            onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }}
-                                                            className="h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg bg-brand-gold/10 text-brand-gold border border-brand-gold/20 hover:bg-brand-gold hover:text-stone-950"
-                                                        >
-                                                            Agendar
-                                                        </button>
+                                                        <div className="h-8 w-8 rounded-full border border-dashed border-white/20 flex items-center justify-center text-stone-500 transition-all">
+                                                            <Plus className="h-4 w-4" />
+                                                        </div>
                                                     )}
-                                                    
-                                                    <button 
-                                                        onClick={() => toggleSlot(time)}
-                                                        className={cn(
-                                                            "h-8 w-8 rounded-lg flex items-center justify-center transition-all border border-white/5 opacity-0 group-hover:opacity-100",
-                                                            isBlocked 
-                                                                ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white" 
-                                                                : "bg-stone-950 text-stone-600 hover:text-red-500 hover:bg-red-500/10"
-                                                        )}
-                                                        title={isBlocked ? "Liberar Horário" : "Bloquear Horário"}
-                                                    >
-                                                        {isBlocked || isLiberado ? <CheckCircle2 className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
-                                                    </button>
+                                                    <div>
+                                                        <p className={cn("text-xs font-bold uppercase tracking-wider mb-0.5",
+                                                            isBlocked ? "text-red-500" : isUnavailable ? "text-stone-600" : "text-stone-400"
+                                                        )}>
+                                                            {isBlocked ? "Horário Bloqueado" : isUnavailable ? "Fechado" : "Horário Livre"}
+                                                        </p>
+                                                        <p className={cn("text-[11px]",
+                                                            isBlocked ? "text-red-500/60" : isUnavailable ? "text-stone-600" : "text-stone-500"
+                                                        )}>
+                                                            {isBlocked ? "Indisponível para clientes" : isUnavailable ? "Fora do horário de func." : "Disponível para agendamento"}
+                                                        </p>
+                                                    </div>
                                                 </div>
+                                                {!isBlocked && !isUnavailable && (
+                                                    <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-8 w-8 rounded-full border border-white/10 bg-stone-900 text-stone-400 hover:text-brand-gold hover:border-brand-gold/30 hover:bg-brand-gold/10 flex items-center justify-center transition-all cursor-pointer">
+                                                        <Plus className="h-4 w-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                            )
+                            );
                         })}
-                        </div>
-                    </TooltipProvider>
-                </div>
+                    </div>
+                </TooltipProvider>
             </div>
+
+            {/* â•â•â• FAB â€” Floating Action Button â•â•â• */}
+            <button
+                onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }}
+                className="fixed bottom-24 right-5 z-50 h-14 w-14 rounded-full bg-brand-gold shadow-xl shadow-brand-secondary/30 flex items-center justify-center text-stone-950 hover:scale-110 active:scale-95 transition-all cursor-pointer sm:hidden"
+                title="Novo Agendamento"
+            >
+                <Plus className="h-6 w-6" strokeWidth={2.5} />
+            </button>
+            </div>{/* end mobile wrapper */}
+
+            {/* â•â•â• CALENDAR MODAL (Full Month) â•â•â• */}
+            <Dialog open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
+                <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-md p-6">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-black text-white flex items-center gap-2">
+                            <CalendarIcon className="h-5 w-5 text-brand-primary" /> Calendário
+                        </DialogTitle>
+                        <DialogDescription className="text-stone-400 text-xs">
+                            Selecione uma data para visualizar a agenda.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {/* Month navigation */}
+                    <div className="flex items-center justify-between mt-4 mb-3">
+                        <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="h-8 w-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
+                            <ChevronLeft className="h-4 w-4" />
+                        </button>
+                        <span className="text-sm font-bold text-foreground">{MONTH_NAMES[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
+                        <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="h-8 w-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
+                            <ChevronRight className="h-4 w-4" />
+                        </button>
+                    </div>
+                    {/* Weekday headers */}
+                    <div className="grid grid-cols-7 gap-1 mb-1">
+                        {WEEKDAYS.map(d => <div key={d} className="text-center text-[9px] font-black text-stone-600 uppercase tracking-widest py-1">{d}</div>)}
+                    </div>
+                    {/* Days grid */}
+                    <div className="grid grid-cols-7 gap-1">
+                        {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
+                        {Array.from({ length: daysInMonth }).map((_, i) => {
+                            const day = i + 1;
+                            const dateKey = getDateKey(day);
+                            const isSelected = dateKey === selectedDate;
+                            const apts = appointments[dateKey] || [];
+                            const isToday = dateKey === new Date().toISOString().split('T')[0];
+                            const blocked = isDayFullyBlocked(dateKey);
+                            return (
+                                <button key={day} onClick={() => { setSelectedDate(dateKey); setIsCalendarModalOpen(false); }}
+                                    className={cn(
+                                        "h-9 w-full rounded-lg text-xs font-bold transition-all relative flex flex-col items-center justify-center gap-0.5 cursor-pointer",
+                                        isSelected ? (blocked ? "bg-red-500/20 text-red-400" : "bg-brand-gold text-stone-950") :
+                                            blocked ? "text-stone-600 bg-stone-900/30" : "text-stone-400 hover:bg-stone-800/50 hover:text-white"
+                                    )}>
+                                    <span>{day}</span>
+                                    <div className="flex gap-0.5">
+                                        {apts.slice(0, 2).map((a, idx) => (
+                                            <div key={idx} className={cn("h-1 w-1 rounded-full",
+                                                isSelected ? "bg-stone-950/30" :
+                                                    a.status === 'completed' ? "bg-emerald-500" : a.status === 'confirmed' ? "bg-green-500" : a.status === 'pending' ? "bg-amber-400" : "bg-stone-600"
+                                            )} />
+                                        ))}
+                                    </div>
+                                    {isToday && !isSelected && <div className="absolute top-0.5 right-0.5 h-1 w-1 rounded-full bg-brand-primary" />}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </DialogContent>
+            </Dialog>
+
 
             <AppointmentModal
                 isOpen={isAddModalOpen}
