@@ -365,16 +365,16 @@ export default function AgendaPage() {
                     <Button 
                         variant="outline" 
                         onClick={() => setIsBusinessHoursModalOpen(true)}
-                        className="h-10 rounded-xl px-4 border-stone-800 bg-stone-900/40 text-stone-300 hover:bg-stone-800 hover:text-white transition-all text-xs"
+                        className="h-10 rounded-xl px-4 border-stone-800 bg-stone-900/40 text-stone-300 hover:bg-stone-800 hover:text-white transition-all text-xs cursor-pointer"
                     >
                         <Clock className="h-3.5 w-3.5 mr-2" /> Funcionamento
                     </Button>
-                    <Button variant="outline" className="h-10 rounded-xl px-4 border-stone-800 bg-stone-900/40 text-stone-300 hover:bg-stone-800 hover:text-white transition-all text-xs">
+                    <Button variant="outline" className="h-10 rounded-xl px-4 border-stone-800 bg-stone-900/40 text-stone-300 hover:bg-stone-800 hover:text-white transition-all text-xs cursor-pointer">
                         <Filter className="h-3.5 w-3.5 mr-2" /> Filtrar
                     </Button>
                     <Button 
                         onClick={() => { setActiveTime(TIME_SLOTS[0]); setIsAddModalOpen(true); }}
-                        className="h-10 rounded-xl px-5 font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-stone-950 transition-all hover:scale-[1.02] text-xs"
+                        className="h-10 rounded-xl px-5 font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-stone-950 transition-all hover:scale-[1.02] text-xs cursor-pointer"
                     >
                         <Plus className="h-4 w-4 mr-2" /> Novo Agendamento
                     </Button>
@@ -1016,10 +1016,10 @@ export default function AgendaPage() {
             <BusinessHoursModal 
                 isOpen={isBusinessHoursModalOpen}
                 onClose={() => setIsBusinessHoursModalOpen(false)}
-                onSave={(config) => {
-                    console.log("Business hours config:", config)
+                tenant={tenant}
+                onSuccess={(updatedTenant) => {
+                    setTenant(updatedTenant)
                     setIsBusinessHoursModalOpen(false)
-                    toast.success("Horário de funcionamento atualizado!")
                 }}
             />
         </div>
