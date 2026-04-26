@@ -80,6 +80,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { data: session } = authClient.useSession()
     const { theme, setTheme } = useTheme()
     const [tenant, setTenant] = useState<TenantData | null>(null)
+    const [isCollapsed, setIsCollapsed] = useState(false)
 
     useEffect(() => {
         getMyTenant().then(setTenant).catch(() => {})
@@ -121,27 +122,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 DESKTOP SIDEBAR — hidden on mobile
                ══════════════════════════════════════════════ */}
             <aside className={cn(
-                "hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-[#0c0c0e] border-r border-stone-800/40 transition-all duration-300",
-                isEditorPage ? "w-16" : "w-64"
+                "hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-[#0c0c0e] border-r border-stone-800/40 transition-all duration-500 ease-in-out",
+                isCollapsed ? "w-20" : "w-64"
             )}>
+                {/* Collapse Toggle Button */}
+                <button 
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="absolute -right-3 top-10 w-6 h-6 rounded-full bg-stone-900 border border-stone-800 flex items-center justify-center shadow-xl z-50 hover:scale-110 hover:bg-stone-800 transition-all cursor-pointer group/toggle"
+                >
+                    <ChevronRight className={cn("w-3.5 h-3.5 text-stone-400 group-hover/toggle:text-brand-primary transition-transform duration-500", !isCollapsed && "rotate-180")} />
+                </button>
 
                 {/* Logo */}
-                <div className={cn("h-20 flex items-center border-b border-stone-800/20", isEditorPage ? "px-0 justify-center" : "px-6")}>
+                <div className={cn("h-20 flex items-center border-b border-stone-800/20 transition-all duration-500", isCollapsed ? "px-0 justify-center" : "px-6")}>
                     <Link href="/painel" className="flex items-center gap-2.5">
                         <img
-                            src={isEditorPage ? "/logo-agenda-online-icon.svg" : "/logo-agenda-online.svg"}
+                            src={isCollapsed ? "/logo-agenda-online-icon.svg" : "/logo-agenda-online.svg"}
                             alt="Agenda Online"
-                            className={cn("h-9 w-auto transition-all duration-300", isEditorPage ? "h-8" : "h-9")}
+                            className={cn("w-auto transition-all duration-500", isCollapsed ? "h-10 animate-in zoom-in-50" : "h-9")}
                         />
                     </Link>
                 </div>
 
                 {/* Navigation */}
-                <nav className={cn("flex-1 overflow-y-auto custom-scrollbar", isEditorPage ? "px-1.5 py-4" : "px-0 py-6")}>
+                <nav className={cn("flex-1 overflow-y-auto custom-scrollbar transition-all duration-500", isCollapsed ? "px-0 py-4" : "px-0 py-6")}>
                     {NAV_GROUPS.map((group, groupIdx) => (
                         <div key={group.label} className={cn(groupIdx > 0 && "mt-8")}>
-                            {!isEditorPage && (
-                                <p className="px-6 mb-4 text-[10px] font-bold text-stone-500/50 uppercase tracking-[0.2em]">
+                            {!isCollapsed && (
+                                <p className="px-6 mb-4 text-[10px] font-bold text-stone-500/50 uppercase tracking-[0.2em] animate-in fade-in slide-in-from-left-2 duration-500">
                                     {group.label}
                                 </p>
                             )}
@@ -152,10 +160,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         <Link
                                             key={item.href}
                                             href={item.href}
-                                            title={item.label}
+                                            title={isCollapsed ? item.label : undefined}
                                             className={cn(
                                                 "group flex items-center text-[14px] transition-all duration-300 relative",
-                                                isEditorPage ? "justify-center py-3 px-2 rounded-xl mx-2" : "gap-4 px-6 py-3.5",
+                                                isCollapsed ? "justify-center py-3.5 w-full" : "gap-4 px-6 py-3.5",
                                                 isActive
                                                     ? "text-brand-primary bg-gradient-to-r from-brand-primary/10 to-transparent border-l-2 border-brand-primary"
                                                     : "text-stone-400 hover:text-stone-100 hover:bg-stone-800/20 border-l-2 border-transparent"
@@ -165,17 +173,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                 "h-5 w-5 transition-all duration-300 shrink-0",
                                                 isActive ? "text-brand-primary drop-shadow-[0_0_8px_rgba(202,145,42,0.4)]" : "text-stone-500 group-hover:text-stone-300"
                                             )} />
-                                            {!isEditorPage && (
+                                            {!isCollapsed && (
                                                 <span className={cn(
-                                                    "transition-colors tracking-wide",
+                                                    "transition-colors tracking-wide animate-in fade-in slide-in-from-left-2 duration-500",
                                                     isActive ? "font-semibold" : "font-medium"
                                                 )}>
                                                     {item.label}
                                                 </span>
                                             )}
-                                            
+
                                             {/* Active Glow Effect */}
-                                            {isActive && !isEditorPage && (
+                                            {isActive && (
                                                 <div className="absolute inset-0 bg-brand-primary/5 blur-xl -z-10" />
                                             )}
                                         </Link>
@@ -190,10 +198,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <div className="mt-1">
                             <Link
                                 href="/admin"
-                                title="Administração"
+                                title={isCollapsed ? "Administração" : undefined}
                                 className={cn(
                                     "group flex items-center text-[14px] transition-all duration-300 relative",
-                                    isEditorPage ? "justify-center py-3 px-2 rounded-xl mx-2" : "gap-4 px-6 py-3.5",
+                                    isCollapsed ? "justify-center py-3.5 w-full" : "gap-4 px-6 py-3.5",
                                     pathname.startsWith("/admin")
                                         ? "text-brand-primary bg-gradient-to-r from-brand-primary/10 to-transparent border-l-2 border-brand-primary"
                                         : "text-stone-400 hover:text-stone-100 hover:bg-stone-800/20 border-l-2 border-transparent"
@@ -203,15 +211,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     "h-5 w-5 transition-all duration-300 shrink-0",
                                     pathname.startsWith("/admin") ? "text-brand-primary drop-shadow-[0_0_8px_rgba(202,145,42,0.4)]" : "text-stone-500 group-hover:text-stone-300"
                                 )} />
-                                {!isEditorPage && <span className={cn("transition-colors tracking-wide", pathname.startsWith("/admin") ? "font-semibold" : "font-medium")}>Administração</span>}
+                                {!isCollapsed && <span className={cn("transition-colors tracking-wide animate-in fade-in slide-in-from-left-2 duration-500", pathname.startsWith("/admin") ? "font-semibold" : "font-medium")}>Administração</span>}
+                                
+                                {/* Active Glow Effect */}
+                                {pathname.startsWith("/admin") && (
+                                    <div className="absolute inset-0 bg-brand-primary/5 blur-xl -z-10" />
+                                )}
                             </Link>
                         </div>
                     )}
                 </nav>
 
                 {/* Footer Help Card */}
-                {!isEditorPage && (
-                    <div className="p-4 mt-auto">
+                {!isCollapsed && (
+                    <div className="p-4 mt-auto border-t border-stone-800/20 animate-in fade-in duration-500">
                         <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-800/40 flex items-center gap-3 group cursor-pointer hover:bg-stone-900/60 transition-all duration-300">
                             <div className="h-10 w-10 rounded-xl bg-stone-800/50 flex items-center justify-center shrink-0 border border-stone-700/30">
                                 <Headset className="h-5 w-5 text-stone-500 group-hover:text-brand-primary transition-colors" />
@@ -221,6 +234,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 <p className="text-[10px] text-stone-500 truncate">Acesse nossa central</p>
                             </div>
                             <ChevronRight className="h-4 w-4 text-stone-600 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" />
+                        </div>
+                    </div>
+                )}
+                
+                {isCollapsed && (
+                    <div className="p-4 mt-auto border-t border-stone-800/20 flex justify-center">
+                        <div className="h-10 w-10 rounded-xl bg-stone-800/50 flex items-center justify-center text-stone-500 hover:text-brand-primary hover:bg-stone-800 transition-all cursor-pointer">
+                            <Headset className="h-5 w-5" />
                         </div>
                     </div>
                 )}
@@ -238,7 +259,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* ══════════════════════════════════════════════
                 MAIN CONTENT AREA
                ══════════════════════════════════════════════ */}
-            <div className={cn("flex flex-col min-h-screen pb-20 lg:pb-0 transition-all duration-300", isEditorPage ? "lg:ml-16" : "lg:ml-64")}>
+            <div className={cn("flex flex-col min-h-screen pb-20 lg:pb-0 transition-all duration-500 ease-in-out", isCollapsed ? "lg:ml-20" : "lg:ml-64")}>
 
                 <header className="sticky top-0 z-20 bg-[#F6F3ED]/80 dark:bg-stone-950/60 backdrop-blur-xl border-b border-stone-200/50 dark:border-stone-800/40 h-16 px-5 flex items-center justify-between transition-colors shadow-sm">
                     {/* Mobile logo + Page title */}
