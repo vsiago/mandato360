@@ -254,7 +254,7 @@ export default function AgendaPage() {
 
             <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* ── Left Column ── */}
-                <div className="lg:col-span-8 flex flex-col gap-6 min-h-0">
+                <div className="lg:col-span-7 flex flex-col gap-6 min-h-0">
                     {/* Calendar Card */}
                     <div className="flex-1 min-h-0 bg-stone-900/40 border border-white/5 rounded-2xl p-6 backdrop-blur-xl flex flex-col">
                         {/* Calendar Toolbar */}
@@ -377,7 +377,7 @@ export default function AgendaPage() {
                 </div>
 
                 {/* ── Right Column ── */}
-                <div className="lg:col-span-4 bg-stone-900/40 border border-white/5 rounded-2xl flex flex-col h-full min-h-0 overflow-hidden backdrop-blur-xl">
+                <div className="lg:col-span-5 bg-stone-900/40 border border-white/5 rounded-2xl flex flex-col h-full min-h-0 overflow-hidden backdrop-blur-xl">
                     <div className="shrink-0 p-5 border-b border-white/5 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-xl bg-stone-950 border border-white/5 flex items-center justify-center shadow-inner">
@@ -406,63 +406,86 @@ export default function AgendaPage() {
 
                                     <div className="flex-1 min-w-0">
                                         {apt && !isBlocked ? (
-                                            <div className="bg-stone-950/60 border border-white/5 rounded-xl p-3 transition-all hover:border-brand-primary/20 group relative overflow-hidden">
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <div className="flex items-center gap-3 min-w-0">
-                                                        <div className="h-10 w-10 rounded-full bg-stone-900 flex items-center justify-center text-[10px] font-black text-stone-500 border border-white/5 shrink-0">
+                                            <div className="bg-stone-900/40 border border-white/[0.03] rounded-2xl p-2 px-3 transition-all hover:bg-stone-900/60 hover:border-white/[0.08] group relative overflow-hidden h-16 flex items-center">
+                                                <div className="flex items-center justify-between w-full gap-3">
+                                                    {/* Left: Avatar & Info */}
+                                                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                                        <div className="h-9 w-9 rounded-full bg-stone-950 flex items-center justify-center text-[10px] font-black text-stone-600 border border-white/5 shrink-0 shadow-inner">
                                                             {apt.name.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
                                                         </div>
                                                         <div className="min-w-0">
                                                             <div className="flex items-center gap-2 mb-0.5">
-                                                                <h4 className="text-sm font-bold text-foreground truncate">{apt.name}</h4>
+                                                                <h4 className="text-sm font-bold text-foreground truncate tracking-tight">{apt.name}</h4>
                                                                 <div className={cn(
-                                                                    "text-[9px] font-black uppercase px-2 py-0.5 rounded-md tracking-wider shrink-0",
-                                                                    apt.status === 'confirmed' ? "text-green-500 bg-green-500/10" : "text-blue-500 bg-blue-500/10"
+                                                                    "text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full tracking-[0.1em] shrink-0 border",
+                                                                    apt.status === 'confirmed' 
+                                                                        ? "text-emerald-500/80 bg-emerald-500/[0.03] border-emerald-500/10" 
+                                                                        : "text-blue-500/60 bg-blue-500/5 border-white/5"
                                                                 )}>
                                                                     {apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
                                                                 </div>
                                                             </div>
-                                                            <p className="text-[10px] text-stone-500 font-medium truncate">{apt.service} • <span className="text-brand-primary font-bold">{apt.price}</span></p>
+                                                            <p className="text-[10px] text-stone-500 font-medium truncate">
+                                                                {apt.service} • <span className="text-brand-primary/80 font-bold">{apt.price}</span>
+                                                            </p>
                                                         </div>
-                                                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2 top-2 bg-stone-950/80 backdrop-blur-sm p-1 rounded-lg">
-                                                        <a href={`https://wa.me/${apt.phone}`} target="_blank" rel="noopener noreferrer" className="h-7 w-7 rounded-lg flex items-center justify-center text-green-500 hover:bg-green-500/10 transition-colors">
-                                                            <MessageCircle className="h-3.5 w-3.5" />
-                                                        </a>
-                                                        
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <button className="h-7 w-7 rounded-lg flex items-center justify-center text-stone-500 hover:text-white hover:bg-white/5 transition-all outline-none">
-                                                                    <MoreVertical className="h-3.5 w-3.5" />
-                                                                </button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent 
-                                                                align="end" 
-                                                                sideOffset={5}
-                                                                className="w-32 bg-stone-950/95 backdrop-blur-md border border-white/5 rounded-xl p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
-                                                            >
-                                                                <DropdownMenuItem 
-                                                                    onClick={() => handleEdit(apt)} 
-                                                                    className="flex items-center gap-2 px-2 py-1.5 text-[10px] font-bold text-stone-400 focus:text-brand-primary focus:bg-brand-primary/5 rounded-lg transition-all cursor-pointer group/item"
-                                                                >
-                                                                    <div className="h-5 w-5 rounded-md bg-stone-900 flex items-center justify-center group-focus/item:bg-brand-primary/10 transition-colors">
-                                                                        <Pencil className="h-2.5 w-2.5 transition-transform" />
-                                                                    </div>
-                                                                    <span>Editar</span>
-                                                                </DropdownMenuItem>
-                                                                
-                                                                <DropdownMenuItem 
-                                                                    onClick={() => handleDelete(apt.id)} 
-                                                                    className="flex items-center gap-2 px-2 py-1.5 text-[10px] font-bold text-red-500/60 focus:text-red-500 focus:bg-red-500/5 rounded-lg transition-all cursor-pointer group/item mt-0.5"
-                                                                >
-                                                                    <div className="h-5 w-5 rounded-md bg-stone-900 flex items-center justify-center group-focus/item:bg-red-500/10 transition-colors">
-                                                                        <Trash2 className="h-2.5 w-2.5 transition-transform" />
-                                                                    </div>
-                                                                    <span>Excluir</span>
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
                                                     </div>
-                                              </div>
+
+                                                    {/* Right: Actions */}
+                                                    <div className="flex items-center gap-2 shrink-0">
+                                                        <button 
+                                                            onClick={() => confirmAppointment(time)}
+                                                            className="h-8 px-3 rounded-lg border border-white/[0.05] bg-stone-950 text-emerald-500/90 text-[9px] font-bold uppercase tracking-wider hover:bg-emerald-500/[0.08] hover:border-emerald-500/20 hover:text-emerald-400 transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+                                                        >
+                                                            Concluir
+                                                        </button>
+
+                                                        <div className="flex items-center gap-2">
+                                                            <a 
+                                                                href={`https://wa.me/${apt.phone.replace(/\D/g, '')}`} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer" 
+                                                                className="h-9 w-9 rounded-full bg-stone-950 flex items-center justify-center text-green-500 border border-white/5 hover:bg-green-500/10 hover:border-green-500/20 transition-all shadow-lg"
+                                                            >
+                                                                <MessageCircle className="h-4 w-4" fill="currentColor" fillOpacity={0.1} />
+                                                            </a>
+                                                            
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <button className="h-9 w-9 rounded-full bg-stone-950 flex items-center justify-center text-stone-600 hover:text-white border border-white/5 hover:border-white/10 transition-all outline-none">
+                                                                        <MoreVertical className="h-4 w-4" />
+                                                                    </button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent 
+                                                                    align="end" 
+                                                                    sideOffset={8}
+                                                                    className="w-36 bg-stone-950/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+                                                                >
+                                                                    <DropdownMenuItem 
+                                                                        onClick={() => handleEdit(apt)} 
+                                                                        className="flex items-center gap-2 px-2 py-2 text-[10px] font-bold text-stone-400 focus:text-brand-primary focus:bg-brand-primary/10 rounded-xl transition-all cursor-pointer group/item relative overflow-hidden"
+                                                                    >
+                                                                        <div className="absolute inset-0 bg-brand-primary/5 opacity-0 group-focus/item:opacity-100 transition-opacity blur-xl" />
+                                                                        <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-brand-primary/20 transition-colors z-10">
+                                                                            <Pencil className="h-3 w-3 transition-transform" />
+                                                                        </div>
+                                                                        <span className="z-10">Editar</span>
+                                                                    </DropdownMenuItem>
+                                                                    
+                                                                    <DropdownMenuItem 
+                                                                        onClick={() => handleDelete(apt.id)} 
+                                                                        className="flex items-center gap-2 px-2 py-2 text-[10px] font-bold text-red-500/70 focus:text-red-500 focus:bg-red-500/10 rounded-xl transition-all cursor-pointer group/item mt-0.5 relative overflow-hidden"
+                                                                    >
+                                                                        <div className="absolute inset-0 bg-red-500/5 opacity-0 group-focus/item:opacity-100 transition-opacity blur-xl" />
+                                                                        <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-red-500/20 transition-colors z-10">
+                                                                            <Trash2 className="h-3 w-3 transition-transform" />
+                                                                        </div>
+                                                                        <span className="z-10">Excluir</span>
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ) : (
