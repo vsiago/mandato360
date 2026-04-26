@@ -11,6 +11,14 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { AppointmentModal } from "@/components/AppointmentModal"
 import { 
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+    SelectGroup
+} from "@/components/ui/select"
+import { 
     DropdownMenu, 
     DropdownMenuContent, 
     DropdownMenuItem, 
@@ -64,6 +72,7 @@ export default function AgendaPage() {
     const [isSaveClientModalOpen, setIsSaveClientModalOpen] = useState(false)
     const [appointmentToComplete, setAppointmentToComplete] = useState<any>(null)
     const [clientToSave, setClientToSave] = useState<any>(null)
+    const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month')
 
     useEffect(() => {
         async function loadInitialData() {
@@ -292,86 +301,231 @@ export default function AgendaPage() {
                         <div className="shrink-0 flex flex-wrap items-center justify-between gap-4 mb-6">
                             <div className="flex items-center gap-3">
                                 <Button 
-                                    variant="outline" size="sm" 
-                                    className="h-8 px-3 rounded-lg border-stone-800 bg-stone-900/60 text-stone-400 text-[10px] font-bold uppercase tracking-wider"
+                                    variant="outline" size="sm" className="h-9 rounded-xl border-stone-800 bg-stone-900/60 text-stone-400 hover:text-white font-bold text-[11px] px-4"
                                     onClick={() => {
                                         const now = new Date();
-                                        setCurrentMonth(now);
+                                        setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1));
                                         setSelectedDate(now.toISOString().split('T')[0]);
                                     }}
                                 >
                                     Hoje
                                 </Button>
+
+                                <Select 
+                                    value={currentMonth.getMonth().toString()} 
+                                    onValueChange={(val) => {
+                                        const newMonth = parseInt(val);
+                                        setCurrentMonth(new Date(currentMonth.getFullYear(), newMonth, 1));
+                                    }}
+                                >
+                                    <SelectTrigger className="h-9 w-[140px] bg-stone-900/60 border-stone-800 rounded-xl text-xs font-bold text-foreground focus:ring-0 focus:ring-offset-0 hover:bg-stone-800 transition-colors">
+                                        <SelectValue placeholder="Mês" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-stone-950 border-white/10 rounded-2xl p-1 shadow-2xl">
+                                        <SelectGroup>
+                                            {MONTH_NAMES.map((name, i) => (
+                                                <SelectItem key={i} value={i.toString()} className="rounded-xl focus:bg-stone-900 text-xs font-medium">
+                                                    {name}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+
                                 <div className="flex items-center gap-1">
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-stone-500 hover:text-white hover:bg-stone-800"
+                                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-500 hover:text-white hover:bg-stone-800"
                                         onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}>
-                                        <ChevronLeft className="h-4 w-4" />
+                                        <ChevronLeft className="h-4.5 w-4.5" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-stone-500 hover:text-white hover:bg-stone-800"
+                                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-stone-500 hover:text-white hover:bg-stone-800"
                                         onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}>
-                                        <ChevronRight className="h-4 w-4" />
+                                        <ChevronRight className="h-4.5 w-4.5" />
                                     </Button>
-                                </div>
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-stone-900/60 border border-stone-800 rounded-xl cursor-pointer hover:bg-stone-800 transition-colors">
-                                    <span className="text-sm font-bold text-foreground">{MONTH_NAMES[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
-                                    <ChevronDown className="h-3.5 w-3.5 text-stone-500" />
                                 </div>
                             </div>
 
                             <div className="flex items-center bg-stone-900/60 p-1 rounded-xl border border-stone-800">
-                                <Button variant="ghost" size="sm" className="h-7 rounded-lg px-3 bg-brand-gold text-stone-950 font-bold text-[10px] uppercase tracking-wider">Mês</Button>
-                                <Button variant="ghost" size="sm" className="h-7 rounded-lg px-3 text-stone-400 font-bold hover:text-white transition-colors text-[10px] uppercase tracking-wider">Semana</Button>
-                                <Button variant="ghost" size="sm" className="h-7 rounded-lg px-3 text-stone-400 font-bold hover:text-white transition-colors text-[10px] uppercase tracking-wider">Dia</Button>
+                                <Button 
+                                    variant="ghost" size="sm" 
+                                    onClick={() => setViewMode('month')}
+                                    className={cn(
+                                        "h-7 rounded-lg px-3 font-bold text-[10px] uppercase tracking-wider transition-all",
+                                        viewMode === 'month' ? "bg-brand-gold text-stone-950" : "text-stone-400 hover:text-white"
+                                    )}
+                                >
+                                    Mês
+                                </Button>
+                                <Button 
+                                    variant="ghost" size="sm" 
+                                    onClick={() => setViewMode('week')}
+                                    className={cn(
+                                        "h-7 rounded-lg px-3 font-bold text-[10px] uppercase tracking-wider transition-all",
+                                        viewMode === 'week' ? "bg-brand-gold text-stone-950" : "text-stone-400 hover:text-white"
+                                    )}
+                                >
+                                    Semana
+                                </Button>
+                                <Button 
+                                    variant="ghost" size="sm" 
+                                    onClick={() => setViewMode('day')}
+                                    className={cn(
+                                        "h-7 rounded-lg px-3 font-bold text-[10px] uppercase tracking-wider transition-all",
+                                        viewMode === 'day' ? "bg-brand-gold text-stone-950" : "text-stone-400 hover:text-white"
+                                    )}
+                                >
+                                    Dia
+                                </Button>
                             </div>
                         </div>
 
-                        {/* Weekdays Header */}
-                        <div className="shrink-0 grid grid-cols-7 gap-1 mb-2">
-                            {WEEKDAYS.map(d => (
-                                <div key={d} className="text-center text-[9px] font-black text-stone-600 uppercase tracking-widest py-1">{d}</div>
-                            ))}
-                        </div>
+                        {viewMode === 'month' && (
+                            <>
+                                {/* Weekdays Header */}
+                                <div className="shrink-0 grid grid-cols-7 gap-1 mb-2">
+                                    {WEEKDAYS.map(d => (
+                                        <div key={d} className="text-center text-[9px] font-black text-stone-600 uppercase tracking-widest py-1">{d}</div>
+                                    ))}
+                                </div>
 
-                        {/* Calendar Days */}
-                        <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                            <div className="grid grid-cols-7 gap-1.5">
-                                {Array.from({ length: firstDay }).map((_, i) => (<div key={`e-${i}`} className="h-14 lg:h-16" />))}
-                                {Array.from({ length: daysInMonth }).map((_, i) => {
-                                    const day = i + 1
-                                    const dateKey = getDateKey(day)
-                                    const isSelected = dateKey === selectedDate
+                                {/* Calendar Days */}
+                                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                                    <div className="grid grid-cols-7 gap-1.5">
+                                        {Array.from({ length: firstDay }).map((_, i) => (<div key={`e-${i}`} className="h-14 lg:h-16" />))}
+                                        {Array.from({ length: daysInMonth }).map((_, i) => {
+                                            const day = i + 1
+                                            const dateKey = getDateKey(day)
+                                            const isSelected = dateKey === selectedDate
+                                            const apts = appointments[dateKey] || []
+                                            const isToday = dateKey === new Date().toISOString().split('T')[0]
+
+                                            return (
+                                                <button key={day} onClick={() => setSelectedDate(dateKey)}
+                                                    className={cn(
+                                                        "h-14 lg:h-16 w-full rounded-xl text-sm font-bold transition-all relative flex flex-col items-center justify-center gap-1 group",
+                                                        isSelected
+                                                            ? "bg-brand-gold text-stone-950 shadow-xl shadow-brand-secondary/20 z-10"
+                                                            : "text-stone-400 hover:bg-stone-800/40 hover:text-white border border-transparent"
+                                                    )}
+                                                >
+                                                    <span className="text-xs lg:text-sm">{day}</span>
+                                                    <div className="flex gap-1">
+                                                        {apts.slice(0, 2).map((a, idx) => (
+                                                            <div key={idx} className={cn(
+                                                                "h-1 w-1 rounded-full",
+                                                                isSelected ? "bg-stone-950/40" : 
+                                                                a.status === 'completed' ? "bg-emerald-500" :
+                                                                a.status === 'confirmed' ? "bg-green-500" :
+                                                                a.status === 'pending' ? "bg-blue-500" : "bg-stone-500"
+                                                            )} />
+                                                        ))}
+                                                    </div>
+                                                    {isToday && !isSelected && (
+                                                        <div className="absolute top-1.5 right-1.5 h-1 w-1 rounded-full bg-brand-primary shadow-[0_0_8px_rgba(245,204,112,0.5)]" />
+                                                    )}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {viewMode === 'week' && (
+                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
+                                {Array.from({ length: 7 }).map((_, i) => {
+                                    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), currentMonth.getDate() + i)
+                                    const dateKey = date.toISOString().split('T')[0]
                                     const apts = appointments[dateKey] || []
-                                    const isToday = dateKey === new Date().toISOString().split('T')[0]
-
+                                    const dayName = WEEKDAYS[date.getDay()]
+                                    
                                     return (
-                                        <button key={day} onClick={() => setSelectedDate(dateKey)}
-                                            className={cn(
-                                                "h-14 lg:h-16 w-full rounded-xl text-sm font-bold transition-all relative flex flex-col items-center justify-center gap-1 group",
-                                                isSelected
-                                                    ? "bg-brand-gold text-stone-950 shadow-xl shadow-brand-secondary/20 z-10"
-                                                    : "text-stone-400 hover:bg-stone-800/40 hover:text-white border border-transparent"
-                                            )}
-                                        >
-                                            <span className="text-xs lg:text-sm">{day}</span>
-                                            <div className="flex gap-1">
-                                                {apts.slice(0, 2).map((a, idx) => (
-                                                    <div key={idx} className={cn(
-                                                        "h-1 w-1 rounded-full",
-                                                        isSelected ? "bg-stone-950/40" : 
-                                                        a.status === 'completed' ? "bg-emerald-500" :
-                                                        a.status === 'confirmed' ? "bg-green-500" :
-                                                        a.status === 'pending' ? "bg-blue-500" : "bg-stone-500"
-                                                    )} />
-                                                ))}
+                                        <div key={dateKey} className="space-y-2">
+                                            <div className="flex items-center gap-2 px-1">
+                                                <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">{dayName}</span>
+                                                <span className="text-[10px] font-bold text-stone-600">{date.toLocaleDateString('pt-BR')}</span>
+                                                <div className="h-px flex-1 bg-white/5" />
+                                                <span className="text-[9px] font-bold text-stone-500 bg-stone-900 px-2 py-0.5 rounded-full">{apts.length} agendamentos</span>
                                             </div>
-                                            {isToday && !isSelected && (
-                                                <div className="absolute top-1.5 right-1.5 h-1 w-1 rounded-full bg-brand-primary shadow-[0_0_8px_rgba(245,204,112,0.5)]" />
-                                            )}
-                                        </button>
+                                            <div className="space-y-1">
+                                                {apts.length > 0 ? apts.map(apt => (
+                                                    <div key={apt.id} className="group bg-stone-900/40 border border-white/5 hover:border-white/10 rounded-xl p-3 flex items-center justify-between transition-all">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="text-[11px] font-black text-brand-gold w-10">{apt.time}</div>
+                                                            <div className="h-8 w-px bg-white/5" />
+                                                            <div>
+                                                                <div className="text-xs font-bold text-foreground">{apt.name}</div>
+                                                                <div className="text-[10px] text-stone-500">{apt.service}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className={cn(
+                                                                "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                                                                apt.status === 'completed' ? "text-emerald-500 border-emerald-500/20 bg-emerald-500/5" :
+                                                                apt.status === 'confirmed' ? "text-green-500 border-green-500/20 bg-green-500/5" :
+                                                                "text-stone-500 border-white/5 bg-stone-950"
+                                                            )}>
+                                                                {apt.status}
+                                                            </span>
+                                                            <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <ChevronRight className="h-4 w-4 text-stone-500" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                )) : (
+                                                    <div className="text-[10px] text-stone-700 italic px-4 py-2">Nenhum agendamento</div>
+                                                )}
+                                            </div>
+                                        </div>
                                     )
                                 })}
                             </div>
-                        </div>
+                        )}
+
+                        {viewMode === 'day' && (
+                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                                <div className="space-y-3">
+                                    {TIME_SLOTS.map(time => {
+                                        const apt = dayAppointments.find(a => a.time === time)
+                                        return (
+                                            <div key={time} className={cn(
+                                                "group border rounded-2xl p-4 transition-all flex items-center justify-between",
+                                                apt ? "bg-stone-900/60 border-white/10 shadow-lg" : "bg-transparent border-white/5 border-dashed hover:border-brand-primary/30"
+                                            )}>
+                                                <div className="flex items-center gap-6">
+                                                    <div className="text-sm font-black text-stone-500 w-12">{time}</div>
+                                                    {apt ? (
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="h-10 w-10 rounded-full bg-brand-gold/10 border border-brand-gold/20 flex items-center justify-center text-brand-gold text-xs font-black">
+                                                                {apt.name[0]}
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="text-sm font-bold text-foreground">{apt.name}</h4>
+                                                                <p className="text-[11px] text-stone-500">{apt.service} • {apt.price}</p>
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-[11px] font-bold text-stone-700 uppercase tracking-widest">Horário disponível</span>
+                                                    )}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    {!apt && (
+                                                        <Button size="sm" variant="ghost" className="h-8 rounded-xl text-[10px] font-black uppercase tracking-widest text-brand-primary hover:bg-brand-primary/10 px-4"
+                                                            onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }}>
+                                                            Agendar
+                                                        </Button>
+                                                    )}
+                                                    {apt && (
+                                                        <Button size="icon" variant="ghost" className="h-8 w-8 rounded-xl text-stone-500 hover:text-white">
+                                                            <MoreVertical className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Legend */}
                         <div className="shrink-0 mt-4 flex flex-wrap items-center justify-center gap-5">
@@ -423,7 +577,7 @@ export default function AgendaPage() {
                         <div className="flex items-center gap-3">
                             <button 
                                 onClick={() => setIsPixModalOpen(true)}
-                                className="flex items-center gap-2 h-7 px-3 rounded-lg border border-white/5 bg-stone-950 text-[9px] font-bold text-stone-500 uppercase tracking-widest hover:text-amber-500 transition-all group"
+                                className="flex items-center gap-2 cursor-pointer h-7 px-3 rounded-lg border border-white/5 bg-stone-950 text-[9px] font-bold text-stone-500 uppercase tracking-widest hover:text-amber-500 transition-all group"
                                 title="Configurar PIX do Estabelecimento"
                             >
                                 <Smartphone className="h-3 w-3 group-hover:scale-110 transition-transform" />
@@ -529,35 +683,39 @@ export default function AgendaPage() {
                                                                 </DropdownMenuTrigger>
                                                                 <DropdownMenuContent 
                                                                     align="end" 
-                                                                    sideOffset={8}
-                                                                    className="w-36 bg-stone-950/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+                                                                    sideOffset={4}
+                                                                    className="w-32 bg-stone-950/98 backdrop-blur-xl border border-white/10 rounded-2xl p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
                                                                 >
                                                                     {!apt.customerId && (
                                                                         <DropdownMenuItem 
                                                                             onClick={() => { setClientToSave(apt); setIsSaveClientModalOpen(true); }}
-                                                                            className="rounded-xl flex items-center gap-2 p-3 text-[10px] font-bold text-amber-500 uppercase tracking-widest hover:bg-amber-500/10 cursor-pointer"
+                                                                            className="flex items-center gap-2 px-1.5 py-1.5 text-[10px] font-semibold text-stone-400 focus:text-amber-500 focus:bg-amber-500/10 rounded-xl transition-all cursor-pointer group/item"
                                                                         >
-                                                                            <UserPlus className="h-3.5 w-3.5" />
-                                                                            Salvar Cliente
+                                                                            <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-amber-500/20 transition-colors">
+                                                                                <UserPlus className="h-3 w-3 transition-transform" />
+                                                                            </div>
+                                                                            <span>Salvar</span>
                                                                         </DropdownMenuItem>
                                                                     )}
+                                                                    
                                                                     <DropdownMenuItem 
                                                                         onClick={() => { setEditingAppointment(apt); setIsAddModalOpen(true); }} 
-                                                                        className="rounded-xl flex items-center gap-2 p-3 text-[10px] font-bold text-stone-300 uppercase tracking-widest hover:bg-white/5 cursor-pointer"
+                                                                        className="flex items-center gap-2 px-1.5 py-1.5 text-[10px] font-semibold text-stone-400 focus:text-white focus:bg-white/5 rounded-xl transition-all cursor-pointer group/item"
                                                                     >
-                                                                        <Pencil className="h-3.5 w-3.5" />
-                                                                        Editar
+                                                                        <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-white/10 transition-colors">
+                                                                            <Pencil className="h-3 w-3 transition-transform" />
+                                                                        </div>
+                                                                        <span>Editar</span>
                                                                     </DropdownMenuItem>
                                                                     
                                                                     <DropdownMenuItem 
                                                                         onClick={() => handleDelete(apt.id)} 
-                                                                        className="flex items-center gap-2 px-2 py-2 text-[10px] font-bold text-red-500/70 focus:text-red-500 focus:bg-red-500/10 rounded-xl transition-all cursor-pointer group/item mt-0.5 relative overflow-hidden"
+                                                                        className="flex items-center gap-2 px-1.5 py-1.5 text-[10px] font-semibold text-stone-500/60 focus:text-red-500 focus:bg-red-500/10 rounded-xl transition-all cursor-pointer group/item mt-0.5"
                                                                     >
-                                                                        <div className="absolute inset-0 bg-red-500/5 opacity-0 group-focus/item:opacity-100 transition-opacity blur-xl" />
-                                                                        <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-red-500/20 transition-colors z-10">
+                                                                        <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-red-500/20 transition-colors">
                                                                             <Trash2 className="h-3 w-3 transition-transform" />
                                                                         </div>
-                                                                        <span className="z-10">Excluir</span>
+                                                                        <span>Excluir</span>
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>

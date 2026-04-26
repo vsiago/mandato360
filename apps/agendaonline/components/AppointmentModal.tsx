@@ -62,8 +62,8 @@ export function AppointmentModal({
     useEffect(() => {
         if (isOpen) {
             if (appointment) {
-                setName(appointment.customerName || "")
-                setPhone(appointment.customerPhone || "")
+                setName(appointment.name || "")
+                setPhone(appointment.phone || "")
                 // Restore primary service. Restoring extra from notes string is simplified to just primary for now.
                 const initial = [appointment.serviceId].filter(Boolean)
                 setSelectedServices(initial.length > 0 ? initial : (initialServices[0] ? [initialServices[0].id] : []))
