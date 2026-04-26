@@ -86,6 +86,33 @@ export async function deleteAppointmentAction(appointmentId: string, tenantId: s
     }
 }
 
+export async function updateAppointmentAction(appointmentId: string, tenantId: string, data: {
+    customerName?: string
+    customerPhone?: string
+    serviceId?: string
+    notes?: string
+    status?: string
+}) {
+    try {
+        const session = await getAuthSession()
+        if (!session?.user) return { success: false, error: "Não autorizado." }
+
+        const updated = await db.update(appointments)
+            .set({
+                ...data,
+                updatedAt: new Date()
+            })
+            .where(and(eq(appointments.id, appointmentId), eq(appointments.tenantId, tenantId)))
+            .returning()
+
+        revalidatePath("/agenda")
+        return { success: true, appointment: updated[0] }
+    } catch (error) {
+        console.error("Error updating appointment:", error)
+        return { success: false, error: "Erro ao atualizar agendamento." }
+    }
+}
+
 export async function updateAppointmentStatusAction(appointmentId: string, tenantId: string, status: "pending" | "confirmed" | "cancelled" | "blocked") {
     try {
         const session = await getAuthSession()
