@@ -1,14 +1,16 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, Shield, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, Plug, Layout, Puzzle } from "lucide-react"
+import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, Shield, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, ChevronDown, Plug, Layout, Puzzle } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { authClient } from "@/lib/auth-client"
+import { getMyTenant } from "@/lib/tenant-api"
+import type { TenantData } from "@/lib/tenant-types"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -77,6 +79,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter()
     const { data: session } = authClient.useSession()
     const { theme, setTheme } = useTheme()
+    const [tenant, setTenant] = useState<TenantData | null>(null)
+
+    useEffect(() => {
+        getMyTenant().then(setTenant).catch(() => {})
+    }, [])
 
     // Root users should always be in the admin area
     useEffect(() => {
@@ -252,10 +259,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         <p className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 leading-none truncate max-w-30">{session?.user?.email}</p>
                                     </div>
                                     <Avatar className="h-8 w-8 ring-1 ring-stone-200/60 dark:ring-stone-800/40">
+                                        {(tenant?.founder?.imageUrl || session?.user?.image) && (
+                                            <img 
+                                                src={tenant?.founder?.imageUrl || session?.user?.image || ""} 
+                                                alt={session?.user?.name || ""} 
+                                                className="h-full w-full object-cover"
+                                            />
+                                        )}
                                         <AvatarFallback className="bg-stone-100 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 text-[10px] font-bold">
                                             {session?.user?.name?.slice(0, 2).toUpperCase() || "US"}
                                         </AvatarFallback>
                                     </Avatar>
+                                    <ChevronDown className="h-3.5 w-3.5 text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-200 transition-colors" />
                                 </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl border-stone-200/40 dark:border-stone-800/60 shadow-xl dark:bg-stone-950 backdrop-blur-xl">

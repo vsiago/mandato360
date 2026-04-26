@@ -170,20 +170,6 @@ function PainelContent() {
                         </Button>
                     </Link>
 
-                    {/* User Profile */}
-                    <div className="flex items-center gap-3 ml-2 pl-4 border-l border-stone-800">
-                        <Avatar className="h-10 w-10 border border-stone-800">
-                            <AvatarImage src={tenant?.founder?.imageUrl || ""} />
-                            <AvatarFallback className="bg-brand-primary/10 text-brand-primary font-bold">
-                                {displayName.substring(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div className="hidden sm:block text-left">
-                            <p className="text-xs font-bold text-foreground leading-none">{displayName}</p>
-                            <p className="text-[10px] text-muted-foreground mt-1">{tenant?.contact?.email || "admin@agenda.com"}</p>
-                        </div>
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    </div>
                 </div>
             </div>
 
@@ -296,10 +282,10 @@ function PainelContent() {
             )}
 
             {/* ── Main Content Grid ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pb-4">
                 
                 {/* ── Left Column: Agendamentos ── */}
-                <div className="lg:col-span-5 bg-stone-900/40 border border-white/5 rounded-2xl overflow-hidden flex flex-col min-h-[500px]">
+                <div className="lg:col-span-5 bg-stone-900/40 border border-white/5 rounded-2xl overflow-hidden flex flex-col h-full">
                     <div className="p-6 flex items-center justify-between border-b border-white/5">
                         <div className="flex items-center gap-2">
                             <CalendarDays className="h-5 w-5 text-brand-primary" />
@@ -405,13 +391,14 @@ function PainelContent() {
                         </Link>
                     </div>
 
-                    {/* Footer */}
-                    <div className="pt-4 text-center lg:text-right">
-                        <p className="text-[10px] text-stone-600 font-medium uppercase tracking-[0.2em]">
-                            © 2024 AgendaOnline. Todos os direitos reservados.
-                        </p>
-                    </div>
                 </div>
+            </div>
+
+            {/* Footer */}
+            <div className="pt-0 text-center pb-6">
+                <p className="text-[9px] text-stone-600 font-medium uppercase tracking-[0.2em]">
+                    © 2024 AgendaOnline. Todos os direitos reservados.
+                </p>
             </div>
         </div>
     )
