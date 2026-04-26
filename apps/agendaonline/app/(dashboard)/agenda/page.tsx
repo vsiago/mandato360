@@ -375,10 +375,23 @@ export default function AgendaPage() {
                 {/* ── Left Column ── */}
                 <div className="lg:col-span-7 flex flex-col gap-4 min-h-0 h-full">
                     {/* Calendar Card */}
-                    <div className="flex-1 min-h-0 bg-stone-900/40 border border-white/5 rounded-2xl p-6 backdrop-blur-xl flex flex-col shadow-2xl">
+                    <div className="flex-1 min-h-0 bg-stone-900/40 border border-white/5 rounded-2xl p-6 pb-4 backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
                         {/* Calendar Toolbar */}
-                        <div className="shrink-0 flex flex-wrap items-center justify-between gap-4 mb-6">
+                        <div className="shrink-0 flex flex-wrap items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => {
+                                        const today = new Date();
+                                        setCurrentMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+                                        setSelectedDate(today.toISOString().split('T')[0]);
+                                    }}
+                                    className="h-9 px-4 bg-stone-900/60 border border-stone-800 rounded-xl text-[10px] uppercase tracking-widest font-black text-stone-400 hover:text-white hover:bg-stone-800 transition-all active:scale-95 cursor-pointer"
+                                >
+                                    Hoje
+                                </Button>
+
                                 <Select 
                                     value={currentMonth.getMonth().toString()} 
                                     onValueChange={(val) => {
@@ -456,9 +469,11 @@ export default function AgendaPage() {
                                 </div>
 
                                 {/* Calendar Days */}
-                                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                                    <div className="grid grid-cols-7 gap-1.5">
-                                        {Array.from({ length: firstDay }).map((_, i) => (<div key={`e-${i}`} className="h-14 lg:h-16" />))}
+                                <div className="flex-1 flex flex-col h-full min-h-0">
+                                    <div className="grid grid-cols-7 grid-rows-[repeat(6,1fr)] gap-0 border border-stone-800/40 rounded-2xl overflow-hidden shadow-2xl shadow-stone-950/50 flex-1 h-full">
+                                        {Array.from({ length: firstDay }).map((_, i) => (
+                                            <div key={`e-${i}`} className="border-r border-b border-white/[0.03] bg-stone-900/10" />
+                                        ))}
                                         {Array.from({ length: daysInMonth }).map((_, i) => {
                                             const day = i + 1
                                             const dateKey = getDateKey(day)
@@ -470,10 +485,10 @@ export default function AgendaPage() {
                                             return (
                                                 <div key={day} onClick={() => setSelectedDate(dateKey)}
                                                     className={cn(
-                                                        "h-14 lg:h-16 w-full rounded-xl text-sm font-bold transition-all relative flex flex-col items-center justify-center gap-1 group cursor-pointer",
+                                                        "w-full h-full text-sm font-bold transition-all relative flex flex-col items-center justify-center gap-1 group cursor-pointer border-r border-b border-white/[0.03]",
                                                         isSelected
-                                                            ? (isBlocked ? "bg-red-500/10 text-red-500 border border-red-500/30 shadow-lg" : "bg-brand-gold text-stone-950 shadow-xl shadow-brand-secondary/20 z-10")
-                                                            : (isBlocked ? "text-stone-600 border border-transparent" : "text-stone-400 hover:bg-stone-800/40 hover:text-white border border-transparent")
+                                                            ? (isBlocked ? "bg-red-500/10 text-red-500 z-10" : "bg-brand-gold text-stone-950 z-10")
+                                                            : (isBlocked ? "text-stone-600 bg-stone-900/20" : "text-stone-400 hover:bg-stone-800/40 hover:text-white")
                                                     )}
                                                 >
                                                     <span className="text-xs lg:text-sm">{day}</span>
@@ -492,7 +507,7 @@ export default function AgendaPage() {
                                                     {isToday && !isSelected && (
                                                         <div className="absolute top-1 right-1 h-1 w-1 rounded-full bg-brand-primary" />
                                                     )}
-                                                    c:\Users\iago-note\AppData\Local\Packages\MicrosoftWindows.Client.Core_cw5n1h2txyewy\TempState\ScreenClip\{562408BA-2698-4335-8272-36B24769CF44}.png
+                                                    
                                                     {isBlocked && (
                                                         <div className="absolute inset-0 pointer-events-none px-4.5 flex items-center justify-center">
                                                             <svg className="w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -671,7 +686,7 @@ export default function AgendaPage() {
                         )}
 
                         {/* Legend */}
-                        <div className="shrink-0 mt-4 flex flex-wrap items-center justify-center gap-5">
+                        <div className="shrink-0 flex flex-wrap items-center justify-center gap-5">
                             {Object.entries(STATUS_MAP).map(([key, data]) => (
                                 <div key={key} className="flex items-center gap-1.5">
                                     <div className={cn("h-1.5 w-1.5 rounded-full", data.color)} />
