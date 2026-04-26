@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
     MessageCircle, MoreVertical, Filter, UserPlus, TrendingUp, Users, Calendar as CalendarIcon, ChevronDown,
-    Pencil, Trash2, Smartphone
+    Pencil, Trash2, Smartphone, X
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -29,6 +29,20 @@ import { getServicesAction } from "@/lib/actions/services"
 import { getMyTenant } from "@/lib/tenant-api"
 import { PixConfigModal } from "@/components/PixConfigModal"
 import { SaveClientModal } from "@/components/SaveClientModal"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog"
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion"
 import { 
     updateAppointmentStatusAction, 
     updateAppointmentAction,
@@ -73,6 +87,12 @@ export default function AgendaPage() {
     const [appointmentToComplete, setAppointmentToComplete] = useState<any>(null)
     const [clientToSave, setClientToSave] = useState<any>(null)
     const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month')
+    const [selectedWeek, setSelectedWeek] = useState(0)
+    const [loading, setLoading] = useState(false)
+    const [dateToBlock, setDateToBlock] = useState<string | null>(null)
+    const [isBlockConfirmOpen, setIsBlockConfirmOpen] = useState(false)
+    const [dateToUnblock, setDateToUnblock] = useState<string | null>(null)
+    const [isUnblockConfirmOpen, setIsUnblockConfirmOpen] = useState(false)
 
     useEffect(() => {
         async function loadInitialData() {
@@ -131,6 +151,65 @@ export default function AgendaPage() {
     const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay()
 
     const dayAppointments = appointments[selectedDate] || []
+
+    const handleBlockDay = async (dateKey: string) => {
+        if (!tenantId) return;
+        setLoading(true);
+        try {
+            const currentApts = appointments[dateKey] || [];
+            const freeSlots = TIME_SLOTS.filter(time => !currentApts.some(a => a.time === time));
+            
+            for (const time of freeSlots) {
+                await createPublicAppointmentAction({
+                    tenantId, 
+                    customerName: "Bloqueio de Dia", 
+                    customerPhone: "", 
+                    date: dateKey, 
+                    time, 
+                    status: "blocked"
+                } as any);
+            }
+            
+            toast.success("Dia bloqueado com sucesso!");
+            fetchAppointments(tenantId);
+        } catch (error) {
+            toast.error("Erro ao bloquear dia.");
+        } finally {
+            setLoading(false);
+            setIsBlockConfirmOpen(false);
+            setDateToBlock(null);
+        }
+    }
+
+    const handleUnblockDay = async (dateKey: string) => {
+        if (!tenantId) return;
+        setLoading(true);
+        try {
+            const currentApts = appointments[dateKey] || [];
+            const manualBlocks = currentApts.filter(a => a.status === "blocked");
+            
+            for (const apt of manualBlocks) {
+                await deleteAppointmentAction(apt.id, tenantId);
+            }
+            
+            toast.success("Dia liberado com sucesso!");
+            fetchAppointments(tenantId);
+        } catch (error) {
+            toast.error("Erro ao liberar dia.");
+        } finally {
+            setLoading(false);
+            setIsUnblockConfirmOpen(false);
+            setDateToUnblock(null);
+        }
+    }
+
+    const isDayFullyBlocked = (dateKey: string) => {
+        const apts = appointments[dateKey] || [];
+        if (apts.length === 0) return false;
+        // A day is fully blocked if all time slots are filled and at least some are 'blocked' manual blocks 
+        // OR simply if we have blocked every single slot.
+        return TIME_SLOTS.every(time => apts.some(a => a.time === time && a.status === "blocked"));
+    }
 
     const toggleSlot = async (time: string) => {
         if (!tenantId) return;
@@ -300,17 +379,6 @@ export default function AgendaPage() {
                         {/* Calendar Toolbar */}
                         <div className="shrink-0 flex flex-wrap items-center justify-between gap-4 mb-6">
                             <div className="flex items-center gap-3">
-                                <Button 
-                                    variant="outline" size="sm" className="h-9 rounded-xl border-stone-800 bg-stone-900/60 text-stone-400 hover:text-white font-bold text-[11px] px-4"
-                                    onClick={() => {
-                                        const now = new Date();
-                                        setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1));
-                                        setSelectedDate(now.toISOString().split('T')[0]);
-                                    }}
-                                >
-                                    Hoje
-                                </Button>
-
                                 <Select 
                                     value={currentMonth.getMonth().toString()} 
                                     onValueChange={(val) => {
@@ -397,14 +465,15 @@ export default function AgendaPage() {
                                             const isSelected = dateKey === selectedDate
                                             const apts = appointments[dateKey] || []
                                             const isToday = dateKey === new Date().toISOString().split('T')[0]
+                                            const isBlocked = isDayFullyBlocked(dateKey)
 
                                             return (
-                                                <button key={day} onClick={() => setSelectedDate(dateKey)}
+                                                <div key={day} onClick={() => setSelectedDate(dateKey)}
                                                     className={cn(
-                                                        "h-14 lg:h-16 w-full rounded-xl text-sm font-bold transition-all relative flex flex-col items-center justify-center gap-1 group",
+                                                        "h-14 lg:h-16 w-full rounded-xl text-sm font-bold transition-all relative flex flex-col items-center justify-center gap-1 group cursor-pointer",
                                                         isSelected
-                                                            ? "bg-brand-gold text-stone-950 shadow-xl shadow-brand-secondary/20 z-10"
-                                                            : "text-stone-400 hover:bg-stone-800/40 hover:text-white border border-transparent"
+                                                            ? (isBlocked ? "bg-red-500/10 text-red-500 border border-red-500/30 shadow-lg" : "bg-brand-gold text-stone-950 shadow-xl shadow-brand-secondary/20 z-10")
+                                                            : (isBlocked ? "text-stone-600 border border-transparent" : "text-stone-400 hover:bg-stone-800/40 hover:text-white border border-transparent")
                                                     )}
                                                 >
                                                     <span className="text-xs lg:text-sm">{day}</span>
@@ -412,17 +481,45 @@ export default function AgendaPage() {
                                                         {apts.slice(0, 2).map((a, idx) => (
                                                             <div key={idx} className={cn(
                                                                 "h-1 w-1 rounded-full",
-                                                                isSelected ? "bg-stone-950/40" : 
+                                                                isSelected ? (isBlocked ? "bg-red-500/40" : "bg-stone-950/40") : 
                                                                 a.status === 'completed' ? "bg-emerald-500" :
                                                                 a.status === 'confirmed' ? "bg-green-500" :
                                                                 a.status === 'pending' ? "bg-blue-500" : "bg-stone-500"
                                                             )} />
                                                         ))}
                                                     </div>
+                                                    
                                                     {isToday && !isSelected && (
-                                                        <div className="absolute top-1.5 right-1.5 h-1 w-1 rounded-full bg-brand-primary shadow-[0_0_8px_rgba(245,204,112,0.5)]" />
+                                                        <div className="absolute top-1 right-1 h-1 w-1 rounded-full bg-brand-primary" />
                                                     )}
-                                                </button>
+                                                    c:\Users\iago-note\AppData\Local\Packages\MicrosoftWindows.Client.Core_cw5n1h2txyewy\TempState\ScreenClip\{562408BA-2698-4335-8272-36B24769CF44}.png
+                                                    {isBlocked && (
+                                                        <div className="absolute inset-0 pointer-events-none px-4.5 flex items-center justify-center">
+                                                            <svg className="w-full h-full opacity-40" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                                                <line x1="10" y1="20" x2="90" y2="80" stroke="currentColor" strokeWidth="2" className="text-red-500" />
+                                                                <line x1="90" y1="20" x2="10" y2="80" stroke="currentColor" strokeWidth="2" className="text-red-500" />
+                                                            </svg>
+                                                        </div>
+                                                    )}
+
+                                                    {isBlocked ? (
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setDateToUnblock(dateKey); setIsUnblockConfirmOpen(true); }}
+                                                            className="absolute top-1 left-1 h-4 w-4 rounded-full bg-stone-900/80 text-stone-600 hover:text-emerald-500 hover:bg-emerald-500/10 border border-white/5 flex items-center justify-center z-20 transition-colors"
+                                                            title="Desbloquear Dia"
+                                                        >
+                                                            <CheckCircle2 className="h-2.5 w-2.5" />
+                                                        </button>
+                                                    ) : (
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); setDateToBlock(dateKey); setIsBlockConfirmOpen(true); }}
+                                                            className="absolute top-1 left-1 h-4 w-4 rounded-full bg-stone-900/80 hover:bg-red-500/20 text-stone-600 hover:text-red-500 border border-white/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-20"
+                                                            title="Bloquear Dia Inteiro"
+                                                        >
+                                                            <X className="h-2.5 w-2.5" />
+                                                        </button>
+                                                    )}
+                                                </div>
                                             )
                                         })}
                                     </div>
@@ -431,53 +528,99 @@ export default function AgendaPage() {
                         )}
 
                         {viewMode === 'week' && (
-                            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
-                                {Array.from({ length: 7 }).map((_, i) => {
-                                    const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), currentMonth.getDate() + i)
-                                    const dateKey = date.toISOString().split('T')[0]
-                                    const apts = appointments[dateKey] || []
-                                    const dayName = WEEKDAYS[date.getDay()]
-                                    
-                                    return (
-                                        <div key={dateKey} className="space-y-2">
-                                            <div className="flex items-center gap-2 px-1">
-                                                <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">{dayName}</span>
-                                                <span className="text-[10px] font-bold text-stone-600">{date.toLocaleDateString('pt-BR')}</span>
-                                                <div className="h-px flex-1 bg-white/5" />
-                                                <span className="text-[9px] font-bold text-stone-500 bg-stone-900 px-2 py-0.5 rounded-full">{apts.length} agendamentos</span>
-                                            </div>
-                                            <div className="space-y-1">
-                                                {apts.length > 0 ? apts.map(apt => (
-                                                    <div key={apt.id} className="group bg-stone-900/40 border border-white/5 hover:border-white/10 rounded-xl p-3 flex items-center justify-between transition-all">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="text-[11px] font-black text-brand-gold w-10">{apt.time}</div>
-                                                            <div className="h-8 w-px bg-white/5" />
-                                                            <div>
-                                                                <div className="text-xs font-bold text-foreground">{apt.name}</div>
-                                                                <div className="text-[10px] text-stone-500">{apt.service}</div>
+                            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                                {/* Week Tabs */}
+                                <div className="flex items-center gap-1 p-1 bg-stone-900/40 rounded-xl border border-white/5 mb-4 shrink-0 overflow-x-auto">
+                                    {Array.from({ length: Math.ceil((daysInMonth + firstDay) / 7) }).map((_, i) => (
+                                        <button 
+                                            key={i} 
+                                            onClick={() => setSelectedWeek(i)}
+                                            className={cn(
+                                                "h-7 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shrink-0",
+                                                selectedWeek === i ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-500 hover:text-stone-300"
+                                            )}
+                                        >
+                                            Semana {i + 1}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                                    <Accordion type="single" collapsible className="space-y-3">
+                                        {Array.from({ length: 7 }).map((_, i) => {
+                                            const dayIdx = (selectedWeek * 7) - firstDay + i + 1;
+                                            if (dayIdx <= 0 || dayIdx > daysInMonth) return null;
+                                            
+                                            const dateKey = getDateKey(dayIdx);
+                                            const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayIdx);
+                                            const apts = appointments[dateKey] || [];
+                                            const dayName = WEEKDAYS[date.getDay()];
+                                            
+                                            return (
+                                                <AccordionItem key={dateKey} value={dateKey} className="border border-white/5 bg-stone-900/20 rounded-2xl overflow-hidden px-1">
+                                                    <AccordionTrigger className="hover:no-underline p-4 py-3 group">
+                                                        <div className="flex items-center justify-between w-full pr-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="h-8 w-8 rounded-lg bg-stone-950 flex flex-col items-center justify-center border border-white/5">
+                                                                    <span className="text-[10px] font-black text-brand-gold uppercase">{dayName.slice(0,3)}</span>
+                                                                    <span className="text-xs font-bold text-white">{dayIdx}</span>
+                                                                </div>
+                                                                <div className="text-left">
+                                                                    <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest block">{date.toLocaleDateString('pt-BR', { month: 'long' })}</span>
+                                                                    <span className="text-[9px] font-bold text-stone-600">{apts.length} agendamentos</span>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        <div className="flex items-center gap-3">
-                                                            <span className={cn(
-                                                                "text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
-                                                                apt.status === 'completed' ? "text-emerald-500 border-emerald-500/20 bg-emerald-500/5" :
-                                                                apt.status === 'confirmed' ? "text-green-500 border-green-500/20 bg-green-500/5" :
-                                                                "text-stone-500 border-white/5 bg-stone-950"
-                                                            )}>
-                                                                {apt.status}
-                                                            </span>
-                                                            <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <ChevronRight className="h-4 w-4 text-stone-500" />
+                                                            <Button 
+                                                                size="sm" variant="ghost" 
+                                                                onClick={(e) => { e.stopPropagation(); handleBlockDay(dateKey); }}
+                                                                className="h-7 rounded-lg text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 hover:bg-red-500/10 px-2"
+                                                            >
+                                                                Bloquear Dia
                                                             </Button>
                                                         </div>
-                                                    </div>
-                                                )) : (
-                                                    <div className="text-[10px] text-stone-700 italic px-4 py-2">Nenhum agendamento</div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
+                                                    </AccordionTrigger>
+                                                    <AccordionContent className="px-4 pb-4">
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                                                            {TIME_SLOTS.map(time => {
+                                                                const apt = apts.find(a => a.time === time);
+                                                                return (
+                                                                    <div key={time} className={cn(
+                                                                        "p-2.5 rounded-xl border flex items-center justify-between transition-all group/slot",
+                                                                        apt ? (apt.status === 'blocked' ? "bg-red-500/[0.02] border-red-500/10" : "bg-stone-900/60 border-white/5 shadow-sm") 
+                                                                            : "bg-transparent border-white/[0.02] border-dashed hover:border-brand-primary/20"
+                                                                    )}>
+                                                                        <div className="flex items-center gap-2.5 min-w-0">
+                                                                            <span className="text-[10px] font-black text-stone-500 w-8">{time}</span>
+                                                                            {apt ? (
+                                                                                <div className="min-w-0">
+                                                                                    <div className="text-[11px] font-bold text-foreground truncate">{apt.name}</div>
+                                                                                    <div className="text-[9px] text-stone-500 truncate">{apt.status === 'blocked' ? "Horário Bloqueado" : apt.service}</div>
+                                                                                </div>
+                                                                            ) : (
+                                                                                <span className="text-[9px] font-bold text-stone-700 uppercase tracking-widest">Disponível</span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="flex items-center gap-1 opacity-0 group-hover/slot:opacity-100 transition-opacity">
+                                                                            {!apt ? (
+                                                                                <Button size="icon" variant="ghost" onClick={() => { setSelectedDate(dateKey); setActiveTime(time); setIsAddModalOpen(true); }} className="h-6 w-6 rounded-lg text-brand-primary hover:bg-brand-primary/10">
+                                                                                    <Plus className="h-3 w-3" />
+                                                                                </Button>
+                                                                            ) : (
+                                                                                <Button size="icon" variant="ghost" onClick={() => { if(apt.status === 'blocked') toggleSlot(time); }} className="h-6 w-6 rounded-lg text-stone-500 hover:text-white">
+                                                                                    {apt.status === 'blocked' ? <CheckCircle2 className="h-3 w-3 text-emerald-500" /> : <MoreVertical className="h-3 w-3" />}
+                                                                                </Button>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    </AccordionContent>
+                                                </AccordionItem>
+                                            )
+                                        })}
+                                    </Accordion>
+                                </div>
                             </div>
                         )}
 
@@ -818,6 +961,43 @@ export default function AgendaPage() {
                     appointmentId: clientToSave?.id
                 }}
             />
+            <Dialog open={isBlockConfirmOpen} onOpenChange={setIsBlockConfirmOpen}>
+                <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black text-white">Bloquear dia inteiro?</DialogTitle>
+                        <DialogDescription className="text-stone-400 text-sm">
+                            Isso irá fechar todos os horários disponíveis para o dia {dateToBlock && new Date(dateToBlock + 'T00:00:00').toLocaleDateString('pt-BR')}.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex gap-2 mt-4">
+                        <Button variant="ghost" onClick={() => setIsBlockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                            Cancelar
+                        </Button>
+                        <Button onClick={() => dateToBlock && handleBlockDay(dateToBlock)} className="flex-1 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold" disabled={loading}>
+                            {loading ? "Bloqueando..." : "Bloquear"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isUnblockConfirmOpen} onOpenChange={setIsUnblockConfirmOpen}>
+                <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-sm">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black text-white">Liberar dia inteiro?</DialogTitle>
+                        <DialogDescription className="text-stone-400 text-sm">
+                            Isso irá remover todos os bloqueios manuais para o dia {dateToUnblock && new Date(dateToUnblock + 'T00:00:00').toLocaleDateString('pt-BR')}.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex gap-2 mt-4">
+                        <Button variant="ghost" onClick={() => setIsUnblockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                            Cancelar
+                        </Button>
+                        <Button onClick={() => dateToUnblock && handleUnblockDay(dateToUnblock)} className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold" disabled={loading}>
+                            {loading ? "Liberando..." : "Liberar"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }
