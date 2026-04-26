@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
     MessageCircle, MoreVertical, Filter, UserPlus, TrendingUp, Users, Calendar as CalendarIcon, ChevronDown,
-    Pencil, Trash2, Smartphone, X
+    Pencil, Trash2, Smartphone, X, LayoutGrid
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -149,6 +149,7 @@ export default function AgendaPage() {
 
     const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate()
     const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay()
+    const numRows = Math.ceil((daysInMonth + firstDay) / 7)
 
     const dayAppointments = appointments[selectedDate] || []
 
@@ -371,11 +372,11 @@ export default function AgendaPage() {
                 </div>
             </div>
 
-            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
                 {/* ── Left Column ── */}
                 <div className="lg:col-span-7 flex flex-col gap-4 min-h-0 h-full">
                     {/* Calendar Card */}
-                    <div className="flex-1 min-h-0 bg-stone-900/40 border border-white/5 rounded-2xl p-6 pb-4 backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
+                    <div className="flex-1 h-full min-h-0 bg-stone-900/40 border border-white/5 rounded-2xl p-6 pb-4 backdrop-blur-xl flex flex-col gap-6 shadow-2xl">
                         {/* Calendar Toolbar */}
                         <div className="shrink-0 flex flex-wrap items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
@@ -425,44 +426,36 @@ export default function AgendaPage() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center bg-stone-900/60 p-1 rounded-xl border border-stone-800">
+                            <div className="flex items-center bg-stone-900/60 p-0.5 rounded-xl border border-stone-800">
                                 <Button 
                                     variant="ghost" size="sm" 
                                     onClick={() => setViewMode('month')}
                                     className={cn(
-                                        "h-7 rounded-lg px-3 font-bold text-[10px] uppercase tracking-wider transition-all",
-                                        viewMode === 'month' ? "bg-brand-gold text-stone-950" : "text-stone-400 hover:text-white"
+                                        "h-9 rounded-l-lg rounded-r-none px-5 font-bold text-[11px] tracking-wider transition-all flex items-center gap-2",
+                                        viewMode === 'month' ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-400 hover:text-white"
                                     )}
                                 >
-                                    Mês
+                                    <CalendarIcon className="h-4 w-4" />
+                                    <span>Mês</span>
                                 </Button>
                                 <Button 
                                     variant="ghost" size="sm" 
                                     onClick={() => setViewMode('week')}
                                     className={cn(
-                                        "h-7 rounded-lg px-3 font-bold text-[10px] uppercase tracking-wider transition-all",
-                                        viewMode === 'week' ? "bg-brand-gold text-stone-950" : "text-stone-400 hover:text-white"
+                                        "h-9 rounded-r-lg rounded-l-none px-5 font-bold text-[11px] tracking-wider transition-all flex items-center gap-2",
+                                        viewMode === 'week' ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-400 hover:text-white"
                                     )}
                                 >
-                                    Semana
-                                </Button>
-                                <Button 
-                                    variant="ghost" size="sm" 
-                                    onClick={() => setViewMode('day')}
-                                    className={cn(
-                                        "h-7 rounded-lg px-3 font-bold text-[10px] uppercase tracking-wider transition-all",
-                                        viewMode === 'day' ? "bg-brand-gold text-stone-950" : "text-stone-400 hover:text-white"
-                                    )}
-                                >
-                                    Dia
+                                    <LayoutGrid className="h-4 w-4" />
+                                    <span>Semana</span>
                                 </Button>
                             </div>
                         </div>
 
                         {viewMode === 'month' && (
-                            <>
+                            <div className="flex-1 flex flex-col h-full min-h-0 gap-2">
                                 {/* Weekdays Header */}
-                                <div className="shrink-0 grid grid-cols-7 gap-1 mb-2">
+                                <div className="shrink-0 grid grid-cols-7 gap-1">
                                     {WEEKDAYS.map(d => (
                                         <div key={d} className="text-center text-[9px] font-black text-stone-600 uppercase tracking-widest py-1">{d}</div>
                                     ))}
@@ -470,7 +463,10 @@ export default function AgendaPage() {
 
                                 {/* Calendar Days */}
                                 <div className="flex-1 flex flex-col h-full min-h-0">
-                                    <div className="grid grid-cols-7 grid-rows-[repeat(6,1fr)] gap-0 border border-stone-800/40 rounded-2xl overflow-hidden shadow-2xl shadow-stone-950/50 flex-1 h-full">
+                                    <div 
+                                        className="grid grid-cols-7 gap-0 border border-stone-800/40 rounded-2xl overflow-hidden shadow-2xl shadow-stone-950/50 flex-1 h-full"
+                                        style={{ gridTemplateRows: `repeat(${numRows}, 1fr)` }}
+                                    >
                                         {Array.from({ length: firstDay }).map((_, i) => (
                                             <div key={`e-${i}`} className="border-r border-b border-white/[0.03] bg-stone-900/10" />
                                         ))}
@@ -539,19 +535,19 @@ export default function AgendaPage() {
                                         })}
                                     </div>
                                 </div>
-                            </>
+                            </div>
                         )}
 
                         {viewMode === 'week' && (
                             <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
                                 {/* Week Tabs */}
-                                <div className="flex items-center gap-1 p-1 bg-stone-900/40 rounded-xl border border-white/5 mb-4 shrink-0 overflow-x-auto">
+                                <div className="flex items-center gap-1 p-1 bg-stone-900/40 rounded-xl border border-white/5 mb-4 shrink-0">
                                     {Array.from({ length: Math.ceil((daysInMonth + firstDay) / 7) }).map((_, i) => (
                                         <button 
                                             key={i} 
                                             onClick={() => setSelectedWeek(i)}
                                             className={cn(
-                                                "h-7 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shrink-0",
+                                                "h-7 px-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex-1",
                                                 selectedWeek === i ? "bg-brand-gold text-stone-950 shadow-lg" : "text-stone-500 hover:text-stone-300"
                                             )}
                                         >
@@ -585,13 +581,13 @@ export default function AgendaPage() {
                                                                     <span className="text-[9px] font-bold text-stone-600">{apts.length} agendamentos</span>
                                                                 </div>
                                                             </div>
-                                                            <Button 
-                                                                size="sm" variant="ghost" 
+                                                            <div 
+                                                                role="button"
                                                                 onClick={(e) => { e.stopPropagation(); handleBlockDay(dateKey); }}
-                                                                className="h-7 rounded-lg text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 hover:bg-red-500/10 px-2"
+                                                                className="h-7 rounded-lg text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 hover:bg-red-500/10 px-2 flex items-center justify-center transition-all cursor-pointer"
                                                             >
                                                                 Bloquear Dia
-                                                            </Button>
+                                                            </div>
                                                         </div>
                                                     </AccordionTrigger>
                                                     <AccordionContent className="px-4 pb-4">
@@ -926,11 +922,6 @@ export default function AgendaPage() {
                         })}
                     </div>
 
-                    <div className="shrink-0 p-4 border-t border-white/5">
-                        <Button className="w-full h-10 rounded-xl bg-stone-950 border border-white/5 text-stone-500 font-bold hover:text-brand-primary hover:border-brand-primary/20 transition-all gap-2 text-[10px] uppercase tracking-widest">
-                            <CalendarIcon className="h-3.5 w-3.5" /> Ver dia completo
-                        </Button>
-                    </div>
                 </div>
             </div>
 
