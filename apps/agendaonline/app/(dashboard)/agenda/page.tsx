@@ -29,6 +29,7 @@ import { getServicesAction } from "@/lib/actions/services"
 import { getMyTenant } from "@/lib/tenant-api"
 import { PixConfigModal } from "@/components/PixConfigModal"
 import { SaveClientModal } from "@/components/SaveClientModal"
+import { BusinessHoursModal } from "@/components/BusinessHoursModal"
 import {
     Dialog,
     DialogContent,
@@ -93,6 +94,7 @@ export default function AgendaPage() {
     const [isBlockConfirmOpen, setIsBlockConfirmOpen] = useState(false)
     const [dateToUnblock, setDateToUnblock] = useState<string | null>(null)
     const [isUnblockConfirmOpen, setIsUnblockConfirmOpen] = useState(false)
+    const [isBusinessHoursModalOpen, setIsBusinessHoursModalOpen] = useState(false)
 
     useEffect(() => {
         async function loadInitialData() {
@@ -360,6 +362,13 @@ export default function AgendaPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
+                    <Button 
+                        variant="outline" 
+                        onClick={() => setIsBusinessHoursModalOpen(true)}
+                        className="h-10 rounded-xl px-4 border-stone-800 bg-stone-900/40 text-stone-300 hover:bg-stone-800 hover:text-white transition-all text-xs"
+                    >
+                        <Clock className="h-3.5 w-3.5 mr-2" /> Funcionamento
+                    </Button>
                     <Button variant="outline" className="h-10 rounded-xl px-4 border-stone-800 bg-stone-900/40 text-stone-300 hover:bg-stone-800 hover:text-white transition-all text-xs">
                         <Filter className="h-3.5 w-3.5 mr-2" /> Filtrar
                     </Button>
@@ -1004,6 +1013,15 @@ export default function AgendaPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <BusinessHoursModal 
+                isOpen={isBusinessHoursModalOpen}
+                onClose={() => setIsBusinessHoursModalOpen(false)}
+                onSave={(config) => {
+                    console.log("Business hours config:", config)
+                    setIsBusinessHoursModalOpen(false)
+                    toast.success("Horário de funcionamento atualizado!")
+                }}
+            />
         </div>
     )
 }
