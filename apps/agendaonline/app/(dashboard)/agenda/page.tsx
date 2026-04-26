@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
     MessageCircle, MoreVertical, Filter, UserPlus, TrendingUp, Users, Calendar as CalendarIcon, ChevronDown,
-    Pencil, Trash2
+    Pencil, Trash2, Smartphone
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -19,6 +19,7 @@ import {
 import { CompleteAppointmentModal, AppointmentDetailsModal } from "@/components/CompleteAppointmentModal"
 import { getServicesAction } from "@/lib/actions/services"
 import { getMyTenant } from "@/lib/tenant-api"
+import { PixConfigModal } from "@/components/PixConfigModal"
 import { 
     updateAppointmentStatusAction, 
     updateAppointmentAction,
@@ -50,6 +51,7 @@ export default function AgendaPage() {
     const [services, setServices] = useState<any[]>([])
     const [tenantId, setTenantId] = useState<string | null>(null)
     const [isIdling, setIsIdling] = useState(true)
+    const [tenant, setTenant] = useState<any>(null)
 
     // Modal state
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -57,6 +59,7 @@ export default function AgendaPage() {
     const [editingAppointment, setEditingAppointment] = useState<any>(null)
     const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false)
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+    const [isPixModalOpen, setIsPixModalOpen] = useState(false)
     const [appointmentToComplete, setAppointmentToComplete] = useState<any>(null)
 
     useEffect(() => {
@@ -64,6 +67,7 @@ export default function AgendaPage() {
             try {
                 const tenant = await getMyTenant()
                 if (tenant?.id) {
+                    setTenant(tenant)
                     setTenantId(tenant.id)
                     const svcResult = await getServicesAction(tenant.id)
                     if (svcResult.success) {
@@ -413,8 +417,18 @@ export default function AgendaPage() {
                                 <p className="text-xs font-bold text-foreground mt-0.5">{selectedDateObj.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
                             </div>
                         </div>
-                        <div className="bg-brand-primary/10 text-[9px] font-black text-brand-primary px-2 py-0.5 rounded-full border border-brand-primary/20 uppercase tracking-wider">
-                            {dayAppointments.length} agendamento{dayAppointments.length !== 1 ? 's' : ''}
+                        <div className="flex items-center gap-3">
+                            <button 
+                                onClick={() => setIsPixModalOpen(true)}
+                                className="flex items-center gap-2 h-7 px-3 rounded-lg border border-white/5 bg-stone-950 text-[9px] font-bold text-stone-500 uppercase tracking-widest hover:text-amber-500 transition-all group"
+                                title="Configurar PIX do Estabelecimento"
+                            >
+                                <Smartphone className="h-3 w-3 group-hover:scale-110 transition-transform" />
+                                <span>Configurar PIX</span>
+                            </button>
+                            <div className="bg-brand-primary/10 text-[9px] font-black text-brand-primary px-2 py-0.5 rounded-full border border-brand-primary/20 uppercase tracking-wider">
+                                {dayAppointments.length} agendamento{dayAppointments.length !== 1 ? 's' : ''}
+                            </div>
                         </div>
                     </div>
 
@@ -611,12 +625,20 @@ export default function AgendaPage() {
                 onClose={() => setIsCompleteModalOpen(false)}
                 appointment={appointmentToComplete}
                 onConfirm={handleCompleteConfirm}
+                pix={tenant?.pix}
             />
 
             <AppointmentDetailsModal 
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
                 appointment={appointmentToComplete}
+            />
+
+            <PixConfigModal 
+                isOpen={isPixModalOpen}
+                onClose={() => setIsPixModalOpen(false)}
+                tenant={tenant}
+                onSuccess={(updated) => setTenant(updated)}
             />
         </div>
     )

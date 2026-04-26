@@ -23,7 +23,10 @@ interface CompleteAppointmentModalProps {
     onClose: () => void
     appointment: any
     onConfirm: (paymentMethod: string) => Promise<void>
-    establishmentPix?: string
+    pix?: {
+        type: string
+        key: string
+    }
 }
 
 export function CompleteAppointmentModal({ 
@@ -31,12 +34,16 @@ export function CompleteAppointmentModal({
     onClose, 
     appointment, 
     onConfirm,
-    establishmentPix = "000.000.000-00" // Placeholder
+    pix
 }: CompleteAppointmentModalProps) {
     const [paymentMethod, setPaymentMethod] = React.useState<"credit" | "debit" | "pix" | "cash" | null>(null)
     const [isSubmitting, setIsSubmitting] = React.useState(false)
 
     if (!isOpen || !appointment) return null
+
+    const pixLabel = pix?.type === 'email' ? 'E-mail' : 
+                    pix?.type === 'phone' ? 'Telefone' : 
+                    pix?.type === 'cpf_cnpj' ? 'CPF/CNPJ' : 'Chave';
 
     const handleConfirm = async () => {
         if (!paymentMethod) {
@@ -125,8 +132,8 @@ export function CompleteAppointmentModal({
                         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 flex items-start gap-3 animate-in slide-in-from-top-2 duration-300">
                             <Info className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
                             <div>
-                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Chave PIX do Estabelecimento</p>
-                                <p className="text-xs font-bold text-foreground break-all">{establishmentPix}</p>
+                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Chave PIX do Estabelecimento ({pixLabel})</p>
+                                <p className="text-xs font-bold text-foreground break-all">{pix?.key || "Chave não configurada"}</p>
                             </div>
                         </div>
                     )}

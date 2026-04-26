@@ -139,6 +139,12 @@ export interface TenantData {
     // Header (scrolled nav)
     headerBgColor?: string   // e.g. '#0f172acc' — background when nav is scrolled
 
+    // PIX Configuration
+    pix?: {
+        type: 'email' | 'phone' | 'cpf_cnpj' | 'random'
+        key: string
+    }
+
     // Trust Strip
     trustBadges: TenantBadge[]
 

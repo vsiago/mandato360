@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Save, ExternalLink, Palette, Store, User, Stars, Instagram, Phone, MapPin, ImagePlus, Globe, Loader2 } from "lucide-react"
+import { Save, ExternalLink, Palette, Store, User, Stars, Instagram, Phone, MapPin, ImagePlus, Globe, Loader2, CreditCard, Smartphone, Banknote, Info } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { getMyTenant, saveTenant } from "@/lib/tenant-api"
 import type { TenantData } from "@/lib/tenant-types"
@@ -14,7 +14,7 @@ import { ImageUpload } from "@/components/ui/image-upload"
 export default function ConfiguracoesPage() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [activeTab, setActiveTab] = useState<"business" | "profile" | "brand">("business")
+    const [activeTab, setActiveTab] = useState<"business" | "profile" | "brand" | "finance">("business")
 
     const [data, setData] = useState<TenantData | null>(null)
 
@@ -54,6 +54,7 @@ export default function ConfiguracoesPage() {
         { key: "business" as const, label: "Estabelecimento", icon: Store },
         { key: "profile" as const, label: "Profissional", icon: User },
         { key: "brand" as const, label: "Identidade", icon: Palette },
+        { key: "finance" as const, label: "Finanças", icon: CreditCard },
     ]
 
     const setField = (key: keyof TenantData, value: any) => {
@@ -70,6 +71,10 @@ export default function ConfiguracoesPage() {
 
     const setColors = (key: string, value: string) => {
         setData(prev => prev ? { ...prev, colors: { ...prev.colors, [key]: value } } : null)
+    }
+
+    const setPix = (key: string, value: string) => {
+        setData(prev => prev ? { ...prev, pix: { ...(prev.pix || { type: 'random', key: '' }), [key]: value } } : null)
     }
 
     return (
@@ -332,6 +337,77 @@ export default function ConfiguracoesPage() {
                         </div>
                         <p className="text-sm font-semibold text-white mb-1">Cores definem percepção de valor</p>
                         <p className="text-xs text-stone-400 leading-relaxed">Tons terrosos e dourados transmitem sofisticação e exclusividade. Evite cores vibrantes demais para manter a elegância.</p>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Tab: Finance ── */}
+            {activeTab === "finance" && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                    <div className="relative rounded-xl border border-amber-200/20 dark:border-amber-500/10 p-6 space-y-6 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm overflow-hidden">
+                        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(232,168,58,0.03) 0%, transparent 40%)' }} />
+                        <div className="relative z-10 flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(232,168,58,0.2) 0%, rgba(232,168,58,0.05) 100%)', border: '1px solid rgba(232,168,58,0.2)' }}>
+                                <Smartphone className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-semibold text-foreground">Configuração de Pagamentos</h3>
+                                <p className="text-xs text-muted-foreground">Defina os dados para recebimento</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-6 relative z-10">
+                            <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-2xl p-4 flex gap-3">
+                                <Info className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                    <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-400">Configuração de PIX</p>
+                                    <p className="text-xs text-emerald-700/70 dark:text-emerald-400/60 leading-relaxed">
+                                        Estas informações serão exibidas no modal de conclusão de atendimento para facilitar o pagamento dos seus clientes.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="grid sm:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-medium text-muted-foreground">Tipo de Chave PIX</Label>
+                                    <select 
+                                        value={data.pix?.type || 'random'} 
+                                        onChange={e => setPix('type', e.target.value)}
+                                        className="w-full h-10 px-3 bg-muted border-none rounded-lg text-sm focus:ring-2 focus:ring-amber-500/20 transition-all outline-hidden appearance-none cursor-pointer"
+                                    >
+                                        <option value="email">E-mail</option>
+                                        <option value="phone">Telefone</option>
+                                        <option value="cpf_cnpj">CPF ou CNPJ</option>
+                                        <option value="random">Chave Aleatória</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-xs font-medium text-muted-foreground">Chave PIX</Label>
+                                    <Input 
+                                        value={data.pix?.key || ''} 
+                                        onChange={e => setPix('key', e.target.value)} 
+                                        placeholder="Sua chave aqui..."
+                                        className="h-10 bg-muted border-none rounded-lg text-sm" 
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-amber-500/10">
+                                <div className="flex items-center gap-3 p-4 rounded-2xl bg-stone-950 border border-white/5">
+                                    <div className="h-10 w-10 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                        <Banknote className="h-5 w-5 text-emerald-500" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Visualização no Modal</p>
+                                        <p className="text-xs font-bold text-foreground">
+                                            {data.pix?.type === 'email' ? 'E-mail' : 
+                                             data.pix?.type === 'phone' ? 'Telefone' : 
+                                             data.pix?.type === 'cpf_cnpj' ? 'CPF/CNPJ' : 'Chave'} • <span className="text-emerald-500">{data.pix?.key || 'Não configurada'}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
