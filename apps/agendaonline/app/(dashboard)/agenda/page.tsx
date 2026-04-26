@@ -681,8 +681,8 @@ export default function AgendaPage() {
                     {/* ── LEFT COLUMN: Timeline ── */}
                     <div className="flex flex-col min-h-0 gap-4 relative">
                         {/* Date picker Card */}
-                        <div className="shrink-0 h-[116px] rounded-2xl border border-white/5 bg-[#121212] flex items-center shadow-lg relative overflow-hidden">
-                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-white/[0.03] hover:bg-white/[0.06] transition-all shrink-0 border-r border-white/5 cursor-pointer">
+                        <div className="shrink-0 h-[116px] rounded-2xl border border-white/5 bg-stone-900/30 flex items-center shadow-lg relative overflow-hidden">
+                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-stone-900/20 hover:bg-stone-800/30 transition-all shrink-0 border-r border-white/5 cursor-pointer">
                                 <ChevronLeft className="h-6 w-6" />
                             </button>
                             
@@ -721,20 +721,20 @@ export default function AgendaPage() {
                                             </button>
                                             
                                             {i < 6 && (
-                                                <div className="w-[1px] h-14 bg-gradient-to-b from-transparent via-white/10 to-transparent opacity-50" />
+                                                <div className="w-[1px] h-14 bg-gradient-to-b from-transparent via-stone-800/40 to-transparent opacity-50" />
                                             )}
                                         </React.Fragment>
                                     )
                                 })}
                             </div>
 
-                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-white/[0.03] hover:bg-white/[0.06] transition-all shrink-0 border-l border-white/5 cursor-pointer">
+                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-stone-900/20 hover:bg-stone-800/30 transition-all shrink-0 border-l border-white/5 cursor-pointer">
                                 <ChevronRight className="h-6 w-6" />
                             </button>
                         </div>
 
                         {/* Timeline Card */}
-                        <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-white/5 bg-[#121212] overflow-hidden shadow-lg relative">
+                        <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-white/5 bg-stone-900/30 overflow-hidden shadow-lg relative">
                             {/* Selected Date Header */}
                             <div className="shrink-0 px-8 pt-7 pb-4">
                                 <h3 className="text-[11px] font-bold text-stone-300 uppercase tracking-widest">
@@ -744,7 +744,7 @@ export default function AgendaPage() {
                             
                             {/* Timeline scroll */}
                             <div className="flex-1 min-h-0 overflow-hidden relative">
-                                <div className="absolute left-[57px] top-4 bottom-4 w-px bg-white/[0.04] pointer-events-none z-0" />
+                                <div className="absolute left-[57px] top-4 bottom-4 w-px bg-stone-800/30 pointer-events-none z-0" />
                                 <TooltipProvider>
                                     <div ref={timelineRef} className="h-full overflow-y-auto px-8 py-4 space-y-0 custom-scrollbar scroll-smooth relative z-10">
                                     {visibleTimeSlots.map((time) => {
