@@ -127,7 +127,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 DESKTOP SIDEBAR — hidden on mobile
                ══════════════════════════════════════════════ */}
             <aside className={cn(
-                "hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-[#0c0c0e] border-r border-stone-800/40 transition-all duration-500 ease-in-out",
+                "hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-[#0c0a09] border-r border-stone-800/40 transition-all duration-500 ease-in-out",
                 isCollapsed ? "w-20" : "w-64"
             )}>
                 {/* Collapse Toggle Button */}

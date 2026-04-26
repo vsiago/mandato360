@@ -191,7 +191,7 @@ function PainelContent() {
                         <div 
                             key={i} 
                             onClick={() => item.action ? item.action() : null}
-                            className="group cursor-pointer bg-stone-900/40 hover:bg-stone-900/60 border border-white/5 p-4 rounded-2xl flex items-center gap-4 transition-all"
+                            className="group cursor-pointer bg-stone-900/30 hover:bg-stone-900/50 border border-white/5 p-4 rounded-2xl flex items-center gap-4 transition-all"
                         >
                             <div 
                                 className="h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 bg-stone-900/50 group-hover:border-brand-primary/30 transition-colors"
@@ -210,7 +210,7 @@ function PainelContent() {
 
             {/* ── Setup Checklist (Refined Horizontal Style) ── */}
             {showChecklist && (
-                <div className="bg-stone-900/60 border border-white/5 rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden">
+                <div className="bg-stone-900/30 border border-white/5 rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden">
                     
                     {/* Left Section: Progress & Info */}
                     <div className="flex items-center gap-6 pr-8 lg:border-r border-white/5 shrink-0">
@@ -285,7 +285,7 @@ function PainelContent() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pb-4">
                 
                 {/* ── Left Column: Agendamentos ── */}
-                <div className="lg:col-span-5 bg-stone-900/40 border border-white/5 rounded-2xl overflow-hidden flex flex-col h-full">
+                <div className="lg:col-span-5 bg-stone-900/30 border border-white/5 rounded-2xl overflow-hidden flex flex-col h-full">
                     <div className="p-6 flex items-center justify-between border-b border-white/5">
                         <div className="flex items-center gap-2">
                             <CalendarDays className="h-5 w-5 text-brand-primary" />
@@ -303,7 +303,7 @@ function PainelContent() {
                             { time: "14:30", name: "Ana Martins", service: "Coloração", status: "Confirmado", initials: "AM" },
                             { time: "16:00", name: "Carlos Pereira", service: "Barba", status: "Confirmado", initials: "CP" },
                         ].map((apt, i) => (
-                            <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-stone-900/20 border border-white/5 border-l-2 border-l-brand-primary hover:bg-white/5 transition-all group">
+                            <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-stone-900/10 border border-white/5 border-l-2 border-l-brand-primary hover:bg-white/5 transition-all group">
                                 <div className="text-center w-12 shrink-0">
                                     <p className="text-sm font-bold text-stone-400 group-hover:text-brand-primary transition-colors">{apt.time}</p>
                                     <p className="text-[9px] text-stone-500 uppercase font-bold tracking-wider mt-0.5">Hoje</p>
@@ -348,7 +348,7 @@ function PainelContent() {
                             { title: "Serviços ativos", value: String(serviceCount), sub: "Serviços cadastrados", icon: Scissors },
                             { title: "Agendamentos hoje", value: "0", sub: "Total de agendamentos", icon: CalendarDays },
                         ].map((m, i) => (
-                            <div key={i} className="group cursor-pointer bg-stone-900/40 border border-white/5 p-6 rounded-2xl hover:bg-stone-900/60 transition-all relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+                            <div key={i} className="group cursor-pointer bg-stone-900/30 border border-white/5 p-6 rounded-2xl hover:bg-stone-900/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[160px]">
                                 <div className="flex items-start justify-between">
                                     <div className="h-10 w-10 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center group-hover:border-brand-primary/30 transition-colors">
                                         <m.icon className="h-5 w-5 text-stone-500 group-hover:text-brand-primary transition-colors" />
@@ -372,7 +372,7 @@ function PainelContent() {
                     </div>
 
                     {/* Tip Card (Full width horizontal) */}
-                    <div className="bg-stone-900/40 border border-white/5 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="bg-stone-900/30 border border-white/5 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
                             <div className="h-14 w-14 rounded-full bg-stone-900 border border-white/5 flex items-center justify-center shrink-0">
                                 <Lightbulb className="h-7 w-7 text-stone-500" />
