@@ -265,7 +265,7 @@ export const appointments = pgTable("appointments", {
     customerPhone: text("customer_phone"),
     date: text("date").notNull(), // YYYY-MM-DD
     time: text("time").notNull(), // HH:MM
-    status: text("status").notNull().default("pending"), // pending, confirmed, cancelled
+    status: text("status").notNull().default("pending"), // pending, confirmed, cancelled, blocked, completed
     notes: text("notes"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });

@@ -20,6 +20,7 @@ import { CompleteAppointmentModal, AppointmentDetailsModal } from "@/components/
 import { getServicesAction } from "@/lib/actions/services"
 import { getMyTenant } from "@/lib/tenant-api"
 import { PixConfigModal } from "@/components/PixConfigModal"
+import { SaveClientModal } from "@/components/SaveClientModal"
 import { 
     updateAppointmentStatusAction, 
     updateAppointmentAction,
@@ -60,7 +61,9 @@ export default function AgendaPage() {
     const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false)
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
     const [isPixModalOpen, setIsPixModalOpen] = useState(false)
+    const [isSaveClientModalOpen, setIsSaveClientModalOpen] = useState(false)
     const [appointmentToComplete, setAppointmentToComplete] = useState<any>(null)
+    const [clientToSave, setClientToSave] = useState<any>(null)
 
     useEffect(() => {
         async function loadInitialData() {
@@ -529,15 +532,21 @@ export default function AgendaPage() {
                                                                     sideOffset={8}
                                                                     className="w-36 bg-stone-950/95 backdrop-blur-xl border border-white/10 rounded-2xl p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
                                                                 >
+                                                                    {!apt.customerId && (
+                                                                        <DropdownMenuItem 
+                                                                            onClick={() => { setClientToSave(apt); setIsSaveClientModalOpen(true); }}
+                                                                            className="rounded-xl flex items-center gap-2 p-3 text-[10px] font-bold text-amber-500 uppercase tracking-widest hover:bg-amber-500/10 cursor-pointer"
+                                                                        >
+                                                                            <UserPlus className="h-3.5 w-3.5" />
+                                                                            Salvar Cliente
+                                                                        </DropdownMenuItem>
+                                                                    )}
                                                                     <DropdownMenuItem 
-                                                                        onClick={() => handleEdit(apt)} 
-                                                                        className="flex items-center gap-2 px-2 py-2 text-[10px] font-bold text-stone-400 focus:text-brand-primary focus:bg-brand-primary/10 rounded-xl transition-all cursor-pointer group/item relative overflow-hidden"
+                                                                        onClick={() => { setEditingAppointment(apt); setIsAddModalOpen(true); }} 
+                                                                        className="rounded-xl flex items-center gap-2 p-3 text-[10px] font-bold text-stone-300 uppercase tracking-widest hover:bg-white/5 cursor-pointer"
                                                                     >
-                                                                        <div className="absolute inset-0 bg-brand-primary/5 opacity-0 group-focus/item:opacity-100 transition-opacity blur-xl" />
-                                                                        <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-brand-primary/20 transition-colors z-10">
-                                                                            <Pencil className="h-3 w-3 transition-transform" />
-                                                                        </div>
-                                                                        <span className="z-10">Editar</span>
+                                                                        <Pencil className="h-3.5 w-3.5" />
+                                                                        Editar
                                                                     </DropdownMenuItem>
                                                                     
                                                                     <DropdownMenuItem 
@@ -639,6 +648,17 @@ export default function AgendaPage() {
                 onClose={() => setIsPixModalOpen(false)}
                 tenant={tenant}
                 onSuccess={(updated) => setTenant(updated)}
+            />
+
+            <SaveClientModal 
+                isOpen={isSaveClientModalOpen}
+                onClose={() => setIsSaveClientModalOpen(false)}
+                tenantId={tenantId || ""}
+                initialData={{
+                    name: clientToSave?.name,
+                    phone: clientToSave?.phone,
+                    appointmentId: clientToSave?.id
+                }}
             />
         </div>
     )

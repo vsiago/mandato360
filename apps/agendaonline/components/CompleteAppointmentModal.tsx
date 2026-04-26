@@ -12,8 +12,10 @@ import {
     Calendar,
     Clock,
     User,
-    Scissors
+    Scissors,
+    UserPlus
 } from "lucide-react"
+import { SaveClientModal } from "./SaveClientModal"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
@@ -27,6 +29,7 @@ interface CompleteAppointmentModalProps {
         type: string
         key: string
     }
+    tenantId: string
 }
 
 export function CompleteAppointmentModal({ 
@@ -34,10 +37,12 @@ export function CompleteAppointmentModal({
     onClose, 
     appointment, 
     onConfirm,
-    pix
+    pix,
+    tenantId
 }: CompleteAppointmentModalProps) {
     const [paymentMethod, setPaymentMethod] = React.useState<"credit" | "debit" | "pix" | "cash" | null>(null)
     const [isSubmitting, setIsSubmitting] = React.useState(false)
+    const [isSaveClientModalOpen, setIsSaveClientModalOpen] = React.useState(false)
 
     if (!isOpen || !appointment) return null
 
@@ -84,14 +89,26 @@ export function CompleteAppointmentModal({
                 <div className="p-6 space-y-6">
                     {/* Summary Card */}
                     <div className="bg-stone-950/50 border border-white/5 rounded-2xl p-4 space-y-4">
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-stone-900 flex items-center justify-center border border-white/5 text-[10px] font-black text-stone-500">
-                                {appointment.name.split(" ").map((n: any) => n[0]).join("").toUpperCase()}
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-full bg-stone-900 flex items-center justify-center border border-white/5 text-[10px] font-black text-stone-500">
+                                    {appointment.name.split(" ").map((n: any) => n[0]).join("").toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                    <h4 className="text-sm font-bold text-foreground truncate">{appointment.name}</h4>
+                                    <p className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">{appointment.time} • {appointment.service}</p>
+                                </div>
                             </div>
-                            <div className="min-w-0">
-                                <h4 className="text-sm font-bold text-foreground truncate">{appointment.name}</h4>
-                                <p className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">{appointment.time} • {appointment.service}</p>
-                            </div>
+                            
+                            {!appointment.customerId && (
+                                <button 
+                                    onClick={() => setIsSaveClientModalOpen(true)}
+                                    className="h-8 px-3 rounded-lg border border-amber-500/20 bg-amber-500/5 text-[9px] font-black text-amber-500 uppercase tracking-widest hover:bg-amber-500/10 transition-all flex items-center gap-1.5"
+                                >
+                                    <UserPlus className="h-3 w-3" />
+                                    Adicionar Cliente
+                                </button>
+                            )}
                         </div>
 
                         <div className="pt-4 border-t border-white/5 flex items-center justify-between">
@@ -154,6 +171,12 @@ export function CompleteAppointmentModal({
                     </Button>
                 </div>
             </div>
+            <SaveClientModal 
+                isOpen={isSaveClientModalOpen} 
+                onClose={() => setIsSaveClientModalOpen(false)} 
+                initialData={{ name: appointment.name, phone: appointment.phone }}
+                tenantId={tenantId}
+            />
         </div>
     )
 }
@@ -165,6 +188,8 @@ interface DetailsModalProps {
 }
 
 export function AppointmentDetailsModal({ isOpen, onClose, appointment }: DetailsModalProps) {
+    const [isSaveClientModalOpen, setIsSaveClientModalOpen] = React.useState(false)
+
     if (!isOpen || !appointment) return null
 
     return (
@@ -187,14 +212,26 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment }: Detail
 
                 <div className="p-6 space-y-6">
                     {/* Customer Info */}
-                    <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-full bg-stone-950 flex items-center justify-center border border-white/5 text-xs font-black text-stone-600 shadow-inner">
-                            {appointment.name.split(" ").map((n: any) => n[0]).join("").toUpperCase()}
+                    <div className="bg-stone-900/50 border border-white/5 rounded-2xl p-4 flex items-center justify-between mb-8 group">
+                        <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-full bg-stone-950 border border-white/5 flex items-center justify-center text-xs font-bold text-stone-500">
+                                {appointment.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-foreground">{appointment.name}</p>
+                                <p className="text-[10px] text-stone-500 font-medium">{appointment.time} • {appointment.service}</p>
+                            </div>
                         </div>
-                        <div>
-                            <h4 className="text-base font-bold text-foreground">{appointment.name}</h4>
-                            <p className="text-xs text-stone-500 font-medium">{appointment.phone}</p>
-                        </div>
+                        
+                        {!appointment.customerId && (
+                            <button 
+                                onClick={() => setIsSaveClientModalOpen(true)}
+                                className="h-8 px-3 rounded-lg border border-amber-500/20 bg-amber-500/5 text-[9px] font-black text-amber-500 uppercase tracking-widest hover:bg-amber-500/10 transition-all flex items-center gap-1.5"
+                            >
+                                <UserPlus className="h-3 w-3" />
+                                Adicionar Cliente
+                            </button>
+                        )}
                     </div>
 
                     {/* Summary Details */}
