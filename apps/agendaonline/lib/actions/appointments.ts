@@ -113,7 +113,7 @@ export async function updateAppointmentAction(appointmentId: string, tenantId: s
     }
 }
 
-export async function updateAppointmentStatusAction(appointmentId: string, tenantId: string, status: "pending" | "confirmed" | "cancelled" | "blocked") {
+export async function updateAppointmentStatusAction(appointmentId: string, tenantId: string, status: "pending" | "confirmed" | "cancelled" | "blocked" | "completed") {
     try {
         const session = await getAuthSession()
         if (!session?.user) return { success: false, error: "Não autorizado." }

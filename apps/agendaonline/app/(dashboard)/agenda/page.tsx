@@ -16,10 +16,12 @@ import {
     DropdownMenuItem, 
     DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
+import { CompleteAppointmentModal, AppointmentDetailsModal } from "@/components/CompleteAppointmentModal"
 import { getServicesAction } from "@/lib/actions/services"
 import { getMyTenant } from "@/lib/tenant-api"
 import { 
     updateAppointmentStatusAction, 
+    updateAppointmentAction,
     getAppointmentsByTenantAction, 
     createPublicAppointmentAction, 
     deleteAppointmentAction 
@@ -37,6 +39,7 @@ const STATUS_MAP = {
     confirmed: { label: "Confirmado", color: "bg-green-500" },
     pending: { label: "Pendente", color: "bg-blue-500" },
     blocked: { label: "Bloqueado", color: "bg-amber-500" },
+    completed: { label: "Concluído", color: "bg-emerald-500" },
     unavailable: { label: "Indisponível", color: "bg-stone-500" },
 }
 
@@ -52,6 +55,9 @@ export default function AgendaPage() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [activeTime, setActiveTime] = useState("")
     const [editingAppointment, setEditingAppointment] = useState<any>(null)
+    const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false)
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+    const [appointmentToComplete, setAppointmentToComplete] = useState<any>(null)
 
     useEffect(() => {
         async function loadInitialData() {
@@ -88,7 +94,7 @@ export default function AgendaPage() {
                     phone: apt.customerPhone || "",
                     serviceId: apt.serviceId,
                     service: services.find(s => s.id === apt.serviceId)?.name || (apt.status === "blocked" ? "-" : "Serviço"),
-                    status: apt.status as "pending" | "confirmed" | "cancelled" | "blocked",
+                    status: apt.status as "pending" | "confirmed" | "cancelled" | "blocked" | "completed",
                     price: services.find(s => s.id === apt.serviceId)?.price 
                         ? `R$ ${parseFloat(services.find(s => s.id === apt.serviceId).price).toFixed(0)}` 
                         : (apt.status === "blocked" ? "-" : "R$ 0"),
@@ -184,6 +190,24 @@ export default function AgendaPage() {
         setEditingAppointment(null);
     }
 
+    const handleCompleteConfirm = async (paymentMethod: string) => {
+        if (!appointmentToComplete || !tenantId) return;
+        
+        const newNotes = (appointmentToComplete.notes || "") + `\nPagamento: ${paymentMethod}`;
+        const res = await updateAppointmentAction(appointmentToComplete.id, tenantId, {
+            status: "completed",
+            notes: newNotes
+        });
+
+        if (res.success) {
+            setAppointments(prev => ({
+                ...prev,
+                [selectedDate]: prev[selectedDate].map(apt => apt.id === appointmentToComplete.id ? { ...apt, status: "completed" as const, notes: newNotes } : apt)
+            }));
+            toast.success("Atendimento concluído!");
+        }
+    }
+
     const handleDelete = async (id: string) => {
         if (!confirm("Tem certeza que deseja excluir este agendamento?")) return
         
@@ -254,9 +278,9 @@ export default function AgendaPage() {
 
             <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* ── Left Column ── */}
-                <div className="lg:col-span-7 flex flex-col gap-6 min-h-0">
+                <div className="lg:col-span-7 flex flex-col gap-4 min-h-0 h-full">
                     {/* Calendar Card */}
-                    <div className="flex-1 min-h-0 bg-stone-900/40 border border-white/5 rounded-2xl p-6 backdrop-blur-xl flex flex-col">
+                    <div className="flex-1 min-h-0 bg-stone-900/40 border border-white/5 rounded-2xl p-6 backdrop-blur-xl flex flex-col shadow-2xl">
                         {/* Calendar Toolbar */}
                         <div className="shrink-0 flex flex-wrap items-center justify-between gap-4 mb-6">
                             <div className="flex items-center gap-3">
@@ -327,6 +351,7 @@ export default function AgendaPage() {
                                                     <div key={idx} className={cn(
                                                         "h-1 w-1 rounded-full",
                                                         isSelected ? "bg-stone-950/40" : 
+                                                        a.status === 'completed' ? "bg-emerald-500" :
                                                         a.status === 'confirmed' ? "bg-green-500" :
                                                         a.status === 'pending' ? "bg-blue-500" : "bg-stone-500"
                                                     )} />
@@ -399,30 +424,50 @@ export default function AgendaPage() {
                             const isBlocked = apt?.status === "blocked";
 
                             return (
-                                <div key={time} className="flex gap-4">
-                                    <div className="w-12 pt-1 shrink-0">
-                                        <span className="text-[11px] font-black text-stone-600 tabular-nums tracking-tight">{time}</span>
+                                <div key={time} className="flex gap-3">
+                                    <div className="w-10 pt-2 shrink-0 flex justify-end">
+                                        <span className={cn(
+                                            "tabular-nums tracking-tighter transition-all duration-300",
+                                            apt && !isBlocked 
+                                                ? "text-xs font-black text-white" 
+                                                : "text-[10px] font-bold text-stone-600"
+                                        )}>
+                                            {time}
+                                        </span>
                                     </div>
 
                                     <div className="flex-1 min-w-0">
                                         {apt && !isBlocked ? (
-                                            <div className="bg-stone-900/40 border border-white/[0.03] rounded-2xl p-2 px-3 transition-all hover:bg-stone-900/60 hover:border-white/[0.08] group relative overflow-hidden h-16 flex items-center">
+                                            <div className={cn(
+                                                "border transition-all group relative overflow-hidden h-16 flex items-center rounded-2xl p-2 px-3",
+                                                apt.status === 'completed' 
+                                                    ? "bg-emerald-500/[0.04] border-emerald-500/10 hover:bg-emerald-500/[0.06] hover:border-emerald-500/20 shadow-inner shadow-emerald-500/[0.02]" 
+                                                    : "bg-stone-900/40 border-white/[0.03] hover:bg-stone-900/60 hover:border-white/[0.08]"
+                                            )}>
                                                 <div className="flex items-center justify-between w-full gap-3">
                                                     {/* Left: Avatar & Info */}
                                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                                        <div className="h-9 w-9 rounded-full bg-stone-950 flex items-center justify-center text-[10px] font-black text-stone-600 border border-white/5 shrink-0 shadow-inner">
+                                                        <div className={cn(
+                                                            "h-9 w-9 rounded-full flex items-center justify-center text-[10px] font-black border shrink-0 shadow-inner",
+                                                            apt.status === 'completed' 
+                                                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
+                                                                : "bg-stone-950 border-white/5 text-stone-600"
+                                                        )}>
                                                             {apt.name.split(" ").map((n: string) => n[0]).join("").toUpperCase()}
                                                         </div>
                                                         <div className="min-w-0">
                                                             <div className="flex items-center gap-2 mb-0.5">
-                                                                <h4 className="text-sm font-bold text-foreground truncate tracking-tight">{apt.name}</h4>
+                                                                <h4 className={cn(
+                                                                    "text-sm font-bold truncate tracking-tight",
+                                                                    apt.status === 'completed' ? "text-emerald-500/90" : "text-foreground"
+                                                                )}>{apt.name}</h4>
                                                                 <div className={cn(
                                                                     "text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full tracking-[0.1em] shrink-0 border",
-                                                                    apt.status === 'confirmed' 
-                                                                        ? "text-emerald-500/80 bg-emerald-500/[0.03] border-emerald-500/10" 
-                                                                        : "text-blue-500/60 bg-blue-500/5 border-white/5"
+                                                                    apt.status === 'completed' ? "text-emerald-500 bg-emerald-500/20 border-emerald-500/30" :
+                                                                    apt.status === 'confirmed' ? "text-emerald-500/80 bg-emerald-500/[0.03] border-emerald-500/10" : 
+                                                                    "text-blue-500/60 bg-blue-500/5 border-white/5"
                                                                 )}>
-                                                                    {apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
+                                                                    {apt.status === 'completed' ? 'Concluído' : apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
                                                                 </div>
                                                             </div>
                                                             <p className="text-[10px] text-stone-500 font-medium truncate">
@@ -433,12 +478,21 @@ export default function AgendaPage() {
 
                                                     {/* Right: Actions */}
                                                     <div className="flex items-center gap-2 shrink-0">
-                                                        <button 
-                                                            onClick={() => confirmAppointment(time)}
-                                                            className="h-8 px-3 rounded-lg border border-white/[0.05] bg-stone-950 text-emerald-500/90 text-[9px] font-bold uppercase tracking-wider hover:bg-emerald-500/[0.08] hover:border-emerald-500/20 hover:text-emerald-400 transition-all active:scale-[0.98] shadow-sm cursor-pointer"
-                                                        >
-                                                            Concluir
-                                                        </button>
+                                                        {apt.status === 'completed' ? (
+                                                            <button 
+                                                                onClick={() => { setAppointmentToComplete(apt); setIsDetailsModalOpen(true); }}
+                                                                className="h-8 px-3 rounded-lg border border-white/[0.05] bg-stone-950 text-stone-500 text-[9px] font-bold uppercase tracking-wider hover:bg-stone-900 hover:text-stone-300 transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+                                                            >
+                                                                Ver detalhes
+                                                            </button>
+                                                        ) : (
+                                                            <button 
+                                                                onClick={() => { setAppointmentToComplete(apt); setIsCompleteModalOpen(true); }}
+                                                                className="h-8 px-3 rounded-lg border border-white/[0.05] bg-stone-950 text-emerald-500/90 text-[9px] font-bold uppercase tracking-wider hover:bg-emerald-500/[0.08] hover:border-emerald-500/20 hover:text-emerald-400 transition-all active:scale-[0.98] shadow-sm cursor-pointer"
+                                                            >
+                                                                Concluir
+                                                            </button>
+                                                        )}
 
                                                         <div className="flex items-center gap-2">
                                                             <a 
@@ -543,16 +597,26 @@ export default function AgendaPage() {
 
             <AppointmentModal
                 isOpen={isAddModalOpen}
-                onClose={() => {
-                    setIsAddModalOpen(false)
-                    setEditingAppointment(null)
-                }}
-                onSuccess={handleAddSuccess}
+                onClose={() => { setIsAddModalOpen(false); setEditingAppointment(null); }}
                 date={selectedDate}
                 time={activeTime}
-                tenantId={tenantId || "local-tenant-id"}
+                tenantId={tenantId || ""}
                 services={services}
+                onSuccess={handleAddSuccess}
                 appointment={editingAppointment}
+            />
+
+            <CompleteAppointmentModal 
+                isOpen={isCompleteModalOpen}
+                onClose={() => setIsCompleteModalOpen(false)}
+                appointment={appointmentToComplete}
+                onConfirm={handleCompleteConfirm}
+            />
+
+            <AppointmentDetailsModal 
+                isOpen={isDetailsModalOpen}
+                onClose={() => setIsDetailsModalOpen(false)}
+                appointment={appointmentToComplete}
             />
         </div>
     )
