@@ -750,6 +750,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                 tenantId={data.id || ""} 
                                 whatsappNumber={data.contact.whatsapp} 
                                 services={services}
+                                businessHours={data.config?.businessHours}
                             />
                         </div>
                     ),

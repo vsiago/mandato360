@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
     MessageCircle, MoreVertical, Filter, UserPlus, TrendingUp, Users, Calendar as CalendarIcon, ChevronDown,
-    Pencil, Trash2, Smartphone, X, LayoutGrid
+    Pencil, Trash2, Smartphone, X, LayoutGrid, Play
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -52,13 +52,23 @@ import {
     deleteAppointmentAction 
 } from "@/lib/actions/appointments"
 import { Badge } from "@/components/ui/badge"
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 /* ─── Static Constants ─── */
 
 const MONTH_NAMES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
 const WEEKDAYS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"]
 
-const TIME_SLOTS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"]
+const TIME_SLOTS = [
+    "00:00", "01:00", "02:00", "03:00", "04:00", "05:00", "06:00", "07:00", 
+    "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", 
+    "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"
+]
 
 const STATUS_MAP = {
     confirmed: { label: "Confirmado", color: "bg-green-500" },
@@ -146,8 +156,48 @@ export default function AgendaPage() {
     useEffect(() => {
         if (tenantId && services.length > 0) {
             fetchAppointments(tenantId)
+            
+            // Auto-refresh every 10 seconds to keep the dashboard live
+            const interval = setInterval(() => {
+                fetchAppointments(tenantId)
+            }, 10000)
+            
+            return () => clearInterval(interval)
         }
     }, [tenantId, services])
+
+    // Auto-scroll to current/next hour logic
+    const timelineRef = useRef<HTMLDivElement>(null)
+    
+    useEffect(() => {
+        if (!timelineRef.current || viewMode !== 'month') return
+        
+        const now = new Date()
+        const isToday = selectedDate === now.toISOString().split('T')[0]
+        
+        if (isToday) {
+            const nowTime = now.getHours() * 60 + now.getMinutes()
+            const nextSlot = TIME_SLOTS.find(t => {
+                const [h, m] = t.split(':').map(Number)
+                return (h * 60 + m) > nowTime
+            }) || "08:00"
+            
+            // Wait for render
+            setTimeout(() => {
+                const element = document.getElementById(`slot-${nextSlot}`)
+                if (element && timelineRef.current) {
+                    const containerHeight = timelineRef.current.offsetHeight
+                    const elementTop = element.offsetTop
+                    const elementHeight = element.offsetHeight
+                    
+                    timelineRef.current.scrollTo({
+                        top: elementTop - (containerHeight / 2) + (elementHeight / 2),
+                        behavior: 'smooth'
+                    })
+                }
+            }, 500)
+        }
+    }, [selectedDate, viewMode])
 
     const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate()
     const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay()
@@ -206,11 +256,47 @@ export default function AgendaPage() {
         }
     }
 
+    const isDateOpen = (dateKey: string) => {
+        const date = new Date(dateKey + 'T12:00:00');
+        const dayOfWeek = date.getDay().toString();
+        
+        if (!tenant?.businessHours || Object.keys(tenant.businessHours).length === 0) {
+            // Default fallback if no config at all: Mon-Sat open, Sun closed
+            return dayOfWeek !== '0';
+        }
+        
+        const config = tenant.businessHours[dayOfWeek];
+        if (!config) return dayOfWeek !== '0'; // Default if day missing from config
+        
+        return config.isOpen;
+    }
+
+    const isTimeOpen = (dateKey: string, time: string) => {
+        if (!isDateOpen(dateKey)) return false;
+        const date = new Date(dateKey + 'T12:00:00');
+        const dayOfWeek = date.getDay().toString();
+        const config = tenant?.businessHours?.[dayOfWeek];
+        if (!config) return true;
+        
+        const [h, m] = time.split(':').map(Number);
+        const [startH, startM] = config.start.split(':').map(Number);
+        const [endH, endM] = config.end.split(':').map(Number);
+        
+        const timeVal = h * 60 + m;
+        const startVal = startH * 60 + startM;
+        const endVal = endH * 60 + endM;
+        
+        return timeVal >= startVal && timeVal < endVal;
+    }
+
     const isDayFullyBlocked = (dateKey: string) => {
         const apts = appointments[dateKey] || [];
+        // Se tem agendamentos reais (não bloqueios), o dia não está totalmente bloqueado (é uma exceção)
+        const hasRealApts = apts.some(a => a.status !== "blocked");
+        if (hasRealApts) return false;
+
+        if (!isDateOpen(dateKey)) return true;
         if (apts.length === 0) return false;
-        // A day is fully blocked if all time slots are filled and at least some are 'blocked' manual blocks 
-        // OR simply if we have blocked every single slot.
         return TIME_SLOTS.every(time => apts.some(a => a.time === time && a.status === "blocked"));
     }
 
@@ -220,29 +306,34 @@ export default function AgendaPage() {
         const existingApt = currentDayApts.find(a => a.time === time);
 
         if (existingApt) {
-            if (existingApt.status === "blocked") {
+            if (existingApt.status === "blocked" || existingApt.status === "liberado") {
                 const res = await deleteAppointmentAction(existingApt.id, tenantId);
                 if (res.success) {
                     setAppointments(prev => ({
                         ...prev,
                         [selectedDate]: currentDayApts.filter(a => a.time !== time)
                     }));
-                    toast.success("Horário liberado.");
+                    toast.success("Horário restaurado ao padrão.");
                 }
             }
             return;
         }
 
+        // Se está fora do horário, o clique no botão "Liberar" deve criar um status especial
+        const isOpenByConfig = isTimeOpen(selectedDate, time);
+        const status = isOpenByConfig ? "blocked" : "liberado";
+        const customerName = isOpenByConfig ? "Bloqueio Manual" : "Horário Liberado (Exceção)";
+
         const res = await createPublicAppointmentAction({
-            tenantId, customerName: "Bloqueio Manual", customerPhone: "", date: selectedDate, time, status: "blocked"
+            tenantId, customerName, customerPhone: "", date: selectedDate, time, status
         } as any);
 
         if (res.success && res.appointment) {
             setAppointments(prev => ({
                 ...prev,
-                [selectedDate]: [...currentDayApts, { id: res.appointment.id, time, name: "Bloqueado", status: "blocked" as const }].sort((a, b) => a.time.localeCompare(b.time))
+                [selectedDate]: [...currentDayApts, { id: res.appointment.id, time, name: customerName, status: status as any }].sort((a, b) => a.time.localeCompare(b.time))
             }));
-            toast.success("Horário bloqueado.");
+            toast.success(status === "blocked" ? "Horário bloqueado." : "Horário liberado para clientes.");
         }
     };
 
@@ -707,7 +798,17 @@ export default function AgendaPage() {
                             { label: "Agendamentos hoje", value: "1", sub: "Veja seu dia completo", icon: CalendarDays },
                             { label: "Próximos 7 dias", value: "5", sub: "Agendamentos", icon: CalendarIcon },
                             { label: "Taxa de ocupação", value: "68%", sub: "Da sua agenda", icon: TrendingUp },
-                            { label: "Horário disponível", value: "08:00 - 18:00", sub: "Seu horário de trabalho", icon: Clock },
+                            { 
+                                label: "Horário disponível", 
+                                value: (() => {
+                                    if (!tenant?.businessHours) return "08:00 - 18:00";
+                                    const dayOfWeek = new Date(selectedDate + 'T12:00:00').getDay().toString();
+                                    const config = tenant.businessHours[dayOfWeek];
+                                    return config?.isOpen ? `${config.start} - ${config.end}` : "Fechado";
+                                })(), 
+                                sub: "Seu horário de trabalho", 
+                                icon: Clock 
+                            },
                         ].map((m, i) => (
                             <div key={i} className="group cursor-pointer bg-stone-900/40 border border-white/5 p-4 rounded-2xl hover:bg-stone-900/60 transition-all flex items-center gap-4 relative overflow-hidden">
                                 <div className="h-10 w-10 shrink-0 rounded-full bg-stone-950 border border-white/5 flex items-center justify-center relative z-10 group-hover:border-brand-primary/20 transition-colors">
@@ -726,8 +827,11 @@ export default function AgendaPage() {
                 </div>
 
                 {/* ── Right Column ── */}
-                <div className="lg:col-span-5 bg-stone-900/40 border border-white/5 rounded-2xl flex flex-col h-full min-h-0 overflow-hidden backdrop-blur-xl">
-                    <div className="shrink-0 p-5 border-b border-white/5 flex items-center justify-between">
+                <div className="lg:col-span-5 bg-stone-900/40 border border-white/5 rounded-2xl flex flex-col h-full min-h-0 overflow-hidden backdrop-blur-xl relative">
+                    {/* ── Digital Time Track (Fixed Viewport) ── */}
+                    <div className="absolute left-10 top-20 bottom-0 w-px bg-gradient-to-b from-transparent via-brand-primary/40 to-transparent pointer-events-none z-10 hidden lg:block" />
+
+                    <div className="shrink-0 p-5 border-b border-white/5 flex items-center justify-between relative z-20 bg-stone-950/40 backdrop-blur-md">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-xl bg-stone-950 border border-white/5 flex items-center justify-center shadow-inner">
                                 <Clock className="h-5 w-5 text-brand-primary" />
@@ -752,26 +856,76 @@ export default function AgendaPage() {
                         </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
-                        {TIME_SLOTS.map((time) => {
+                    <TooltipProvider>
+                        <div 
+                            ref={timelineRef}
+                            className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar scroll-smooth relative z-20"
+                        >
+                            {TIME_SLOTS.map((time) => {
+                            const now = new Date();
+                            const isToday = selectedDate === now.toISOString().split('T')[0];
+                            const nowTime = now.getHours() * 60 + now.getMinutes();
+                            const nextSlot = TIME_SLOTS.find(t => {
+                                const [h, m] = t.split(':').map(Number);
+                                return (h * 60 + m) > nowTime;
+                            }) || "08:00";
+                            const isNextSlot = isToday && time === nextSlot;
+
                             const apt = dayAppointments.find(a => a.time === time);
+                            const isOpenByConfig = isTimeOpen(selectedDate, time);
                             const isBlocked = apt?.status === "blocked";
+                            const isLiberado = apt?.status === "liberado";
+                            const isUnavailable = !isOpenByConfig && !isLiberado;
 
                             return (
-                                <div key={time} className="flex gap-3">
-                                    <div className="w-10 pt-2 shrink-0 flex justify-end">
+                                <div 
+                                    key={time} 
+                                    id={`slot-${time}`}
+                                    className={cn(
+                                        "flex gap-3 items-center transition-all duration-500 relative", 
+                                        isUnavailable && !apt ? "opacity-90" : "opacity-100",
+                                        isNextSlot && "z-10"
+                                    )}
+                                >
+                                    {isNextSlot && (
+                                        <>
+                                            {/* Digital Pointer */}
+                                            <div className="absolute -left-3 top-1/2 -translate-y-1/2 z-30 flex items-center group/pointer">
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <div className="flex items-center">
+                                                            <svg 
+                                                                viewBox="0 0 10 20" 
+                                                                className="h-3.5 w-2 fill-brand-primary text-brand-primary drop-shadow-[0_0_8px_rgba(var(--brand-primary-rgb),0.6)] cursor-help transition-transform group-hover/pointer:scale-110"
+                                                            >
+                                                                <path d="M0 2 L10 10 L0 18 Z" fill="currentColor" />
+                                                            </svg>
+                                                        </div>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent hideArrow side="right" className="bg-stone-950 border-brand-primary/20 text-[10px] font-black uppercase tracking-[0.2em] text-brand-primary px-3 py-1 shadow-2xl backdrop-blur-md">
+                                                        Próximo horário
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </div>
+
+                                            {/* Scanning Line Effect */}
+                                            <div className="absolute left-10 right-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-brand-primary/20 to-transparent pointer-events-none z-10" />
+                                        </>
+                                    )}
+                                    <div className="w-10 shrink-0 flex justify-center relative">
+                                        <div className="absolute top-1/2 -translate-y-1/2 h-5 w-9 bg-stone-950 z-10 rounded-md" />
                                         <span className={cn(
-                                            "tabular-nums tracking-tighter transition-all duration-300",
-                                            apt && !isBlocked 
+                                            "tabular-nums tracking-tighter transition-all duration-300 relative z-20",
+                                            apt && !isBlocked && !isLiberado 
                                                 ? "text-xs font-black text-white" 
-                                                : "text-[10px] font-bold text-stone-600"
+                                                : isUnavailable ? "text-[10px] font-bold text-stone-700" : "text-[10px] font-bold text-stone-600"
                                         )}>
                                             {time}
                                         </span>
                                     </div>
 
                                     <div className="flex-1 min-w-0">
-                                        {apt && !isBlocked ? (
+                                        {apt && !isBlocked && !isLiberado ? (
                                             <div className={cn(
                                                 "border transition-all group relative overflow-hidden h-16 flex items-center rounded-2xl p-2 px-3",
                                                 apt.status === 'completed' 
@@ -779,7 +933,6 @@ export default function AgendaPage() {
                                                     : "bg-stone-900/40 border-white/[0.03] hover:bg-stone-900/60 hover:border-white/[0.08]"
                                             )}>
                                                 <div className="flex items-center justify-between w-full gap-3">
-                                                    {/* Left: Avatar & Info */}
                                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                                         <div className={cn(
                                                             "h-9 w-9 rounded-full flex items-center justify-center text-[10px] font-black border shrink-0 shadow-inner",
@@ -810,7 +963,6 @@ export default function AgendaPage() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Right: Actions */}
                                                     <div className="flex items-center gap-2 shrink-0">
                                                         {apt.status === 'completed' ? (
                                                             <button 
@@ -827,58 +979,53 @@ export default function AgendaPage() {
                                                                 Concluir
                                                             </button>
                                                         )}
-
+                                                        
                                                         <div className="flex items-center gap-2">
                                                             <a 
-                                                                href={`https://wa.me/${apt.phone.replace(/\D/g, '')}`} 
+                                                                href={`https://wa.me/${apt.phone?.replace(/\D/g, '')}`} 
                                                                 target="_blank" 
                                                                 rel="noopener noreferrer" 
-                                                                className="h-9 w-9 rounded-full bg-stone-950 flex items-center justify-center text-green-500 border border-white/5 hover:bg-green-500/10 hover:border-green-500/20 transition-all shadow-lg"
+                                                                className="h-8 w-8 rounded-lg bg-stone-950 flex items-center justify-center text-green-500 border border-white/5 hover:bg-green-500/10 hover:border-green-500/20 transition-all shadow-sm"
                                                             >
-                                                                <MessageCircle className="h-4 w-4" fill="currentColor" fillOpacity={0.1} />
+                                                                <MessageCircle className="h-4 w-4" />
                                                             </a>
                                                             
                                                             <DropdownMenu>
                                                                 <DropdownMenuTrigger asChild>
-                                                                    <button className="h-9 w-9 rounded-full bg-stone-950 flex items-center justify-center text-stone-600 hover:text-white border border-white/5 hover:border-white/10 transition-all outline-none">
+                                                                    <button className="h-8 w-8 rounded-lg bg-stone-950 flex items-center justify-center text-stone-600 hover:text-white border border-white/5 hover:border-white/10 transition-all outline-none">
                                                                         <MoreVertical className="h-4 w-4" />
                                                                     </button>
                                                                 </DropdownMenuTrigger>
                                                                 <DropdownMenuContent 
                                                                     align="end" 
                                                                     sideOffset={4}
-                                                                    className="w-32 bg-stone-950/98 backdrop-blur-xl border border-white/10 rounded-2xl p-1 shadow-2xl animate-in fade-in zoom-in-95 duration-200"
+                                                                    className="w-48 bg-stone-950 border border-white/10 rounded-2xl p-1 shadow-2xl"
                                                                 >
                                                                     {!apt.customerId && (
                                                                         <DropdownMenuItem 
                                                                             onClick={() => { setClientToSave(apt); setIsSaveClientModalOpen(true); }}
-                                                                            className="flex items-center gap-2 px-1.5 py-1.5 text-[10px] font-semibold text-stone-400 focus:text-amber-500 focus:bg-amber-500/10 rounded-xl transition-all cursor-pointer group/item"
+                                                                            className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2"
                                                                         >
-                                                                            <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-amber-500/20 transition-colors">
-                                                                                <UserPlus className="h-3 w-3 transition-transform" />
-                                                                            </div>
-                                                                            <span>Salvar</span>
+                                                                            <UserPlus className="h-3.5 w-3.5" /> Salvar Cliente
                                                                         </DropdownMenuItem>
                                                                     )}
-                                                                    
                                                                     <DropdownMenuItem 
                                                                         onClick={() => { setEditingAppointment(apt); setIsAddModalOpen(true); }} 
-                                                                        className="flex items-center gap-2 px-1.5 py-1.5 text-[10px] font-semibold text-stone-400 focus:text-white focus:bg-white/5 rounded-xl transition-all cursor-pointer group/item"
+                                                                        className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2"
                                                                     >
-                                                                        <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-white/10 transition-colors">
-                                                                            <Pencil className="h-3 w-3 transition-transform" />
-                                                                        </div>
-                                                                        <span>Editar</span>
+                                                                        <Pencil className="h-3.5 w-3.5" /> Editar Dados
                                                                     </DropdownMenuItem>
-                                                                    
+                                                                    <DropdownMenuItem 
+                                                                        onClick={() => confirmAppointment(time)} 
+                                                                        className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2"
+                                                                    >
+                                                                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> Confirmar Presença
+                                                                    </DropdownMenuItem>
                                                                     <DropdownMenuItem 
                                                                         onClick={() => handleDelete(apt.id)} 
-                                                                        className="flex items-center gap-2 px-1.5 py-1.5 text-[10px] font-semibold text-stone-500/60 focus:text-red-500 focus:bg-red-500/10 rounded-xl transition-all cursor-pointer group/item mt-0.5"
+                                                                        className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2 text-red-500"
                                                                     >
-                                                                        <div className="h-6 w-6 rounded-lg bg-stone-900 flex items-center justify-center group-focus/item:bg-red-500/20 transition-colors">
-                                                                            <Trash2 className="h-3 w-3 transition-transform" />
-                                                                        </div>
-                                                                        <span>Excluir</span>
+                                                                        <Trash2 className="h-3.5 w-3.5" /> Excluir
                                                                     </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
@@ -888,49 +1035,80 @@ export default function AgendaPage() {
                                             </div>
                                         ) : (
                                             <div className={cn(
-                                                "flex items-center justify-between border border-dashed rounded-xl p-2.5 px-3.5 transition-all group cursor-pointer",
+                                                "border transition-all group relative overflow-hidden h-16 flex items-center rounded-2xl p-2 px-4 justify-between",
                                                 isBlocked 
-                                                    ? "border-red-500/20 bg-red-500/[0.03] hover:bg-red-500/[0.06] hover:border-red-500/30" 
-                                                    : "border-stone-800 hover:border-brand-primary/30 hover:bg-stone-900/40"
-                                            )}
-                                                onClick={() => { if (!isBlocked) { setActiveTime(time); setIsAddModalOpen(true); } }}>
+                                                    ? "bg-red-500/[0.03] border-red-500/10 hover:border-red-500/20 shadow-inner" 
+                                                    : isUnavailable
+                                                        ? "bg-stone-900/10 border-white/[0.03] hover:bg-stone-900/30 hover:border-white/5"
+                                                        : "bg-stone-900/20 border-white/[0.03] hover:bg-stone-900/40 hover:border-white/[0.08]"
+                                            )}>
                                                 <div className="flex items-center gap-3">
-                                                    <Clock className={cn(
-                                                        "h-3.5 w-3.5 transition-colors",
-                                                        isBlocked ? "text-red-500/40" : "text-stone-700 group-hover:text-brand-primary"
-                                                    )} />
-                                                    <span className={cn(
-                                                        "text-[10px] font-black uppercase tracking-widest transition-colors",
-                                                        isBlocked ? "text-red-500/60" : "text-stone-600 group-hover:text-stone-300"
+                                                    <div className={cn(
+                                                        "h-8 w-8 rounded-full border flex items-center justify-center shrink-0 transition-all",
+                                                        isBlocked ? "bg-red-500/10 border-red-500/20 text-red-500" : 
+                                                        isUnavailable ? "bg-stone-950 border-white/5 text-stone-500 group-hover:text-amber-500" :
+                                                        "bg-stone-950 border-white/5 text-stone-600 group-hover:border-brand-gold/20 group-hover:text-brand-gold"
                                                     )}>
-                                                        {isBlocked ? 'Bloqueado' : 'Disponível'}
-                                                    </span>
-                                                </div>
-                                                {!isBlocked && (
-                                                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
-                                                        <Button size="sm" variant="ghost" className="h-7 rounded-lg text-[9px] font-black uppercase tracking-widest text-brand-primary hover:bg-brand-primary/10 px-2.5">
-                                                            <Plus className="h-3 w-3 mr-1.5" /> Agendar
-                                                        </Button>
-                                                        <Button size="sm" variant="ghost" className="h-7 rounded-lg text-[9px] font-black uppercase tracking-widest text-stone-500 hover:text-red-500 px-2.5"
-                                                            onClick={(e) => { e.stopPropagation(); toggleSlot(time); }}>
-                                                            Bloquear
-                                                        </Button>
+                                                        {isBlocked ? <XCircle className="h-4 w-4" /> : isUnavailable ? <AlertCircle className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                                                     </div>
-                                                )}
-                                                {isBlocked && (
-                                                    <Button size="sm" variant="ghost" className="h-7 rounded-lg text-[9px] font-black uppercase tracking-widest text-red-500/50 hover:text-red-500 px-2.5 hover:bg-red-500/10"
-                                                        onClick={(e) => { e.stopPropagation(); toggleSlot(time); }}>
-                                                        Liberar
-                                                    </Button>
-                                                )}
+                                                    <div>
+                                                        <span className={cn(
+                                                            "text-[10px] font-black uppercase tracking-widest block mb-0.5",
+                                                            isBlocked ? "text-red-500/70" : 
+                                                            isUnavailable ? "text-stone-500 group-hover:text-stone-400" :
+                                                            "text-stone-600 group-hover:text-stone-300 transition-colors"
+                                                        )}>
+                                                            {isBlocked ? "Horário Bloqueado" : isUnavailable ? "Fora do Horário" : "Horário Livre"}
+                                                        </span>
+                                                        <span className={cn(
+                                                            "text-[9px] font-bold",
+                                                            isBlocked ? "text-red-500/40" : 
+                                                            isUnavailable ? "text-stone-700 group-hover:text-stone-600" :
+                                                            "text-stone-700"
+                                                        )}>
+                                                            {isBlocked ? "Indisponível para clientes" : isUnavailable ? "Liberação manual necessária" : "Disponível para agendamento"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    {isUnavailable ? (
+                                                        <button 
+                                                            onClick={() => toggleSlot(time)}
+                                                            className="h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 cursor-pointer shadow-lg bg-amber-500/20 text-amber-500 border border-amber-500/30 hover:bg-amber-600 hover:text-white"
+                                                        >
+                                                            Liberar Horário
+                                                        </button>
+                                                    ) : (
+                                                        <button 
+                                                            onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }}
+                                                            className="h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 cursor-pointer shadow-lg bg-brand-gold/10 text-brand-gold border border-brand-gold/20 hover:bg-brand-gold hover:text-stone-950"
+                                                        >
+                                                            Agendar
+                                                        </button>
+                                                    )}
+                                                    
+                                                    <button 
+                                                        onClick={() => toggleSlot(time)}
+                                                        className={cn(
+                                                            "h-8 w-8 rounded-lg flex items-center justify-center transition-all border border-white/5 opacity-0 group-hover:opacity-100",
+                                                            isBlocked 
+                                                                ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white" 
+                                                                : "bg-stone-950 text-stone-600 hover:text-red-500 hover:bg-red-500/10"
+                                                        )}
+                                                        title={isBlocked ? "Liberar Horário" : "Bloquear Horário"}
+                                                    >
+                                                        {isBlocked || isLiberado ? <CheckCircle2 className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
+                                                    </button>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                            );
+                            )
                         })}
-                    </div>
-
+                        </div>
+                    </TooltipProvider>
                 </div>
             </div>
 

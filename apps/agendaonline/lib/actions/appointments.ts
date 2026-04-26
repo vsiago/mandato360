@@ -129,3 +129,18 @@ export async function updateAppointmentStatusAction(appointmentId: string, tenan
         return { success: false, error: "Erro ao atualizar status." }
     }
 }
+
+export async function getPublicAppointmentsByDateAction(tenantId: string, date: string) {
+    try {
+        const list = await db.query.appointments.findMany({
+            where: and(
+                eq(appointments.tenantId, tenantId),
+                eq(appointments.date, date)
+            )
+        })
+        return { success: true, appointments: list }
+    } catch (error) {
+        console.error("Error fetching public appointments:", error)
+        return { success: false, error: "Erro ao buscar horários." }
+    }
+}

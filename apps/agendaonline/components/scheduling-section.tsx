@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Calendar as CalendarIcon, Clock, Check, ChevronLeft, ChevronRight, Loader2, User, Phone, ArrowRight } from "lucide-react"
-import { createPublicAppointmentAction } from "@/lib/actions/appointments"
+import { createPublicAppointmentAction, getPublicAppointmentsByDateAction } from "@/lib/actions/appointments"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -12,6 +12,7 @@ interface SchedulingSectionProps {
   services?: any[]
   initialServiceId?: string
   isModal?: boolean
+  businessHours?: any
 }
 
 interface SelDay {
@@ -21,26 +22,13 @@ interface SelDay {
 }
 
 const MONTHS_PT = [
-  "Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho",
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ]
 
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
 
-const SLOTS = [
-  { time: "08:00", tag: "Inicio", type: "free" },
-  { time: "09:00", tag: "Melhor", type: "best" },
-  { time: "10:00", tag: "Livre", type: "free" },
-  { time: "11:00", tag: "Melhor", type: "best" },
-  { time: "12:00", tag: "Intervalo", type: "free" },
-  { time: "13:00", tag: "Livre", type: "free" },
-  { time: "14:00", tag: "Livre", type: "free" },
-  { time: "15:00", tag: "Livre", type: "free" },
-  { time: "16:00", tag: "Ultimas vagas", type: "last" },
-  { time: "17:00", tag: "Livre", type: "free" },
-  { time: "18:00", tag: "Livre", type: "free" },
-  { time: "19:00", tag: "Noite", type: "free" },
-]
+const ALL_TIME_SLOTS = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
 
 function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   const steps = [
@@ -170,7 +158,7 @@ function CalendarPanel({ selDay, onSelect, onNext }: any) {
   )
 }
 
-function TimePanel({ selDay, selTime, onSelect, onBack, onNext }: any) {
+function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, isLoading }: any) {
   const formattedDate = new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { day: "numeric", month: "long" })
   return (
     <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500 text-left">
@@ -182,25 +170,44 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext }: any) {
         <p className="text-stone-500 text-[10px] leading-relaxed max-w-sm">Selecione o momento ideal para o seu atendimento exclusivo.</p>
       </div>
 
-      <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-2 p-5 md:p-6 overflow-y-auto max-h-60 custom-scrollbar flex-1 bg-stone-50/30">
-        {SLOTS.map(s => (
-          <button 
-            key={s.time} 
-            onClick={() => onSelect(s.time)} 
-            className={cn(
-                "py-3 rounded-lg border transition-all flex flex-col items-center gap-0.5 active:scale-95 group",
-                selTime === s.time 
-                  ? 'bg-tenant-primary border-tenant-primary text-white shadow-md' 
-                  : 'bg-white border-stone-200 text-stone-600 hover:border-tenant-primary hover:text-tenant-primary'
-            )}
-          >
-            <span className="text-base font-bold">{s.time}</span>
-            <span className={cn(
-              "text-[9px] font-bold uppercase tracking-wider",
-              selTime === s.time ? "text-white/70" : "text-stone-400 group-hover:text-tenant-primary"
-            )}>{s.tag}</span>
-          </button>
-        ))}
+      <div className="flex-1 overflow-y-auto bg-stone-50/30 p-5 md:p-6 min-h-[300px]">
+        {isLoading ? (
+          <div className="h-full w-full flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-8 h-8 text-tenant-primary animate-spin" />
+            <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Buscando horários...</p>
+          </div>
+        ) : availableSlots.length === 0 ? (
+          <div className="h-full w-full flex flex-col items-center justify-center gap-4 text-center px-6">
+            <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
+              <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-stone-900">Nenhum horário disponível</p>
+              <p className="text-[10px] text-stone-500 mt-1">Infelizmente não há mais vagas para esta data. Tente outro dia.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-2">
+            {availableSlots.map((s: any) => (
+              <button 
+                key={s.time} 
+                onClick={() => onSelect(s.time)} 
+                className={cn(
+                    "py-3 rounded-lg border transition-all flex flex-col items-center gap-0.5 active:scale-95 group",
+                    selTime === s.time 
+                      ? 'bg-tenant-primary border-tenant-primary text-white shadow-md' 
+                      : 'bg-white border-stone-200 text-stone-600 hover:border-tenant-primary hover:text-tenant-primary'
+                )}
+              >
+                <span className="text-base font-bold">{s.time}</span>
+                <span className={cn(
+                  "text-[9px] font-bold uppercase tracking-wider",
+                  selTime === s.time ? "text-white/70" : "text-stone-400 group-hover:text-tenant-primary"
+                )}>{s.tag}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between p-3 md:p-4 bg-white border-t border-stone-100">
@@ -316,7 +323,7 @@ function ConfirmPanel({ selDay, selTime, whatsappNumber, clientName, selectedSer
   )
 }
 
-export function SchedulingSection({ tenantId, whatsappNumber, services = [], initialServiceId, isModal = false }: SchedulingSectionProps) {
+export function SchedulingSection({ tenantId, whatsappNumber, services = [], initialServiceId, isModal = false, businessHours }: SchedulingSectionProps) {
   const [step, setStep] = React.useState<1 | 2 | 3 | 4>(1)
   const [selDay, setSelDay] = React.useState<SelDay | null>(null)
   const [selTime, setSelTime] = React.useState<string | null>(null)
@@ -324,10 +331,77 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
   const [customerPhone, setCustomerPhone] = React.useState("")
   const [isSaving, setIsSaving] = React.useState(false)
   const [serviceId, setServiceId] = React.useState<string>(initialServiceId || "")
+  const [availableSlots, setAvailableSlots] = React.useState<any[]>([])
+  const [isLoadingSlots, setIsLoadingSlots] = React.useState(false)
 
   React.useEffect(() => {
     if (initialServiceId) setServiceId(initialServiceId)
   }, [initialServiceId])
+
+  React.useEffect(() => {
+    if (step === 2 && selDay) {
+        fetchDayData()
+    }
+  }, [step, selDay])
+
+  const fetchDayData = async () => {
+    if (!selDay || !tenantId) return
+    setIsLoadingSlots(true)
+    const dateStr = selDay.y + '-' + (selDay.m + 1).toString().padStart(2, '0') + '-' + selDay.d.toString().padStart(2, '0')
+    
+    try {
+        const res = await getPublicAppointmentsByDateAction(tenantId, dateStr)
+        if (res.success && res.appointments) {
+            calculateSlots(res.appointments)
+        }
+    } catch (error) {
+        console.error("Error fetching slots:", error)
+    } finally {
+        setIsLoadingSlots(false)
+    }
+  }
+
+  const calculateSlots = (apts: any[]) => {
+    if (!selDay) return
+    const date = new Date(selDay.y, selDay.m, selDay.d)
+    const dayOfWeek = date.getDay().toString()
+    const config = businessHours?.[dayOfWeek]
+
+    const slots: any[] = []
+    
+    ALL_TIME_SLOTS.forEach(time => {
+        const apt = apts.find(a => a.time === time)
+        const isOccupied = apt && apt.status !== 'liberado' && apt.status !== 'cancelled'
+        const isBlocked = apt && apt.status === 'blocked'
+        const isLiberado = apt && apt.status === 'liberado'
+
+        let isOpen = false
+        if (config && config.isOpen) {
+            const [h, m] = time.split(':').map(Number)
+            const [openH, openM] = config.open.split(':').map(Number)
+            const [closeH, closeM] = config.close.split(':').map(Number)
+            const timeVal = h * 60 + m
+            const openVal = openH * 60 + openM
+            const closeVal = closeH * 60 + closeM
+            isOpen = timeVal >= openVal && timeVal < closeVal
+        }
+
+        // Available if: (Open by config OR Manual Liberado) AND NOT (Occupied OR Blocked)
+        const isAvailable = (isOpen || isLiberado) && !isOccupied && !isBlocked
+
+        if (isAvailable) {
+            let tag = "Livre"
+            if (isLiberado) tag = "Exceção"
+            else if (time < "12:00") tag = "Manhã"
+            else if (time < "18:00") tag = "Tarde"
+            else tag = "Noite"
+
+            slots.push({ time, tag })
+        }
+    })
+
+    setAvailableSlots(slots)
+  }
 
   const selectedService = services.find(s => s.id === serviceId)
 
@@ -389,7 +463,17 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
       
       <div className="flex-1 flex flex-col overflow-y-auto custom-scrollbar">
         {step === 1 && <CalendarPanel selDay={selDay} onSelect={(d: any) => { setSelDay(d); setSelTime(null); }} onNext={() => setStep(2)} />}
-        {step === 2 && selDay && <TimePanel selDay={selDay} selTime={selTime} onSelect={setSelTime} onBack={() => setStep(1)} onNext={() => setStep(3)} />}
+        {step === 2 && selDay && (
+          <TimePanel 
+            selDay={selDay} 
+            selTime={selTime} 
+            onSelect={setSelTime} 
+            onBack={() => setStep(1)} 
+            onNext={() => setStep(3)} 
+            availableSlots={availableSlots}
+            isLoading={isLoadingSlots}
+          />
+        )}
         {step === 3 && selDay && selTime && (
           <ContactPanel name={customerName} phone={customerPhone} setName={setCustomerName} setPhone={setCustomerPhone} onBack={() => setStep(2)} onNext={handleFinalize} isSaving={isSaving} />
         )}

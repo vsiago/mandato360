@@ -28,11 +28,22 @@ const DAYS_OF_WEEK = [
 
 export function BusinessHoursModal({ isOpen, onClose, tenant, onSuccess }: BusinessHoursModalProps) {
     const [loading, setLoading] = React.useState(false)
-    const [hours, setHours] = React.useState<any>(tenant?.businessHours || {})
+    const [hours, setHours] = React.useState<any>({})
 
     React.useEffect(() => {
         if (isOpen && tenant) {
-            setHours(tenant.businessHours || {})
+            const initial = { ...tenant.businessHours }
+            // Ensure defaults if missing
+            DAYS_OF_WEEK.forEach(day => {
+                if (!initial[day.id]) {
+                    initial[day.id] = {
+                        isOpen: day.id !== '0', // Sunday closed by default
+                        start: "08:00",
+                        end: day.id === '6' ? "12:00" : "18:00"
+                    }
+                }
+            })
+            setHours(initial)
         }
     }, [isOpen, tenant])
 
