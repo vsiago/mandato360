@@ -677,9 +677,9 @@ export default function AgendaPage() {
                 </div>
 
                 {/* Desktop 3-column body */}
-                <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_minmax(300px,360px)_minmax(300px,360px)] gap-4 px-2 pb-2">
-                    {/* ── LEFT COLUMN: Timeline ── */}
-                    <div className="flex flex-col min-h-0 gap-4 relative">
+                <div className="flex-1 min-h-0 grid grid-cols-[minmax(300px,360px)_minmax(0,1fr)_minmax(300px,360px)] gap-4 px-2 pb-2">
+                    {/* ── CENTER COLUMN (Visual): Timeline ── */}
+                    <div className="flex flex-col min-h-0 gap-4 relative order-2">
                         {/* Date picker Card */}
                         <div className="shrink-0 h-[116px] rounded-2xl border border-white/5 bg-stone-900/30 flex items-center shadow-lg relative overflow-hidden">
                             <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-stone-900/20 hover:bg-stone-800/30 transition-all shrink-0 border-r border-white/5 cursor-pointer">
@@ -837,8 +837,8 @@ export default function AgendaPage() {
                     </div>
                 </div>
 
-                {/* ── CENTER COLUMN: Details + States ── */}
-                    <div className="flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+                {/* ── RIGHT COLUMN (Visual): Details + States ── */}
+                    <div className="flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1 order-3">
                         <DesktopDetailsPanel
                             apt={selectedAppointment}
                             onEdit={handleEdit}
@@ -855,8 +855,8 @@ export default function AgendaPage() {
                         />
                     </div>
 
-                    {/* ── RIGHT COLUMN: Calendar + Summary + Free Slots ── */}
-                    <div className="flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+                    {/* ── LEFT COLUMN (Visual): Calendar + Summary + Free Slots ── */}
+                    <div className="flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1 order-1">
                         <DesktopMiniCalendar
                             currentMonth={currentMonth}
                             setCurrentMonth={setCurrentMonth}
