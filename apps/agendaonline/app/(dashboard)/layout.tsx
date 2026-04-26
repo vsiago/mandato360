@@ -81,6 +81,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { theme, setTheme } = useTheme()
     const [tenant, setTenant] = useState<TenantData | null>(null)
     const [isCollapsed, setIsCollapsed] = useState(false)
+    const [mounted, setMounted] = useState(false)
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
     useEffect(() => {
         getMyTenant().then(setTenant).catch(() => {})
@@ -271,84 +276,85 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
 
                     <div className="flex items-center gap-4">
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <button className="flex items-center gap-3 px-3 py-1.5 outline-hidden group hover:bg-stone-200/40 dark:hover:bg-stone-800/30 rounded-lg transition-all cursor-pointer">
-                                    <div className="hidden sm:flex flex-col items-end">
-                                        <p className="text-xs font-medium text-stone-600 dark:text-stone-300 leading-none truncate max-w-30">{session?.user?.name || "Usuário"}</p>
-                                        <p className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 leading-none truncate max-w-30">{session?.user?.email}</p>
-                                    </div>
-                                    <Avatar className="h-8 w-8 ring-1 ring-stone-200/60 dark:ring-stone-800/40">
-                                        {(tenant?.founder?.imageUrl || session?.user?.image) && (
-                                            <img 
-                                                src={tenant?.founder?.imageUrl || session?.user?.image || ""} 
-                                                alt={session?.user?.name || ""} 
-                                                className="h-full w-full object-cover"
-                                            />
-                                        )}
-                                        <AvatarFallback className="bg-stone-100 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 text-[10px] font-bold">
-                                            {session?.user?.name?.slice(0, 2).toUpperCase() || "US"}
-                                        </AvatarFallback>
-                                    </Avatar>
-                                    <ChevronDown className="h-3.5 w-3.5 text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-200 transition-colors" />
-                                </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl border-stone-200/40 dark:border-stone-800/60 shadow-xl dark:bg-stone-950 backdrop-blur-xl">
-                                <DropdownMenuLabel className="px-3 py-2">
-                                    <p className="text-xs font-semibold text-foreground truncate">{session?.user?.name || "Usuário"}</p>
-                                    <p className="text-[10px] text-muted-foreground truncate">{session?.user?.email}</p>
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuGroup>
-                                    {USER_DROPDOWN_ITEMS.map((item) => (
-                                        <Link key={item.href} href={item.href}>
-                                            <DropdownMenuItem className="gap-3 px-3 py-2 rounded-lg cursor-pointer">
-                                                <item.icon className="h-4 w-4" />
-                                                <span>{item.label}</span>
-                                            </DropdownMenuItem>
-                                        </Link>
-                                    ))}
-                                </DropdownMenuGroup>
-                                <DropdownMenuSeparator />
-                                <div className="p-1.5">
-                                    <div className="flex p-1 bg-stone-100 dark:bg-stone-900 rounded-lg border border-stone-200/40 dark:border-stone-800/60 gap-1">
-                                        <button
-                                            onClick={() => setTheme("light")}
-                                            className={cn(
-                                                "flex-1 flex items-center justify-center gap-2 py-1.5 px-3 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
-                                                theme === "light"
-                                                    ? "bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-sm ring-1 ring-stone-950/5 dark:ring-white/10"
-                                                    : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
+                        {mounted && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="flex items-center gap-3 px-3 py-1.5 outline-hidden group hover:bg-stone-200/40 dark:hover:bg-stone-800/30 rounded-lg transition-all cursor-pointer">
+                                        <div className="hidden sm:flex flex-col items-end">
+                                            <p className="text-xs font-medium text-stone-600 dark:text-stone-300 leading-none truncate max-w-30">{session?.user?.name || "Usuário"}</p>
+                                            <p className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 leading-none truncate max-w-30">{session?.user?.email}</p>
+                                        </div>
+                                        <Avatar className="h-8 w-8 ring-1 ring-stone-200/60 dark:ring-stone-800/40">
+                                            {(tenant?.founder?.imageUrl || session?.user?.image) && (
+                                                <img 
+                                                    src={tenant?.founder?.imageUrl || session?.user?.image || ""} 
+                                                    alt={session?.user?.name || ""} 
+                                                    className="h-full w-full object-cover"
+                                                />
                                             )}
-                                        >
-                                            <Sun className="h-3 w-3" />
-                                            <span>Light</span>
-                                        </button>
-                                        <button
-                                            onClick={() => setTheme("dark")}
-                                            className={cn(
-                                                "flex-1 flex items-center justify-center gap-2 py-1.5 px-3 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
-                                                theme === "dark"
-                                                    ? "bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-sm ring-1 ring-stone-950/5 dark:ring-white/10"
-                                                    : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
-                                            )}
-                                        >
-                                            <Moon className="h-3 w-3" />
-                                            <span>Dark</span>
-                                        </button>
+                                            <AvatarFallback className="bg-stone-100 dark:bg-stone-800/60 text-stone-500 dark:text-stone-400 text-[10px] font-bold">
+                                                {session?.user?.name?.slice(0, 2).toUpperCase() || "US"}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <ChevronDown className="h-3.5 w-3.5 text-stone-400 group-hover:text-stone-600 dark:group-hover:text-stone-200 transition-colors" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-xl border-stone-200/40 dark:border-stone-800/60 shadow-xl dark:bg-stone-950 backdrop-blur-xl">
+                                    <DropdownMenuLabel className="px-3 py-2">
+                                        <p className="text-xs font-semibold text-foreground truncate">{session?.user?.name || "Usuário"}</p>
+                                        <p className="text-[10px] text-muted-foreground truncate">{session?.user?.email}</p>
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuGroup>
+                                        {USER_DROPDOWN_ITEMS.map((item) => (
+                                            <Link key={item.href} href={item.href}>
+                                                <DropdownMenuItem className="gap-3 px-3 py-2 rounded-lg cursor-pointer">
+                                                    <item.icon className="h-4 w-4" />
+                                                    <span>{item.label}</span>
+                                                </DropdownMenuItem>
+                                            </Link>
+                                        ))}
+                                    </DropdownMenuGroup>
+                                    <DropdownMenuSeparator />
+                                    <div className="p-1.5">
+                                        <div className="flex p-1 bg-stone-100 dark:bg-stone-900 rounded-lg border border-stone-200/40 dark:border-stone-800/60 gap-1">
+                                            <button
+                                                onClick={() => setTheme("light")}
+                                                className={cn(
+                                                    "flex-1 flex items-center justify-center gap-2 py-1.5 px-3 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
+                                                    theme === "light"
+                                                        ? "bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-sm ring-1 ring-stone-950/5 dark:ring-white/10"
+                                                        : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
+                                                )}
+                                            >
+                                                <Sun className="h-3 w-3" />
+                                                <span>Light</span>
+                                            </button>
+                                            <button
+                                                onClick={() => setTheme("dark")}
+                                                className={cn(
+                                                    "flex-1 flex items-center justify-center gap-2 py-1.5 px-3 rounded-md text-[11px] font-semibold transition-all cursor-pointer",
+                                                    theme === "dark"
+                                                        ? "bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-sm ring-1 ring-stone-950/5 dark:ring-white/10"
+                                                        : "text-stone-500 hover:text-stone-700 dark:hover:text-stone-300"
+                                                )}
+                                            >
+                                                <Moon className="h-3 w-3" />
+                                                <span>Dark</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                    onClick={handleLogout}
-                                    className="gap-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/20 cursor-pointer"
-                                >
-                                    <LogOut className="h-4 w-4" />
-                                    <span>Sair</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                        onClick={handleLogout}
+                                        className="gap-3 px-3 py-2 rounded-lg text-red-600 dark:text-red-400 focus:bg-red-50 dark:focus:bg-red-950/20 cursor-pointer"
+                                    >
+                                        <LogOut className="h-4 w-4" />
+                                        <span>Sair</span>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </div>
                 </header>
 

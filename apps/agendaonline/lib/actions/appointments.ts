@@ -1,6 +1,6 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
+import { revalidatePath, unstable_noStore as noStore } from "next/cache"
 import { db } from "@/db"
 import { appointments } from "@/db/schema"
 import { auth } from "@/lib/auth"
@@ -54,6 +54,7 @@ export async function createPublicAppointmentAction(data: {
 export const createAppointmentAction = createPublicAppointmentAction
 
 export async function getAppointmentsByTenantAction(tenantId: string) {
+    noStore();
     try {
         const session = await getAuthSession()
         if (!session?.user) return { success: false, error: "Não autorizado." }

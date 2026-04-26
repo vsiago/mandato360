@@ -81,6 +81,12 @@ const STATUS_MAP = {
 export default function AgendaPage() {
     const [currentMonth, setCurrentMonth] = useState(new Date())
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+    const [currentTime, setCurrentTime] = useState(new Date())
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 60000)
+        return () => clearInterval(timer)
+    }, [])
     const [appointments, setAppointments] = useState<Record<string, any[]>>({})
     const [services, setServices] = useState<any[]>([])
     const [tenantId, setTenantId] = useState<string | null>(null)
@@ -127,29 +133,70 @@ export default function AgendaPage() {
         loadInitialData()
     }, [])
 
-    const fetchAppointments = async (tId: string) => {
+    const fetchAppointments = async (tId: string, specificDate?: string) => {
         const res = await getAppointmentsByTenantAction(tId)
         if (res.success && res.appointments) {
-            const grouped: Record<string, any[]> = {}
+            const serverGrouped: Record<string, any[]> = {}
             res.appointments.forEach((apt: any) => {
-                const dateKey = apt.date
-                if (!grouped[dateKey]) grouped[dateKey] = []
+                const dateKey = apt.date.trim()
+                if (!serverGrouped[dateKey]) serverGrouped[dateKey] = []
                 
-                grouped[dateKey].push({
+                serverGrouped[dateKey].push({
                     id: apt.id,
-                    time: apt.time,
+                    time: apt.time.split(':').slice(0, 2).join(':'), // Normalize to HH:MM
                     name: apt.customerName || "Cliente",
                     phone: apt.customerPhone || "",
                     serviceId: apt.serviceId,
                     service: services.find(s => s.id === apt.serviceId)?.name || (apt.status === "blocked" ? "-" : "Serviço"),
-                    status: apt.status as "pending" | "confirmed" | "cancelled" | "blocked" | "completed",
+                    status: apt.status as any,
                     price: services.find(s => s.id === apt.serviceId)?.price 
                         ? `R$ ${parseFloat(services.find(s => s.id === apt.serviceId).price).toFixed(0)}` 
                         : (apt.status === "blocked" ? "-" : "R$ 0"),
                     notes: apt.notes
                 })
             })
-            setAppointments(grouped)
+            
+            setAppointments(prev => {
+                const nextState = { ...prev }
+                const datesToSync = specificDate ? [specificDate] : Object.keys(serverGrouped)
+                
+                datesToSync.forEach(date => {
+                    const serverData = serverGrouped[date] || []
+                    const currentData = prev[date] || []
+                    
+                    // MERGE LOGIC: 
+                    // 1. We trust the server for IDs it returns.
+                    // 2. We keep local optimistic ones that haven't been saved yet.
+                    // 3. We keep local "stable" ones that the server might have missed due to replication lag (for a grace period).
+                    
+                    const merged = [...serverData]
+                    
+                    currentData.forEach(localApt => {
+                        const existsInServer = serverData.some(s => s.id === localApt.id)
+                        if (!existsInServer) {
+                            // If it's optimistic, definitely keep it
+                            if (localApt.isOptimistic) {
+                                merged.push(localApt)
+                            } else {
+                                // If it was stable but now missing, it might be a deletion or lag.
+                                // For now, let's trust the server if it's a specific fetch,
+                                // but if it's a general fetch, we might want to be careful.
+                                // Actually, let's add a "recentlySeen" check if needed, but for now
+                                // let's just ensure we don't wipe everything if serverData is empty but currentData wasn't.
+                                if (serverData.length === 0 && currentData.length > 0) {
+                                    // Extreme safety: if server returns NOTHING for a day that HAD things, 
+                                    // and we were only doing a quick sync, maybe it's a transient error.
+                                    // But if we trust noStore(), we should trust the empty result.
+                                }
+                            }
+                        }
+                    })
+                    
+                    nextState[date] = merged.sort((a, b) => a.time.localeCompare(b.time))
+                })
+                
+                return nextState
+            })
         }
     }
 
@@ -204,6 +251,38 @@ export default function AgendaPage() {
     const numRows = Math.ceil((daysInMonth + firstDay) / 7)
 
     const dayAppointments = appointments[selectedDate] || []
+
+    // ── Metrics Calculation ──
+    const todayAppointmentsCount = dayAppointments.filter(a => a.status === 'confirmed' || a.status === 'completed' || a.status === 'pending').length;
+    
+    const next7DaysCount = Object.entries(appointments).reduce((acc, [date, apts]) => {
+        const d = new Date(date + 'T12:00:00');
+        const now = new Date();
+        now.setHours(0,0,0,0);
+        const diff = (d.getTime() - now.getTime()) / (1000 * 3600 * 24);
+        if (diff >= 0 && diff <= 7) {
+            return acc + apts.filter(a => a.status === 'confirmed' || a.status === 'completed' || a.status === 'pending').length;
+        }
+        return acc;
+    }, 0);
+
+    const occupancyRate = (() => {
+        if (!tenant?.businessHours) return "0%";
+        const dw = new Date(selectedDate + 'T12:00:00').getDay().toString();
+        const conf = tenant.businessHours[dw];
+        if (!conf?.isOpen) return "0%";
+        
+        const sM = parseInt(conf.start.split(':')[0]) * 60 + parseInt(conf.start.split(':')[1]);
+        const eM = parseInt(conf.end.split(':')[0]) * 60 + parseInt(conf.end.split(':')[1]);
+        const bSlots = TIME_SLOTS.filter(t => {
+            const [h, m] = t.split(':').map(Number);
+            const mins = h * 60 + m;
+            return mins >= sM && mins < eM;
+        });
+        if (bSlots.length === 0) return "0%";
+        const occ = dayAppointments.filter(a => a.status === 'confirmed' || a.status === 'completed' || a.status === 'pending').length;
+        return `${Math.round((occ / bSlots.length) * 100)}%`;
+    })();
 
     const handleBlockDay = async (dateKey: string) => {
         if (!tenantId) return;
@@ -302,38 +381,64 @@ export default function AgendaPage() {
 
     const toggleSlot = async (time: string) => {
         if (!tenantId) return;
-        const currentDayApts = appointments[selectedDate] || [];
-        const existingApt = currentDayApts.find(a => a.time === time);
 
-        if (existingApt) {
-            if (existingApt.status === "blocked" || existingApt.status === "liberado") {
-                const res = await deleteAppointmentAction(existingApt.id, tenantId);
-                if (res.success) {
-                    setAppointments(prev => ({
+        // Optimistic Update using functional state
+        setAppointments(prev => {
+            const currentData = prev[selectedDate] || [];
+            const existingApt = currentData.find(a => a.time === time);
+            
+            if (existingApt) {
+                if (existingApt.status === "blocked" || existingApt.status === "liberado") {
+                    return {
                         ...prev,
-                        [selectedDate]: currentDayApts.filter(a => a.time !== time)
-                    }));
-                    toast.success("Horário restaurado ao padrão.");
+                        [selectedDate]: currentData.filter(a => a.time !== time)
+                    };
                 }
+                return prev; // Don't toggle booked slots
+            } else {
+                const isOpenByConfig = isTimeOpen(selectedDate, time);
+                const status = isOpenByConfig ? "blocked" : "liberado";
+                const customerName = isOpenByConfig ? "Bloqueio Manual" : "Liberado Manualmente";
+                
+                return {
+                    ...prev,
+                    [selectedDate]: [...currentData, { 
+                        id: `opt-${Date.now()}`, 
+                        time, 
+                        name: customerName, 
+                        status: status as any,
+                        isOptimistic: true,
+                        service: "-",
+                        price: "-"
+                    }].sort((a, b) => a.time.localeCompare(b.time))
+                };
             }
-            return;
-        }
+        });
 
-        // Se está fora do horário, o clique no botão "Liberar" deve criar um status especial
-        const isOpenByConfig = isTimeOpen(selectedDate, time);
-        const status = isOpenByConfig ? "blocked" : "liberado";
-        const customerName = isOpenByConfig ? "Bloqueio Manual" : "Horário Liberado (Exceção)";
+        try {
+            const currentDayApts = appointments[selectedDate] || [];
+            const existingApt = currentDayApts.find(a => a.time === time);
 
-        const res = await createPublicAppointmentAction({
-            tenantId, customerName, customerPhone: "", date: selectedDate, time, status
-        } as any);
+            if (existingApt) {
+                if (existingApt.status === "blocked" || existingApt.status === "liberado") {
+                    await deleteAppointmentAction(existingApt.id, tenantId);
+                }
+            } else {
+                const isOpenByConfig = isTimeOpen(selectedDate, time);
+                const status = isOpenByConfig ? "blocked" : "liberado";
+                const customerName = isOpenByConfig ? "Bloqueio Manual" : "Liberado Manualmente";
 
-        if (res.success && res.appointment) {
-            setAppointments(prev => ({
-                ...prev,
-                [selectedDate]: [...currentDayApts, { id: res.appointment.id, time, name: customerName, status: status as any }].sort((a, b) => a.time.localeCompare(b.time))
-            }));
-            toast.success(status === "blocked" ? "Horário bloqueado." : "Horário liberado para clientes.");
+                await createPublicAppointmentAction({
+                    tenantId, customerName, customerPhone: "", date: selectedDate, time, status
+                } as any);
+            }
+            
+            setTimeout(() => {
+                fetchAppointments(tenantId, selectedDate);
+            }, 1500);
+        } catch (error) {
+            toast.error("Erro ao atualizar status do horário.");
+            fetchAppointments(tenantId, selectedDate);
         }
     };
 
@@ -351,33 +456,44 @@ export default function AgendaPage() {
     };
 
     const handleAddSuccess = (newApt: any) => {
+        setIsAddModalOpen(false)
+        setEditingAppointment(null)
+
+        if (!tenantId) return;
+
+        // Force optimistic update with proper formatting and flag
         const formattedApt = {
             id: newApt.id,
             time: newApt.time,
-            name: newApt.customerName,
-            phone: newApt.customerPhone,
-            service: services.find(s => s.id === newApt.serviceId)?.name || "Serviço",
-            status: newApt.status,
-            price: services.find(s => s.id === newApt.serviceId)?.price ? `R$ ${parseFloat(services.find(s => s.id === newApt.serviceId).price).toFixed(0)}` : "-"
+            name: newApt.customerName || "Cliente",
+            phone: newApt.customerPhone || "",
+            service: services.find(s => s.id === newApt.serviceId)?.name || (newApt.status === "blocked" ? "-" : "Serviço"),
+            status: newApt.status as any,
+            isOptimistic: true,
+            price: services.find(s => s.id === newApt.serviceId)?.price 
+                ? `R$ ${parseFloat(services.find(s => s.id === newApt.serviceId).price).toFixed(0)}` 
+                : (newApt.status === "blocked" ? "-" : "R$ 0"),
+            notes: newApt.notes || ""
         };
 
         const day = newApt.date;
-        const currentDayApts = appointments[day] || [];
+        setAppointments(prev => {
+            const currentDayApts = prev[day] || [];
+            const filtered = currentDayApts.filter(a => a.id !== newApt.id);
+            const newList = [...filtered, formattedApt].sort((a, b) => a.time.localeCompare(b.time));
+            return {
+                ...prev,
+                [day]: newList
+            };
+        });
+
+        // Delay background sync slightly more to ensure DB propagation
+        setTimeout(() => {
+            fetchAppointments(tenantId, day);
+        }, 1200);
         
-        // If editing, replace. If new, add.
-        if (editingAppointment) {
-            setAppointments(prev => ({
-                ...prev,
-                [day]: currentDayApts.map(a => a.id === newApt.id ? formattedApt : a)
-            }));
-        } else {
-            setAppointments(prev => ({
-                ...prev,
-                [day]: [...currentDayApts, formattedApt].sort((a, b) => a.time.localeCompare(b.time))
-            }));
-        }
-        setEditingAppointment(null);
-    }
+        toast.success("Agendamento processado!");
+    };
 
     const handleCompleteConfirm = async (paymentMethod: string) => {
         if (!appointmentToComplete || !tenantId) return;
@@ -795,9 +911,9 @@ export default function AgendaPage() {
                     {/* Metrics Bar */}
                     <div className="shrink-0 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                         {[
-                            { label: "Agendamentos hoje", value: "1", sub: "Veja seu dia completo", icon: CalendarDays },
-                            { label: "Próximos 7 dias", value: "5", sub: "Agendamentos", icon: CalendarIcon },
-                            { label: "Taxa de ocupação", value: "68%", sub: "Da sua agenda", icon: TrendingUp },
+                            { label: "Agendamentos hoje", value: todayAppointmentsCount.toString(), sub: "Veja seu dia completo", icon: CalendarDays },
+                            { label: "Próximos 7 dias", value: next7DaysCount.toString(), sub: "Agendamentos", icon: CalendarIcon },
+                            { label: "Taxa de ocupação", value: occupancyRate, sub: "Da sua agenda", icon: TrendingUp },
                             { 
                                 label: "Horário disponível", 
                                 value: (() => {
@@ -862,20 +978,19 @@ export default function AgendaPage() {
                             className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar scroll-smooth relative z-20"
                         >
                             {TIME_SLOTS.map((time) => {
-                            const now = new Date();
-                            const isToday = selectedDate === now.toISOString().split('T')[0];
-                            const nowTime = now.getHours() * 60 + now.getMinutes();
-                            const nextSlot = TIME_SLOTS.find(t => {
-                                const [h, m] = t.split(':').map(Number);
-                                return (h * 60 + m) > nowTime;
-                            }) || "08:00";
-                            const isNextSlot = isToday && time === nextSlot;
+                             const isToday = selectedDate === currentTime.toISOString().split('T')[0];
+                             const nowTime = currentTime.getHours() * 60 + currentTime.getMinutes();
+                             const nextSlot = TIME_SLOTS.find(t => {
+                                 const [h, m] = t.split(':').map(Number);
+                                 return (h * 60 + m) > nowTime;
+                             }) || "08:00";
+                             const isNextSlot = isToday && time === nextSlot;
 
-                            const apt = dayAppointments.find(a => a.time === time);
-                            const isOpenByConfig = isTimeOpen(selectedDate, time);
-                            const isBlocked = apt?.status === "blocked";
-                            const isLiberado = apt?.status === "liberado";
-                            const isUnavailable = !isOpenByConfig && !isLiberado;
+                             const apt = dayAppointments.find(a => a.time === time);
+                             const isOpenByConfig = isTimeOpen(selectedDate, time);
+                             const isBlocked = apt?.status === "blocked";
+                             const isLiberado = apt?.status === "liberado";
+                             const isUnavailable = !isOpenByConfig && !isLiberado;
 
                             return (
                                 <div 
@@ -1075,14 +1190,14 @@ export default function AgendaPage() {
                                                     {isUnavailable ? (
                                                         <button 
                                                             onClick={() => toggleSlot(time)}
-                                                            className="h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 cursor-pointer shadow-lg bg-amber-500/20 text-amber-500 border border-amber-500/30 hover:bg-amber-600 hover:text-white"
+                                                            className="h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500 hover:text-stone-950"
                                                         >
                                                             Liberar Horário
                                                         </button>
                                                     ) : (
                                                         <button 
                                                             onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }}
-                                                            className="h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 cursor-pointer shadow-lg bg-brand-gold/10 text-brand-gold border border-brand-gold/20 hover:bg-brand-gold hover:text-stone-950"
+                                                            className="h-8 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all opacity-0 group-hover:opacity-100 cursor-pointer shadow-lg bg-brand-gold/10 text-brand-gold border border-brand-gold/20 hover:bg-brand-gold hover:text-stone-950"
                                                         >
                                                             Agendar
                                                         </button>
