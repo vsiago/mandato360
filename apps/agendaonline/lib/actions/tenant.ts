@@ -60,7 +60,10 @@ function mapTenantToDb(data: Partial<TenantData>) {
         // Theme
         theme: data.theme,
         designSystem: data.designSystem,
-        config: data.config,
+        config: {
+            ...(data.config || {}),
+            pix: data.pix || (data.config as any)?.pix
+        },
         updatedAt: new Date(),
     }
 }
@@ -109,6 +112,7 @@ function mapDbToTenantPartial(t: typeof tenants.$inferSelect) {
         theme: t.theme || "neutro",
         designSystem: t.designSystem,
         config: t.config,
+        pix: (t.config as any)?.pix,
         onboardingCompleted: t.onboardingCompleted,
     }
 }

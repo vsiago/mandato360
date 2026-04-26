@@ -39,6 +39,12 @@ export interface TenantConfig {
   designSystem?: any
   config?: any
 
+  // PIX Configuration
+  pix?: {
+    type: 'email' | 'phone' | 'cpf_cnpj' | 'random'
+    key: string
+  }
+
   // Services & Categories
   services: TenantService[]
   categories: TenantCategory[]

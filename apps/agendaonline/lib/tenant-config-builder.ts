@@ -103,6 +103,7 @@ export async function buildTenantConfig(
     theme: tenantDb.theme || "neutro",
     designSystem: tenantDb.designSystem,
     config: tenantDb.config,
+    pix: (tenantDb.config as any)?.pix,
   })
 
   // 7. Format services and categories
@@ -275,6 +276,7 @@ export function configToTenantData(config: TenantConfig): TenantData {
     theme: config.theme,
     designSystem: config.designSystem,
     config: config.config,
+    pix: config.pix,
 
     createdAt: config.metadata.createdAt,
     updatedAt: config.metadata.updatedAt,
