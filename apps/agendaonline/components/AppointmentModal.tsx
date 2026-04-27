@@ -65,9 +65,20 @@ export function AppointmentModal({
                 setName(appointment.name || "")
                 setPhone(appointment.phone || "")
                 
-                // Parse multiple services if they exist in notes as JSON
+                // Parse multiple services if they exist
                 let ids = [appointment.serviceId].filter(Boolean)
-                if (appointment.notes?.startsWith('{"serviceIds"')) {
+                if (appointment.serviceIds && Array.isArray(appointment.serviceIds) && appointment.serviceIds.length > 0) {
+                    ids = appointment.serviceIds
+                } else if (appointment.rawNotes?.startsWith('{"serviceIds"')) {
+                    try {
+                        const data = JSON.parse(appointment.rawNotes)
+                        if (Array.isArray(data.serviceIds)) {
+                            ids = data.serviceIds
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse services from rawNotes", e)
+                    }
+                } else if (appointment.notes?.startsWith('{"serviceIds"')) {
                     try {
                         const data = JSON.parse(appointment.notes)
                         if (Array.isArray(data.serviceIds)) {

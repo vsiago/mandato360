@@ -167,11 +167,13 @@ export default function AgendaPage() {
                         name: apt.customerName || "Cliente",
                         phone: apt.customerPhone || "",
                         serviceId: apt.serviceId,
+                        serviceIds: serviceIds,
                         service: allServiceNames[0] || (apt.status === "blocked" ? "-" : "Serviço"),
                         allServices: allServiceNames,
                         status: apt.status as any,
                         price: totalPrice > 0 ? `R$ ${totalPrice.toFixed(0)}` : (apt.status === "blocked" ? "-" : "R$ 0"),
-                        notes: displayNotes
+                        notes: displayNotes,
+                        rawNotes: apt.notes
                     })
                 })
             
@@ -617,7 +619,9 @@ export default function AgendaPage() {
             time: apt.time,
             status: apt.status,
             serviceId: apt.serviceId,
-            notes: apt.notes
+            serviceIds: apt.serviceIds,
+            notes: apt.notes,
+            rawNotes: apt.rawNotes
         });
         setActiveTime(apt.time);
         setIsAddModalOpen(true);

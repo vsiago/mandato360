@@ -282,8 +282,11 @@ export function DesktopMiniCalendar({ currentMonth, setCurrentMonth, selectedDat
                     <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="h-7 w-7 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
                         <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <button onClick={() => setCurrentMonth(new Date())} className="h-7 px-3 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-xs font-semibold text-stone-300 hover:text-white transition-all cursor-pointer">
+                    <button onClick={() => setCurrentMonth(new Date())} className="h-7 px-3 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-[10px] font-bold text-stone-300 hover:text-white transition-all cursor-pointer uppercase tracking-widest">
                         Hoje
+                    </button>
+                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="h-7 w-7 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
+                        <ChevronRight className="h-4 w-4" />
                     </button>
                 </div>
             </div>
