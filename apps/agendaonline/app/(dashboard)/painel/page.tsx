@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, Suspense } from "react"
+import { useState, useEffect, Suspense, useMemo } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
@@ -11,18 +11,29 @@ import {
     Loader2, Share2, Info, ChevronRight, Pencil, Plus, MoreVertical,
     Lightbulb, ChevronDown
 } from "lucide-react"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Link from "next/link"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { getMyTenant } from "@/lib/tenant-api"
+import { getAppointmentsByTenantAction } from "@/lib/actions/appointments"
+import { getServicesAction } from "@/lib/actions/services"
 import type { TenantData } from "@/lib/tenant-types"
 
 function PainelContent() {
     const [tenant, setTenant] = useState<TenantData | null>(null)
     const [loading, setLoading] = useState(true)
     const [showChecklist, setShowChecklist] = useState(true)
+    const [agendaFilter, setAgendaFilter] = useState("Hoje")
+    const [appointments, setAppointments] = useState<any[]>([])
+    const [services, setServices] = useState<any[]>([])
     const searchParams = useSearchParams()
 
     useEffect(() => {
@@ -37,13 +48,59 @@ function PainelContent() {
     }, [searchParams])
 
     useEffect(() => {
-        getMyTenant().then(data => {
+        getMyTenant().then(async data => {
             setTenant(data)
+            if (data?.id) {
+                // Fetch services
+                const svcRes = await getServicesAction(data.id)
+                if (svcRes.success && svcRes.services) {
+                    setServices(svcRes.services)
+                }
+                
+                // Fetch appointments
+                const aptRes = await getAppointmentsByTenantAction(data.id)
+                if (aptRes.success && aptRes.appointments) {
+                    setAppointments(aptRes.appointments)
+                }
+            }
             setLoading(false)
             const dismissed = localStorage.getItem("agenda_checklist_dismissed_v2")
             if (dismissed === "true") setShowChecklist(false)
         }).catch(() => setLoading(false))
     }, [])
+
+    const filteredAppointments = useMemo(() => {
+        if (!appointments.length) return [];
+        
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // Format to YYYY-MM-DD using local time
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+        const tomorrowStr = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`;
+        
+        const next7Days = new Date(today);
+        next7Days.setDate(next7Days.getDate() + 7);
+        const next7Str = `${next7Days.getFullYear()}-${pad(next7Days.getMonth() + 1)}-${pad(next7Days.getDate())}`;
+
+        let filtered = appointments;
+
+        if (agendaFilter === "Hoje") {
+            filtered = appointments.filter(a => a.date === todayStr);
+        } else if (agendaFilter === "Amanhã") {
+            filtered = appointments.filter(a => a.date === tomorrowStr);
+        } else if (agendaFilter === "Próximos 7 dias") {
+            filtered = appointments.filter(a => a.date >= todayStr && a.date <= next7Str);
+        }
+        
+        // Sort by date and time
+        return filtered.sort((a, b) => {
+            if (a.date !== b.date) return a.date.localeCompare(b.date);
+            return a.time.localeCompare(b.time);
+        }).slice(0, 5); // Limit to top 5 on dashboard
+    }, [appointments, agendaFilter]);
 
     const greeting = () => {
         const h = new Date().getHours()
@@ -156,27 +213,26 @@ function PainelContent() {
                     </p>
                 </div>
                 
-                <div className="flex flex-wrap items-center gap-3">
-                    <Link href="/agenda">
+                <div className="flex flex-row w-full lg:w-auto items-center gap-2 lg:gap-3 mt-4 lg:mt-0">
+                    <Link href="/agenda" className="flex-1 lg:flex-none">
                         <Button 
-                            className="text-stone-950 rounded-xl px-6 h-12 font-bold shadow-lg shadow-brand-secondary/10 flex items-center gap-2 transition-all hover:scale-105 bg-brand-gold"
+                            className="w-full text-stone-950 rounded-xl px-4 lg:px-6 h-12 font-bold shadow-lg shadow-brand-secondary/10 flex items-center justify-center gap-2 transition-all hover:scale-105 bg-brand-gold text-xs lg:text-sm"
                         >
-                            <CalendarDays className="h-5 w-5" /> Abrir Agenda <ChevronRight className="h-4 w-4" />
+                            <CalendarDays className="h-5 w-5" /> <span className="hidden sm:inline">Abrir</span> Agenda <ChevronRight className="h-4 w-4 hidden lg:block" />
                         </Button>
                     </Link>
-                    <Link href={`/${tenant?.slug || ""}`} target="_blank">
-                        <Button variant="outline" className="border-stone-800 bg-transparent hover:bg-stone-900 text-white rounded-xl px-6 h-12 font-bold flex items-center gap-2">
-                            <ExternalLink className="h-5 w-5" /> Ver Meu Site
+                    <Link href={`/${tenant?.slug || ""}`} target="_blank" className="flex-1 lg:flex-none">
+                        <Button variant="outline" className="w-full border-stone-800 bg-transparent hover:bg-stone-900 text-white rounded-xl px-4 lg:px-6 h-12 font-bold flex items-center justify-center gap-2 text-xs lg:text-sm">
+                            <ExternalLink className="h-5 w-5" /> <span className="hidden sm:inline">Ver Meu</span> Site
                         </Button>
                     </Link>
-
                 </div>
             </div>
 
             {/* ── Quick Actions ── */}
             <div className="space-y-4">
                 <h3 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest px-1">AÇÕES RÁPIDAS</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                     {[
                         { href: "/agenda?action=new", icon: CalendarDays, title: "Novo Agendamento", desc: "Criar um novo horário" },
                         { href: "/servicos", icon: Scissors, title: "Gerenciar Serviços", desc: "Adicionar ou editar serviços" },
@@ -191,18 +247,18 @@ function PainelContent() {
                         <div 
                             key={i} 
                             onClick={() => item.action ? item.action() : null}
-                            className="group cursor-pointer bg-stone-900/30 hover:bg-stone-900/50 border border-white/5 p-4 rounded-2xl flex items-center gap-4 transition-all"
+                            className="group cursor-pointer bg-stone-900/30 hover:bg-stone-900/50 border border-white/5 p-3 lg:p-4 rounded-2xl flex flex-col lg:flex-row items-center text-center lg:text-left gap-2 lg:gap-4 transition-all"
                         >
                             <div 
-                                className="h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 border border-white/5 bg-stone-900/50 group-hover:border-brand-primary/30 transition-colors"
+                                className="h-10 w-10 lg:h-12 lg:w-12 rounded-xl lg:rounded-2xl flex items-center justify-center shrink-0 border border-white/5 bg-stone-900/50 group-hover:border-brand-primary/30 transition-colors"
                             >
-                                <item.icon className="h-6 w-6 text-stone-500 group-hover:text-brand-primary transition-colors" />
+                                <item.icon className="h-5 w-5 lg:h-6 lg:w-6 text-stone-500 group-hover:text-brand-primary transition-colors" />
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-bold text-foreground group-hover:text-brand-primary transition-colors">{item.title}</h4>
-                                <p className="text-[10px] text-muted-foreground truncate">{item.desc}</p>
+                            <div className="flex-1 min-w-0 flex flex-col items-center lg:items-start justify-center">
+                                <h4 className="text-[11px] lg:text-sm font-bold text-foreground group-hover:text-brand-primary transition-colors leading-tight">{item.title}</h4>
+                                <p className="hidden lg:block text-[10px] text-muted-foreground truncate w-full">{item.desc}</p>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-stone-700 group-hover:text-brand-primary group-hover:translate-x-1 transition-all" />
+                            <ChevronRight className="hidden lg:block h-4 w-4 text-stone-700 group-hover:text-brand-primary group-hover:translate-x-1 transition-all" />
                         </div>
                     ))}
                 </div>
@@ -237,15 +293,15 @@ function PainelContent() {
                     </div>
 
                     {/* Middle Section: Stepper */}
-                    <div className="flex-1 w-full lg:w-auto">
-                        <div className="relative flex justify-between items-start w-full px-4">
+                    <div className="flex-1 w-full lg:w-auto overflow-x-auto hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0 lg:overflow-visible">
+                        <div className="relative flex justify-start lg:justify-between items-start gap-8 lg:gap-0 w-max lg:w-full px-4 pb-2 lg:pb-0">
                             {/* Connector Line */}
-                            <div className="absolute top-3.5 left-8 right-8 h-[1px] bg-stone-800 z-0" />
+                            <div className="absolute top-3.5 left-8 right-8 h-[1px] bg-stone-800 z-0 hidden lg:block" />
                             
                             {checklistItems.map((item, i) => {
                                 const isActive = !item.done && (i === 0 || checklistItems[i-1].done)
                                 return (
-                                    <div key={i} className="relative z-10 flex flex-col items-center gap-4 w-16">
+                                    <div key={i} className="relative z-10 flex flex-col items-center gap-3 lg:gap-4 w-16 shrink-0">
                                         <div className={cn(
                                             "h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all border-2",
                                             item.done 
@@ -257,7 +313,7 @@ function PainelContent() {
                                             {item.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
                                         </div>
                                         <span className={cn(
-                                            "text-[10px] text-center font-medium leading-tight whitespace-pre-line",
+                                            "text-[9px] lg:text-[10px] text-center font-medium leading-tight whitespace-pre-line",
                                             item.done ? "text-green-500/60" : isActive ? "text-brand-primary font-bold" : "text-stone-500"
                                         )}>
                                             {item.label.replace(" ", "\n")}
@@ -286,47 +342,83 @@ function PainelContent() {
                 
                 {/* ── Left Column: Agendamentos ── */}
                 <div className="lg:col-span-5 bg-stone-900/30 border border-white/5 rounded-2xl overflow-hidden flex flex-col h-full">
-                    <div className="p-6 flex items-center justify-between border-b border-white/5">
+                    <div className="p-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/5">
                         <div className="flex items-center gap-2">
                             <CalendarDays className="h-5 w-5 text-brand-primary" />
                             <h3 className="font-bold text-foreground">Próximos agendamentos</h3>
                         </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 bg-stone-900 border border-stone-800 rounded-xl cursor-pointer">
-                            <span className="text-[10px] font-bold text-foreground">Hoje</span>
-                            <ChevronDown className="h-3 w-3 text-muted-foreground" />
-                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-stone-900 border border-stone-800 rounded-xl cursor-pointer hover:bg-stone-800 transition-colors">
+                                    <span className="text-[10px] font-bold text-foreground">{agendaFilter}</span>
+                                    <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                                </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40 bg-stone-950 border-white/10 shadow-xl">
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Hoje")} className="text-xs font-medium cursor-pointer text-stone-300 hover:text-white hover:bg-stone-800">
+                                    Hoje
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Amanhã")} className="text-xs font-medium cursor-pointer text-stone-300 hover:text-white hover:bg-stone-800">
+                                    Amanhã
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Próximos 7 dias")} className="text-xs font-medium cursor-pointer text-stone-300 hover:text-white hover:bg-stone-800">
+                                    Próximos 7 dias
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
 
                     <div className="p-6 space-y-3">
-                        {[
-                            { time: "10:00", name: "João Silva", service: "Corte de Cabelo", status: "Confirmado", initials: "JS" },
-                            { time: "14:30", name: "Ana Martins", service: "Coloração", status: "Confirmado", initials: "AM" },
-                            { time: "16:00", name: "Carlos Pereira", service: "Barba", status: "Confirmado", initials: "CP" },
-                        ].map((apt, i) => (
-                            <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-stone-900/10 border border-white/5 border-l-2 border-l-brand-primary hover:bg-white/5 transition-all group">
-                                <div className="text-center w-12 shrink-0">
-                                    <p className="text-sm font-bold text-stone-400 group-hover:text-brand-primary transition-colors">{apt.time}</p>
-                                    <p className="text-[9px] text-stone-500 uppercase font-bold tracking-wider mt-0.5">Hoje</p>
-                                </div>
-                                <div className="flex-1 flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-full bg-stone-800 border border-stone-700 flex items-center justify-center text-[10px] font-bold text-stone-400">
-                                        {apt.initials}
+                        {filteredAppointments.length > 0 ? filteredAppointments.map((apt, i) => {
+                            // Extract initials
+                            const customerName = apt.customerName || "Cliente";
+                            const nameParts = customerName.split(" ");
+                            const initials = nameParts.length > 1 
+                                ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase()
+                                : nameParts[0].substring(0, 2).toUpperCase();
+
+                            // Format Date text if not "Hoje" or "Amanhã"
+                            let dateLabel = "Hoje";
+                            const pad = (n: number) => n.toString().padStart(2, '0');
+                            const today = new Date();
+                            const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+                            const tomorrow = new Date();
+                            tomorrow.setDate(tomorrow.getDate() + 1);
+                            const tomorrowStr = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`;
+
+                            if (apt.date === todayStr) dateLabel = "Hoje";
+                            else if (apt.date === tomorrowStr) dateLabel = "Amanhã";
+                            else {
+                                const [y, m, d] = apt.date.split("-");
+                                dateLabel = `${d}/${m}`;
+                            }
+
+                            return (
+                                <div key={apt.id} className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-stone-900/10 border border-white/5 border-l-2 border-l-brand-primary/50 hover:bg-white/5 transition-all group overflow-hidden relative">
+                                    <div className="text-center w-10 sm:w-12 shrink-0">
+                                        <p className="text-xs sm:text-sm font-bold text-stone-400 group-hover:text-brand-primary transition-colors">{apt.time}</p>
+                                        <p className="uppercase font-bold tracking-wider mt-0.5 text-[8px] sm:text-[9px] text-stone-500">{dateLabel}</p>
                                     </div>
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-bold text-foreground truncate">{apt.name}</p>
-                                        <p className="text-[10px] text-muted-foreground truncate">{apt.service}</p>
+                                    <div className="flex-1 flex items-center justify-end gap-2 sm:gap-3 min-w-0">
+                                        <div className="min-w-0 flex-1 text-right flex flex-col justify-center">
+                                            <p className="font-bold text-foreground truncate text-[13px] sm:text-sm">{customerName}</p>
+                                        </div>
+                                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full border flex items-center justify-center text-[9px] sm:text-[10px] font-bold shrink-0 transition-colors bg-stone-800 border-stone-700 text-stone-400">
+                                            {initials}
+                                        </div>
                                     </div>
+                                    <Link href="/agenda" className="shrink-0">
+                                        <Button variant="ghost" size="icon" className="hidden sm:flex h-8 w-8 text-stone-600 hover:text-foreground shrink-0 ml-1">
+                                            <MoreVertical className="h-4 w-4" />
+                                        </Button>
+                                    </Link>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="bg-stone-900/50 text-green-500/80 text-[9px] font-bold px-2.5 py-1 rounded-full border border-green-500/20 uppercase tracking-wider transition-colors group-hover:border-green-500/40">
-                                        Confirmado
-                                    </div>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-stone-600 hover:text-foreground">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </div>
+                            )
+                        }) : (
+                            <div className="text-center p-6 border border-dashed border-white/10 rounded-2xl bg-stone-900/10 mt-4 mb-4">
+                                <p className="text-xs sm:text-sm text-stone-500">Nenhum agendamento para este período.</p>
                             </div>
-                        ))}
+                        )}
                     </div>
 
                     <div className="p-6 pt-0 mt-auto">
@@ -340,31 +432,31 @@ function PainelContent() {
 
                 {/* ── Right Column: Metrics Grid & Tip Card ── */}
                 <div className="lg:col-span-7 space-y-6">
-                    {/* Metrics Grid (2 columns) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Metrics Grid (2 columns on mobile) */}
+                    <div className="grid grid-cols-2 gap-3 lg:gap-4">
                         {[
-                            { title: "Faturamento do mês", value: "R$ 0,00", sub: "0% em relação ao mês anterior", icon: DollarSign, chart: true },
-                            { title: "Clientes", value: "0", sub: "Total de clientes cadastrados", icon: Users },
-                            { title: "Serviços ativos", value: String(serviceCount), sub: "Serviços cadastrados", icon: Scissors },
-                            { title: "Agendamentos hoje", value: "0", sub: "Total de agendamentos", icon: CalendarDays },
+                            { title: "Faturamento", value: "R$ 0,00", sub: "0% em relação ao mês anterior", icon: DollarSign, chart: true },
+                            { title: "Clientes", value: "0", sub: "Total de clientes", icon: Users },
+                            { title: "Serviços", value: String(serviceCount), sub: "Cadastrados", icon: Scissors },
+                            { title: "Hoje", value: "0", sub: "Agendamentos", icon: CalendarDays },
                         ].map((m, i) => (
-                            <div key={i} className="group cursor-pointer bg-stone-900/30 border border-white/5 p-6 rounded-2xl hover:bg-stone-900/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[160px]">
+                            <div key={i} className="group cursor-pointer bg-stone-900/30 border border-white/5 p-4 lg:p-6 rounded-2xl hover:bg-stone-900/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[140px] lg:min-h-[160px]">
                                 <div className="flex items-start justify-between">
-                                    <div className="h-10 w-10 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center group-hover:border-brand-primary/30 transition-colors">
-                                        <m.icon className="h-5 w-5 text-stone-500 group-hover:text-brand-primary transition-colors" />
+                                    <div className="h-8 w-8 lg:h-10 lg:w-10 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center group-hover:border-brand-primary/30 transition-colors">
+                                        <m.icon className="h-4 w-4 lg:h-5 lg:w-5 text-stone-500 group-hover:text-brand-primary transition-colors" />
                                     </div>
                                     <ChevronRight className="h-4 w-4 text-stone-700 group-hover:text-brand-primary transition-all" />
                                 </div>
                                 
-                                <div>
-                                    <p className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">{m.title}</p>
-                                    <p className="text-2xl font-bold text-foreground tracking-tight mt-1">{m.value}</p>
-                                    <p className="text-[10px] text-muted-foreground mt-1">{m.sub}</p>
+                                <div className="mt-4 lg:mt-0">
+                                    <p className="text-[9px] lg:text-[10px] font-bold text-stone-500 uppercase tracking-widest truncate">{m.title}</p>
+                                    <p className="text-xl lg:text-2xl font-bold text-foreground tracking-tight mt-0.5 lg:mt-1">{m.value}</p>
+                                    <p className="text-[9px] lg:text-[10px] text-muted-foreground mt-0.5 lg:mt-1 truncate">{m.sub}</p>
                                 </div>
 
                                 {m.chart && (
-                                    <div className="absolute bottom-6 right-6 opacity-20 group-hover:opacity-60 transition-opacity">
-                                        <TrendingUp className="h-10 w-10 text-brand-primary" />
+                                    <div className="absolute bottom-4 lg:bottom-6 right-4 lg:right-6 opacity-20 group-hover:opacity-60 transition-opacity">
+                                        <TrendingUp className="h-8 w-8 lg:h-10 lg:w-10 text-brand-primary" />
                                     </div>
                                 )}
                             </div>
