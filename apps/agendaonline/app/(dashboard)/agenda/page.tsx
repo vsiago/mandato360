@@ -8,7 +8,7 @@ import {
     Pencil, Trash2, Smartphone, X, LayoutGrid, Play, CalendarSearch, Zap, Lock
 } from "lucide-react"
 import { toast } from "sonner"
-import { DesktopDetailsPanel, DesktopStatesPanel, DesktopMiniCalendar, DesktopDaySummary, DesktopFreeSlots } from "./components"
+import { DesktopDetailsPanel, DesktopNextActionsPanel, DesktopOccupationCard, DesktopMiniCalendar, DesktopDaySummary, DesktopFreeSlots } from "./components"
 import { Button } from "@/components/ui/button"
 import { AppointmentModal } from "@/components/AppointmentModal"
 import { 
@@ -269,62 +269,6 @@ export default function AgendaPage() {
         return acc;
     }, 0);
 
-    const occupancyRate = (() => {
-        if (!tenant?.businessHours) return "0%";
-        const dw = new Date(selectedDate + 'T12:00:00').getDay().toString();
-        const conf = tenant.businessHours[dw];
-        if (!conf?.isOpen) return "0%";
-        
-        const sM = parseInt(conf.start.split(':')[0]) * 60 + parseInt(conf.start.split(':')[1]);
-        const eM = parseInt(conf.end.split(':')[0]) * 60 + parseInt(conf.end.split(':')[1]);
-        const bSlots = TIME_SLOTS.filter(t => {
-            const [h, m] = t.split(':').map(Number);
-            const mins = h * 60 + m;
-            return mins >= sM && mins < eM;
-        });
-        if (bSlots.length === 0) return "0%";
-        const occ = dayAppointments.filter(a => a.status === 'confirmed' || a.status === 'completed' || a.status === 'pending').length;
-        return `${Math.round((occ / bSlots.length) * 100)}%`;
-    })();
-
-    // â”€â”€ Mobile-First Computed Values â”€â”€
-    const occupancyNumber = parseInt(occupancyRate) || 0;
-
-    const freeSlotCount = (() => {
-        if (!tenant?.businessHours) return 0;
-        const dw = new Date(selectedDate + 'T12:00:00').getDay().toString();
-        const conf = tenant.businessHours[dw];
-        if (!conf?.isOpen) return 0;
-        const sM = parseInt(conf.start.split(':')[0]) * 60 + parseInt(conf.start.split(':')[1]);
-        const eM = parseInt(conf.end.split(':')[0]) * 60 + parseInt(conf.end.split(':')[1]);
-        const bSlots = TIME_SLOTS.filter(t => {
-            const [h, m] = t.split(':').map(Number);
-            const mins = h * 60 + m;
-            return mins >= sM && mins < eM;
-        });
-        const occupied = dayAppointments.filter(a => a.status !== 'blocked').length;
-        return Math.max(0, bSlots.length - occupied);
-    })();
-
-    const datePickerDays = useMemo(() => {
-        const days: { date: Date; dateKey: string; dayNum: number; dayName: string; isToday: boolean }[] = [];
-        const today = new Date();
-        today.setHours(12, 0, 0, 0);
-        for (let i = -3; i <= 10; i++) {
-            const d = new Date(today);
-            d.setDate(d.getDate() + i);
-            const dk = d.toISOString().split('T')[0];
-            days.push({
-                date: d,
-                dateKey: dk,
-                dayNum: d.getDate(),
-                dayName: WEEKDAYS[d.getDay()],
-                isToday: i === 0
-            });
-        }
-        return days;
-    }, []);
-
     const filteredTimeSlots = useMemo(() => {
         if (!tenant?.businessHours) return TIME_SLOTS;
         const dw = new Date(selectedDate + 'T12:00:00').getDay().toString();
@@ -346,6 +290,60 @@ export default function AgendaPage() {
             .map(a => a.time);
         return [...new Set([...filteredTimeSlots, ...extra])].sort();
     }, [filteredTimeSlots, dayAppointments]);
+
+    const freeSlotCount = useMemo(() => {
+        let count = 0;
+        const sortedVisible = [...new Set([...filteredTimeSlots, ...dayAppointments.map(a => a.time)])].sort();
+        
+        sortedVisible.forEach(time => {
+            const apt = dayAppointments.find(a => a.time === time);
+            const isBlocked = apt?.status === 'blocked';
+            const isLiberado = apt?.status === 'liberado';
+            const isOpenByConfig = filteredTimeSlots.includes(time);
+            
+            const isUnavailable = !isOpenByConfig && !isLiberado;
+            
+            if (!isUnavailable && !isBlocked && (!apt || isLiberado)) {
+                count++;
+            }
+        });
+        return count;
+    }, [filteredTimeSlots, dayAppointments]);
+
+    const occupancyRate = useMemo(() => {
+        const confirmed = dayAppointments.filter(a => a.status === 'confirmed').length;
+        const pending = dayAppointments.filter(a => a.status === 'pending').length;
+        const completed = dayAppointments.filter(a => a.status === 'completed').length;
+        const totalApts = confirmed + pending + completed;
+        
+        const totalSlots = totalApts + freeSlotCount;
+        if (totalSlots === 0) return "0%";
+        
+        const rate = Math.round((totalApts / totalSlots) * 100);
+        return `${Math.min(100, Math.max(0, rate))}%`;
+    }, [dayAppointments, freeSlotCount]);
+
+    // ── Mobile-First Computed Values ──
+    const occupancyNumber = parseInt(occupancyRate) || 0;
+
+    const datePickerDays = useMemo(() => {
+        const days: { date: Date; dateKey: string; dayNum: number; dayName: string; isToday: boolean }[] = [];
+        const today = new Date();
+        today.setHours(12, 0, 0, 0);
+        for (let i = -3; i <= 10; i++) {
+            const d = new Date(today);
+            d.setDate(d.getDate() + i);
+            const dk = d.toISOString().split('T')[0];
+            days.push({
+                date: d,
+                dateKey: dk,
+                dayNum: d.getDate(),
+                dayName: WEEKDAYS[d.getDay()],
+                isToday: i === 0
+            });
+        }
+        return days;
+    }, []);
 
     const handleBlockDay = async (dateKey: string) => {
         if (!tenantId) return;
@@ -746,7 +744,7 @@ export default function AgendaPage() {
                             <div className="flex-1 min-h-0 overflow-hidden relative">
                                 <div className="absolute left-[57px] top-4 bottom-4 w-px bg-stone-800/30 pointer-events-none z-0" />
                                 <TooltipProvider>
-                                    <div ref={timelineRef} className="h-full overflow-y-auto px-8 py-4 space-y-0 custom-scrollbar scroll-smooth relative z-10">
+                                    <div ref={timelineRef} onClick={() => setSelectedAppointment(null)} className="h-full overflow-y-auto px-8 py-4 space-y-0 custom-scrollbar scroll-smooth relative z-10">
                                     {visibleTimeSlots.map((time) => {
                                         const isToday = selectedDate === currentTime.toISOString().split('T')[0]
                                         const nowTime = currentTime.getHours() * 60 + currentTime.getMinutes()
@@ -765,7 +763,7 @@ export default function AgendaPage() {
                                                 </div>
                                                 <div className="flex-1 min-w-0 pb-3">
                                                     {apt && !isBlocked && !isLiberado ? (
-                                                        <div onClick={() => setSelectedAppointment(apt)} className={cn(
+                                                        <div onClick={(e) => { e.stopPropagation(); setSelectedAppointment(apt); }} className={cn(
                                                             "rounded-[14px] p-4 transition-all cursor-pointer border-y border-r border-white/[0.04]",
                                                             selectedAppointment?.id === apt.id ? "ring-1 ring-brand-primary/40 shadow-[0_0_15px_rgba(245,204,112,0.1)]" : "",
                                                             apt.status === 'completed' ? "bg-gradient-to-r from-emerald-500/10 to-transparent border-l-4 border-l-emerald-500" :
@@ -848,11 +846,8 @@ export default function AgendaPage() {
                             onDelete={handleDelete}
                             onSaveClient={(a) => { setClientToSave(a); setIsSaveClientModalOpen(true); }}
                         />
-                        <DesktopStatesPanel
-                            appointments={dayAppointments}
-                            onSelect={setSelectedAppointment}
-                            selectedId={selectedAppointment?.id}
-                        />
+                        <DesktopOccupationCard summary={daySummary} />
+                        <DesktopNextActionsPanel />
                     </div>
 
                     {/* ── LEFT COLUMN (Visual): Calendar + Summary + Free Slots ── */}

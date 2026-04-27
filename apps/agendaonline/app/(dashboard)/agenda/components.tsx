@@ -4,8 +4,10 @@ import React from "react"
 import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, Plus, ChevronLeft, ChevronRight,
-    MessageCircle, MoreVertical, Pencil, Trash2, UserPlus, X, Zap, Phone, Calendar as CalendarIcon, Lock
+    MessageCircle, MoreVertical, Pencil, Trash2, UserPlus, X, Zap, Phone, Calendar as CalendarIcon, Lock,
+    Scissors, Share2, CalendarClock, CalendarX, User, CreditCard
 } from "lucide-react"
+import Link from "next/link"
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
@@ -25,13 +27,7 @@ export function DesktopDetailsPanel({ apt, onEdit, onComplete, onDetails, onConf
     onDelete: (id: string) => void
     onSaveClient: (a: any) => void
 }) {
-    if (!apt) return (
-        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-6 flex flex-col items-center justify-center min-h-[260px]">
-            <CalendarDays className="h-10 w-10 text-stone-700 mb-3" />
-            <p className="text-sm font-semibold text-stone-500">Selecione um agendamento</p>
-            <p className="text-xs text-stone-600 mt-1">Clique em um card na timeline</p>
-        </div>
-    )
+    if (!apt) return null;
 
     return (
         <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
@@ -119,94 +115,116 @@ export function DesktopDetailsPanel({ apt, onEdit, onComplete, onDetails, onConf
 }
 
 /* ═══════════════════════════════════════════
-   DESKTOP: States Panel (all appointments list)
+   DESKTOP: Occupation Card
    ═══════════════════════════════════════════ */
-export function DesktopStatesPanel({ appointments, onSelect, selectedId }: {
-    appointments: any[]
-    onSelect: (a: any) => void
-    selectedId?: string
-}) {
-    const allItems = [...appointments].sort((a, b) => a.time.localeCompare(b.time))
+export function DesktopOccupationCard({ summary }: { summary: { total: number, free: number } }) {
+    const totalSlots = summary.total + summary.free;
+    const occupationPercent = totalSlots > 0 ? Math.round((summary.total / totalSlots) * 100) : 0;
+
+    return (
+        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5 flex">
+            {/* Left Side */}
+            <div className="flex-1 pr-5 border-r border-white/5">
+                <p className="text-[11px] font-medium text-stone-300 mb-1">Ocupação do dia</p>
+                <div className="text-3xl font-bold text-white mb-2">{occupationPercent}%</div>
+                <div className="h-1.5 w-full bg-stone-800 rounded-full overflow-hidden mb-2">
+                    <div 
+                        className="h-full bg-brand-gold rounded-full transition-all duration-1000" 
+                        style={{ width: `${occupationPercent}%` }} 
+                    />
+                </div>
+                <p className="text-[10px] text-stone-400">{summary.total} / {totalSlots} agendamentos</p>
+            </div>
+
+            {/* Right Side */}
+            <div className="w-[110px] pl-5 relative flex flex-col shrink-0">
+                <p className="text-[11px] font-medium text-stone-300 leading-snug">
+                    {summary.free} horários<br/>livres
+                </p>
+                <div className="absolute bottom-0 right-0 h-8 w-8 rounded-[10px] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <CalendarIcon className="h-4 w-4 text-emerald-500" />
+                </div>
+            </div>
+        </div>
+    )
+}
+
+/* ═══════════════════════════════════════════
+   DESKTOP: Next Actions Panel
+   ═══════════════════════════════════════════ */
+export function DesktopNextActionsPanel() {
+    const actions = [
+        {
+            icon: CalendarClock,
+            title: "2 clientes aguardando confirmação",
+            sub: "Agendamentos pendentes",
+            btnLabel: "Confirmar agora",
+            colorClass: "text-amber-500",
+            bgClass: "bg-amber-500/10 border-amber-500/20"
+        },
+        {
+            icon: CalendarIcon,
+            title: "3 horários livres hoje à tarde",
+            sub: "Aproveite para preencher sua agenda",
+            btnLabel: "Ver horários",
+            colorClass: "text-red-500",
+            bgClass: "bg-red-500/10 border-red-500/20"
+        },
+        {
+            icon: User,
+            title: "Próximo cliente em 20 min",
+            sub: "xzvbzxb - Corte Feminino",
+            btnLabel: "Ver detalhes",
+            colorClass: "text-emerald-500",
+            bgClass: "bg-emerald-500/10 border-emerald-500/20"
+        },
+        {
+            icon: CalendarX,
+            title: "5 clientes não retornam há 30 dias",
+            sub: "Que tal enviar uma mensagem?",
+            btnLabel: "Enviar mensagens",
+            colorClass: "text-blue-500",
+            bgClass: "bg-blue-500/10 border-blue-500/20"
+        },
+        {
+            icon: CreditCard,
+            title: "Pagamento pendente",
+            sub: "1 agendamento com pagamento pendente",
+            btnLabel: "Ver cobrança",
+            colorClass: "text-orange-500",
+            bgClass: "bg-orange-500/10 border-orange-500/20"
+        }
+    ];
 
     return (
         <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
-            <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] mb-1">
-                Estados dos Agendamentos
+            <h3 className="text-[11px] font-bold text-brand-primary uppercase tracking-[0.15em] mb-4">
+                Próximas Ações
             </h3>
-            <p className="text-[9px] text-stone-500 mb-4">Todos os estados visuais</p>
-            <div className="space-y-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
-                {allItems.map((apt) => {
-                    const isBlocked = apt.status === 'blocked'
-                    const isFree = apt.status === 'liberado'
-                    if (isFree) return null
-
-                    return (
-                        <button
-                            key={apt.id || apt.time}
-                            onClick={() => !isBlocked && onSelect(apt)}
-                            className={cn(
-                                "w-full text-left p-3 rounded-xl border transition-all flex items-start gap-3 cursor-pointer",
-                                selectedId === apt.id ? "border-brand-primary/30 bg-brand-primary/5" :
-                                    isBlocked ? "border-red-500/20 bg-red-500/[0.05]" :
-                                        apt.status === 'confirmed' ? "border-emerald-500/20 bg-emerald-500/[0.05]" :
-                                            apt.status === 'pending' ? "border-amber-400/20 bg-amber-400/[0.05]" :
-                                                "border-white/5 bg-stone-900/20 hover:border-white/10 hover:bg-stone-900/40"
-                            )}
-                        >
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                    <p className={cn("text-xs font-bold truncate", isBlocked ? "text-red-500" : "text-foreground")}>
-                                        {isBlocked ? "Horário Bloqueado" : apt.name}
-                                    </p>
-                                    {!isBlocked && (
-                                        <div className={cn(
-                                            "text-[7px] font-black uppercase px-1.5 py-0.5 rounded-full tracking-wider shrink-0 border",
-                                            apt.status === 'confirmed' || apt.status === 'completed' ? "text-emerald-500 bg-emerald-500/10 border-emerald-500/20"
-                                                : "text-amber-500 bg-amber-400/10 border-amber-400/20"
-                                        )}>
-                                            {apt.status === 'completed' ? 'Concluído' : apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
-                                        </div>
-                                    )}
-                                </div>
-                                <p className="text-[10px] text-stone-500 truncate">
-                                    {isBlocked ? "Indisponível para clientes" : `${apt.service} · ${apt.price}`}
-                                </p>
-                            </div>
-                            {!isBlocked && (
-                                <div className="h-7 w-7 rounded-full overflow-hidden border border-white/10 shrink-0">
-                                    {/* Mock Avatar based on name initials, in a real scenario would use an image */}
-                                    <div className="h-full w-full bg-stone-800 flex items-center justify-center text-[9px] font-bold text-stone-400">
-                                        {apt.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
-                                    </div>
-                                </div>
-                            )}
-                            {isBlocked && (
-                                <div className="h-7 w-7 rounded-full flex items-center justify-center shrink-0">
-                                    <Lock className="h-4 w-4 text-red-500" />
-                                </div>
-                            )}
+            
+            <div className="space-y-3">
+                {actions.map((act, i) => (
+                    <div key={i} className="flex items-center gap-3 bg-stone-900/20 hover:bg-stone-900/40 border border-white/5 p-3 rounded-[14px] transition-all cursor-pointer group">
+                        <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors", act.bgClass)}>
+                            <act.icon className={cn("h-5 w-5", act.colorClass)} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h4 className="text-xs font-bold text-stone-200 truncate group-hover:text-white transition-colors">{act.title}</h4>
+                            <p className="text-[10px] text-stone-500 truncate mt-0.5">{act.sub}</p>
+                        </div>
+                        <button className="shrink-0 h-8 px-3 rounded-full border border-stone-800 bg-stone-900/40 flex items-center gap-1.5 text-[10px] font-medium text-brand-gold group-hover:bg-stone-800 group-hover:border-stone-700 transition-all cursor-pointer">
+                            {act.btnLabel}
+                            <ChevronRight className="h-3 w-3" />
                         </button>
-                    )
-                })}
-                {/* Adding a mock Free slot to match the design bottom element */}
-                <div className="w-full text-left p-3 rounded-xl border border-white/5 bg-stone-900/20 border-dashed flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="h-7 w-7 rounded-lg bg-stone-800 flex items-center justify-center text-stone-500 shrink-0">
-                            <Plus className="h-4 w-4" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-medium text-stone-400">Horário Livre</p>
-                            <p className="text-[9px] text-stone-600">Disponível para agendamento</p>
-                        </div>
                     </div>
-                    <div className="h-6 w-6 rounded border border-white/10 flex items-center justify-center text-stone-500">
-                        <Plus className="h-3 w-3" />
-                    </div>
-                </div>
+                ))}
+            </div>
 
-                {allItems.length === 0 && (
-                    <p className="text-xs text-stone-600 text-center py-4">Nenhum agendamento</p>
-                )}
+            <div className="mt-5 pt-4">
+                <button className="w-full flex items-center justify-between text-xs font-bold text-brand-gold hover:text-amber-400 transition-colors cursor-pointer group">
+                    Ver todas as ações
+                    <ChevronRight className="h-4 w-4 text-stone-600 group-hover:text-brand-gold group-hover:translate-x-1 transition-all" />
+                </button>
             </div>
         </div>
     )
