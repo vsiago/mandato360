@@ -62,7 +62,8 @@ function mapTenantToDb(data: Partial<TenantData>) {
         designSystem: data.designSystem,
         config: {
             ...(data.config || {}),
-            pix: data.pix || (data.config as any)?.pix
+            pix: data.pix || (data.config as any)?.pix,
+            businessHours: (data as any).businessHours || (data.config as any)?.businessHours
         },
         updatedAt: new Date(),
     }

@@ -169,6 +169,7 @@ export default function AgendaPage() {
                     time: apt.time.split(':').slice(0, 2).join(':'), // Normalize to HH:MM
                     name: apt.customerName || "Cliente",
                     phone: apt.customerPhone || "",
+                    date: dateKey,
                     serviceId: apt.serviceId,
                     serviceIds: serviceIds,
                     service: allServiceNames[0] || (apt.status === "blocked" ? "-" : "Serviço"),
@@ -896,20 +897,7 @@ export default function AgendaPage() {
             </div>
 
             <div className="lg:hidden flex flex-col flex-1 min-h-0 h-full overflow-hidden">
-                <div className="shrink-0 flex items-center justify-between px-2 py-3 gap-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-10 w-10 rounded-full border border-white/10 overflow-hidden shrink-0">
-                            <div className="h-full w-full bg-stone-800 flex items-center justify-center text-xs font-bold text-stone-400">
-                                {tenant?.name?.[0]?.toUpperCase() || "A"}
-                            </div>
-                        </div>
-                        <div className="min-w-0">
-                            <h2 className="text-[15px] font-bold text-foreground leading-tight truncate">Olá, Anderson</h2>
-                            <p className="text-[11px] text-stone-500 font-medium tracking-tight capitalize">
-                                {selectedDateObj.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                            </p>
-                        </div>
-                    </div>
+                <div className="shrink-0 flex items-center justify-end px-2 py-3 gap-3">
                     <div className="flex items-center gap-2 shrink-0">
                         <button
                             onClick={() => setIsCalendarModalOpen(true)}

@@ -276,6 +276,7 @@ export function configToTenantData(config: TenantConfig): TenantData {
     theme: config.theme,
     designSystem: config.designSystem,
     config: config.config,
+    businessHours: config.config?.businessHours,
     pix: config.pix,
 
     createdAt: config.metadata.createdAt,
