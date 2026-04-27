@@ -64,8 +64,21 @@ export function AppointmentModal({
             if (appointment) {
                 setName(appointment.name || "")
                 setPhone(appointment.phone || "")
-                const initial = [appointment.serviceId].filter(Boolean)
-                setSelectedServices(initial.length > 0 ? initial : (initialServices[0] ? [initialServices[0].id] : []))
+                
+                // Parse multiple services if they exist in notes as JSON
+                let ids = [appointment.serviceId].filter(Boolean)
+                if (appointment.notes?.startsWith('{"serviceIds"')) {
+                    try {
+                        const data = JSON.parse(appointment.notes)
+                        if (Array.isArray(data.serviceIds)) {
+                            ids = data.serviceIds
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse services from notes", e)
+                    }
+                }
+                
+                setSelectedServices(ids.length > 0 ? ids : (initialServices[0] ? [initialServices[0].id] : []))
             } else {
                 setName("")
                 setPhone("")
@@ -142,16 +155,22 @@ export function AppointmentModal({
         setLoading(true)
         try {
             const mainServiceId = validServices[0]
-            const extraServices = validServices.slice(1).map(id => {
+            const extraServicesText = validServices.slice(1).map(id => {
                 const s = services.find(srv => srv.id === id)
                 return s ? s.name : ""
             }).filter(Boolean).join(", ")
+
+            // Store IDs as JSON in notes to allow parsing back when editing
+            const notesData = {
+                serviceIds: validServices,
+                displayText: extraServicesText ? `Serviços adicionais: ${extraServicesText}` : (appointment?.notes?.startsWith('{"serviceIds"') ? "" : (appointment?.notes || ""))
+            }
 
             const payload = {
                 customerName: name,
                 customerPhone: phone,
                 serviceId: mainServiceId,
-                notes: extraServices ? `Serviços adicionais: ${extraServices}` : (appointment?.notes || ""),
+                notes: JSON.stringify(notesData),
                 status: appointment?.status || "confirmed"
             }
 
@@ -207,7 +226,7 @@ export function AppointmentModal({
                         className="rounded-2xl bg-brand-gold text-stone-950 font-bold px-8 shadow-xl shadow-brand-secondary/20 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] text-[10px] uppercase tracking-widest h-12 flex-1 cursor-pointer"
                     >
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                        Confirmar Agendamento
+                        {appointment ? 'Salvar Alterações' : 'Confirmar Agendamento'}
                     </Button>
                 </div>
             }

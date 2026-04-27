@@ -140,24 +140,40 @@ export default function AgendaPage() {
         const res = await getAppointmentsByTenantAction(tId)
         if (res.success && res.appointments) {
             const serverGrouped: Record<string, any[]> = {}
-            res.appointments.forEach((apt: any) => {
-                const dateKey = apt.date.trim()
-                if (!serverGrouped[dateKey]) serverGrouped[dateKey] = []
-                
-                serverGrouped[dateKey].push({
-                    id: apt.id,
-                    time: apt.time.split(':').slice(0, 2).join(':'), // Normalize to HH:MM
-                    name: apt.customerName || "Cliente",
-                    phone: apt.customerPhone || "",
-                    serviceId: apt.serviceId,
-                    service: services.find(s => s.id === apt.serviceId)?.name || (apt.status === "blocked" ? "-" : "Serviço"),
-                    status: apt.status as any,
-                    price: services.find(s => s.id === apt.serviceId)?.price 
-                        ? `R$ ${parseFloat(services.find(s => s.id === apt.serviceId).price).toFixed(0)}` 
-                        : (apt.status === "blocked" ? "-" : "R$ 0"),
-                    notes: apt.notes
+                res.appointments.forEach((apt: any) => {
+                    const dateKey = apt.date.trim()
+                    if (!serverGrouped[dateKey]) serverGrouped[dateKey] = []
+                    
+                    // Parse multiple services if they exist in notes as JSON
+                    const isJsonNotes = apt.notes?.startsWith('{"serviceIds"');
+                    let serviceIds = [apt.serviceId].filter(Boolean);
+                    let displayNotes = apt.notes;
+
+                    if (isJsonNotes) {
+                        try {
+                            const data = JSON.parse(apt.notes);
+                            serviceIds = data.serviceIds || serviceIds;
+                            displayNotes = data.displayText || "";
+                        } catch (e) {}
+                    }
+
+                    const selectedServices = serviceIds.map(id => services.find(s => s.id === id)).filter(Boolean);
+                    const totalPrice = selectedServices.reduce((acc, s) => acc + (parseFloat(s.price) || 0), 0);
+                    const allServiceNames = selectedServices.map(s => s.name);
+                    
+                    serverGrouped[dateKey].push({
+                        id: apt.id,
+                        time: apt.time.split(':').slice(0, 2).join(':'), // Normalize to HH:MM
+                        name: apt.customerName || "Cliente",
+                        phone: apt.customerPhone || "",
+                        serviceId: apt.serviceId,
+                        service: allServiceNames[0] || (apt.status === "blocked" ? "-" : "Serviço"),
+                        allServices: allServiceNames,
+                        status: apt.status as any,
+                        price: totalPrice > 0 ? `R$ ${totalPrice.toFixed(0)}` : (apt.status === "blocked" ? "-" : "R$ 0"),
+                        notes: displayNotes
+                    })
                 })
-            })
             
             setAppointments(prev => {
                 const nextState = { ...prev }
@@ -596,8 +612,8 @@ export default function AgendaPage() {
     const handleEdit = (apt: any) => {
         setEditingAppointment({
             id: apt.id,
-            customerName: apt.name,
-            customerPhone: apt.phone,
+            name: apt.name,
+            phone: apt.phone,
             time: apt.time,
             status: apt.status,
             serviceId: apt.serviceId,

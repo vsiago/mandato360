@@ -68,18 +68,41 @@ export function DesktopDetailsPanel({ apt, onEdit, onComplete, onDetails, onConf
                 </div>
             </div>
             {/* Details grid */}
-            <div className="space-y-3 mb-6">
+            <div className="space-y-4 mb-6">
                 {[
                     { label: "Serviço", value: apt.service },
                     { label: "Valor", value: apt.price },
-                    { label: "Data", value: "26 de abril de 2025" }, // Hardcoded for design match, should use apt.date formatted
+                    { label: "Data", value: "26 de abril de 2025" }, 
                     { label: "Horário", value: apt.time },
-                    { label: "Duração", value: "50 min" }, // Mock data to match design
-                    ...(apt.notes ? [{ label: "Observações", value: apt.notes }] : [])
+                    { label: "Duração", value: "50 min" }, 
+                    ...(apt.notes ? [{ label: "Obs", value: apt.notes }] : [])
                 ].map(row => (
-                    <div key={row.label} className="flex items-start gap-3">
-                        <span className="text-[10px] text-stone-500 w-20 shrink-0 pt-0.5">{row.label}</span>
-                        <span className="text-xs text-stone-300 font-medium">{row.value}</span>
+                    <div key={row.label} className="flex items-stretch gap-4 group/row min-h-[32px]">
+                        <div className="w-[70px] shrink-0 flex items-center justify-end text-right">
+                            <span className="text-[10px] text-stone-500 font-black uppercase tracking-widest leading-none">{row.label}</span>
+                        </div>
+                        
+                        <div className="w-[2px] bg-stone-800/80 self-stretch rounded-full group-hover/row:bg-brand-primary/40 transition-colors shrink-0" />
+                        
+                        <div className="flex-1 py-1 flex items-center">
+                            {row.label === "Serviço" && apt.allServices?.length > 1 ? (
+                                <div className="flex flex-col gap-1.5 py-1">
+                                    {apt.allServices.map((s: string, idx: number) => (
+                                        <div key={idx} className="flex items-center gap-2">
+                                            <div className="h-1 w-1 rounded-full bg-brand-primary shrink-0" />
+                                            <span className="text-xs text-stone-200 font-bold leading-none">{s}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <span className={cn(
+                                    "text-xs font-bold leading-none",
+                                    row.label === "Valor" ? "text-brand-gold" : "text-stone-300"
+                                )}>
+                                    {row.value}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 ))}
             </div>
