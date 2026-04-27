@@ -18,14 +18,15 @@ const MONTH_NAMES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
 /* ═══════════════════════════════════════════
    DESKTOP: Appointment Details Panel
    ═══════════════════════════════════════════ */
-export function DesktopDetailsPanel({ apt, onEdit, onComplete, onDetails, onConfirm, onDelete, onSaveClient }: {
-    apt: any | null
-    onEdit: (a: any) => void
-    onComplete: (a: any) => void
-    onDetails: (a: any) => void
-    onConfirm: (time: string) => void
+export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onDetails, onConfirm, onDelete, onSaveClient }: {
+    apt: any
+    onEdit: (apt: any) => void
+    onReschedule: (apt: any) => void
+    onComplete: (apt: any) => void
+    onDetails: (apt: any) => void
+    onConfirm: (apt: any) => void
     onDelete: (id: string) => void
-    onSaveClient: (a: any) => void
+    onSaveClient?: (apt: any) => void
 }) {
     if (!apt) return null;
 
@@ -114,7 +115,7 @@ export function DesktopDetailsPanel({ apt, onEdit, onComplete, onDetails, onConf
                     </div>
                     <span className="text-[10px] font-medium">Editar</span>
                 </button>
-                <button onClick={() => onEdit(apt)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-amber-400 transition-colors group cursor-pointer">
+                <button onClick={() => onReschedule(apt)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-amber-400 transition-colors group cursor-pointer">
                     <div className="h-10 w-10 rounded-xl bg-amber-400/5 border border-amber-400/10 flex items-center justify-center group-hover:bg-amber-400/10 group-hover:border-amber-400/20 transition-all">
                         <CalendarIcon className="h-4 w-4 text-amber-400" />
                     </div>

@@ -93,6 +93,8 @@ export async function updateAppointmentAction(appointmentId: string, tenantId: s
     serviceId?: string
     notes?: string
     status?: string
+    date?: string
+    time?: string
 }) {
     try {
         const session = await getAuthSession()
