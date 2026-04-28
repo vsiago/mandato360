@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Calendar as CalendarIcon, Clock, Check, ChevronLeft, ChevronRight, Loader2, User, Phone, ArrowRight } from "lucide-react"
+import { Calendar as CalendarIcon, Clock, Check, ChevronLeft, ChevronRight, Loader2, User, Phone, ArrowRight, Shield, Star } from "lucide-react"
 import { createPublicAppointmentAction, getPublicAppointmentsByDateAction } from "@/lib/actions/appointments"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -26,51 +26,56 @@ const MONTHS_PT = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ]
 
-const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"]
+const WEEKDAYS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"]
 
 const ALL_TIME_SLOTS = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
 
 function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   const steps = [
-    { n: 1, label: "Data" },
-    { n: 2, label: "Horario" },
-    { n: 3, label: "Identificacao" },
-    { n: 4, label: "Confirmar" },
+    { n: 1, label: "1. DATA", sub: "Escolha o dia", icon: CalendarIcon },
+    { n: 2, label: "2. HORÁRIO", sub: "Veja os horários", icon: Clock },
+    { n: 3, label: "3. IDENTIFICAÇÃO", sub: "Seus dados", icon: User },
+    { n: 4, label: "4. CONFIRMAR", sub: "Confirme seu agendamento", icon: Check },
   ]
   
-  // Calculate progress percentage for the background line
   const progressPercent = ((current - 1) / (steps.length - 1)) * 100
 
   return (
-    <div className="flex items-center justify-center px-4 py-4 md:py-6 border-b border-stone-100 bg-white/50 relative">
-      <div className="flex items-center justify-between w-full max-w-2xl mx-auto relative group">
+    <div className="flex items-center justify-center px-4 py-8 md:py-10 border-b border-stone-100 bg-white relative rounded-t-2xl md:rounded-t-[2rem] z-10">
+      <div className="flex items-center justify-between w-full max-w-4xl mx-auto relative group">
         
         {/* Track Background Line */}
-        <div className="absolute top-[10px] md:top-[12px] left-0 w-full h-0.5 bg-stone-100 z-0" />
+        <div className="absolute top-[24px] md:top-[32px] left-0 w-full h-1 bg-stone-100 z-0" />
         
         {/* Active Progress Line */}
         <div 
-          className="absolute top-[10px] md:top-[12px] left-0 h-0.5 bg-tenant-primary z-0 transition-all duration-700 ease-in-out shadow-sm" 
-          style={{ width: `${progressPercent}%` }}
+          className="absolute top-[24px] md:top-[32px] left-0 h-1 z-0 transition-all duration-700 ease-in-out shadow-sm" 
+          style={{ width: `${progressPercent}%`, backgroundColor: 'var(--tenant-hover)' }}
         />
 
         {steps.map((s) => {
           const isDone = s.n < current
           const isActive = s.n === current
+          const Icon = s.icon
           return (
-            <div key={s.n} className="flex flex-col items-center gap-3 relative z-10">
+            <div key={s.n} className="flex flex-col items-center gap-3 relative z-10 w-24 md:w-32 text-center">
               <div className={cn(
-                "w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[8px] md:text-[10px] font-bold transition-all duration-500 ring-4 ring-white shadow-sm",
-                isDone || isActive ? 'bg-tenant-primary text-white' : 'bg-stone-100 text-stone-400'
+                "w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-500 ring-[8px] md:ring-[12px] ring-white border",
+                isDone || isActive ? 'bg-[#0B1426] text-white border-[#0B1426]' : 'bg-stone-50 text-stone-400 border-stone-200'
               )}>
-                {isDone ? <Check className="w-2.5 h-2.5 md:w-3 md:h-3" strokeWidth={4} /> : s.n}
+                <Icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={isDone || isActive ? 2.5 : 2} />
               </div>
-              <span className={cn(
-                "text-[8px] md:text-[9px] font-extrabold uppercase tracking-widest transition-colors duration-300",
-                isActive ? 'text-tenant-primary' : isDone ? 'text-stone-900' : 'text-stone-400'
-              )}>
-                {s.label}
-              </span>
+              <div className="flex flex-col items-center mt-1 md:mt-2">
+                <span className={cn(
+                  "text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-300",
+                  isActive || isDone ? 'text-stone-800' : 'text-stone-400'
+                )}>
+                  {s.label}
+                </span>
+                <span className="text-[9px] md:text-[10px] text-stone-400 hidden md:block mt-0.5 font-medium">
+                  {s.sub}
+                </span>
+              </div>
             </div>
           )
         })}
@@ -79,7 +84,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   )
 }
 
-function CalendarPanel({ selDay, onSelect, onNext }: any) {
+function CalendarPanel({ selDay, onSelect, onNext, businessHours }: any) {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const [viewYear, setViewYear] = React.useState(now.getFullYear())
@@ -94,65 +99,177 @@ function CalendarPanel({ selDay, onSelect, onNext }: any) {
     setViewYear(newYear)
   }
 
+  const goToday = () => {
+    setViewMonth(now.getMonth())
+    setViewYear(now.getFullYear())
+  }
+
   const firstDay = new Date(viewYear, viewMonth, 1).getDay()
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
 
   const formattedDate = selDay
-    ? new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { day: "numeric", month: "long" })
+    ? new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
     : "Selecione uma data"
 
-  return (
-    <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500">
-      <div className="flex items-center justify-between px-6 py-2 md:px-8 md:py-3 border-b border-stone-50/50">
-        <div className="text-base md:text-lg font-bold tracking-tight text-stone-900 text-left">
-          {MONTHS_PT[viewMonth]} <span className="text-stone-300 font-light ml-1">{viewYear}</span>
-        </div>
-        <div className="flex gap-3">
-          <button className="w-10 h-10 rounded-2xl border border-stone-100 flex items-center justify-center text-stone-400 hover:bg-stone-50 hover:text-stone-900 transition-all disabled:opacity-20 active:scale-95" disabled={viewYear === now.getFullYear() && viewMonth === now.getMonth()} onClick={() => changeMonth(-1)}>
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button className="w-10 h-10 rounded-2xl border border-stone-100 flex items-center justify-center text-stone-400 hover:bg-stone-50 hover:text-stone-900 transition-all active:scale-95" onClick={() => changeMonth(1)}>
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-      
-      <div className="px-6 md:px-10 py-3 flex-1 flex flex-col">
-        <div className="grid grid-cols-7 mb-2">
-          {WEEKDAYS.map(w => (<span key={w} className="text-[8px] font-bold text-stone-400 uppercase tracking-widest text-center">{w}</span>))}
-        </div>
-        <div className="grid grid-cols-7 gap-1 flex-1">
-          {Array.from({ length: firstDay }).map((_, i) => (<div key={'e-'+i} className="h-8 w-full" />))}
-          {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
-            const date = new Date(viewYear, viewMonth, d)
-            const isPast = date < today
-            const isSel = selDay?.d === d && selDay?.m === viewMonth && selDay?.y === viewYear
-            return (
-              <button 
-                key={d} 
-                disabled={isPast} 
-                onClick={() => onSelect({ d, m: viewMonth, y: viewYear })} 
-                className={cn(
-                    "h-full min-h-[40px] flex flex-col items-center justify-center rounded-lg text-xs md:text-sm font-bold transition-all relative group",
-                    isSel ? 'bg-tenant-primary text-white shadow-md' : isPast ? 'text-stone-300 opacity-60' : 'text-stone-600 hover:bg-stone-50 hover:text-tenant-primary'
+  const BenefitsSidebar = () => (
+    <div className="flex flex-col gap-6 w-full">
+      {/* Selected Date Card (Mobile Only Sidebar view, hidden on desktop if we have footer, but let's keep it here for layout matching) */}
+      <div className="bg-stone-50 rounded-2xl p-5 border border-stone-100 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-stone-100/50 flex-shrink-0">
+                <CalendarIcon className="w-6 h-6" style={{ color: 'var(--tenant-hover)' }} />
+            </div>
+            <div className="flex flex-col text-left">
+                {selDay ? (
+                <>
+                    <span className="text-stone-900 font-bold capitalize text-sm">{new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { weekday: "long" })}</span>
+                    <span className="text-stone-500 text-sm">{new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })}</span>
+                </>
+                ) : (
+                <span className="text-stone-500 font-medium text-sm">Selecione um dia</span>
                 )}
-              >
-                {d}
-                {isSel && <div className="absolute bottom-1 w-0.5 h-0.5 bg-white rounded-full" />}
-              </button>
-            )
-          })}
+            </div>
+        </div>
+        <div className="lg:hidden">
+            <ChevronRight className="w-5 h-5 text-stone-400" />
         </div>
       </div>
 
-      <div className="flex items-center justify-between p-3 md:p-4 bg-stone-50/50 border-t border-stone-100/50">
-        <div className="flex flex-col">
-          <span className="text-[8px] uppercase font-bold text-stone-400 tracking-[0.2em] mb-0.5 text-left">Data</span>
-          <span className="text-[10px] md:text-xs font-bold text-stone-900">{selDay ? formattedDate : "--- --- ---"}</span>
+      {/* Benefits */}
+      <div className="flex flex-col gap-5 pt-2">
+        <div className="flex items-start gap-4 text-left">
+          <div className="mt-1 w-10 h-10 rounded-full border border-stone-200 flex items-center justify-center flex-shrink-0">
+            <Clock className="w-5 h-5 stroke-[1.5]" style={{ color: 'var(--tenant-hover)' }} />
+          </div>
+          <div>
+            <h4 className="font-bold text-stone-800 text-sm">Agendamento fácil e rápido</h4>
+            <p className="text-stone-500 text-xs mt-1 leading-relaxed">Escolha a data e horário que melhor se encaixa na sua rotina.</p>
+          </div>
         </div>
-        <button className="bg-tenant-primary text-white px-6 py-2.5 rounded-lg text-[9px] md:text-[10px] font-black shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 uppercase tracking-wider hover:-translate-y-0.5" disabled={!selDay} onClick={onNext}>
-          Horário <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
-        </button>
+        <div className="flex items-start gap-4 text-left">
+          <div className="mt-1 w-10 h-10 rounded-full border border-stone-200 flex items-center justify-center flex-shrink-0">
+            <Shield className="w-5 h-5 stroke-[1.5]" style={{ color: 'var(--tenant-hover)' }} />
+          </div>
+          <div>
+            <h4 className="font-bold text-stone-800 text-sm">Ambiente seguro</h4>
+            <p className="text-stone-500 text-xs mt-1 leading-relaxed">Seus dados estão protegidos com total privacidade.</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-4 text-left">
+          <div className="mt-1 w-10 h-10 rounded-full border border-stone-200 flex items-center justify-center flex-shrink-0">
+            <Star className="w-5 h-5 stroke-[1.5]" style={{ color: 'var(--tenant-hover)' }} />
+          </div>
+          <div>
+            <h4 className="font-bold text-stone-800 text-sm">Compromisso com você</h4>
+            <p className="text-stone-500 text-xs mt-1 leading-relaxed">Cuidado, atenção e resultados que fazem a diferença.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="w-full flex flex-col flex-1 animate-in fade-in duration-500">
+      
+      <div className="flex flex-col lg:flex-row p-6 md:p-10 gap-10 flex-1">
+        {/* Left Col: Calendar */}
+        <div className="flex-1 max-w-md mx-auto w-full">
+          <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+            <div className="text-3xl md:text-4xl font-bold tracking-tight text-[#0B1426] text-left w-full sm:w-auto">
+              <span className="font-serif">{MONTHS_PT[viewMonth]}</span> <span className="font-sans font-normal ml-1 text-stone-400">{viewYear}</span>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
+              <button className="w-10 h-10 rounded-xl border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-all disabled:opacity-30 active:scale-95" disabled={viewYear === now.getFullYear() && viewMonth === now.getMonth()} onClick={() => changeMonth(-1)}>
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button className="w-10 h-10 rounded-xl border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-all active:scale-95" onClick={() => changeMonth(1)}>
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <button onClick={goToday} className="px-5 h-10 rounded-xl border border-stone-200 text-sm font-bold text-stone-600 hover:bg-stone-50 transition-all ml-2 active:scale-95">
+                Hoje
+              </button>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-7 mb-4">
+            {WEEKDAYS.map(w => (<span key={w} className="text-[10px] font-bold text-stone-400 uppercase tracking-wider text-center">{w}</span>))}
+          </div>
+          
+          <div className="grid grid-cols-7 gap-y-2 gap-x-1">
+            {Array.from({ length: firstDay }).map((_, i) => (<div key={'e-'+i} className="aspect-square w-full" />))}
+            {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
+              const date = new Date(viewYear, viewMonth, d)
+              const isPast = date < today
+              const isSel = selDay?.d === d && selDay?.m === viewMonth && selDay?.y === viewYear
+              // Available if not past and either no specific config or config says isOpen
+              const dayOfWeek = date.getDay().toString()
+              const config = businessHours?.[dayOfWeek]
+              const isAvailable = !isPast && (!businessHours || !config || config.isOpen)
+
+              return (
+                <div key={d} className="aspect-square p-0.5 sm:p-1">
+                  <button 
+                    disabled={isPast || !isAvailable} 
+                    onClick={() => onSelect({ d, m: viewMonth, y: viewYear })} 
+                    className={cn(
+                        "w-full h-full flex flex-col items-center justify-center rounded-[0.8rem] text-sm font-bold transition-all relative group",
+                        isSel ? 'bg-[#0B1426] text-white shadow-md' : 
+                        isPast || !isAvailable ? 'text-stone-300 opacity-50' : 
+                        'text-stone-600 hover:bg-stone-50 hover:text-[#0B1426]'
+                    )}
+                  >
+                    <span>{d}</span>
+                    <div className="absolute bottom-1.5 flex justify-center w-full">
+                       {isAvailable && !isSel && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tenant-hover)' }} />}
+                       {isSel && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tenant-hover)' }} />}
+                    </div>
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-start gap-4 sm:gap-6 mt-8">
+            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--tenant-hover)' }}></div><span className="text-xs text-stone-500 font-medium">Disponível</span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#0B1426]"></div><span className="text-xs text-stone-500 font-medium">Poucas vagas</span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-stone-200"></div><span className="text-xs text-stone-500 font-medium">Indisponível</span></div>
+          </div>
+        </div>
+
+        {/* Right Col / Mobile Bottom: Benefits Sidebar */}
+        <div className="hidden lg:block w-px bg-stone-100 my-4" />
+        
+        <div className="lg:hidden w-full h-px bg-stone-100 my-4" />
+
+        <div className="flex-1 max-w-sm mx-auto w-full flex flex-col justify-start lg:justify-center">
+           <BenefitsSidebar />
+        </div>
+      </div>
+
+      {/* Footer Area for selection */}
+      <div className="p-4 md:p-6 bg-white border-t border-stone-100 mt-auto">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+           
+           <div className="hidden lg:flex items-center gap-4 bg-stone-50 rounded-2xl p-3 pr-8 border border-stone-100">
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-stone-100/50">
+                <CalendarIcon className="w-6 h-6" style={{ color: 'var(--tenant-hover)' }} />
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Data selecionada:</span>
+                <span className="text-stone-900 font-bold text-sm">
+                  {selDay ? formattedDate : "---"}
+                </span>
+              </div>
+           </div>
+
+           <button 
+             className="w-full lg:w-auto bg-[#0B1426] text-white px-8 py-4 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5 ml-auto" 
+             disabled={!selDay} 
+             onClick={onNext}
+           >
+             Escolher horário <ArrowRight className="w-4 h-4" />
+           </button>
+        </div>
       </div>
     </div>
   )
@@ -162,47 +279,47 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
   const formattedDate = new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { day: "numeric", month: "long" })
   return (
     <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500 text-left">
-      <div className="px-6 py-4 md:px-8 md:py-5 border-b border-stone-50/50">
-        <div className="inline-flex items-center gap-2 bg-stone-50 text-stone-500 px-2 py-0.5 rounded-md text-[8px] font-bold uppercase tracking-[0.2em] mb-2 border border-stone-100/50">
-          <CalendarIcon className="w-2.5 h-2.5" /> {formattedDate}
+      <div className="px-6 py-6 md:px-10 md:py-8 border-b border-stone-100">
+        <div className="inline-flex items-center gap-2 bg-stone-50 text-stone-500 px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.2em] mb-4 border border-stone-100">
+          <CalendarIcon className="w-3 h-3" style={{ color: 'var(--tenant-hover)' }} /> {formattedDate}
         </div>
-        <h2 className="text-lg md:text-xl font-bold tracking-tight text-stone-900 mb-1">Escolha o Horário</h2>
-        <p className="text-stone-500 text-[10px] leading-relaxed max-w-sm">Selecione o momento ideal para o seu atendimento exclusivo.</p>
+        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#0B1426] mb-2 font-serif">Escolha o Horário</h2>
+        <p className="text-stone-500 text-xs md:text-sm leading-relaxed max-w-sm">Selecione o momento ideal para o seu atendimento exclusivo.</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-stone-50/30 p-5 md:p-6 min-h-[300px]">
+      <div className="flex-1 overflow-y-auto bg-stone-50/50 p-6 md:p-10 min-h-[300px]">
         {isLoading ? (
           <div className="h-full w-full flex flex-col items-center justify-center gap-3">
-            <Loader2 className="w-8 h-8 text-tenant-primary animate-spin" />
+            <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--tenant-hover)' }} />
             <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Buscando horários...</p>
           </div>
         ) : availableSlots.length === 0 ? (
           <div className="h-full w-full flex flex-col items-center justify-center gap-4 text-center px-6">
-            <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
+            <div className="w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 border border-stone-200">
               <Clock className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-bold text-stone-900">Nenhum horário disponível</p>
-              <p className="text-[10px] text-stone-500 mt-1">Infelizmente não há mais vagas para esta data. Tente outro dia.</p>
+              <p className="text-base font-bold text-stone-900">Nenhum horário disponível</p>
+              <p className="text-xs text-stone-500 mt-1">Infelizmente não há mais vagas para esta data. Tente outro dia.</p>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
             {availableSlots.map((s: any) => (
               <button 
                 key={s.time} 
                 onClick={() => onSelect(s.time)} 
                 className={cn(
-                    "py-3 rounded-lg border transition-all flex flex-col items-center gap-0.5 active:scale-95 group",
+                    "py-4 rounded-xl border transition-all flex flex-col items-center gap-1 active:scale-95 group",
                     selTime === s.time 
-                      ? 'bg-tenant-primary border-tenant-primary text-white shadow-md' 
-                      : 'bg-white border-stone-200 text-stone-600 hover:border-tenant-primary hover:text-tenant-primary'
+                      ? 'bg-[#0B1426] border-[#0B1426] text-white shadow-md' 
+                      : 'bg-white border-stone-200 text-stone-600 hover:border-[#0B1426] hover:text-[#0B1426] hover:shadow-sm'
                 )}
               >
-                <span className="text-base font-bold">{s.time}</span>
+                <span className="text-lg font-bold">{s.time}</span>
                 <span className={cn(
-                  "text-[9px] font-bold uppercase tracking-wider",
-                  selTime === s.time ? "text-white/70" : "text-stone-400 group-hover:text-tenant-primary"
+                  "text-[10px] font-bold uppercase tracking-wider",
+                  selTime === s.time ? "text-white/70" : "text-stone-400 group-hover:text-stone-500"
                 )}>{s.tag}</span>
               </button>
             ))}
@@ -210,12 +327,12 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
         )}
       </div>
 
-      <div className="flex items-center justify-between p-3 md:p-4 bg-white border-t border-stone-100">
-        <button className="text-[10px] md:text-xs font-bold text-stone-400 hover:text-tenant-primary hover:bg-stone-50 px-3 py-2 rounded-lg transition-colors flex items-center gap-1 uppercase tracking-widest" onClick={onBack}>
+      <div className="flex items-center justify-between p-4 md:p-6 bg-white border-t border-stone-100 mt-auto">
+        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[#0B1426] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack}>
           <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Voltar
         </button>
-        <button className="bg-tenant-primary text-white px-6 py-2.5 rounded-lg text-[9px] md:text-[10px] font-black shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 uppercase tracking-wider hover:-translate-y-0.5" disabled={!selTime} onClick={onNext}>
-          Avançar <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
+        <button className="bg-[#0B1426] text-white px-8 py-3.5 rounded-xl text-[11px] md:text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" disabled={!selTime} onClick={onNext}>
+          Identificação <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -225,44 +342,44 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
 function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving }: any) {
   return (
     <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500 text-left">
-      <div className="px-6 py-8 md:px-10 md:py-10 flex-1">
-        <div className="max-w-md mx-auto w-full">
+      <div className="px-6 py-10 md:px-12 md:py-16 flex-1 flex flex-col justify-center bg-stone-50/30">
+        <div className="max-w-md mx-auto w-full bg-white p-8 rounded-3xl border border-stone-100 shadow-sm">
           <div className="mb-8 text-center md:text-left">
-            <h2 className="text-xl md:text-3xl font-bold tracking-tight text-stone-900 mb-2">Informações de Contato</h2>
-            <p className="text-stone-500 text-xs leading-relaxed">Última etapa! Por favor, preencha seus dados para finalizar a reserva do seu horário.</p>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#0B1426] mb-2 font-serif">Seus Dados</h2>
+            <p className="text-stone-500 text-sm leading-relaxed">Última etapa! Por favor, preencha seus dados para finalizar a reserva do seu horário.</p>
           </div>
           
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="space-y-2 group">
-              <label className="text-[9px] font-extrabold text-stone-400 uppercase tracking-[0.25em] ml-1">Seu Nome Completo</label>
-              <div className="relative flex items-center h-14 bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-tenant-primary/40 focus-within:bg-stone-50/50" style={{ '--tw-ring-color': 'color-mix(in srgb, var(--tenant-primary) 15%, transparent)' } as React.CSSProperties}>
-                <div className="w-12 h-full flex items-center justify-center text-stone-400 group-focus-within:text-tenant-primary transition-colors">
-                  <User className="w-4 h-4" />
+              <label className="text-[10px] font-extrabold text-stone-400 uppercase tracking-[0.2em] ml-1">Seu Nome Completo</label>
+              <div className="relative flex items-center h-14 bg-stone-50/50 border border-stone-200 rounded-xl overflow-hidden transition-all focus-within:border-[#0B1426] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#0B1426]/10">
+                <div className="w-14 h-full flex items-center justify-center text-stone-400 group-focus-within:text-[#0B1426] transition-colors">
+                  <User className="w-5 h-5" />
                 </div>
-                <div className="w-px h-6 transition-colors" style={{ backgroundColor: 'color-mix(in srgb, var(--tenant-primary, #8c6239) 15%, #e5e7eb)' }} />
+                <div className="w-px h-6 bg-stone-200 transition-colors" />
                 <input 
                     type="text" 
                     placeholder="Ex: Amanda Silva" 
                     value={name} 
                     onChange={(e) => setName(e.target.value)} 
-                    className="flex-1 h-full px-5 text-stone-900 placeholder:text-stone-400 outline-none text-sm font-semibold focus:ring-4 focus:ring-[var(--tw-ring-color)] bg-transparent" 
+                    className="flex-1 h-full px-5 text-stone-900 placeholder:text-stone-400 outline-none text-sm font-semibold bg-transparent" 
                 />
               </div>
             </div>
 
             <div className="space-y-2 group">
-              <label className="text-[9px] font-extrabold text-stone-400 uppercase tracking-[0.25em] ml-1">Seu WhatsApp</label>
-              <div className="relative flex items-center h-14 bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-tenant-primary/40 focus-within:bg-stone-50/50" style={{ '--tw-ring-color': 'color-mix(in srgb, var(--tenant-primary) 15%, transparent)' } as React.CSSProperties}>
-                <div className="w-12 h-full flex items-center justify-center text-stone-400 group-focus-within:text-tenant-primary transition-colors">
-                  <Phone className="w-4 h-4" />
+              <label className="text-[10px] font-extrabold text-stone-400 uppercase tracking-[0.2em] ml-1">Seu WhatsApp</label>
+              <div className="relative flex items-center h-14 bg-stone-50/50 border border-stone-200 rounded-xl overflow-hidden transition-all focus-within:border-[#0B1426] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#0B1426]/10">
+                <div className="w-14 h-full flex items-center justify-center text-stone-400 group-focus-within:text-[#0B1426] transition-colors">
+                  <Phone className="w-5 h-5" />
                 </div>
-                <div className="w-px h-6 transition-colors" style={{ backgroundColor: 'color-mix(in srgb, var(--tenant-primary, #8c6239) 15%, #e5e7eb)' }} />
+                <div className="w-px h-6 bg-stone-200 transition-colors" />
                 <input 
                     type="tel" 
-                    placeholder="(21) 99999-0000" 
+                    placeholder="(00) 90000-0000" 
                     value={phone} 
                     onChange={(e) => setPhone(e.target.value)} 
-                    className="flex-1 h-full px-5 text-stone-900 placeholder:text-stone-400 outline-none text-sm font-semibold focus:ring-4 focus:ring-[var(--tw-ring-color)] bg-transparent" 
+                    className="flex-1 h-full px-5 text-stone-900 placeholder:text-stone-400 outline-none text-sm font-semibold bg-transparent" 
                 />
               </div>
             </div>
@@ -270,19 +387,19 @@ function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving
         </div>
       </div>
 
-      <div className="flex items-center justify-between p-4 md:p-6 bg-stone-50/50 border-t border-stone-100 mt-auto">
-        <button className="text-[10px] md:text-xs font-bold text-stone-400 hover:text-tenant-primary hover:bg-stone-100 px-3 py-2 rounded-lg transition-colors flex items-center gap-1 uppercase tracking-widest" onClick={onBack}>
-          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Dados
+      <div className="flex items-center justify-between p-4 md:p-6 bg-white border-t border-stone-100 mt-auto">
+        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[#0B1426] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack}>
+          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Horário
         </button>
         <button 
-          className="bg-tenant-primary text-white px-10 py-3.5 md:py-4 rounded-xl text-[10px] md:text-xs font-black shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 uppercase tracking-wider hover:-translate-y-0.5" 
+          className="bg-[#0B1426] text-white px-10 py-4 rounded-xl text-xs md:text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" 
           disabled={!name || name.length < 3 || !phone || phone.length < 8 || isSaving} 
           onClick={onNext}
         >
           {isSaving ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> ...</>
+            <><Loader2 className="w-5 h-5 animate-spin" /> ...</>
           ) : (
-            <>Finalizar <ArrowRight className="w-4 h-4" /></>
+            <>Finalizar Agendamento <Check className="w-4 h-4" /></>
           )}
         </button>
       </div>
@@ -298,26 +415,26 @@ function ConfirmPanel({ selDay, selTime, whatsappNumber, clientName, selectedSer
     window.open('https://wa.me/' + whatsappNumber + '?text=' + msg, "_blank")
   }
   return (
-    <div className="w-full flex-1 flex flex-col items-center justify-center p-6 md:p-10 text-center animate-in zoom-in-95 duration-700">
-      <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 mb-4 border border-emerald-100 shadow-[0_15px_30px_rgba(16,185,129,0.08)]">
-        <Check className="w-6 h-6 md:w-8 md:h-8" strokeWidth={3} />
+    <div className="w-full flex-1 flex flex-col items-center justify-center p-8 md:p-16 text-center animate-in zoom-in-95 duration-700 bg-white">
+      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mb-6 border-4 border-emerald-100 shadow-sm">
+        <Check className="w-8 h-8 md:w-10 md:h-10" strokeWidth={3} />
       </div>
-      <h2 className="text-2xl md:text-5xl font-bold mb-2 tracking-tight text-stone-900">Agendamento<br/><span className="text-emerald-500 italic">Confirmado!</span></h2>
-      <p className="text-stone-400 text-xs md:text-base mb-6 md:mb-8 max-w-sm leading-relaxed">Parabéns! Seu horário foi reservado com sucesso em nosso sistema.</p>
+      <h2 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight text-[#0B1426] font-serif">Agendamento<br/>Confirmado!</h2>
+      <p className="text-stone-500 text-sm md:text-base mb-10 max-w-md leading-relaxed">Parabéns! Seu horário foi reservado com sucesso. Verifique os detalhes abaixo.</p>
       
-      <div className="w-full max-w-sm bg-stone-50 border border-stone-200 rounded-2xl p-4 md:p-6 mb-6 md:mb-8 grid grid-cols-2 gap-4 text-left relative overflow-hidden shadow-sm">
-        <div className="space-y-1 relative z-10">
-          <div className="text-[8px] font-extrabold text-stone-400 uppercase tracking-widest">Procedimento</div>
-          <div className="font-bold text-sm text-stone-900 leading-tight truncate">{selectedService?.name || "Serviço"}</div>
+      <div className="w-full max-w-md bg-stone-50 border border-stone-100 rounded-3xl p-6 md:p-8 mb-10 grid grid-cols-2 gap-6 text-left shadow-sm">
+        <div className="space-y-2">
+          <div className="text-[10px] font-extrabold text-stone-400 uppercase tracking-widest flex items-center gap-1.5"><Star className="w-3 h-3" style={{ color: 'var(--tenant-hover)' }}/> Procedimento</div>
+          <div className="font-bold text-base text-[#0B1426] leading-tight">{selectedService?.name || "Serviço"}</div>
         </div>
-        <div className="space-y-1 relative z-10 border-l border-stone-200 pl-4">
-          <div className="text-[8px] font-extrabold text-stone-400 uppercase tracking-widest">Informações</div>
-          <div className="font-bold text-[10px] text-stone-600 leading-tight">{formattedDate}<br/>às {selTime}</div>
+        <div className="space-y-2 border-l border-stone-200 pl-6">
+          <div className="text-[10px] font-extrabold text-stone-400 uppercase tracking-widest flex items-center gap-1.5"><CalendarIcon className="w-3 h-3" style={{ color: 'var(--tenant-hover)' }}/> Data & Hora</div>
+          <div className="font-bold text-sm text-[#0B1426] leading-tight">{formattedDate}<br/>às <span style={{ color: 'var(--tenant-hover)' }}>{selTime}</span></div>
         </div>
       </div>
 
-      <button onClick={confirmWhatsApp} className="w-full max-w-sm bg-[#25D366] text-white h-16 rounded-full font-bold text-base shadow-[0_15px_30px_rgba(37,211,102,0.15)] hover:brightness-105 hover:scale-[1.01] transition-all active:scale-95 flex items-center justify-center gap-3 group">
-        Confirmar no WhatsApp <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+      <button onClick={confirmWhatsApp} className="w-full max-w-sm bg-[#25D366] text-white h-16 rounded-2xl font-bold text-base shadow-lg shadow-[#25D366]/20 hover:brightness-105 hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-3 group">
+        Confirmar no WhatsApp <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
       </button>
     </div>
   )
@@ -384,6 +501,11 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
             const openVal = openH * 60 + openM
             const closeVal = closeH * 60 + closeM
             isOpen = timeVal >= openVal && timeVal < closeVal
+        } else if (!config || !businessHours) {
+            // Default 08:00 to 18:00 if no specific configuration
+            const [h, m] = time.split(':').map(Number)
+            const timeVal = h * 60 + m
+            isOpen = timeVal >= 8 * 60 && timeVal < 18 * 60
         }
 
         // Available if: (Open by config OR Manual Liberado) AND NOT (Occupied OR Blocked)
@@ -436,33 +558,20 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
 
   const InnerContent = (
     <div className={cn(
-      "w-full bg-white overflow-hidden flex flex-col min-h-125 md:min-h-155 relative",
-      !isModal && "rounded-2xl md:rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.06)] border border-stone-200/60"
-    )} style={{ height: isModal ? 'auto' : '620px' }}>
+      "w-full bg-white flex flex-col relative",
+      !isModal && "rounded-2xl md:rounded-[2rem] shadow-xl border border-stone-200/50"
+    )}>
       <style dangerouslySetInnerHTML={{ __html: `
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 5px !important;
-          height: 5px !important;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent !important;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: color-mix(in srgb, var(--tenant-primary, #8c6239) 30%, transparent) !important;
-          border-radius: 10px !important;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: var(--tenant-primary, #8c6239) !important;
-        }
-        .custom-scrollbar {
-          scrollbar-width: thin !important;
-          scrollbar-color: color-mix(in srgb, var(--tenant-primary, #8c6239) 30%, transparent) transparent !important;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px !important; height: 6px !important; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent !important; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--tenant-hover, #6d4a2a) 30%, transparent) !important; border-radius: 10px !important; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--tenant-hover, #6d4a2a) !important; }
+        .custom-scrollbar { scrollbar-width: thin !important; scrollbar-color: color-mix(in srgb, var(--tenant-hover, #6d4a2a) 30%, transparent) transparent !important; }
       `}} />
       <StepIndicator current={step} />
       
-      <div className="flex-1 flex flex-col overflow-y-auto custom-scrollbar">
-        {step === 1 && <CalendarPanel selDay={selDay} onSelect={(d: any) => { setSelDay(d); setSelTime(null); }} onNext={() => setStep(2)} />}
+      <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar">
+        {step === 1 && <CalendarPanel selDay={selDay} onSelect={(d: any) => { setSelDay(d); setSelTime(null); }} onNext={() => setStep(2)} businessHours={businessHours} />}
         {step === 2 && selDay && (
           <TimePanel 
             selDay={selDay} 
@@ -485,24 +594,36 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
   if (isModal) return InnerContent
 
   return (
-    <section id="agendamento" className="relative py-12 md:py-20 px-4 bg-white overflow-hidden">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-250 h-150 bg-stone-50 blur-[120px] rounded-full pointer-events-none" />
+    <section id="agendamento" className="relative py-16 md:py-24 px-4 bg-stone-50 overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--tenant-hover)_10%,transparent)_0%,transparent_70%)] pointer-events-none" />
       
-      <div className="relative z-10 w-full max-w-4xl mx-auto">
-        <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-3xl md:text-5xl font-bold text-stone-900 mb-4 tracking-tight">
-            Agenda <span className="text-tenant-primary italic">Online</span>
+      <div className="relative z-10 w-full max-w-6xl mx-auto">
+        <div className="text-center mb-10 md:mb-16">
+          <h2 className="text-4xl md:text-6xl font-black text-[#0B1426] mb-5 tracking-tight font-serif">
+            Agenda <span className="italic font-serif" style={{ color: 'var(--tenant-hover)' }}>Online</span>
           </h2>
-          <p className="text-stone-400 text-[10px] uppercase tracking-[0.4em] font-extrabold">Exclusividade e Precisão em cada detalhe</p>
+          <div className="flex items-center justify-center gap-4">
+             <div className="h-px w-12 md:w-24" style={{ backgroundColor: 'var(--tenant-hover)', opacity: 0.4 }} />
+             <p className="text-stone-500 text-[10px] uppercase tracking-[0.3em] md:tracking-[0.5em] font-extrabold">Exclusividade e Precisão em cada detalhe</p>
+             <div className="h-px w-12 md:w-24" style={{ backgroundColor: 'var(--tenant-hover)', opacity: 0.4 }} />
+          </div>
         </div>
 
         {InnerContent}
 
-        <div className="mt-16 text-center">
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-full border border-stone-200 shadow-sm">
-            <Check className="w-4 h-4 text-tenant-primary" />
-            <span className="text-stone-500 text-[10px] font-bold uppercase tracking-widest">Agendamento 100% Seguro</span>
-          </div>
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 md:gap-12 text-center">
+            <div className="flex flex-col items-center gap-2">
+                <CalendarIcon className="w-6 h-6" strokeWidth={1.5} style={{ color: 'var(--tenant-hover)' }} />
+                <span className="text-stone-600 text-xs font-semibold">Agendar</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+                <Clock className="w-6 h-6" strokeWidth={1.5} style={{ color: 'var(--tenant-hover)' }} />
+                <span className="text-stone-600 text-xs font-semibold">Como funciona</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+                <Shield className="w-6 h-6" strokeWidth={1.5} style={{ color: 'var(--tenant-hover)' }} />
+                <span className="text-stone-600 text-xs font-semibold">Segurança</span>
+            </div>
         </div>
       </div>
     </section>
