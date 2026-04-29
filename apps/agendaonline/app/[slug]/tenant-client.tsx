@@ -941,7 +941,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
             {isMounted && (
                 <Sheet open={isBookingOpen} onOpenChange={setIsBookingOpen}>
                     <SheetContent side="right" className="fixed inset-y-0 right-0 z-100 flex h-full w-full sm:max-w-xl flex-col bg-white border-l border-stone-100 overflow-y-auto p-0 shadow-2xl transition-all duration-500 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right">
-                        <SheetHeader className="p-6 md:p-8 border-b border-stone-50 bg-stone-50/30">
+                        <SheetHeader className="p-4 md:pb-2 border-b border-stone-50 bg-stone-50/30">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <SheetTitle className="text-2xl md:text-3xl font-bold text-stone-900 tracking-tight" style={{ fontFamily: 'var(--theme-font-heading)' }}>

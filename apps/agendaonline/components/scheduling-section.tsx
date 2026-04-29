@@ -30,6 +30,35 @@ const WEEKDAYS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"]
 
 const ALL_TIME_SLOTS = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
 
+const SelectionSummary = ({ selDay, selTime }: any) => {
+  if (!selDay) return null;
+  const date = new Date(selDay.y, selDay.m, selDay.d);
+  const formattedDate = date.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+
+  return (
+    <div className="bg-stone-50 rounded-2xl p-4 border border-stone-100 flex items-center gap-4 shadow-sm w-full animate-in fade-in slide-in-from-top-4 duration-500">
+      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-stone-100/50 flex-shrink-0">
+        <CalendarIcon className="w-6 h-6" style={{ color: 'var(--tenant-hover)' }} />
+      </div>
+      <div className="flex flex-col text-left">
+        <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+          {selTime ? "Agendamento para:" : "Data selecionada:"}
+        </span>
+        <span className="text-stone-900 font-bold text-sm">
+          {capitalizedDate}
+          {selTime && (
+            <span className="text-tenant-primary ml-2 italic lowercase font-black">
+              às {selTime}
+            </span>
+          )}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   const steps = [
     { n: 1, label: "1. DATA", sub: "Escolha o dia", icon: CalendarIcon },
@@ -41,16 +70,15 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   const progressPercent = ((current - 1) / (steps.length - 1)) * 100
 
   return (
-    <div className="flex items-center justify-center px-4 py-8 md:py-10 border-b border-stone-100 bg-white relative rounded-t-2xl md:rounded-t-[2rem] z-10">
+    <div className="flex items-center justify-center px-2 py-1.5 border-b border-stone-100 relative rounded-t-2xl md:rounded-t-[2rem] z-10">
       <div className="flex items-center justify-between w-full max-w-4xl mx-auto relative group">
         
         {/* Track Background Line */}
-        <div className="absolute top-[24px] md:top-[32px] left-0 w-full h-1 bg-stone-100 z-0" />
+        <div className="absolute top-[18px] md:top-[22px] left-0 w-full h-0.5 bg-stone-100 z-0" />
         
         {/* Active Progress Line */}
         <div 
-          className="absolute top-[24px] md:top-[32px] left-0 h-1 z-0 transition-all duration-700 ease-in-out shadow-sm" 
-          style={{ width: `${progressPercent}%`, backgroundColor: 'var(--tenant-hover)' }}
+          className="absolute top-[18px] md:top-[22px] left-0 h-0.5 z-0 transition-all duration-700 ease-in-out shadow-sm"           style={{ width: `${progressPercent}%`, backgroundColor: 'var(--tenant-hover)' }}
         />
 
         {steps.map((s) => {
@@ -58,21 +86,21 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
           const isActive = s.n === current
           const Icon = s.icon
           return (
-            <div key={s.n} className="flex flex-col items-center gap-3 relative z-10 w-24 md:w-32 text-center">
+            <div key={s.n} className="flex flex-col items-center gap-1 relative z-10 w-24 md:w-32 text-center">
               <div className={cn(
-                "w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-500 ring-[8px] md:ring-[12px] ring-white border",
+                "w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-500 ring-[2px] md:ring-[4px] ring-white border",
                 isDone || isActive ? 'bg-[#0B1426] text-white border-[#0B1426]' : 'bg-stone-50 text-stone-400 border-stone-200'
               )}>
-                <Icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={isDone || isActive ? 2.5 : 2} />
+                <Icon className="w-4 h-4 md:w-5 md:h-5" strokeWidth={isDone || isActive ? 2.5 : 2} />
               </div>
               <div className="flex flex-col items-center mt-1 md:mt-2">
                 <span className={cn(
-                  "text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors duration-300",
+                  "text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-colors duration-300",
                   isActive || isDone ? 'text-stone-800' : 'text-stone-400'
                 )}>
                   {s.label}
                 </span>
-                <span className="text-[9px] md:text-[10px] text-stone-400 hidden md:block mt-0.5 font-medium">
+                <span className="text-[9px] md:text-[10px] text-stone-400 hidden mt-0.5 font-medium">
                   {s.sub}
                 </span>
               </div>
@@ -84,7 +112,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   )
 }
 
-function CalendarPanel({ selDay, onSelect, onNext, businessHours }: any) {
+function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal }: any) {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const [viewYear, setViewYear] = React.useState(now.getFullYear())
@@ -113,27 +141,15 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours }: any) {
 
   const BenefitsSidebar = () => (
     <div className="flex flex-col gap-6 w-full">
-      {/* Selected Date Card (Mobile Only Sidebar view, hidden on desktop if we have footer, but let's keep it here for layout matching) */}
-      <div className="bg-stone-50 rounded-2xl p-5 border border-stone-100 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-stone-100/50 flex-shrink-0">
-                <CalendarIcon className="w-6 h-6" style={{ color: 'var(--tenant-hover)' }} />
-            </div>
-            <div className="flex flex-col text-left">
-                {selDay ? (
-                <>
-                    <span className="text-stone-900 font-bold capitalize text-sm">{new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { weekday: "long" })}</span>
-                    <span className="text-stone-500 text-sm">{new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })}</span>
-                </>
-                ) : (
-                <span className="text-stone-500 font-medium text-sm">Selecione um dia</span>
-                )}
-            </div>
-        </div>
-        <div className="lg:hidden">
-            <ChevronRight className="w-5 h-5 text-stone-400" />
-        </div>
-      </div>
+      <SelectionSummary selDay={selDay} />
+
+      <button 
+        className="w-full bg-[#0B1426] text-white px-8 py-4 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
+        disabled={!selDay} 
+        onClick={onNext}
+      >
+        Escolher horário <ArrowRight className="w-4 h-4" />
+      </button>
 
       {/* Benefits */}
       <div className="flex flex-col gap-5 pt-2">
@@ -171,21 +187,24 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours }: any) {
   return (
     <div className="w-full flex flex-col flex-1 animate-in fade-in duration-500">
       
-      <div className="flex flex-col lg:flex-row p-6 md:p-10 gap-10 flex-1">
+      <div className={cn(
+        "flex flex-col p-3 px-4 md:p-6 gap-6 flex-1",
+        !isModal && "lg:flex-row"
+      )}>
         {/* Left Col: Calendar */}
-        <div className="flex-1 max-w-md mx-auto w-full">
-          <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
-            <div className="text-3xl md:text-4xl font-bold tracking-tight text-[#0B1426] text-left w-full sm:w-auto">
-              <span className="font-serif">{MONTHS_PT[viewMonth]}</span> <span className="font-sans font-normal ml-1 text-stone-400">{viewYear}</span>
+        <div className={cn("flex-1 w-full", !isModal && "max-w-md mx-auto")}>
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <div className="text-xl md:text-2xl font-bold tracking-tight text-[#0B1426] text-left whitespace-nowrap">
+              <span className="font-serif">{MONTHS_PT[viewMonth]}</span> <span className="font-sans font-normal ml-0.5 text-stone-400">{viewYear}</span>
             </div>
-            <div className="flex gap-2 w-full sm:w-auto justify-start sm:justify-end">
+            <div className="flex gap-2 justify-end items-center">
               <button className="w-10 h-10 rounded-xl border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-all disabled:opacity-30 active:scale-95" disabled={viewYear === now.getFullYear() && viewMonth === now.getMonth()} onClick={() => changeMonth(-1)}>
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <button className="w-10 h-10 rounded-xl border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-all active:scale-95" onClick={() => changeMonth(1)}>
                 <ChevronRight className="w-5 h-5" />
               </button>
-              <button onClick={goToday} className="px-5 h-10 rounded-xl border border-stone-200 text-sm font-bold text-stone-600 hover:bg-stone-50 transition-all ml-2 active:scale-95">
+              <button onClick={goToday} className="px-4 md:px-5 h-10 rounded-xl border border-stone-200 text-xs md:text-sm font-bold text-stone-600 hover:bg-stone-50 transition-all active:scale-95">
                 Hoje
               </button>
             </div>
@@ -229,65 +248,54 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours }: any) {
             })}
           </div>
 
-          <div className="flex flex-wrap items-center justify-start gap-4 sm:gap-6 mt-8">
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--tenant-hover)' }}></div><span className="text-xs text-stone-500 font-medium">Disponível</span></div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#0B1426]"></div><span className="text-xs text-stone-500 font-medium">Poucas vagas</span></div>
-            <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-stone-200"></div><span className="text-xs text-stone-500 font-medium">Indisponível</span></div>
+          <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-4 mt-6">
+            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tenant-hover)' }}></div><span className="text-[10px] text-stone-500 font-medium">Disponível</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[#0B1426]"></div><span className="text-[10px] text-stone-500 font-medium">Poucas vagas</span></div>
+            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-stone-200"></div><span className="text-[10px] text-stone-500 font-medium">Indisponível</span></div>
           </div>
         </div>
 
-        {/* Right Col / Mobile Bottom: Benefits Sidebar */}
-        <div className="hidden lg:block w-px bg-stone-100 my-4" />
+        {/* Right Col: Benefits Sidebar */}
+        <div className={cn("hidden w-px bg-stone-100 my-4", !isModal && "lg:block")} />
         
-        <div className="lg:hidden w-full h-px bg-stone-100 my-4" />
-
-        <div className="flex-1 max-w-sm mx-auto w-full flex flex-col justify-start lg:justify-center">
+        <div className={cn("flex-1 w-full flex flex-col justify-center", !isModal && "hidden lg:flex max-w-sm mx-auto")}>
            <BenefitsSidebar />
         </div>
       </div>
-
-      {/* Footer Area for selection */}
-      <div className="p-4 md:p-6 bg-white border-t border-stone-100 mt-auto">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-           
-           <div className="hidden lg:flex items-center gap-4 bg-stone-50 rounded-2xl p-3 pr-8 border border-stone-100">
-              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-stone-100/50">
-                <CalendarIcon className="w-6 h-6" style={{ color: 'var(--tenant-hover)' }} />
-              </div>
-              <div className="flex flex-col text-left">
-                <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Data selecionada:</span>
-                <span className="text-stone-900 font-bold text-sm">
-                  {selDay ? formattedDate : "---"}
-                </span>
-              </div>
-           </div>
-
-           <button 
-             className="w-full lg:w-auto bg-[#0B1426] text-white px-8 py-4 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5 ml-auto" 
-             disabled={!selDay} 
-             onClick={onNext}
-           >
-             Escolher horário <ArrowRight className="w-4 h-4" />
-           </button>
+      
+      {/* Footer Area (For Main Page) */}
+      {!isModal && (
+        <div className="p-4 md:p-6 bg-white border-t border-stone-100 mt-auto lg:hidden">
+          <div className="max-w-5xl mx-auto flex items-center justify-center">
+            <button 
+              className="w-full bg-[#0B1426] text-white px-8 py-4 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
+              disabled={!selDay} 
+              onClick={onNext}
+            >
+              Escolher horário <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
 
 function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, isLoading }: any) {
-  const formattedDate = new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { day: "numeric", month: "long" })
   return (
     <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500 text-left">
-      <div className="px-6 py-6 md:px-10 md:py-8 border-b border-stone-100">
-        <div className="inline-flex items-center gap-2 bg-stone-50 text-stone-500 px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-[0.2em] mb-4 border border-stone-100">
-          <CalendarIcon className="w-3 h-3" style={{ color: 'var(--tenant-hover)' }} /> {formattedDate}
-        </div>
-        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#0B1426] mb-2 font-serif">Escolha o Horário</h2>
-        <p className="text-stone-500 text-xs md:text-sm leading-relaxed max-w-sm">Selecione o momento ideal para o seu atendimento exclusivo.</p>
+      <div className="px-5 py-4 md:px-8 md:py-6 border-b border-stone-100 bg-white">
+        <SelectionSummary selDay={selDay} selTime={selTime} />
+        
+        {!selTime && (
+          <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-700">
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#0B1426] mb-1 font-serif">Escolha o Horário</h2>
+            <p className="text-stone-500 text-xs md:text-sm leading-relaxed max-w-sm">Selecione o momento ideal para o seu atendimento exclusivo.</p>
+          </div>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-stone-50/50 p-6 md:p-10 min-h-[300px]">
+      <div className="flex-1 overflow-y-auto bg-stone-50/50 p-5 md:p-8 min-h-[250px]">
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
             {Array.from({ length: 10 }).map((_, i) => (
@@ -343,14 +351,18 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
   )
 }
 
-function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving }: any) {
+function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving, selDay, selTime }: any) {
   return (
     <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500 text-left">
-      <div className="px-6 py-10 md:px-12 md:py-16 flex-1 flex flex-col justify-center bg-stone-50/30">
+      <div className="px-5 py-4 md:px-8 md:py-6 border-b border-stone-100 bg-white">
+        <SelectionSummary selDay={selDay} selTime={selTime} />
+      </div>
+
+      <div className="px-5 py-6 md:px-10 md:py-10 flex-1 flex flex-col justify-center bg-stone-50/30">
         <div className="max-w-md mx-auto w-full bg-white p-8 rounded-3xl border border-stone-100 shadow-sm">
           <div className="mb-8 text-center md:text-left">
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#0B1426] mb-2 font-serif">Seus Dados</h2>
-            <p className="text-stone-500 text-sm leading-relaxed">Última etapa! Por favor, preencha seus dados para finalizar a reserva do seu horário.</p>
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#0B1426] mb-1 font-serif">Seus Dados</h2>
+            <p className="text-stone-500 text-xs md:text-sm leading-relaxed">Última etapa! Por favor, preencha seus dados para finalizar a reserva do seu horário.</p>
           </div>
           
           <div className="space-y-5">
@@ -575,7 +587,7 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
       <StepIndicator current={step} />
       
       <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar">
-        {step === 1 && <CalendarPanel selDay={selDay} onSelect={(d: any) => { setSelDay(d); setSelTime(null); }} onNext={() => setStep(2)} businessHours={businessHours} />}
+        {step === 1 && <CalendarPanel selDay={selDay} onSelect={(d: any) => { setSelDay(d); setSelTime(null); }} onNext={() => setStep(2)} businessHours={businessHours} isModal={isModal} />}
         {step === 2 && selDay && (
           <TimePanel 
             selDay={selDay} 
@@ -588,7 +600,7 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
           />
         )}
         {step === 3 && selDay && selTime && (
-          <ContactPanel name={customerName} phone={customerPhone} setName={setCustomerName} setPhone={setCustomerPhone} onBack={() => setStep(2)} onNext={handleFinalize} isSaving={isSaving} />
+          <ContactPanel name={customerName} phone={customerPhone} setName={setCustomerName} setPhone={setCustomerPhone} onBack={() => setStep(2)} onNext={handleFinalize} isSaving={isSaving} selDay={selDay} selTime={selTime} />
         )}
         {step === 4 && selDay && selTime && <ConfirmPanel selDay={selDay} selTime={selTime} whatsappNumber={whatsappNumber} clientName={customerName} selectedService={selectedService} />}
       </div>
