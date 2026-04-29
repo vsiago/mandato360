@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, Plus, ChevronLeft, ChevronRight,
     MessageCircle, MoreVertical, Pencil, Trash2, UserPlus, X, Zap, Phone, Calendar as CalendarIcon, Lock,
-    Scissors, Share2, CalendarClock, CalendarX, User, CreditCard
+    Scissors, Share2, CalendarClock, CalendarOff, User, CreditCard, ShieldCheck
 } from "lucide-react"
 import Link from "next/link"
 import {
@@ -29,6 +29,14 @@ export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onD
     onSaveClient?: (apt: any) => void
 }) {
     if (!apt) return null;
+
+    // Format date properly: "26 de abril de 2025" -> from apt.date (YYYY-MM-DD)
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return "";
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const date = new Date(y, m - 1, d);
+        return `${d} de ${MONTH_NAMES[m - 1].toLowerCase()} de ${y}`;
+    };
 
     return (
         <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
@@ -73,7 +81,7 @@ export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onD
                 {[
                     { label: "Serviço", value: apt.service },
                     { label: "Valor", value: apt.price },
-                    { label: "Data", value: "26 de abril de 2025" }, 
+                    { label: "Data", value: formatDate(apt.date) }, 
                     { label: "Horário", value: apt.time },
                     { label: "Duração", value: "50 min" }, 
                     ...(apt.notes ? [{ label: "Obs", value: apt.notes }] : [])
@@ -176,49 +184,57 @@ export function DesktopOccupationCard({ summary }: { summary: { total: number, f
 /* ═══════════════════════════════════════════
    DESKTOP: Next Actions Panel
    ═══════════════════════════════════════════ */
-export function DesktopNextActionsPanel() {
-    const actions = [
-        {
+export function DesktopNextActionsPanel({ appointments, currentTime }: { appointments: Record<string, any[]>, currentTime: Date }) {
+    // 1. Pending count
+    const allApts = Object.values(appointments).flat();
+    const pendingCount = allApts.filter(a => a.status === 'pending').length;
+
+    // 2. Next client
+    const todayKey = currentTime.toISOString().split('T')[0];
+    const todayApts = appointments[todayKey] || [];
+    const nowTimeStr = currentTime.toTimeString().slice(0, 5);
+    const nextApt = todayApts
+        .filter(a => (a.status === 'confirmed' || a.status === 'pending') && a.time >= nowTimeStr)
+        .sort((a, b) => a.time.localeCompare(b.time))[0];
+
+    // 3. Free slots (simplified for now)
+    const freeSlotsToday = 3; // Placeholder logic for now, could be dynamic
+
+    const actions = [];
+
+    if (pendingCount > 0) {
+        actions.push({
             icon: CalendarClock,
-            title: "2 clientes aguardando confirmação",
+            title: `${pendingCount} ${pendingCount === 1 ? 'cliente aguardando' : 'clientes aguardando'} confirmação`,
             sub: "Agendamentos pendentes",
-            btnLabel: "Confirmar agora",
+            btnLabel: "Ver todos",
             colorClass: "text-amber-500",
             bgClass: "bg-amber-500/10 border-amber-500/20"
-        },
-        {
-            icon: CalendarIcon,
-            title: "3 horários livres hoje à tarde",
-            sub: "Aproveite para preencher sua agenda",
-            btnLabel: "Ver horários",
-            colorClass: "text-red-500",
-            bgClass: "bg-red-500/10 border-red-500/20"
-        },
-        {
+        });
+    }
+
+    if (nextApt) {
+        actions.push({
             icon: User,
-            title: "Próximo cliente em 20 min",
-            sub: "xzvbzxb - Corte Feminino",
+            title: `Próximo cliente: ${nextApt.name}`,
+            sub: `${nextApt.time} - ${nextApt.service}`,
             btnLabel: "Ver detalhes",
             colorClass: "text-emerald-500",
             bgClass: "bg-emerald-500/10 border-emerald-500/20"
-        },
-        {
-            icon: CalendarX,
-            title: "5 clientes não retornam há 30 dias",
-            sub: "Que tal enviar uma mensagem?",
-            btnLabel: "Enviar mensagens",
+        });
+    }
+
+    // Default placeholders if nothing else
+    if (actions.length < 3) {
+        actions.push({
+            icon: CalendarIcon,
+            title: "Tudo em dia!",
+            sub: "Sua agenda está organizada",
+            btnLabel: "Ver agenda",
             colorClass: "text-blue-500",
             bgClass: "bg-blue-500/10 border-blue-500/20"
-        },
-        {
-            icon: CreditCard,
-            title: "Pagamento pendente",
-            sub: "1 agendamento com pagamento pendente",
-            btnLabel: "Ver cobrança",
-            colorClass: "text-orange-500",
-            bgClass: "bg-orange-500/10 border-orange-500/20"
-        }
-    ];
+        });
+    }
 
     return (
         <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">

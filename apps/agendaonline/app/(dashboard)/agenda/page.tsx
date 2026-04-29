@@ -877,7 +877,7 @@ export default function AgendaPage() {
                             onSaveClient={(a) => { setClientToSave(a); setIsSaveClientModalOpen(true); }}
                         />
                         <DesktopOccupationCard summary={daySummary} />
-                        <DesktopNextActionsPanel />
+                        <DesktopNextActionsPanel appointments={appointments} currentTime={currentTime} />
                     </div>
 
                     {/* ── LEFT COLUMN (Visual): Calendar + Summary + Free Slots ── */}

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, Shield, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, ChevronDown, Plug, Layout, Puzzle } from "lucide-react"
+import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, ShieldCheck, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, ChevronDown, Plug, Layout, Puzzle } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -212,7 +212,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         : "text-stone-400 hover:text-stone-100 hover:bg-stone-800/20 border-l-2 border-transparent"
                                 )}
                             >
-                                <Shield className={cn(
+                                <ShieldCheck className={cn(
                                     "h-5 w-5 transition-all duration-300 shrink-0",
                                     pathname.startsWith("/admin") ? "text-brand-primary drop-shadow-[0_0_8px_rgba(202,145,42,0.4)]" : "text-stone-500 group-hover:text-stone-300"
                                 )} />
