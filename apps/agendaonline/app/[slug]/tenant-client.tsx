@@ -333,7 +333,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                 className="text-sm font-bold transition-colors" style={{ color: headerColors.menu }}>{item.label}</Link>
                         ))}
                         <Link href={`https://wa.me/${data.contact.whatsapp}?text=Ol%C3%A1%20${encodeURIComponent(data.name)}%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio.`} target="_blank">
-                            <Button size="sm" className="hover:opacity-90 font-bold rounded-(--theme-btn-radius) px-6 shadow-sm border-none transition-all duration-300" style={{ backgroundColor: themePrimary, color: headerColors.cta }}>{headerConfig.ctaText || "Agendar Agora"}</Button>
+                            <Button className="h-[50px] px-8 hover:opacity-90 font-bold rounded-(--theme-btn-radius) shadow-sm border-none transition-all duration-300 text-[15px]" style={{ backgroundColor: themePrimary, color: headerColors.cta }}>{headerConfig.ctaText || "Agendar Agora"}</Button>
                         </Link>
                     </div>
                     <div className="lg:hidden">
@@ -368,7 +368,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                 </div>
                                 <div className="mt-auto p-6 bg-white border-t border-slate-100">
                                     <Link href={`https://wa.me/${data.contact.whatsapp}`}>
-                                        <Button className="w-full h-14 bg-tenant-primary hover:bg-tenant-hover text-white font-bold rounded-(--theme-btn-radius) text-[15px] tracking-wide shadow-(--theme-card-shadow) transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2">
+                                        <Button className="w-full h-14 bg-tenant-primary hover:bg-tenant-hover text-white font-bold rounded-(--theme-btn-radius) text-[11px] tracking-widest uppercase shadow-(--theme-card-shadow) transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2">
                                             <MessageCircle className="w-5 h-5" /> Como podemos ajudar?
                                         </Button>
                                     </Link>
@@ -569,7 +569,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                                     <Button 
                                                         onClick={() => handleOpenBooking()}
                                                         className={cn(
-                                                            "font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-auto border-none flex items-center justify-center gap-2",
+                                                            "font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-14 border-none flex items-center justify-center gap-2 uppercase tracking-widest",
                                                             !btn.fontSize && "text-xs md:text-sm lg:text-base"
                                                         )}
                                                         style={btnStyle}
@@ -583,7 +583,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                                 <Link href={btn.link || "#"}>
                                                     <Button 
                                                         className={cn(
-                                                            "font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-auto border-none flex items-center justify-center gap-2",
+                                                            "font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-14 border-none flex items-center justify-center gap-2 uppercase tracking-widest",
                                                             !btn.fontSize && "text-xs md:text-sm lg:text-base"
                                                         )}
                                                         style={btnStyle}
@@ -627,7 +627,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                                     <Button 
                                                         variant={btn.outline ? "outline" : "default"}
                                                         className={cn(
-                                                            "font-bold transition-transform hover:scale-105 active:scale-95 h-auto flex items-center justify-center gap-2",
+                                                            "font-bold transition-transform hover:scale-105 active:scale-95 h-14 flex items-center justify-center gap-2 uppercase tracking-widest",
                                                             !btn.fontSize && "text-xs md:text-sm lg:text-base"
                                                         )}
                                                         style={btnStyle}
@@ -722,13 +722,13 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                                                 <p className="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-2">{service.description}</p>
                                                                 <div className="mt-auto flex flex-col sm:flex-row gap-3">
                                                                     {(data.plan === 'profissional' || data.plan === 'premium') && (
-                                                                        <Link href={`/${data.slug}/servico/${service.slug}`} className="flex-1">
-                                                                            <button className="w-full flex items-center justify-center bg-white text-tenant-primary border border-tenant-primary hover:bg-tenant-primary hover:text-white font-bold rounded-(--theme-btn-radius) h-12 transition-all shadow-sm">Conhecer</button>
+                                                                        <Link href={`/${data.slug}/servico/${service.slug}`} className="flex-1 block">
+                                                                            <button className="w-full flex items-center justify-center bg-white text-tenant-primary border border-tenant-primary hover:bg-tenant-primary hover:text-white font-bold rounded-(--theme-btn-radius) transition-all shadow-sm text-[15px]">Conhecer</button>
                                                                         </Link>
                                                                     )}
                                                                     <button 
                                                                         onClick={() => handleOpenBooking(service.id)} 
-                                                                        className="flex-1 flex items-center justify-center bg-tenant-primary text-white border border-transparent hover:bg-white hover:text-tenant-primary! hover:border-tenant-primary! font-bold rounded-(--theme-btn-radius) h-12 transition-all shadow-md group-hover:shadow-(--theme-card-shadow)"
+                                                                        className="w-full flex items-center justify-center bg-tenant-primary text-white border border-transparent hover:bg-white hover:text-tenant-primary! hover:border-tenant-primary! font-bold rounded-(--theme-btn-radius) h-13 transition-all shadow-md group-hover:shadow-(--theme-card-shadow) text-[15px]"
                                                                     >
                                                                         Agendar
                                                                     </button>

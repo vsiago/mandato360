@@ -23,11 +23,7 @@ import type { ThemeId } from "@/src/themes/types"
 
 const STEPS = [
     { id: 1, title: "Negócio", icon: Building2, description: "Identidade básica da sua marca" },
-    { id: 2, title: "Contato", icon: Phone, description: "Como seus clientes vão te encontrar" },
-    { id: 3, title: "Visual", icon: Palette, description: "A estética do seu site" },
-    { id: 4, title: "Sobre", icon: User, description: "Humanize seu atendimento" },
-    { id: 5, title: "Tema", icon: Globe, description: "Escolha o estilo visual do seu site" },
-    { id: 6, title: "Pronto", icon: Check, description: "Seu site está no ar" },
+    { id: 2, title: "Pronto", icon: Check, description: "Seu site está no ar" },
 ]
 
 interface BusinessTypeOption {
@@ -98,7 +94,7 @@ export default function OnboardingPage() {
     useEffect(() => {
         if (!mounted || !storageKey) return
         localStorage.setItem(storageKey, JSON.stringify({ data, step }))
-        if (step < 6) {
+        if (step < 2) {
             const stepId = generateSlug(STEPS[step - 1].title)
             const newHash = `#${stepId}`
             if (window.location.hash !== newHash) {
@@ -145,7 +141,7 @@ export default function OnboardingPage() {
 
 
     const handleNext = () => {
-        if (step < 6) setStep(step + 1)
+        if (step < 2) setStep(step + 1)
     }
     const handlePrev = () => {
         if (step > 1) setStep(step - 1)
@@ -184,7 +180,7 @@ export default function OnboardingPage() {
             }
 
             setSaving(false)
-            setStep(6)
+            setStep(2)
             if (storageKey) localStorage.removeItem(storageKey)
             toast.success("Site criado com sucesso!")
         } catch (error: any) {
@@ -196,11 +192,13 @@ export default function OnboardingPage() {
 
     const canProceed = () => {
         switch (step) {
-            case 1: return !!(data.name && data.name.length > 1)
-            case 2: return !!(data.contact?.whatsapp && data.contact.whatsapp.length >= 10)
-            case 3: return true
-            case 4: return true
-            case 5: return true
+            case 1: return !!(
+                data.name && 
+                data.name.length > 2 && 
+                data.businessTypeId && 
+                data.contact?.whatsapp && 
+                data.contact.whatsapp.length >= 10
+            )
             default: return true
         }
     }
@@ -232,7 +230,7 @@ export default function OnboardingPage() {
                         <motion.div 
                             className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-amber-500 z-10"
                             initial={{ width: "0%" }}
-                            animate={{ width: `${(step - 1) * 20}%` }}
+                            animate={{ width: `${(step - 1) * 100}%` }}
                             transition={{ duration: 0.5, ease: "easeOut" }}
                         />
 
@@ -278,7 +276,7 @@ export default function OnboardingPage() {
                                 className="w-full mx-auto"
                             >
                                 {/* Step Header */}
-                                {step < 6 && (
+                                {step < 2 && (
                                     <div className="mb-10 text-center sm:text-left border-l-2 border-amber-500/30 pl-6">
                                         <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
                                             {STEPS[step - 1].title}
@@ -300,16 +298,19 @@ export default function OnboardingPage() {
                                                     className="h-11 bg-stone-900/50 border-stone-800 rounded-lg text-white placeholder:text-stone-600 text-sm transition-all shadow-sm" 
                                                 />
                                             </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-xs font-semibold text-stone-400 uppercase tracking-widest pl-1">URL pública</Label>
-                                                <div className="flex items-center h-11 bg-stone-900/50 border border-stone-800 rounded-lg overflow-hidden transition-all shadow-sm">
-                                                    <span className="hidden sm:flex text-stone-600 text-xs px-4 border-r border-stone-800 bg-stone-900 h-full items-center">ao.app/</span>
-                                                    <input 
-                                                        value={data.slug} 
-                                                        onChange={e => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-                                                        className="flex-1 h-full bg-transparent text-white text-sm px-4 outline-none min-w-0" 
-                                                    />
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2">
+                                                    <Smartphone className="w-3.5 h-3.5 text-stone-400" />
+                                                    <Label className="text-xs font-semibold text-stone-400 uppercase tracking-widest pl-1">WhatsApp Principal</Label>
                                                 </div>
+                                                <Input 
+                                                    value={data.contact?.whatsapp} 
+                                                    onChange={e => setContact("whatsapp", e.target.value)}
+                                                    placeholder="5521999999999" 
+                                                    type="tel"
+                                                    className="h-11 bg-stone-900/50 border-stone-800 rounded-lg text-white text-sm focus:border-amber-500 transition-all shadow-sm" 
+                                                />
+                                                <p className="text-[10px] text-stone-600 px-1">Inclua 55 + DDD + número</p>
                                             </div>
                                         </div>
 
@@ -342,244 +343,8 @@ export default function OnboardingPage() {
                                     </div>
                                 )}
 
-                                {/* Step 2: Contact */}
+                                {/* Step 2: Finalized! */}
                                 {step === 2 && (
-                                    <div className="space-y-8 w-full max-w-2xl mx-auto">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                                            <div className="space-y-3">
-                                                <div className="flex items-center gap-2">
-                                                    <Smartphone className="w-3.5 h-3.5 text-stone-400" />
-                                                    <Label className="text-xs font-semibold text-stone-400 uppercase tracking-widest">WhatsApp Principal</Label>
-                                                </div>
-                                                <Input 
-                                                    value={data.contact?.whatsapp} 
-                                                    onChange={e => setContact("whatsapp", e.target.value)}
-                                                    placeholder="5521999999999" 
-                                                    type="tel"
-                                                    className="h-11 bg-stone-900/50 border-stone-800 rounded-lg text-white text-sm focus:border-amber-500 transition-all" 
-                                                />
-                                                <p className="text-[10px] text-stone-600 px-1">Inclua 55 + DDD + número</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-2">
-                                                <Instagram className="w-3.5 h-3.5 text-stone-400" />
-                                                <Label className="text-xs font-semibold text-stone-400 uppercase tracking-widest">Instagram</Label>
-                                            </div>
-                                            <div className="flex items-center h-11 bg-stone-900/50 border border-stone-800 rounded-lg transition-all">
-                                                <span className="text-stone-600 text-sm px-4">@</span>
-                                                <input 
-                                                    value={data.contact?.instagram?.replace('https://instagram.com/', '')} 
-                                                    onChange={e => setContact("instagram", e.target.value)}
-                                                    placeholder="seu_usuario"
-                                                    className="flex-1 h-full bg-transparent text-white text-sm outline-none min-w-0" 
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-3">
-                                            <div className="flex items-center gap-2">
-                                                <MapPin className="w-3.5 h-3.5 text-stone-400" />
-                                                <Label className="text-xs font-semibold text-stone-400 uppercase tracking-widest">Endereço</Label>
-                                            </div>
-                                            <textarea 
-                                                value={data.contact?.address} 
-                                                onChange={e => setContact("address", e.target.value)}
-                                                placeholder="Rua, número, bairro..."
-                                                className="w-full min-h-24 bg-stone-900/50 border border-stone-800 rounded-lg text-white placeholder:text-stone-700 px-4 py-3 text-sm resize-none focus:border-amber-500 transition-all outline-none" 
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Step 3: Visual Identity */}
-                                {step === 3 && (
-                                    <div className="space-y-10">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                                            <div className="space-y-4">
-                                                <Label className="text-sm font-semibold text-stone-200 block mb-2">Paleta de Cores</Label>
-                                                <div className="flex flex-col gap-6">
-                                                    <div className="flex items-center gap-4">
-                                                <div 
-                                                            className="w-12 h-12 rounded-lg shadow-xl ring-2 ring-stone-900 overflow-hidden relative"
-                                                            style={{ backgroundColor: data.colors?.primary }}
-                                                        >
-                                                            <input 
-                                                                type="color" 
-                                                                value={data.colors?.primary} 
-                                                                onChange={e => setColors("primary", e.target.value)}
-                                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
-                                                            />
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <Label className="text-[10px] uppercase text-stone-500 font-bold mb-1 block">Cor de Destaque</Label>
-                                                            <Input 
-                                                                value={data.colors?.primary} 
-                                                                onChange={e => setColors("primary", e.target.value)}
-                                                                className="h-10 bg-stone-900/50 border-stone-800 text-sm font-mono rounded-lg" 
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div className="grid grid-cols-5 gap-2">
-                                                        {['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6'].map(c => (
-                                                            <button 
-                                                                key={c}
-                                                                onClick={() => setColors("primary", c)}
-                                                                className={cn(
-                                                                    "aspect-square rounded-lg transition-transform active:scale-90",
-                                                                    data.colors?.primary === c ? "ring-2 ring-white ring-offset-2 ring-offset-black scale-105" : ""
-                                                                )}
-                                                                style={{ backgroundColor: c }}
-                                                            />
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-4">
-                                                <Label className="text-xs font-semibold text-stone-400 uppercase tracking-widest block mb-1">Marca (Logo)</Label>
-                                                <div className="h-32 border border-dashed border-stone-800 rounded-xl flex flex-col items-center justify-center p-4 bg-stone-950/20 group hover:border-amber-500/30 transition-colors cursor-pointer">
-                                                    <Globe className="w-6 h-6 text-stone-600 mb-2" />
-                                                    <p className="text-[11px] text-stone-500 text-center font-medium">Carregar imagem corporativa</p>
-                                                </div>
-                                                <Input 
-                                                    value={data.logoUrl} 
-                                                    onChange={e => set("logoUrl", e.target.value)}
-                                                    placeholder="https://... logo.png"
-                                                    className="h-10 bg-stone-950 border-stone-800 rounded-lg text-[10px] text-stone-500" 
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Premium Site Preview */}
-                                        <div className="p-0.5 bg-stone-800 rounded-2xl">
-                                            <div className="bg-stone-950 rounded-2xl overflow-hidden border border-stone-800 shadow-sm">
-                                                <div className="px-4 py-3 bg-stone-900/50 border-b border-stone-800 flex items-center justify-between">
-                                                    <div className="flex gap-1.5 leading-none">
-                                                        <div className="w-2.5 h-2.5 bg-red-500/50 rounded-full" />
-                                                        <div className="w-2.5 h-2.5 bg-yellow-500/50 rounded-full" />
-                                                        <div className="w-2.5 h-2.5 bg-green-500/50 rounded-full" />
-                                                    </div>
-                                                    <div className="bg-stone-800/80 px-4 py-1 rounded-full text-[10px] text-stone-500 font-mono">
-                                                        ao.app/{data.slug || 'seu-site'}
-                                                    </div>
-                                                    <div className="w-6" />
-                                                </div>
-                                                <div className="p-8 text-center bg-radial-gradient(circle_at_center,rgba(245,158,11,0.05),transparent)">
-                                                    <h3 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>{data.name || "Seu Negócio"}</h3>
-                                                    <p className="text-xs text-stone-500 mb-6">Expert em agendamentos de luxo</p>
-                                                    <button 
-                                                        className="h-10 px-6 rounded-lg text-white text-xs font-semibold shadow-sm transition-all" 
-                                                        style={{ backgroundColor: data.colors?.primary }}
-                                                    >
-                                                        Agendar Horário
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Step 4: About You */}
-                                {step === 4 && (
-                                    <div className="space-y-8">
-                                        <div className="grid grid-cols-1 md:grid-cols-[120px_1fr] gap-8 items-start">
-                                            <div className="w-[120px] h-[120px] shrink-0 bg-stone-900 rounded-xl border border-stone-800 overflow-hidden flex items-center justify-center relative group">
-                                                {data.founder?.imageUrl ? (
-                                                    <img src={data.founder.imageUrl} className="w-full h-full object-cover" />
-                                                ) : <User className="w-10 h-10 text-stone-600" />}
-                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                    <span className="text-[10px] text-white font-bold uppercase">Mudar</span>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-6 min-w-0">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold text-stone-600 uppercase tracking-widest pl-1">Seu Nome</Label>
-                                                        <Input 
-                                                            value={data.founder?.name} 
-                                                            onChange={e => setFounder("name", e.target.value)}
-                                                            className="h-11 bg-stone-900/50 border-stone-800 rounded-lg text-sm" 
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold text-stone-600 uppercase tracking-widest pl-1">Especialidade</Label>
-                                                        <Input 
-                                                            value={data.founder?.role} 
-                                                            onChange={e => setFounder("role", e.target.value)}
-                                                            className="h-11 bg-stone-900/50 border-stone-800 rounded-lg text-sm" 
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label className="text-xs font-bold text-stone-600 uppercase tracking-widest pl-1">Sua Bio</Label>
-                                                    <textarea 
-                                                        value={data.founder?.bio} 
-                                                        onChange={e => setFounder("bio", e.target.value)}
-                                                        placeholder="Diga quem você é..."
-                                                        className="w-full min-h-24 bg-stone-900/50 border border-stone-800 rounded-lg text-white px-4 py-3 text-sm resize-none focus:border-amber-500 transition-all outline-none" 
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Step 5: Theme Selection */}
-                                {step === 5 && (
-                                    <div className="space-y-8">
-                                        <div className="text-center sm:text-left mb-2">
-                                            <p className="text-stone-400 text-sm">
-                                                O tema define a <strong className="text-white">identidade visual</strong> do seu site — tipografia, espaçamento, bordas e animações.
-                                            </p>
-                                        </div>
-
-                                        <ThemeSelectorOnboarding
-                                            value={(data.theme as ThemeId) || "neutro"}
-                                            onChange={(themeId) => setData(prev => ({ ...prev, theme: themeId }))}
-                                        />
-
-                                        {/* Live preview with selected theme */}
-                                        {(() => {
-                                            const selectedTheme = getTheme((data.theme as ThemeId) || "neutro")
-                                            const previewColors = selectedTheme.colors.dark
-                                            return (
-                                                <div className="p-0.5 bg-stone-800 rounded-2xl">
-                                                    <div className="rounded-2xl overflow-hidden border border-stone-800 shadow-sm" style={{ backgroundColor: previewColors.background }}>
-                                                        <div className="px-4 py-2.5 border-b flex items-center justify-between" style={{ borderColor: previewColors.border, backgroundColor: previewColors.surface }}>
-                                                            <div className="flex gap-1.5">
-                                                                <div className="w-2.5 h-2.5 bg-red-500/50 rounded-full" />
-                                                                <div className="w-2.5 h-2.5 bg-yellow-500/50 rounded-full" />
-                                                                <div className="w-2.5 h-2.5 bg-green-500/50 rounded-full" />
-                                                            </div>
-                                                            <div className="px-4 py-1 rounded-full text-[10px] font-mono" style={{ backgroundColor: previewColors.border, color: previewColors.textMuted }}>
-                                                                ao.app/{data.slug || 'seu-site'}
-                                                            </div>
-                                                            <div className="w-6" />
-                                                        </div>
-                                                        <div className="p-8 text-center">
-                                                            <h3 className="text-2xl font-bold mb-2" style={{ color: previewColors.text, fontFamily: `'${selectedTheme.typography.heading}', serif` }}>
-                                                                {data.name || "Seu Negócio"}
-                                                            </h3>
-                                                            <p className="text-xs mb-6" style={{ color: previewColors.textMuted }}>Expert em agendamentos</p>
-                                                            <button
-                                                                className="h-10 px-6 text-white text-xs font-semibold shadow-sm transition-all"
-                                                                style={{ backgroundColor: previewColors.accent, borderRadius: '8px' }}
-                                                            >
-                                                                Agendar
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })()}
-                                    </div>
-                                )}
-
-                                {/* Step 6: Finalized! */}
-                                {step === 6 && (
                                     <div className="text-center py-10 space-y-8">
                                         <div className="relative inline-block">
                                             <motion.div 
@@ -636,57 +401,24 @@ export default function OnboardingPage() {
                     </div>
 
                     {/* Footer Actions */}
-                    {step < 6 && (
-                        <div className="p-6 sm:px-10 md:px-14 pb-8 sm:pb-12 bg-stone-950/20 border-t border-stone-800/50 flex flex-col sm:flex-row items-center justify-between gap-6 mt-auto">
-                            <div className="w-full sm:w-auto">
-                                {step > 1 && (
-                                    <Button 
-                                        variant="ghost" 
-                                        onClick={handlePrev} 
-                                        className="w-full sm:w-auto h-11 text-stone-500 hover:text-white hover:bg-stone-800/20 rounded-lg px-6 font-medium"
-                                    >
-                                        <ChevronLeft className="h-4 w-4 mr-2" /> Voltar
-                                    </Button>
-                                )}
-                            </div>
-
-                            <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
-                                {step > 1 && step < 5 && (
-                                    <button 
-                                        onClick={handleNext} 
-                                        className="text-stone-600 hover:text-stone-400 text-[10px] font-bold uppercase tracking-widest underline underline-offset-4 transition-colors self-center px-4"
-                                    >
-                                        Pular
-                                    </button>
-                                )}
-                                
-                                {step < 5 ? (
-                                    <Button 
-                                        onClick={handleNext} 
-                                        disabled={!canProceed()}
-                                        className="w-full sm:w-40 h-11 bg-amber-500 hover:bg-amber-600 text-stone-950 font-semibold rounded-lg shadow-sm disabled:opacity-20 transition-all font-sans"
-                                    >
-                                        Próximo <ChevronRight className="h-4 w-4 ml-1" />
-                                    </Button>
-                                ) : (
-                                    <Button 
-                                        onClick={handleFinish} 
-                                        disabled={saving || !canProceed()}
-                                        className="w-full sm:w-56 h-11 bg-amber-500 hover:bg-amber-600 text-stone-950 font-semibold rounded-lg shadow-sm disabled:opacity-50 transition-all overflow-hidden relative font-sans"
-                                    >
-                                        {saving && <div className="absolute inset-0 bg-stone-950/20 flex items-center justify-center"><Loader2 className="animate-spin h-5 w-5" /></div>}
-                                        <div className="flex items-center justify-center gap-2">
-                                            {saving ? "Finalizando..." : "Concluir Configuração"}
-                                        </div>
-                                    </Button>
-                                )}
-                            </div>
+                    {step < 2 && (
+                        <div className="p-6 sm:px-10 md:px-14 pb-8 sm:pb-12 bg-stone-950/20 border-t border-stone-800/50 flex flex-col sm:flex-row items-center justify-center gap-6 mt-auto">
+                            <Button 
+                                onClick={handleFinish} 
+                                disabled={saving || !canProceed()}
+                                className="w-full sm:w-64 h-12 bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold rounded-xl shadow-lg shadow-amber-500/10 disabled:opacity-50 transition-all overflow-hidden relative font-sans text-base"
+                            >
+                                {saving && <div className="absolute inset-0 bg-stone-950/20 flex items-center justify-center"><Loader2 className="animate-spin h-5 w-5" /></div>}
+                                <div className="flex items-center justify-center gap-2">
+                                    {saving ? "Configurando tudo..." : "Concluir e Ver Meu Site"}
+                                </div>
+                            </Button>
                         </div>
                     )}
                 </motion.div>
 
                 {/* Footer Security */}
-                {step < 6 && (
+                {step < 2 && (
                     <div className="py-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-center gap-6 opacity-30 group grayscale hover:grayscale-0 hover:opacity-100 transition-all">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />

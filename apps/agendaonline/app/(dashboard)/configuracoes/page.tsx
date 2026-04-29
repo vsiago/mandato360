@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -12,9 +13,25 @@ import { toast } from "sonner"
 import { ImageUpload } from "@/components/ui/image-upload"
 
 export default function ConfiguracoesPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-amber-500" /></div>}>
+            <ConfiguracoesContent />
+        </Suspense>
+    )
+}
+
+function ConfiguracoesContent() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const searchParams = useSearchParams()
     const [activeTab, setActiveTab] = useState<"business" | "profile" | "brand" | "finance">("business")
+
+    useEffect(() => {
+        const tab = searchParams.get("tab") as any
+        if (tab && ["business", "profile", "brand", "finance"].includes(tab)) {
+            setActiveTab(tab)
+        }
+    }, [searchParams])
 
     const [data, setData] = useState<TenantData | null>(null)
 

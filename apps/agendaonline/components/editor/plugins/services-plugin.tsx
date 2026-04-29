@@ -115,7 +115,7 @@ function ServicesPreview({ config, device, themeColors }: PluginSectionProps) {
                                                 <p className="text-slate-500 text-xs leading-relaxed mb-4 line-clamp-2">{service.description}</p>
                                                 <div className="mt-auto flex items-center gap-3">
                                                     <button
-                                                        className="flex-1 flex items-center justify-center text-white font-bold rounded-(--theme-btn-radius) h-10 text-xs transition-all shadow-sm"
+                                                        className="flex-1 flex items-center justify-center text-white font-bold rounded-(--theme-btn-radius) h-14 text-xs transition-all shadow-sm"
                                                         style={{ backgroundColor: themeColors.primary }}
                                                     >
                                                         Agendar

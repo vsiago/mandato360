@@ -436,9 +436,9 @@ export default function MasterServiceBlueprintPage() {
                             </Link>
                         ))}
                         <Link href={`https://wa.me/${DATA.contact.whatsapp}?text=Ol%C3%A1%20${DATA.name}%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio.`} target="_blank">
-                            <Button size="sm" className="bg-white text-tenant-primary hover:bg-slate-50 font-bold rounded-lg px-6 shadow-sm">
-                                Agendar Agora
-                            </Button>
+                             <Button className="h-[50px] px-8 bg-white text-tenant-primary hover:bg-slate-50 font-bold rounded-lg shadow-sm text-[15px] transition-all">
+                                 Agendar Agora
+                             </Button>
                         </Link>
                     </div>
 
@@ -479,7 +479,7 @@ export default function MasterServiceBlueprintPage() {
                                 </div>
                                 <div className="mt-auto p-6 bg-white border-t border-slate-100">
                                     <Link href={`https://wa.me/${DATA.contact.whatsapp}`}>
-                                        <Button className="w-full h-14 bg-tenant-primary hover:bg-tenant-hover text-white font-bold rounded-2xl text-[15px] tracking-wide shadow-[0_10px_30px_rgba(173,133,81,0.25)] transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2">
+                                        <Button className="w-full h-14 bg-tenant-primary hover:bg-tenant-hover text-white font-bold rounded-2xl text-[11px] tracking-widest uppercase shadow-[0_10px_30px_rgba(173,133,81,0.25)] transition-all active:scale-95 hover:scale-[1.02] flex items-center justify-center gap-2">
                                             <MessageCircle className="w-5 h-5" /> Como podemos ajudar?
                                         </Button>
                                     </Link>
@@ -619,7 +619,7 @@ export default function MasterServiceBlueprintPage() {
 
                                 <img src="https://images.unsplash.com/photo-1654375078795-7229b6458d25?q=80&w=764&auto=format&fit=crop" className="w-[68px] h-[68px] rounded-2xl object-cover border-2 border-white shadow-sm" alt="Lábios" />
                             </div>
-                            <Button variant="ghost" className="w-full bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-xl text-xs h-10 shadow-sm border border-slate-100">
+                            <Button variant="ghost" className="w-full bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-xl text-[10px] h-14 shadow-sm border border-slate-100 uppercase tracking-widest transition-all">
                                 Conhecer Técnicas
                             </Button>
                         </motion.div>
@@ -726,7 +726,7 @@ export default function MasterServiceBlueprintPage() {
                                                         <div className="mt-auto">
                                                             <button
                                                                 onClick={() => handleOpenModal(service.name)}
-                                                                className="w-full flex items-center justify-center bg-tenant-primary text-white border border-transparent hover:bg-white hover:!text-[#ad8551] hover:!border-[#ad8551] font-bold rounded-2xl h-12 transition-all shadow-md group-hover:shadow-[0_8px_25px_rgba(173,133,81,0.25)]"
+                                                                className="w-full flex items-center justify-center bg-tenant-primary text-white border border-transparent hover:bg-white hover:!text-[#ad8551] hover:!border-[#ad8551] font-bold rounded-2xl h-[50px] transition-all shadow-md group-hover:shadow-[0_8px_25px_rgba(173,133,81,0.25)] text-[15px]"
                                                             >
                                                                 Agendar
                                                             </button>

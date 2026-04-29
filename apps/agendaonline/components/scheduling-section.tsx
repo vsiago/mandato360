@@ -160,7 +160,7 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal, selec
       <SelectionSummary selDay={selDay} selectedService={selectedService} />
 
       <button 
-        className="w-full bg-[#0B1426] text-white px-8 py-4 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
+        className="w-full bg-[#0B1426] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
         disabled={!selDay} 
         onClick={onNext}
       >
@@ -346,7 +346,7 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
         <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[#0B1426] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack}>
           <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Voltar
         </button>
-        <button className="bg-[#0B1426] text-white px-8 py-3.5 rounded-xl text-[11px] md:text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" disabled={!selTime} onClick={onNext}>
+        <button className="bg-[#0B1426] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" disabled={!selTime} onClick={onNext}>
           Identificação <ArrowRight className="w-4 h-4" />
         </button>
       </div>
@@ -505,7 +505,7 @@ function ServicePanel({ services, onSelect, onNext, selectedServiceId }: any) {
 
             <div className="p-4 md:p-6 bg-white border-t border-stone-100 mt-auto flex justify-end">
                 <button 
-                    className="bg-[#0B1426] text-white px-8 py-3.5 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" 
+                    className="bg-[#0B1426] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" 
                     disabled={!selectedServiceId} 
                     onClick={onNext}
                 >

@@ -116,13 +116,12 @@ function PainelContent() {
     const serviceCount = tenant?.services?.length || 0
 
     const checklistItems = [
-        { label: "Site publicado", done: !!tenant?.slug, href: "/editar-site" },
-        { label: "WhatsApp conectado", done: !!tenant?.contact?.whatsapp, href: "/configuracoes" },
-        { label: "Adicionar serviços", done: serviceCount > 0, href: "/servicos" },
-        { label: "Foto de perfil", done: !!tenant?.logoUrl, href: "/configuracoes" },
-        { label: "Foto de capa", done: (tenant?.beforeAfter?.length || 0) > 0, href: "/antes-depois" },
-        { label: "Sobre você", done: !!tenant?.founder?.imageUrl, href: "/editar-site" },
-        { label: "Horário de atendimento", done: !!tenant?.chat?.avatarUrl, href: "/configuracoes" },
+        { label: "Site publicado", done: !!tenant?.slug, href: `/${tenant?.slug}` },
+        { label: "WhatsApp conectado", done: !!tenant?.contact?.whatsapp, href: "/configuracoes?tab=business" },
+        { label: "Serviços iniciais", done: serviceCount > 0, href: "/servicos" },
+        { label: "Identidade Visual", done: !!tenant?.logoUrl, href: "/configuracoes?tab=brand" },
+        { label: "Sobre você", done: !!tenant?.founder?.imageUrl, href: "/configuracoes?tab=profile" },
+        { label: "Chave PIX", done: !!tenant?.pix?.key, href: "/configuracoes?tab=finance" },
     ]
 
     const completedCount = checklistItems.filter(i => i.done).length
