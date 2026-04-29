@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Calendar as CalendarIcon, Clock, Check, ChevronLeft, ChevronRight, Loader2, User, Phone, ArrowRight, Shield, Star } from "lucide-react"
+import { Calendar as CalendarIcon, Clock, Check, ChevronLeft, ChevronRight, Loader2, User, Phone, ArrowRight, ShieldCheck, Star } from "lucide-react"
 import { createPublicAppointmentAction, getPublicAppointmentsByDateAction } from "@/lib/actions/appointments"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -148,7 +148,7 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours }: any) {
         </div>
         <div className="flex items-start gap-4 text-left">
           <div className="mt-1 w-10 h-10 rounded-full border border-stone-200 flex items-center justify-center flex-shrink-0">
-            <Shield className="w-5 h-5 stroke-[1.5]" style={{ color: 'var(--tenant-hover)' }} />
+            <ShieldCheck className="w-5 h-5 stroke-[1.5]" style={{ color: 'var(--tenant-hover)' }} />
           </div>
           <div>
             <h4 className="font-bold text-stone-800 text-sm">Ambiente seguro</h4>
@@ -289,9 +289,13 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
 
       <div className="flex-1 overflow-y-auto bg-stone-50/50 p-6 md:p-10 min-h-[300px]">
         {isLoading ? (
-          <div className="h-full w-full flex flex-col items-center justify-center gap-3">
-            <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--tenant-hover)' }} />
-            <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Buscando horários...</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div key={i} className="h-16 rounded-xl bg-white border border-stone-100 animate-pulse flex flex-col items-center justify-center gap-2">
+                <div className="h-4 w-12 bg-stone-100 rounded" />
+                <div className="h-2 w-8 bg-stone-50 rounded" />
+              </div>
+            ))}
           </div>
         ) : availableSlots.length === 0 ? (
           <div className="h-full w-full flex flex-col items-center justify-center gap-4 text-center px-6">
@@ -387,19 +391,19 @@ function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving
         </div>
       </div>
 
-      <div className="flex items-center justify-between p-4 md:p-6 bg-white border-t border-stone-100 mt-auto">
+      <div className="flex items-center justify-between p-5 md:p-8 bg-white border-t border-stone-100 mt-auto sticky bottom-0 z-20 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">
         <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[#0B1426] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack}>
           <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Horário
         </button>
         <button 
-          className="bg-[#0B1426] text-white px-10 py-4 rounded-xl text-xs md:text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" 
+          className="bg-[#0B1426] text-white px-6 md:px-12 py-4 md:py-5 rounded-2xl text-[13px] md:text-sm font-black shadow-xl shadow-[#0B1426]/20 disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#0B1426]/30 w-full sm:w-auto uppercase tracking-wider" 
           disabled={!name || name.length < 3 || !phone || phone.length < 8 || isSaving} 
           onClick={onNext}
         >
           {isSaving ? (
-            <><Loader2 className="w-5 h-5 animate-spin" /> ...</>
+            <><Loader2 className="w-5 h-5 animate-spin" /> Processando...</>
           ) : (
-            <>Finalizar Agendamento <Check className="w-4 h-4" /></>
+            <>Finalizar Agendamento <Check className="w-5 h-5" strokeWidth={3} /></>
           )}
         </button>
       </div>
@@ -416,7 +420,7 @@ function ConfirmPanel({ selDay, selTime, whatsappNumber, clientName, selectedSer
   }
   return (
     <div className="w-full flex-1 flex flex-col items-center justify-center p-8 md:p-16 text-center animate-in zoom-in-95 duration-700 bg-white">
-      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mb-6 border-4 border-emerald-100 shadow-sm">
+      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 mb-6 border-4 border-emerald-100 shadow-sm animate-in zoom-in slide-in-from-bottom-4 duration-1000">
         <Check className="w-8 h-8 md:w-10 md:h-10" strokeWidth={3} />
       </div>
       <h2 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight text-[#0B1426] font-serif">Agendamento<br/>Confirmado!</h2>
@@ -621,7 +625,7 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
                 <span className="text-stone-600 text-xs font-semibold">Como funciona</span>
             </div>
             <div className="flex flex-col items-center gap-2">
-                <Shield className="w-6 h-6" strokeWidth={1.5} style={{ color: 'var(--tenant-hover)' }} />
+                <ShieldCheck className="w-6 h-6" strokeWidth={1.5} style={{ color: 'var(--tenant-hover)' }} />
                 <span className="text-stone-600 text-xs font-semibold">Segurança</span>
             </div>
         </div>

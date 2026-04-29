@@ -94,6 +94,8 @@ export default function AgendaPage() {
     const [tenantId, setTenantId] = useState<string | null>(null)
     const [isIdling, setIsIdling] = useState(true)
     const [tenant, setTenant] = useState<any>(null)
+    const lastKnownPendingIds = useRef<Set<string>>(new Set())
+    const initialLoadDone = useRef(false)
 
     // Modal state
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
@@ -180,6 +182,42 @@ export default function AgendaPage() {
                     rawNotes: apt.notes
                 })
             })
+
+            const playNotificationSound = () => {
+                try {
+                    const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+                    audio.volume = 0.5;
+                    audio.play();
+                } catch (e) {
+                    console.error("Failed to play notification sound:", e);
+                }
+            };
+
+            // Notification Logic for new pending appointments
+            if (initialLoadDone.current) {
+                let hasNewPending = false;
+                res.appointments.forEach((apt: any) => {
+                    if (apt.status === 'pending' && !lastKnownPendingIds.current.has(apt.id)) {
+                        hasNewPending = true;
+                        toast.success("Novo agendamento!", {
+                            description: `${apt.customerName} solicitou para ${apt.date} às ${apt.time}`,
+                            action: {
+                                label: "Ver agora",
+                                onClick: () => {
+                                    setSelectedDate(apt.date.trim());
+                                    // Optionally scroll to slot logic if needed
+                                }
+                            }
+                        });
+                    }
+                });
+                if (hasNewPending) playNotificationSound();
+            } else {
+                initialLoadDone.current = true;
+            }
+
+            const currentPendingIds = new Set(res.appointments.filter((a: any) => a.status === 'pending').map((a: any) => a.id));
+            lastKnownPendingIds.current = currentPendingIds;
 
             setAppointments(prev => {
                 const nextState = { ...prev }
@@ -524,7 +562,6 @@ export default function AgendaPage() {
             fetchAppointments(tenantId, selectedDate);
         }
     };
-
     const confirmAppointment = async (time: string) => {
         const apt = dayAppointments.find(a => a.time === time);
         if (apt && (apt as any).id && tenantId) {
@@ -535,6 +572,25 @@ export default function AgendaPage() {
                     [selectedDate]: prev[selectedDate].map(apt => apt.time === time ? { ...apt, status: "confirmed" as const } : apt)
                 }));
             }
+        }
+    };
+
+    const handleConfirmAll = async () => {
+        if (!tenantId) return;
+        const pending = Object.values(appointments).flat().filter(a => a.status === 'pending');
+        if (pending.length === 0) return;
+
+        setLoading(true);
+        try {
+            for (const apt of pending) {
+                await updateAppointmentStatusAction(apt.id, tenantId, "confirmed");
+            }
+            toast.success(`${pending.length} agendamentos confirmados!`);
+            fetchAppointments(tenantId);
+        } catch (error) {
+            toast.error("Erro ao confirmar agendamentos.");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -877,7 +933,11 @@ export default function AgendaPage() {
                             onSaveClient={(a) => { setClientToSave(a); setIsSaveClientModalOpen(true); }}
                         />
                         <DesktopOccupationCard summary={daySummary} />
-                        <DesktopNextActionsPanel appointments={appointments} currentTime={currentTime} />
+                        <DesktopNextActionsPanel 
+                            appointments={appointments} 
+                            currentTime={currentTime} 
+                            onConfirmAll={handleConfirmAll}
+                        />
                     </div>
 
                     {/* ── LEFT COLUMN (Visual): Calendar + Summary + Free Slots ── */}
@@ -1031,7 +1091,7 @@ export default function AgendaPage() {
                                                         ? "bg-emerald-500/[0.05] border-emerald-500/20"
                                                         : apt.status === 'confirmed'
                                                             ? "bg-gradient-to-r from-emerald-500/[0.08] to-emerald-500/[0.02] border-emerald-500/20"
-                                                            : "bg-gradient-to-r from-amber-500/[0.08] to-amber-500/[0.02] border-amber-500/20"
+                                                    : "bg-gradient-to-r from-amber-500/[0.08] to-amber-500/[0.02] border-amber-500/20 animate-pulse"
                                                 )} onClick={() => { setAppointmentToComplete(apt); apt.status === 'completed' ? setIsDetailsModalOpen(true) : setIsCompleteModalOpen(true); }}>
                                                     <div className="flex items-center justify-between gap-2">
                                                         <div className="flex flex-col min-w-0 flex-1">

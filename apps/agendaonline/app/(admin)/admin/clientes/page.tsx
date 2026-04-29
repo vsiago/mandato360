@@ -9,7 +9,7 @@ import {
     Calendar, 
     Trash2, 
     Edit, 
-    Shield, 
+    ShieldCheck, 
     User,
     CheckCircle2,
     XCircle,
@@ -145,7 +145,7 @@ export default function AdminClientes() {
                                             "flex items-center gap-1.5 text-xs font-black uppercase tracking-tighter px-2 py-1 rounded-md w-fit",
                                             client.role === 'root' ? "bg-amber-500 text-black" : "bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400"
                                         )}>
-                                            {client.role === 'root' && <Shield className="h-3 w-3" />}
+                                            {client.role === 'root' && <ShieldCheck className="h-3 w-3" />}
                                             {client.role}
                                         </div>
                                     </td>

@@ -3,7 +3,7 @@
 import { useState } from "react"
 
 import { EditorPlugin, PluginSectionProps, PluginSidebarProps } from "@mandato360/editor"
-import { Award, Plus, Trash2, CheckCircle2, Star, Shield, Gem, Zap, Flag, Heart, ShieldCheck, ChevronDown, Type } from "lucide-react"
+import { Award, Plus, Trash2, CheckCircle2, Star, Gem, Zap, Flag, Heart, ShieldCheck, ChevronDown, Type } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
@@ -14,7 +14,7 @@ const ICON_MAP: Record<string, any> = {
     Check: CheckCircle2,
     Award,
     Star,
-    Shield,
+    Shield: ShieldCheck,
     ShieldCheck,
     Gem,
     Zap,
@@ -26,7 +26,7 @@ const ICON_OPTIONS = [
     { label: "Check", icon: CheckCircle2, id: "Check" },
     { label: "Prêmio", icon: Award, id: "Award" },
     { label: "Estrela", icon: Star, id: "Star" },
-    { label: "Escudo", icon: Shield, id: "Shield" },
+    { label: "Escudo", icon: ShieldCheck, id: "Shield" },
     { label: "Proteção", icon: ShieldCheck, id: "ShieldCheck" },
     { label: "Gema", icon: Gem, id: "Gem" },
     { label: "Raio", icon: Zap, id: "Zap" },

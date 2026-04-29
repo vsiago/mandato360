@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { CalendarDays, MessageCircle, LayoutTemplate, Zap, Users, Star, CheckCircle2, Clock, Camera, XCircle, Check, Shield } from "lucide-react"
+import { CalendarDays, MessageCircle, LayoutTemplate, Zap, Users, Star, CheckCircle2, Clock, Camera, XCircle, Check, ShieldCheck } from "lucide-react"
 import { ThemeToggle } from "../components/theme-toggle"
 import { HeroOutcomeUI } from "@/components/hero-outcome-ui"
 import { DashboardMockup } from "@/components/dashboard-mockup"

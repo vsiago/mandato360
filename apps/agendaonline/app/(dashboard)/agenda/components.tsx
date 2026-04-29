@@ -129,11 +129,28 @@ export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onD
                     </div>
                     <span className="text-[10px] font-medium">Reagendar</span>
                 </button>
-                <button onClick={() => apt.status === 'completed' ? onDetails(apt) : onComplete(apt)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-emerald-500 transition-colors group cursor-pointer">
-                    <div className="h-10 w-10 rounded-xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500/10 group-hover:border-emerald-500/20 transition-all">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <button 
+                    onClick={() => {
+                        if (apt.status === 'pending') onConfirm(apt.time);
+                        else if (apt.status === 'confirmed') onComplete(apt);
+                        else onDetails(apt);
+                    }} 
+                    className={cn(
+                        "flex flex-col items-center gap-2 transition-colors group cursor-pointer",
+                        apt.status === 'pending' ? "text-stone-400 hover:text-amber-500" : "text-stone-400 hover:text-emerald-500"
+                    )}
+                >
+                    <div className={cn(
+                        "h-10 w-10 rounded-xl flex items-center justify-center transition-all",
+                        apt.status === 'pending' 
+                            ? "bg-amber-500/5 border border-amber-500/10 group-hover:bg-amber-500/10 group-hover:border-amber-500/20" 
+                            : "bg-emerald-500/5 border border-emerald-500/10 group-hover:bg-emerald-500/10 group-hover:border-emerald-500/20"
+                    )}>
+                        {apt.status === 'pending' ? <ShieldCheck className="h-4 w-4 text-amber-500" /> : <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
                     </div>
-                    <span className="text-[10px] font-medium">Concluir</span>
+                    <span className="text-[10px] font-medium">
+                        {apt.status === 'pending' ? 'Confirmar' : apt.status === 'confirmed' ? 'Concluir' : 'Detalhes'}
+                    </span>
                 </button>
                 <button onClick={() => onDelete(apt.id)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-red-500 transition-colors group cursor-pointer">
                     <div className="h-10 w-10 rounded-xl bg-red-500/5 border border-red-500/10 flex items-center justify-center group-hover:bg-red-500/10 group-hover:border-red-500/20 transition-all">
@@ -184,7 +201,7 @@ export function DesktopOccupationCard({ summary }: { summary: { total: number, f
 /* ═══════════════════════════════════════════
    DESKTOP: Next Actions Panel
    ═══════════════════════════════════════════ */
-export function DesktopNextActionsPanel({ appointments, currentTime }: { appointments: Record<string, any[]>, currentTime: Date }) {
+export function DesktopNextActionsPanel({ appointments, currentTime, onConfirmAll }: { appointments: Record<string, any[]>, currentTime: Date, onConfirmAll?: () => void }) {
     // 1. Pending count
     const allApts = Object.values(appointments).flat();
     const pendingCount = allApts.filter(a => a.status === 'pending').length;
@@ -207,7 +224,8 @@ export function DesktopNextActionsPanel({ appointments, currentTime }: { appoint
             icon: CalendarClock,
             title: `${pendingCount} ${pendingCount === 1 ? 'cliente aguardando' : 'clientes aguardando'} confirmação`,
             sub: "Agendamentos pendentes",
-            btnLabel: "Ver todos",
+            btnLabel: "Confirmar todos",
+            onClick: onConfirmAll,
             colorClass: "text-amber-500",
             bgClass: "bg-amber-500/10 border-amber-500/20"
         });
@@ -252,7 +270,10 @@ export function DesktopNextActionsPanel({ appointments, currentTime }: { appoint
                             <h4 className="text-xs font-bold text-stone-200 truncate group-hover:text-white transition-colors">{act.title}</h4>
                             <p className="text-[10px] text-stone-500 truncate mt-0.5">{act.sub}</p>
                         </div>
-                        <button className="shrink-0 h-8 px-3 rounded-full border border-stone-800 bg-stone-900/40 flex items-center gap-1.5 text-[10px] font-medium text-brand-gold group-hover:bg-stone-800 group-hover:border-stone-700 transition-all cursor-pointer">
+                        <button 
+                            onClick={act.onClick}
+                            className="shrink-0 h-8 px-3 rounded-full border border-stone-800 bg-stone-900/40 flex items-center gap-1.5 text-[10px] font-medium text-brand-gold group-hover:bg-stone-800 group-hover:border-stone-700 transition-all cursor-pointer"
+                        >
                             {act.btnLabel}
                             <ChevronRight className="h-3 w-3" />
                         </button>

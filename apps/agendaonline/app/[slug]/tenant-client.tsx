@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { 
     Activity, Award, MapPin, Menu, Phone, ShieldCheck, Star, 
     ArrowRight, MessageCircle, X, ChevronLeft, ChevronRight, Clock, Instagram, User, Check,
-    Image as ImageIcon, Shield, Gem, Zap, Flag, Heart, CheckCircle2,
+    Image as ImageIcon, ShieldCheck as Shield, Gem, Zap, Flag, Heart, CheckCircle2,
     Calendar,
     MessageSquare,
     Info
