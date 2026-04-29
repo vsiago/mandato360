@@ -61,7 +61,10 @@ export async function getAppointmentsByTenantAction(tenantId: string) {
 
         const list = await db.query.appointments.findMany({
             where: eq(appointments.tenantId, tenantId),
-            orderBy: appointments.time
+            orderBy: [appointments.date, appointments.time],
+            with: {
+                service: true
+            }
         })
 
         return { success: true, appointments: list }

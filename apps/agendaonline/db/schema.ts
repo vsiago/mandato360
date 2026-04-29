@@ -269,3 +269,27 @@ export const appointments = pgTable("appointments", {
     notes: text("notes"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+import { relations } from "drizzle-orm";
+
+export const appointmentsRelations = relations(appointments, ({ one }) => ({
+    tenant: one(tenants, {
+        fields: [appointments.tenantId],
+        references: [tenants.id],
+    }),
+    service: one(services, {
+        fields: [appointments.serviceId],
+        references: [services.id],
+    }),
+}));
+
+export const servicesRelations = relations(services, ({ one }) => ({
+    tenant: one(tenants, {
+        fields: [services.tenantId],
+        references: [tenants.id],
+    }),
+    category: one(categories, {
+        fields: [services.categoryId],
+        references: [categories.id],
+    }),
+}));

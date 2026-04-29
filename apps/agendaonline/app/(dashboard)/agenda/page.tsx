@@ -162,8 +162,20 @@ export default function AgendaPage() {
                     } catch (e) { }
                 }
 
-                const selectedServices = serviceIds.map(id => services.find(s => s.id === id)).filter(Boolean);
-                const totalPrice = selectedServices.reduce((acc, s) => acc + (parseFloat(s.price) || 0), 0);
+                const selectedServices = serviceIds.map(id => {
+                    const fromState = services.find(s => s.id === id);
+                    if (fromState) return fromState;
+                    // Fallback to joined service from DB if it matches the ID
+                    if (apt.service && apt.service.id === id) {
+                        return {
+                            ...apt.service,
+                            price: apt.service.price ? Number(apt.service.price) : 0
+                        };
+                    }
+                    return null;
+                }).filter(Boolean);
+                
+                const totalPrice = selectedServices.reduce((acc, s) => acc + (Number(s.price) || 0), 0);
                 const allServiceNames = selectedServices.map(s => s.name);
 
                 serverGrouped[dateKey].push({
@@ -819,7 +831,7 @@ export default function AgendaPage() {
                         {/* Timeline Card */}
                         <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-white/5 bg-stone-900/30 overflow-hidden shadow-lg relative">
                             {/* Selected Date Header */}
-                            <div className="shrink-0 px-8 pt-7 pb-4">
+                            <div className="shrink-0 px-5 pl-6 pt-6 pb-5">
                                 <h3 className="text-[11px] font-bold text-stone-300 uppercase tracking-widest">
                                     {new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(selectedDate + "T12:00:00"))}
                                 </h3>
@@ -827,9 +839,9 @@ export default function AgendaPage() {
 
                             {/* Timeline scroll */}
                             <div className="flex-1 min-h-0 overflow-hidden relative">
-                                <div className="absolute left-[57px] top-4 bottom-4 w-px bg-stone-800/30 pointer-events-none z-0" />
+                                <div className="absolute left-[45px] top-4 bottom-4 w-px bg-stone-800/30 pointer-events-none z-0" />
                                 <TooltipProvider>
-                                    <div ref={timelineRef} onClick={() => setSelectedAppointment(null)} className="h-full overflow-y-auto px-8 py-4 space-y-0 custom-scrollbar scroll-smooth relative z-10">
+                                    <div ref={timelineRef} onClick={() => setSelectedAppointment(null)} className="h-full overflow-y-auto p-5 space-y-0 custom-scrollbar scroll-smooth relative z-10">
                                         {visibleTimeSlots.map((time) => {
                                             const isToday = selectedDate === currentTime.toISOString().split('T')[0]
                                             const nowTime = currentTime.getHours() * 60 + currentTime.getMinutes()

@@ -30,31 +30,54 @@ const WEEKDAYS = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"]
 
 const ALL_TIME_SLOTS = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
 
-const SelectionSummary = ({ selDay, selTime }: any) => {
-  if (!selDay) return null;
-  const date = new Date(selDay.y, selDay.m, selDay.d);
-  const formattedDate = date.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-
-  const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+const SelectionSummary = ({ selDay, selTime, selectedService }: any) => {
+  const date = selDay ? new Date(selDay.y, selDay.m, selDay.d) : null;
+  const formattedDate = date ? date.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : null;
+  const capitalizedDate = formattedDate ? formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1) : null;
 
   return (
-    <div className="bg-stone-50 rounded-2xl p-4 border border-stone-100 flex items-center gap-4 shadow-sm w-full animate-in fade-in slide-in-from-top-4 duration-500">
-      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-stone-100/50 flex-shrink-0">
-        <CalendarIcon className="w-6 h-6" style={{ color: 'var(--tenant-hover)' }} />
-      </div>
-      <div className="flex flex-col text-left">
-        <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
-          {selTime ? "Agendamento para:" : "Data selecionada:"}
-        </span>
-        <span className="text-stone-900 font-bold text-sm">
-          {capitalizedDate}
-          {selTime && (
-            <span className="text-tenant-primary ml-2 italic lowercase font-black">
-              às {selTime}
+    <div className="flex flex-col gap-3 w-full animate-in fade-in slide-in-from-top-4 duration-500">
+      {/* Service Summary (If Selected) */}
+      {selectedService && (
+        <div className="bg-white rounded-2xl p-4 border border-stone-100 flex items-center gap-4 shadow-sm w-full">
+          <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-stone-100 border border-stone-100">
+            {selectedService.image ? (
+               <img src={selectedService.image} alt={selectedService.name} className="w-full h-full object-cover" />
+            ) : (
+               <div className="w-full h-full flex items-center justify-center">
+                 <Star className="w-6 h-6" style={{ color: 'var(--tenant-hover)' }} />
+               </div>
+            )}
+          </div>
+          <div className="flex flex-col text-left">
+            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Serviço selecionado:</span>
+            <span className="text-stone-900 font-bold text-sm leading-tight">{selectedService.name}</span>
+            <span className="text-tenant-primary font-black text-[10px] uppercase mt-0.5">R$ {parseFloat(selectedService.price).toFixed(0)}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Date/Time Summary */}
+      {selDay && (
+        <div className="bg-stone-50 rounded-2xl p-4 border border-stone-100 flex items-center gap-4 shadow-sm w-full">
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-stone-100/50 flex-shrink-0">
+            <CalendarIcon className="w-6 h-6" style={{ color: 'var(--tenant-hover)' }} />
+          </div>
+          <div className="flex flex-col text-left">
+            <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+              {selTime ? "Agendamento para:" : "Data selecionada:"}
             </span>
-          )}
-        </span>
-      </div>
+            <span className="text-stone-900 font-bold text-sm">
+              {capitalizedDate}
+              {selTime && (
+                <span className="text-tenant-primary ml-2 italic lowercase font-black">
+                  às {selTime}
+                </span>
+              )}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -70,7 +93,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   const progressPercent = ((current - 1) / (steps.length - 1)) * 100
 
   return (
-    <div className="flex items-center justify-center px-2 py-1.5 border-b border-stone-100 relative rounded-t-2xl md:rounded-t-[2rem] z-10">
+    <div className="flex items-center justify-center px-2 py-1.5 border-b border-stone-100 relative rounded-t-2xl md:rounded-t-[2rem] z-10 bg-white">
       <div className="flex items-center justify-between w-full max-w-4xl mx-auto relative group">
         
         {/* Track Background Line */}
@@ -100,9 +123,6 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
                 )}>
                   {s.label}
                 </span>
-                <span className="text-[9px] md:text-[10px] text-stone-400 hidden mt-0.5 font-medium">
-                  {s.sub}
-                </span>
               </div>
             </div>
           )
@@ -112,7 +132,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
   )
 }
 
-function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal }: any) {
+function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal, selectedService }: any) {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const [viewYear, setViewYear] = React.useState(now.getFullYear())
@@ -135,13 +155,9 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal }: any
   const firstDay = new Date(viewYear, viewMonth, 1).getDay()
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
 
-  const formattedDate = selDay
-    ? new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
-    : "Selecione uma data"
-
   const BenefitsSidebar = () => (
     <div className="flex flex-col gap-6 w-full">
-      <SelectionSummary selDay={selDay} />
+      <SelectionSummary selDay={selDay} selectedService={selectedService} />
 
       <button 
         className="w-full bg-[#0B1426] text-white px-8 py-4 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
@@ -171,15 +187,6 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal }: any
             <p className="text-stone-500 text-xs mt-1 leading-relaxed">Seus dados estão protegidos com total privacidade.</p>
           </div>
         </div>
-        <div className="flex items-start gap-4 text-left">
-          <div className="mt-1 w-10 h-10 rounded-full border border-stone-200 flex items-center justify-center flex-shrink-0">
-            <Star className="w-5 h-5 stroke-[1.5]" style={{ color: 'var(--tenant-hover)' }} />
-          </div>
-          <div>
-            <h4 className="font-bold text-stone-800 text-sm">Compromisso com você</h4>
-            <p className="text-stone-500 text-xs mt-1 leading-relaxed">Cuidado, atenção e resultados que fazem a diferença.</p>
-          </div>
-        </div>
       </div>
     </div>
   )
@@ -203,9 +210,6 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal }: any
               </button>
               <button className="w-10 h-10 rounded-xl border border-stone-200 flex items-center justify-center text-stone-600 hover:bg-stone-50 transition-all active:scale-95" onClick={() => changeMonth(1)}>
                 <ChevronRight className="w-5 h-5" />
-              </button>
-              <button onClick={goToday} className="px-4 md:px-5 h-10 rounded-xl border border-stone-200 text-xs md:text-sm font-bold text-stone-600 hover:bg-stone-50 transition-all active:scale-95">
-                Hoje
               </button>
             </div>
           </div>
@@ -250,7 +254,6 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal }: any
 
           <div className="flex flex-wrap items-center justify-start gap-3 sm:gap-4 mt-6">
             <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tenant-hover)' }}></div><span className="text-[10px] text-stone-500 font-medium">Disponível</span></div>
-            <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-[#0B1426]"></div><span className="text-[10px] text-stone-500 font-medium">Poucas vagas</span></div>
             <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 rounded-full bg-stone-200"></div><span className="text-[10px] text-stone-500 font-medium">Indisponível</span></div>
           </div>
         </div>
@@ -258,7 +261,7 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal }: any
         {/* Right Col: Benefits Sidebar */}
         <div className={cn("hidden w-px bg-stone-100 my-4", !isModal && "lg:block")} />
         
-        <div className={cn("flex-1 w-full flex flex-col justify-center", !isModal && "hidden lg:flex max-w-sm mx-auto")}>
+        <div className={cn("flex-1 w-full flex flex-col justify-start pt-12", !isModal && "hidden lg:flex max-w-sm mx-auto")}>
            <BenefitsSidebar />
         </div>
       </div>
@@ -281,16 +284,16 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal }: any
   )
 }
 
-function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, isLoading }: any) {
+function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, isLoading, selectedService }: any) {
   return (
     <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500 text-left">
       <div className="px-5 py-4 md:px-8 md:py-6 border-b border-stone-100 bg-white">
-        <SelectionSummary selDay={selDay} selTime={selTime} />
+        <SelectionSummary selDay={selDay} selTime={selTime} selectedService={selectedService} />
         
         {!selTime && (
           <div className="mt-6 animate-in fade-in slide-in-from-top-2 duration-700">
             <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#0B1426] mb-1 font-serif">Escolha o Horário</h2>
-            <p className="text-stone-500 text-xs md:text-sm leading-relaxed max-w-sm">Selecione o momento ideal para o seu atendimento exclusivo.</p>
+            <p className="text-stone-500 text-xs md:text-sm leading-relaxed max-w-sm">Selecione o momento ideal para o seu atendimento.</p>
           </div>
         )}
       </div>
@@ -351,18 +354,18 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
   )
 }
 
-function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving, selDay, selTime }: any) {
+function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving, selDay, selTime, selectedService }: any) {
   return (
     <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500 text-left">
       <div className="px-5 py-4 md:px-8 md:py-6 border-b border-stone-100 bg-white">
-        <SelectionSummary selDay={selDay} selTime={selTime} />
+        <SelectionSummary selDay={selDay} selTime={selTime} selectedService={selectedService} />
       </div>
 
       <div className="px-5 py-6 md:px-10 md:py-10 flex-1 flex flex-col justify-center bg-stone-50/30">
         <div className="max-w-md mx-auto w-full bg-white p-8 rounded-3xl border border-stone-100 shadow-sm">
           <div className="mb-8 text-center md:text-left">
             <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#0B1426] mb-1 font-serif">Seus Dados</h2>
-            <p className="text-stone-500 text-xs md:text-sm leading-relaxed">Última etapa! Por favor, preencha seus dados para finalizar a reserva do seu horário.</p>
+            <p className="text-stone-500 text-xs md:text-sm leading-relaxed">Última etapa! Por favor, preencha seus dados para finalizar a reserva.</p>
           </div>
           
           <div className="space-y-5">
@@ -436,7 +439,7 @@ function ConfirmPanel({ selDay, selTime, whatsappNumber, clientName, selectedSer
         <Check className="w-8 h-8 md:w-10 md:h-10" strokeWidth={3} />
       </div>
       <h2 className="text-3xl md:text-5xl font-bold mb-3 tracking-tight text-[#0B1426] font-serif">Agendamento<br/>Confirmado!</h2>
-      <p className="text-stone-500 text-sm md:text-base mb-10 max-w-md leading-relaxed">Parabéns! Seu horário foi reservado com sucesso. Verifique os detalhes abaixo.</p>
+      <p className="text-stone-500 text-sm md:text-base mb-10 max-w-md leading-relaxed">Parabéns! Seu horário foi reservado com sucesso.</p>
       
       <div className="w-full max-w-md bg-stone-50 border border-stone-100 rounded-3xl p-6 md:p-8 mb-10 grid grid-cols-2 gap-6 text-left shadow-sm">
         <div className="space-y-2">
@@ -456,8 +459,65 @@ function ConfirmPanel({ selDay, selTime, whatsappNumber, clientName, selectedSer
   )
 }
 
+function ServicePanel({ services, onSelect, onNext, selectedServiceId }: any) {
+    return (
+        <div className="w-full flex flex-col flex-1 animate-in fade-in duration-500">
+            <div className="px-5 py-6 md:px-8 md:py-8 border-b border-stone-100 bg-white text-left">
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#0B1426] mb-1 font-serif">Selecione o Serviço</h2>
+                <p className="text-stone-500 text-xs md:text-sm leading-relaxed max-w-sm">Escolha o procedimento que deseja realizar conosco.</p>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto bg-stone-50/50 p-4 md:p-6 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-5xl mx-auto">
+                    {services.map((s: any) => (
+                        <button 
+                            key={s.id} 
+                            onClick={() => onSelect(s.id)}
+                            className={cn(
+                                "flex items-center gap-4 p-4 rounded-2xl border transition-all text-left group active:scale-[0.98]",
+                                selectedServiceId === s.id 
+                                    ? "bg-[#0B1426] border-[#0B1426] text-white shadow-lg" 
+                                    : "bg-white border-stone-100 hover:border-stone-200 hover:shadow-md"
+                            )}
+                        >
+                            <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-stone-100">
+                                {s.image ? (
+                                    <img src={s.image} alt={s.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-stone-50 flex items-center justify-center">
+                                        <Star className="w-6 h-6 text-stone-200" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h4 className={cn("font-bold text-sm truncate", selectedServiceId === s.id ? "text-white" : "text-stone-900")}>{s.name}</h4>
+                                <p className={cn("text-[10px] mt-0.5 line-clamp-1", selectedServiceId === s.id ? "text-stone-300" : "text-stone-500")}>{s.description}</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <span className={cn("text-xs font-black", selectedServiceId === s.id ? "text-white" : "text-tenant-primary")}>R$ {parseFloat(s.price).toFixed(0)}</span>
+                                    <span className="text-[10px] text-stone-400 opacity-50">•</span>
+                                    <span className={cn("text-[10px] font-bold", selectedServiceId === s.id ? "text-stone-400" : "text-stone-400")}>{s.duration} min</span>
+                                </div>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div className="p-4 md:p-6 bg-white border-t border-stone-100 mt-auto flex justify-end">
+                <button 
+                    className="bg-[#0B1426] text-white px-8 py-3.5 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" 
+                    disabled={!selectedServiceId} 
+                    onClick={onNext}
+                >
+                    Continuar <ArrowRight className="w-4 h-4" />
+                </button>
+            </div>
+        </div>
+    )
+}
+
 export function SchedulingSection({ tenantId, whatsappNumber, services = [], initialServiceId, isModal = false, businessHours }: SchedulingSectionProps) {
-  const [step, setStep] = React.useState<1 | 2 | 3 | 4>(1)
+  const [step, setStep] = React.useState<0 | 1 | 2 | 3 | 4>(initialServiceId ? 1 : 0)
   const [selDay, setSelDay] = React.useState<SelDay | null>(null)
   const [selTime, setSelTime] = React.useState<string | null>(null)
   const [customerName, setCustomerName] = React.useState("")
@@ -468,7 +528,10 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
   const [isLoadingSlots, setIsLoadingSlots] = React.useState(false)
 
   React.useEffect(() => {
-    if (initialServiceId) setServiceId(initialServiceId)
+    if (initialServiceId) {
+        setServiceId(initialServiceId)
+        setStep(1)
+    }
   }, [initialServiceId])
 
   React.useEffect(() => {
@@ -549,6 +612,7 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
     if (!customerName || customerName.length < 3) return toast.error("Por favor, informe seu nome completo.")
     if (!customerPhone || customerPhone.length < 8) return toast.error("Por favor, informe seu WhatsApp.")
     if (!tenantId) return toast.error("Erro interno. Recarregue a página.")
+    if (!serviceId) return toast.error("Por favor, selecione um serviço.")
 
     setIsSaving(true)
     const dateStr = selDay.y + '-' + (selDay.m + 1).toString().padStart(2, '0') + '-' + selDay.d.toString().padStart(2, '0')
@@ -560,7 +624,7 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
         customerPhone: customerPhone.trim(), 
         date: dateStr, 
         time: selTime,
-        serviceId: serviceId || undefined
+        serviceId: serviceId
       } as any)
       
       if (res.success) { setStep(4) } 
@@ -584,23 +648,25 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--tenant-hover, #6d4a2a) !important; }
         .custom-scrollbar { scrollbar-width: thin !important; scrollbar-color: color-mix(in srgb, var(--tenant-hover, #6d4a2a) 30%, transparent) transparent !important; }
       `}} />
-      <StepIndicator current={step} />
+      <StepIndicator current={(step === 0 ? 1 : step) as any} />
       
-      <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar">
-        {step === 1 && <CalendarPanel selDay={selDay} onSelect={(d: any) => { setSelDay(d); setSelTime(null); }} onNext={() => setStep(2)} businessHours={businessHours} isModal={isModal} />}
+      <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar min-h-[500px]">
+        {step === 0 && <ServicePanel services={services} onSelect={setServiceId} onNext={() => setStep(1)} selectedServiceId={serviceId} />}
+        {step === 1 && <CalendarPanel selDay={selDay} onSelect={(d: any) => { setSelDay(d); setSelTime(null); }} onNext={() => setStep(2)} businessHours={businessHours} isModal={isModal} selectedService={selectedService} />}
         {step === 2 && selDay && (
           <TimePanel 
             selDay={selDay} 
             selTime={selTime} 
             onSelect={setSelTime} 
-            onBack={() => setStep(1)} 
+            onBack={() => setStep(initialServiceId ? 1 : 1)} 
             onNext={() => setStep(3)} 
             availableSlots={availableSlots}
             isLoading={isLoadingSlots}
+            selectedService={selectedService}
           />
         )}
         {step === 3 && selDay && selTime && (
-          <ContactPanel name={customerName} phone={customerPhone} setName={setCustomerName} setPhone={setCustomerPhone} onBack={() => setStep(2)} onNext={handleFinalize} isSaving={isSaving} selDay={selDay} selTime={selTime} />
+          <ContactPanel name={customerName} phone={customerPhone} setName={setCustomerName} setPhone={setCustomerPhone} onBack={() => setStep(2)} onNext={handleFinalize} isSaving={isSaving} selDay={selDay} selTime={selTime} selectedService={selectedService} />
         )}
         {step === 4 && selDay && selTime && <ConfirmPanel selDay={selDay} selTime={selTime} whatsappNumber={whatsappNumber} clientName={customerName} selectedService={selectedService} />}
       </div>
@@ -626,21 +692,6 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
         </div>
 
         {InnerContent}
-
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 md:gap-12 text-center">
-            <div className="flex flex-col items-center gap-2">
-                <CalendarIcon className="w-6 h-6" strokeWidth={1.5} style={{ color: 'var(--tenant-hover)' }} />
-                <span className="text-stone-600 text-xs font-semibold">Agendar</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-                <Clock className="w-6 h-6" strokeWidth={1.5} style={{ color: 'var(--tenant-hover)' }} />
-                <span className="text-stone-600 text-xs font-semibold">Como funciona</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-                <ShieldCheck className="w-6 h-6" strokeWidth={1.5} style={{ color: 'var(--tenant-hover)' }} />
-                <span className="text-stone-600 text-xs font-semibold">Segurança</span>
-            </div>
-        </div>
       </div>
     </section>
   )
