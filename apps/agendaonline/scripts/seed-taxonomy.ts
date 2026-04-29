@@ -58,7 +58,7 @@ const TAXONOMY: BusinessTypeSeed[] = [
     {
         name: "Salão de Beleza",
         icon: "💇‍♀️",
-        description: "Realce sua beleza natural com serviços exclusivos de corte, coloração e tratamentos capilares.",
+        description: "Realce sua beleza natural com serviços exclusivos de corte, coloração, tratamentos capilares e estética facial premium.",
         sortOrder: 0,
         categories: [
             {
@@ -68,6 +68,8 @@ const TAXONOMY: BusinessTypeSeed[] = [
                     { name: "Corte Feminino", defaultDuration: 60, defaultPrice: 80, defaultDescription: "Corte personalizado com lavagem e finalização.", sortOrder: 0, placeholder: "Corte feminino personalizado com lavagem, finalização e secagem profissional.", image: "/images/global-services/corte-feminino.png" },
                     { name: "Escova Modeladora", defaultDuration: 45, defaultPrice: 60, defaultDescription: "Escova com volume e movimento para acabamento impecável.", sortOrder: 1, placeholder: "Escova modeladora com volume e movimento para um acabamento impecável.", image: "/images/global-services/escova-modeladora.png" },
                     { name: "Corte Masculino", defaultDuration: 40, defaultPrice: 50, defaultDescription: "Corte moderno com acabamento na máquina e tesoura.", sortOrder: 2, placeholder: "Corte masculino moderno com acabamento na máquina e tesoura.", image: "/images/global-services/corte-masculino-salao.png" },
+                    { name: "Escova Progressiva", defaultDuration: 120, defaultPrice: 250, defaultDescription: "Redução de volume e frizz com brilho intenso.", sortOrder: 3, placeholder: "Tratamento de redução de volume para fios perfeitamente alinhados e brilhantes.", image: "/images/global-services/escova-progressiva.png" },
+                    { name: "Penteado para Eventos", defaultDuration: 90, defaultPrice: 150, defaultDescription: "Penteados elaborados para festas e casamentos.", sortOrder: 4, placeholder: "Penteado sofisticado ideal para noivas, madrinhas e eventos especiais.", image: "/images/global-services/penteado-evento.png" },
                 ]
             },
             {
@@ -77,6 +79,7 @@ const TAXONOMY: BusinessTypeSeed[] = [
                     { name: "Coloração Completa", defaultDuration: 120, defaultPrice: 180, defaultDescription: "Transformação de cor com produtos premium.", sortOrder: 0, placeholder: "Transformação de cor com produtos premium e proteção capilar.", image: "/images/global-services/coloracao-completa.png" },
                     { name: "Mechas e Luzes", defaultDuration: 150, defaultPrice: 250, defaultDescription: "Mechas iluminadas para realçar o tom natural.", sortOrder: 1, placeholder: "Mechas iluminadas para realçar o tom natural dos fios.", image: "/images/global-services/mechas-e-luzes.png" },
                     { name: "Hidratação Profunda", defaultDuration: 45, defaultPrice: 90, defaultDescription: "Tratamento intensivo para recuperar brilho e maciez.", sortOrder: 2, placeholder: "Tratamento intensivo para recuperar brilho e maciez dos fios.", image: "/images/global-services/hidratacao-profunda.png" },
+                    { name: "Reconstrução Capilar", defaultDuration: 60, defaultPrice: 120, defaultDescription: "Reposição de massa e queratina para fios danificados.", sortOrder: 3, placeholder: "Tratamento reconstrutor profundo para devolver a força e vitalidade aos cabelos.", image: "/images/global-services/reconstrucao-capilar.png" },
                 ]
             },
             {
@@ -85,7 +88,15 @@ const TAXONOMY: BusinessTypeSeed[] = [
                 services: [
                     { name: "Manicure", defaultDuration: 45, defaultPrice: 40, defaultDescription: "Cuidado completo das unhas das mãos.", sortOrder: 0, placeholder: "Cuticulagem e esmaltação cuidadosa para mãos impecáveis.", image: "/images/global-services/manicure-salao.png" },
                     { name: "Pedicure", defaultDuration: 60, defaultPrice: 50, defaultDescription: "Cuidado completo das unhas e pés.", sortOrder: 1, placeholder: "Tratamento dos pés com cuticulagem e esmaltação.", image: "/images/global-services/pedicure-salao.png" },
-                    { name: "Spa dos Pés", defaultDuration: 30, defaultPrice: 60, defaultDescription: "Tratamento relaxante e hidratante para os pés.", sortOrder: 2, placeholder: "Esfoliação e massagem para pés renovados e macios.", image: "/images/global-services/spa-dos-pes.png" },
+                    { name: "Spa dos Pés", defaultDuration: 45, defaultPrice: 80, defaultDescription: "Esfoliação, massagem e relaxamento profundo.", sortOrder: 2, placeholder: "Experiência relaxante com esfoliação, massagem e hidratação profunda dos pés.", image: "/images/global-services/spa-dos-pes.png" },
+                ]
+            },
+            {
+                name: "Estética Facial",
+                sortOrder: 3,
+                services: [
+                    { name: "Maquiagem Profissional", defaultDuration: 90, defaultPrice: 200, defaultDescription: "Maquiagem para eventos com produtos de alta fixação.", sortOrder: 0, placeholder: "Produção completa de maquiagem para eventos sociais, festas e ensaios.", image: "/images/global-services/maquiagem-profissional.png" },
+                    { name: "Design de Sobrancelha", defaultDuration: 30, defaultPrice: 45, defaultDescription: "Modelagem e limpeza para harmonização facial.", sortOrder: 1, placeholder: "Design personalizado seguindo as medidas do rosto para um olhar marcante.", image: "/images/global-services/design-sobrancelha-salao.png" },
                 ]
             }
         ]
