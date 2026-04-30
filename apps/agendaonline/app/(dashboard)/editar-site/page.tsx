@@ -1,11 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { cn } from "@/lib/utils"
 import { getMyTenant, normalizeSlug } from "@/lib/tenant-api"
-import type { TenantData, EditorSectionId } from "@/lib/tenant-types"
-import { EditorProvider, useEditor } from "@/lib/editor-context"
-import { SiteEditor } from "@mandato360/editor"
+import type { TenantData } from "@/lib/tenant-types"
+import { SiteEditor, type EditorConfig } from "@mandato360/editor"
 import "@mandato360/editor/styles"
 import { Loader2 } from "lucide-react"
 import { tenantToEditorConfig, editorConfigToTenant } from "@/lib/editor-adapter"
@@ -16,23 +14,32 @@ import { useRouter } from "next/navigation"
 
 /* ─── Page ─── */
 export default function EditarSitePage() {
+    const [editorConfig, setEditorConfig] = useState<EditorConfig | null>(null)
     const [data, setData] = useState<TenantData | null>(null)
     const [loading, setLoading] = useState(true)
     const router = useRouter()
 
     useEffect(() => {
         getMyTenant().then(tenantData => {
-            setData(tenantData)
+            if (tenantData) {
+                setData(tenantData)
+                // Initialize editor config once from tenant data
+                setEditorConfig(tenantToEditorConfig(tenantData))
+            }
             setLoading(false)
         })
     }, [])
 
-    const handleSave = async (config: any) => {
+    const handleSave = async (config: EditorConfig) => {
         if (!data) return
         try {
+            // Persist the full config which contains breakpoint-specific overrides
             const updatedTenant = editorConfigToTenant(config, data)
             const res = await saveTenantAction(updatedTenant)
+            
             if (res.success) {
+                // Keep local tenant data in sync, but don't re-initialize editorConfig 
+                // to avoid losing the current editor state or UI position
                 setData(updatedTenant)
                 toast.success("Site salvo com sucesso!")
             } else {
@@ -60,12 +67,12 @@ export default function EditarSitePage() {
         return data.url
     }
 
-    if (loading || !data) {
+    if (loading || !editorConfig || !data) {
         return (
             <div className="flex items-center justify-center h-screen bg-[#0f0f12]">
                 <div className="flex flex-col items-center gap-3">
                     <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
-                    <p className="text-sm text-white/50">Iniciando editor do monorepo...</p>
+                    <p className="text-sm text-white/50">Carregando editor responsivo...</p>
                 </div>
             </div>
         )
@@ -73,13 +80,14 @@ export default function EditarSitePage() {
 
     return (
         <SiteEditor 
-            initialConfig={tenantToEditorConfig(data)}
+            initialConfig={editorConfig}
             onSave={handleSave}
             tenantName={data.name}
             plugins={AGENDA_PLUGINS}
             accentColor={data.colors.primary}
             previewUrl={`/${data.slug || normalizeSlug(data.name)}`}
             onImageUpload={handleImageUpload}
+            autoSave={false}
             placeholders={{
                 title: data.heroHeadline,
                 description: data.description,
@@ -91,4 +99,5 @@ export default function EditarSitePage() {
         />
     )
 }
+
 
