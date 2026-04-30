@@ -238,22 +238,31 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
             .join(", ")})`
         : undefined
 
-    const isHeaderScrolled = isScrolled && headerConfig.behavior === 'fixed' && headerConfig.scrolled?.enabled
+    const isFixed = headerConfig.behavior === 'fixed' || headerConfig.sticky === true
+    const scrolledEnabled = headerConfig.scrolled?.enabled !== false
+    const isHeaderScrolled = isScrolled && isFixed && scrolledEnabled
     
     const headerBgStyle = isHeaderScrolled
-        ? { backgroundColor: headerConfig.scrolled.backgroundColor || themePrimary }
+        ? { backgroundColor: headerConfig.scrolled?.backgroundColor || themePrimary }
         : headerConfig.menuStyle === 'solid'
             ? { backgroundColor: headerConfig.backgroundColor || themeBg }
             : headerConfig.menuStyle === 'gradient'
                 ? { background: headerGradientStyle, opacity: (headerGradient.opacity ?? 100) / 100 }
                 : { backgroundColor: 'transparent' }
 
-    const headerColors = isHeaderScrolled ? headerConfig.scrolled.colors : {
-        logo: themeText,
-        menu: themeText,
-        cta: themeText,
-        hamburger: themeText
-    }
+    const headerColors = isHeaderScrolled 
+        ? {
+            logo: headerConfig.scrolled?.colors?.logo || '#ffffff',
+            menu: headerConfig.scrolled?.colors?.menu || '#ffffff',
+            cta: headerConfig.scrolled?.colors?.cta || '#ffffff',
+            hamburger: headerConfig.scrolled?.colors?.hamburger || '#ffffff',
+        }
+        : {
+            logo: themeText,
+            menu: themeText,
+            cta: themeText,
+            hamburger: themeText
+        }
 
     // Hero-level gradient (device-aware), fallback to theme gradient
     const activeDesktopGradient = heroDesktop?.gradient?.enabled ? heroDesktop.gradient : editorTheme?.gradient
@@ -306,7 +315,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
             <nav 
                 className={cn(
                     "left-0 right-0 z-50 transition-all duration-300",
-                    headerConfig.behavior === 'fixed' ? 'fixed' : 'relative',
+                    isFixed ? 'fixed' : 'relative',
                     isHeaderScrolled ? 'backdrop-blur-lg border-b border-white/5 shadow-xl' : ''
                 )} 
                 style={{ top: 0, height: isHeaderScrolled ? (headerConfig.scrolled?.height || 64) : (headerConfig.height || 80) }}
@@ -321,7 +330,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                         {data.logoUrl ? (
                             <img src={data.logoUrl} alt={data.name}
                                 className={`w-auto object-contain transition-all duration-300 group-hover:scale-105`} 
-                                style={{ height: isHeaderScrolled ? (headerConfig.logoHeight * 0.8) : headerConfig.logoHeight }}
+                                style={{ height: isHeaderScrolled ? ((headerConfig.logoHeight || 32) * 0.8) : (headerConfig.logoHeight || 32) }}
                             />
                         ) : (
                             <span className={`font-bold transition-all duration-300`} style={{ fontFamily: 'var(--theme-font-heading)', color: headerColors.logo, fontSize: isHeaderScrolled ? '1.25rem' : '1.5rem' }}>{data.name}</span>
@@ -332,9 +341,11 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             <Link key={item.id} href={`#${item.id}`}
                                 className="text-sm font-bold transition-colors" style={{ color: headerColors.menu }}>{item.label}</Link>
                         ))}
-                        <Link href={`https://wa.me/${data.contact.whatsapp}?text=Ol%C3%A1%20${encodeURIComponent(data.name)}%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio.`} target="_blank">
-                            <Button className="h-[50px] px-8 hover:opacity-90 font-bold rounded-(--theme-btn-radius) shadow-sm border-none transition-all duration-300 text-[15px]" style={{ backgroundColor: themePrimary, color: headerColors.cta }}>{headerConfig.ctaText || "Agendar Agora"}</Button>
-                        </Link>
+                        {headerConfig.showCta !== false && (
+                            <Link href={`https://wa.me/${data.contact.whatsapp}?text=Ol%C3%A1%20${encodeURIComponent(data.name)}%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio.`} target="_blank">
+                                <Button className="h-[50px] px-8 hover:opacity-90 font-bold rounded-(--theme-btn-radius) shadow-sm border-none transition-all duration-300 text-[15px]" style={{ backgroundColor: themePrimary, color: headerColors.cta }}>{headerConfig.ctaText || "Agendar Agora"}</Button>
+                            </Link>
+                        )}
                     </div>
                     <div className="lg:hidden">
                         <Sheet>

@@ -71,10 +71,22 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
                 opacity: 100,
                 stops: [],
             },
+            behavior: "fixed",
             sticky: true,
             height: 80,
             showCta: true,
             ctaText: ctaText,
+            scrolled: {
+                enabled: true,
+                height: 64,
+                backgroundColor: primaryColor,
+                colors: {
+                    logo: "#ffffff",
+                    menu: "#ffffff",
+                    cta: "#ffffff",
+                    hamburger: "#ffffff",
+                }
+            }
         },
         hero: {
             orientation: "left",
