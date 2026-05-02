@@ -15,6 +15,17 @@ import { getHeroImageForNiche } from "@/src/themes"
 /* ─── Helpers ─── */
 
 async function getAuthSession() {
+    // Playwright Bypass (Dev only)
+    if (process.env.NODE_ENV === "development") {
+        const h = await headers();
+        if (h.get("x-playwright-test") === "true" || h.get("cookie")?.includes("test-bypass=true")) {
+            // Find any user to act as a mock session
+            const firstUser = await db.query.user.findFirst();
+            if (firstUser) {
+                return { user: firstUser, session: { id: "mock-session" } };
+            }
+        }
+    }
     return await auth.api.getSession({ headers: await headers() })
 }
 

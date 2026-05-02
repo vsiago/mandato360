@@ -119,3 +119,28 @@ export function buildGoogleFontsUrl(fonts: string[]) {
   const families = uniqueFonts.map(f => `family=${f.replace(/\s+/g, '+')}:wght@400;700`).join('&')
   return `https://fonts.googleapis.com/css2?${families}&display=swap`
 }
+
+/**
+ * Generate a CSS block for a specific element selector, applying responsive overrides.
+ */
+export function generateResponsiveElementCSS(data: TenantData, sectionId: string, elementId: string, selector: string): string {
+    const mob = elementStyleToCSS(resolveElementStyle(data, sectionId, elementId, 'mobile'))
+    const tab = elementStyleToCSS(resolveElementStyle(data, sectionId, elementId, 'tablet'))
+    const desk = elementStyleToCSS(resolveElementStyle(data, sectionId, elementId, 'desktop'))
+
+    const toCSS = (style: React.CSSProperties) => 
+        Object.entries(style)
+            .map(([k, v]) => `${k.replace(/[A-Z]/g, m => "-" + m.toLowerCase())}: ${v} !important;`)
+            .join(' ')
+
+    const mobCSS = toCSS(mob)
+    const tabCSS = toCSS(tab)
+    const deskCSS = toCSS(desk)
+
+    let css = ""
+    if (mobCSS) css += `\n${selector} { ${mobCSS} }`
+    if (tabCSS) css += `\n@media (min-width: 768px) { ${selector} { ${tabCSS} } }`
+    if (deskCSS) css += `\n@media (min-width: 1024px) { ${selector} { ${deskCSS} } }`
+    
+    return css
+}

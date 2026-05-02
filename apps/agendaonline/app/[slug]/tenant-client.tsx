@@ -35,7 +35,7 @@ import { SchedulingSection } from "@/components/scheduling-section"
 import { DraggableCarousel } from "@/components/draggable-carousel"
 import { TenantWhatsapp } from "@/components/tenant-whatsapp"
 import type { TenantData } from "@/lib/tenant-types"
-import { resolveSectionBackground, resolveElementStyle, elementStyleToCSS, buildGoogleFontsUrl, getFontStack, hexToRgba } from "@/lib/style-utils"
+import { resolveSectionBackground, resolveElementStyle, elementStyleToCSS, generateResponsiveElementCSS, buildGoogleFontsUrl, getFontStack, hexToRgba } from "@/lib/style-utils"
 import { getTheme, generateThemeCSS, getHeroImageForNiche } from "@/src/themes"
 import { cn } from "@/lib/utils"
 
@@ -178,19 +178,128 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
     const heroTablet = resolveHeroForSite('tablet')
     const heroMobile = resolveHeroForSite('mobile')
 
+    // ─── Absolute Parity — Responsive Overrides Engine ───
+    const generateHeroResponsiveCSS = () => {
+        if (!heroMobile || !heroTablet || !heroDesktop) return ""
+        
+        const getFlexAlign = (orientation: string) => orientation === 'center' ? 'center' : orientation === 'right' ? 'flex-end' : 'flex-start'
+        const getTextAlign = (orientation: string) => orientation === 'center' ? 'center' : orientation === 'right' ? 'right' : 'left'
+        const getJustify = (orientation: string) => orientation === 'center' ? 'center' : orientation === 'right' ? 'flex-end' : 'flex-start'
+        const getMargin = (orientation: string) => orientation === 'center' ? '0 auto' : orientation === 'right' ? '0 0 0 auto' : '0 auto 0 0'
+
+        const getBtnCSS = (btn: any, bp: 'mobile' | 'tablet' | 'desktop') => {
+            const b = btn || {}
+            let width = b.width === 'full' ? '100%' : (b.width === 'auto' || !b.width ? 'auto' : `${b.width}px`)
+            
+            // Parity with Editor: On mobile, buttons default to full width (100%) if not explicitly set to a fixed numeric width
+            if (bp === 'mobile' && (b.width === 'auto' || !b.width)) {
+                width = '100%'
+            }
+
+            return `
+                width: ${width} !important;
+                height: ${b.height ?? 48}px !important;
+                padding: ${b.paddingY ?? 12}px ${b.paddingX ?? 24}px !important;
+                font-size: ${b.fontSize ?? 12}px !important;
+            `
+        }
+
+        return `
+            /* Hero Layout Responsivity */
+            .hero-layout-responsive {
+                align-items: ${getFlexAlign(heroMobile.orientation)};
+                text-align: ${getTextAlign(heroMobile.orientation)};
+            }
+            .hero-content-width { width: 100%; }
+            .hero-mx-auto { margin: ${getMargin(heroMobile.orientation)}; }
+            .hero-justify-res { 
+                justify-content: ${getJustify(heroMobile.orientation)}; 
+                align-items: ${getFlexAlign(heroMobile.orientation)};
+            }
+            
+            /* Responsive Buttons */
+            .hero-cta-primary-res { ${getBtnCSS(heroMobile.buttonPrimary, 'mobile')} }
+            .hero-cta-secondary-res { ${getBtnCSS(heroMobile.buttonSecondary, 'mobile')} }
+
+            @media (min-width: 640px) {
+                .hero-layout-responsive {
+                    align-items: ${getFlexAlign(heroTablet.orientation)};
+                    text-align: ${getTextAlign(heroTablet.orientation)};
+                }
+                .hero-mx-auto { margin: ${getMargin(heroTablet.orientation)}; }
+                .hero-justify-res { 
+                    justify-content: ${getJustify(heroTablet.orientation)}; 
+                    align-items: ${getFlexAlign(heroTablet.orientation)};
+                }
+                .hero-cta-primary-res { ${getBtnCSS(heroTablet.buttonPrimary, 'tablet')} }
+                .hero-cta-secondary-res { ${getBtnCSS(heroTablet.buttonSecondary, 'tablet')} }
+            }
+            @media (min-width: 1024px) {
+                .hero-layout-responsive {
+                    align-items: ${getFlexAlign(heroDesktop.orientation)};
+                    text-align: ${getTextAlign(heroDesktop.orientation)};
+                }
+                .hero-mx-auto { margin: ${getMargin(heroDesktop.orientation)}; }
+                .hero-justify-res { 
+                    justify-content: ${getJustify(heroDesktop.orientation)}; 
+                    align-items: ${getFlexAlign(heroDesktop.orientation)};
+                }
+                .hero-content-width { 
+                    max-width: ${heroDesktop.orientation === 'center' ? '100%' : '50%'};
+                }
+                .hero-cta-primary-res { ${getBtnCSS(heroDesktop.buttonPrimary, 'desktop')} }
+                .hero-cta-secondary-res { ${getBtnCSS(heroDesktop.buttonSecondary, 'desktop')} }
+            }
+
+            /* Responsive Overlays & Vignettes */
+            .hero-overlay-layer { 
+                background-color: ${heroMobile.overlay?.color || '#000000'};
+                opacity: ${(heroMobile.overlay?.opacity ?? 30) / 100};
+                display: ${heroMobile.overlay?.enabled ? 'block' : 'none'};
+            }
+            .hero-vignette-layer {
+                display: ${heroMobile.vignette?.enabled ? 'block' : 'none'};
+                background: radial-gradient(circle, transparent ${100 - (heroMobile.vignette?.intensity ?? 40)}%, ${heroMobile.vignette?.color || '#000000'} 100%);
+            }
+
+            @media (min-width: 768px) {
+                .hero-overlay-layer { 
+                    background-color: ${heroTablet.overlay?.color || '#000000'};
+                    opacity: ${(heroTablet.overlay?.opacity ?? 30) / 100};
+                    display: ${heroTablet.overlay?.enabled ? 'block' : 'none'};
+                }
+                .hero-vignette-layer {
+                    display: ${heroTablet.vignette?.enabled ? 'block' : 'none'};
+                    background: radial-gradient(circle, transparent ${100 - (heroTablet.vignette?.intensity ?? 40)}%, ${heroTablet.vignette?.color || '#000000'} 100%);
+                }
+            }
+
+            @media (min-width: 1024px) {
+                .hero-overlay-layer { 
+                    background-color: ${heroDesktop.overlay?.color || '#000000'};
+                    opacity: ${(heroDesktop.overlay?.opacity ?? 30) / 100};
+                    display: ${heroDesktop.overlay?.enabled ? 'block' : 'none'};
+                }
+                .hero-vignette-layer {
+                    display: ${heroDesktop.vignette?.enabled ? 'block' : 'none'};
+                    background: radial-gradient(circle, transparent ${100 - (heroDesktop.vignette?.intensity ?? 40)}%, ${heroDesktop.vignette?.color || '#000000'} 100%);
+                }
+            }
+        `
+    }
+
+    const heroResponsiveCSS = generateHeroResponsiveCSS()
+
+    // Element-level responsive styles
+    const headlineCSS = generateResponsiveElementCSS(data, 'hero', 'hero-headline', '.hero-headline-res')
+    const descriptionCSS = generateResponsiveElementCSS(data, 'hero', 'hero-description', '.hero-description-res')
+    const badgeCSS = generateResponsiveElementCSS(data, 'hero', 'hero-badge', '.hero-badge-res')
+    const ctaPrimaryCSS = generateResponsiveElementCSS(data, 'hero', 'hero-cta-primary', '.hero-cta-primary-res')
+    const ctaSecondaryCSS = generateResponsiveElementCSS(data, 'hero', 'hero-cta-secondary', '.hero-cta-secondary-res')
+
     // Fallback: if resolution engine returns null, read directly from editorConfig
     const effectiveHero = heroDesktop || editorConfig?.hero || {}
-    const effectiveVignette = effectiveHero?.vignette
-    const effectiveOverlay = effectiveHero?.overlay
 
-    // ─── Absolute Parity Calculations (identical to editor device-preview.tsx) ───
-    const vignetteStyle = effectiveVignette?.enabled
-        ? `radial-gradient(circle, transparent ${100 - (effectiveVignette.intensity ?? 40)}%, ${effectiveVignette.color || '#000000'} 100%)`
-        : undefined
-
-    const overlayStyle = effectiveOverlay?.enabled
-        ? { backgroundColor: effectiveOverlay.color || '#000000', opacity: (effectiveOverlay.opacity ?? 30) / 100 }
-        : undefined
 
     const SECTION_LABELS: Record<string, string> = {
         'trust': 'Destaques',
@@ -309,6 +418,14 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                 h1 lg, h1 .lg { font-size: 1.2em; font-weight: 900; }
                 h1 sm, h1 .sm { font-size: 0.8em; opacity: 0.8; }
                 h1 i, h1 .italic { font-style: italic; }
+
+                /* Responsive Hero Overrides */
+                ${heroResponsiveCSS}
+                ${headlineCSS}
+                ${descriptionCSS}
+                ${badgeCSS}
+                ${ctaPrimaryCSS}
+                ${ctaSecondaryCSS}
             `}} />
 
             {/* Nav */}
@@ -475,14 +592,14 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                     )} style={{ 
                                         backgroundImage: 'inherit',
                                         backgroundPosition: 'inherit',
-                                        transform: 'inherit',
+                                        transform: 'scale(var(--hero-scale-mob))',
                                         backgroundSize: 'cover'
                                     }} />
                                 </div>
                             )}
 
                             {/* LAYER 2 — Overlay Color (matching editor) */}
-                            {overlayStyle && <div className="absolute inset-0 z-[1]" style={overlayStyle} />}
+                            <div className="absolute inset-0 z-[1] hero-overlay-layer" />
                             
                             {/* LAYER 3 — Theme Gradient (identical to editor) */}
                             {themeGradientStyle && (
@@ -496,50 +613,44 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             )}
 
                             {/* LAYER 4 — Vignette (radial-gradient — identical to editor) */}
-                            {vignetteStyle && <div className="absolute inset-0 z-[3]" style={{ background: vignetteStyle }} />}
+                            <div className="absolute inset-0 z-[3] hero-vignette-layer" />
 
                             {/* LAYER 5 — Content */}
                             <div className={cn(
-                                "relative z-40 mx-auto w-full max-w-7xl px-6 pt-24 pb-12 flex flex-col pointer-events-none",
-                                isCenter ? "items-center text-center" : isRight ? "items-end text-right" : "items-start text-left"
+                                "relative z-40 mx-auto w-full max-w-7xl px-6 pt-24 pb-12 flex flex-col pointer-events-none hero-layout-responsive",
                             )}>
                                 <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} 
                                     className={cn(
                                         "flex flex-col w-full pointer-events-auto transition-all duration-500",
-                                        isCenter ? "items-center text-center" : isRight ? "items-end text-right" : "items-start text-left",
-                                        (isLeft || isRight) && "lg:max-w-[50%]"
+                                        "hero-layout-responsive hero-content-width"
                                     )}
                                 >
                                     {heroBadge && (
                                         <div 
-                                            className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-5 md:mb-6 border border-white/10 transition-transform hover:scale-105")}
+                                            className={cn("hero-badge-res inline-flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-5 md:mb-6 border border-white/10 transition-transform hover:scale-105")}
                                             style={{ 
                                                 borderRadius: 'var(--theme-btn-radius)',
                                                 backgroundColor: `${themePrimary}4d`,
                                                 color: themeText,
-                                                ...elStyle('hero', 'hero-badge')
                                             }}
                                         >
                                             <span className="text-[10px] md:text-xs font-medium uppercase tracking-widest" dangerouslySetInnerHTML={{ __html: renderEditorText(heroBadge) }} />
                                         </div>
                                     )}
                                     <h1 
-                                        className={cn("text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-5 md:mb-6")} 
-                                        style={{ fontFamily: 'var(--theme-font-heading)', color: themeText, ...elStyle('hero', 'hero-headline') }}
+                                        className={cn("hero-headline-res text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-5 md:mb-6")} 
+                                        style={{ fontFamily: 'var(--theme-font-heading)', color: themeText }}
                                         dangerouslySetInnerHTML={{ __html: renderEditorText(heroTitle) }}
                                     />
                                     {(!data.config && data.heroHighlight) && (
-                                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] tracking-tight mb-5 md:mb-6" style={{ fontFamily: 'var(--theme-font-heading)', color: themeText, ...elStyle('hero', 'hero-headline') }}>
-                                            <span className="font-light italic" style={{ color: 'var(--tenant-accent)', textShadow: `0 0 15px #eec58466`, ...elStyle('hero', 'hero-highlight') }}>{data.heroHighlight}</span>.
+                                        <h1 className="hero-headline-res text-4xl sm:text-5xl lg:text-7xl font-bold leading-[1.1] mb-5 sm:mb-6 tracking-tight" style={{ fontFamily: 'var(--theme-font-heading)', color: themeText }}>
+                                            <span className="hero-highlight-res font-light italic" style={{ color: 'var(--tenant-accent)', textShadow: `0 0 15px #eec58466` }}>{data.heroHighlight}</span>.
                                         </h1>
                                     )}
-                                    <p 
-                                        className={cn("text-base md:text-lg lg:text-xl leading-relaxed opacity-90 mb-6 md:mb-10", isCenter ? "max-w-2xl mx-auto" : "max-w-xl")} 
-                                        style={{ color: themeText, ...elStyle('hero', 'hero-description') }}
-                                    >
+                                    <p className={cn("hero-desc-res text-sm sm:text-base lg:text-lg mb-6 sm:mb-10 opacity-90 leading-relaxed font-medium hero-mx-auto", heroMobile.orientation === "center" ? "max-w-2xl" : "max-w-xl")} style={{ color: themeText }}>
                                         <span dangerouslySetInnerHTML={{ __html: renderEditorText(heroDesc) }} />
                                     </p>
-                                    <div className={cn("flex flex-wrap gap-3 md:gap-4 mt-2", isCenter && "justify-center")}>
+                                    <div className={cn("hero-ctas-container w-full flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mt-2 hero-justify-res")}>
                                         {/* Primary Button */}
                                         {(() => {
                                             const btn = effectiveHero?.buttonPrimary || { text: heroCtaPrimary, link: "#agendamento" }
@@ -549,14 +660,8 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                             const btnStyle: React.CSSProperties = {
                                                 borderRadius: 'var(--theme-btn-radius)',
                                                 color: btn.textColor || themeText,
-                                                paddingLeft: `${btn.paddingX ?? 24}px`,
-                                                paddingRight: `${btn.paddingX ?? 24}px`,
-                                                paddingTop: `${btn.paddingY ?? 12}px`,
-                                                paddingBottom: `${btn.paddingY ?? 12}px`,
-                                                height: `${btn.height ?? 48}px`,
-                                                width: btn.width === 'full' ? '100%' : (btn.width === 'auto' || !btn.width ? 'auto' : `${btn.width}px`),
-                                                fontSize: btn.fontSize ? `${btn.fontSize}px` : undefined,
-                                                ...elStyle('hero', 'hero-cta-primary')
+                                                ...elStyle('hero', 'hero-cta-primary'), // Still support legacy if needed
+                                                zIndex: 1,
                                             }
 
                                             if (btn.gradient?.enabled) {
@@ -580,7 +685,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                                     <Button 
                                                         onClick={() => handleOpenBooking()}
                                                         className={cn(
-                                                            "font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-14 border-none flex items-center justify-center gap-2 uppercase tracking-widest",
+                                                            "hero-cta-primary-res font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-14 border-none flex items-center justify-center gap-2 uppercase tracking-widest",
                                                             !btn.fontSize && "text-xs md:text-sm lg:text-base"
                                                         )}
                                                         style={btnStyle}
@@ -591,11 +696,11 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                             }
 
                                             return (
-                                                <Link href={btn.link || "#"}>
+                                                <Link href={btn.link || "#"} className="w-full sm:w-auto flex">
                                                     <Button 
                                                         className={cn(
-                                                            "font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-14 border-none flex items-center justify-center gap-2 uppercase tracking-widest",
-                                                            !btn.fontSize && "text-xs md:text-sm lg:text-base"
+                                                            "hero-cta-primary-res font-bold transition-transform hover:scale-105 active:scale-95 shadow-xl h-14 border-none flex items-center justify-center gap-2 uppercase tracking-widest",
+                                                            !btn.fontSize && "text-xs sm:text-sm lg:text-base"
                                                         )}
                                                         style={btnStyle}
                                                     >
@@ -614,13 +719,6 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                             const btnStyle: React.CSSProperties = {
                                                 borderRadius: 'var(--theme-btn-radius)',
                                                 color: btn.textColor || themeText,
-                                                paddingLeft: `${btn.paddingX ?? 24}px`,
-                                                paddingRight: `${btn.paddingX ?? 24}px`,
-                                                paddingTop: `${btn.paddingY ?? 12}px`,
-                                                paddingBottom: `${btn.paddingY ?? 12}px`,
-                                                height: `${btn.height ?? 48}px`,
-                                                width: btn.width === 'full' ? '100%' : (btn.width === 'auto' || !btn.width ? 'auto' : `${btn.width}px`),
-                                                fontSize: btn.fontSize ? `${btn.fontSize}px` : undefined,
                                                 border: btn.outline ? `2px solid ${btn.textColor || themeText}` : undefined,
                                                 ...elStyle('hero', 'hero-cta-secondary')
                                             }
@@ -634,12 +732,12 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                             }
 
                                             return (
-                                                <Link href={btn.link || "#"}>
+                                                <Link href={btn.link || "#"} className="w-full sm:w-auto flex">
                                                     <Button 
                                                         variant={btn.outline ? "outline" : "default"}
                                                         className={cn(
-                                                            "font-bold transition-transform hover:scale-105 active:scale-95 h-14 flex items-center justify-center gap-2 uppercase tracking-widest",
-                                                            !btn.fontSize && "text-xs md:text-sm lg:text-base"
+                                                            "hero-cta-secondary-res font-bold transition-transform hover:scale-105 active:scale-95 h-14 flex items-center justify-center gap-2 uppercase tracking-widest",
+                                                            !btn.fontSize && "text-xs sm:text-sm lg:text-base"
                                                         )}
                                                         style={btnStyle}
                                                     >

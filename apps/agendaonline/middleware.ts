@@ -3,6 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Session } from "better-auth/types";
 
 export default async function authMiddleware(request: NextRequest) {
+    // Playwright Bypass (Dev only)
+    if (process.env.NODE_ENV === "development" && (request.headers.get("x-playwright-test") === "true" || request.nextUrl.searchParams.get("test") === "true")) {
+        return NextResponse.next();
+    }
+
     const { data: authData } = await betterFetch<any>(
         "/api/auth/get-session",
         {
