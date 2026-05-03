@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
     MessageCircle, MoreVertical, Filter, UserPlus, TrendingUp, Users, Calendar as CalendarIcon, ChevronDown,
-    Pencil, Trash2, Smartphone, X, LayoutGrid, Play, CalendarSearch, Zap, Lock
+    Pencil, Trash2, Smartphone, X, LayoutGrid, Play, CalendarSearch, Zap, Lock, CalendarOff, Unlock
 } from "lucide-react"
 import { toast } from "sonner"
 import { DesktopDetailsPanel, DesktopNextActionsPanel, DesktopOccupationCard, DesktopMiniCalendar, DesktopDaySummary, DesktopFreeSlots } from "./components"
@@ -899,12 +899,17 @@ export default function AgendaPage() {
                                                                 </div>
                                                             </div>
                                                         ) : isBlocked ? (
-                                                            <div className="rounded-[14px] p-4 bg-gradient-to-r from-red-500/10 to-transparent border-y border-r border-white/[0.04] border-l-4 border-l-red-500 flex items-center gap-4">
-                                                                <div className="h-10 w-10 rounded-[10px] border border-red-500/20 flex items-center justify-center shrink-0 bg-red-500/5"><Lock className="h-4 w-4 text-red-500" /></div>
-                                                                <div>
-                                                                    <p className="text-[13px] font-bold text-red-500 uppercase tracking-wider mb-0.5">Horário Bloqueado</p>
-                                                                    <p className="text-[12px] text-red-500/60">Indisponível para clientes</p>
+                                                            <div className="rounded-[14px] p-4 bg-gradient-to-r from-red-500/10 to-transparent border-y border-r border-white/[0.04] border-l-4 border-l-red-500 flex items-center justify-between gap-4 group/blocked">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="h-10 w-10 rounded-[10px] border border-red-500/20 flex items-center justify-center shrink-0 bg-red-500/5"><Lock className="h-4 w-4 text-red-500" /></div>
+                                                                    <div>
+                                                                        <p className="text-[13px] font-bold text-red-500 uppercase tracking-wider mb-0.5">Horário Bloqueado</p>
+                                                                        <p className="text-[12px] text-red-500/60">Indisponível para clientes</p>
+                                                                    </div>
                                                                 </div>
+                                                                <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-10 w-10 rounded-xl border border-red-500/20 bg-red-500/5 text-red-500 hover:text-white hover:bg-red-500 flex items-center justify-center transition-all cursor-pointer opacity-0 group-hover/blocked:opacity-100" title="Liberar Horário">
+                                                                    <Unlock className="h-4 w-4" />
+                                                                </button>
                                                             </div>
                                                         ) : (
                                                             <div className="rounded-[14px] p-3 pl-4 bg-stone-900/40 border border-white/5 hover:border-white/10 flex items-center justify-between group/empty transition-all">
@@ -917,9 +922,14 @@ export default function AgendaPage() {
                                                                         <p className="text-[12px] text-stone-500">Disponível para agendamento</p>
                                                                     </div>
                                                                 </div>
-                                                                <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer">
-                                                                    <Plus className="h-5 w-5" />
-                                                                </button>
+                                                                <div className="flex items-center gap-2">
+                                                                    <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer opacity-0 group-hover/empty:opacity-100" title="Bloquear Horário">
+                                                                        <CalendarOff className="h-4 w-4" />
+                                                                    </button>
+                                                                    <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer" title="Novo Agendamento">
+                                                                        <Plus className="h-5 w-5" />
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>
@@ -1188,8 +1198,18 @@ export default function AgendaPage() {
                                                         </div>
                                                     </div>
                                                     {!isBlocked && !isUnavailable && (
-                                                        <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-8 w-8 rounded-full border border-white/10 bg-stone-900 text-stone-400 hover:text-brand-gold hover:border-brand-gold/30 hover:bg-brand-gold/10 flex items-center justify-center transition-all cursor-pointer">
-                                                            <Plus className="h-4 w-4" />
+                                                        <div className="flex items-center gap-2">
+                                                            <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-8 w-8 rounded-full border border-white/10 bg-stone-900 text-stone-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer">
+                                                                <CalendarOff className="h-3.5 w-3.5" />
+                                                            </button>
+                                                            <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-8 w-8 rounded-full border border-white/10 bg-stone-900 text-stone-400 hover:text-brand-gold hover:border-brand-gold/30 hover:bg-brand-gold/10 flex items-center justify-center transition-all cursor-pointer">
+                                                                <Plus className="h-4 w-4" />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                    {isBlocked && (
+                                                        <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-8 w-8 rounded-full border border-red-500/20 bg-red-500/10 text-red-400 hover:text-white hover:bg-red-500 flex items-center justify-center transition-all cursor-pointer">
+                                                            <Unlock className="h-3.5 w-3.5" />
                                                         </button>
                                                     )}
                                                 </div>
