@@ -1,10 +1,23 @@
 "use client"
 
 import * as React from "react"
-import { Calendar as CalendarIcon, Clock, Check, ChevronLeft, ChevronRight, Loader2, User, Phone, ArrowRight, ShieldCheck, Star } from "lucide-react"
+import { Calendar as CalendarIcon, Clock, Check, ChevronLeft, ChevronRight, Loader2, User, Phone, ArrowRight, ShieldCheck, Star, X } from "lucide-react"
 import { createPublicAppointmentAction, getPublicAppointmentsByDateAction } from "@/lib/actions/appointments"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+
+// Helper to render simple markdown-like syntax from editor
+function renderEditorText(text: string = "") {
+    if (!text) return ""
+    return text
+        .replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/__(.*?)__/g, '<u>$1</u>')
+        .replace(/<lg>(.*?)<\/lg>/g, '<span class="text-[1.25em]">$1</span>')
+        .replace(/<md>(.*?)<\/md>/g, '<span class="text-[1em]">$1</span>')
+        .replace(/<sm>(.*?)<\/sm>/g, '<span class="text-[0.75em]">$1</span>')
+}
 
 interface SchedulingSectionProps {
   tenantId: string
@@ -13,6 +26,11 @@ interface SchedulingSectionProps {
   initialServiceId?: string
   isModal?: boolean
   businessHours?: any
+  config?: {
+    title?: string
+    subtitle?: string
+  }
+  themeColors?: any
 }
 
 interface SelDay {
@@ -418,7 +436,7 @@ function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving
           {isSaving ? (
             <><Loader2 className="w-5 h-5 animate-spin" /> Processando...</>
           ) : (
-            <>Finalizar Agendamento <Check className="w-5 h-5" strokeWidth={3} /></>
+            <>Continuar <ArrowRight className="w-5 h-5" strokeWidth={3} /></>
           )}
         </button>
       </div>
@@ -426,7 +444,107 @@ function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving
   )
 }
 
-function ConfirmPanel({ selDay, selTime, whatsappNumber, clientName, selectedService }: any) {
+function ReviewPanel({ selDay, selTime, name, phone, selectedService, services, onSelectService, onBack, onFinalize, isSaving }: any) {
+  const [showModal, setShowModal] = React.useState(false)
+
+  const handleServiceSelect = (id: string) => {
+    onSelectService(id)
+    setShowModal(false)
+  }
+
+  return (
+    <div className="w-full flex flex-col flex-1 animate-in fade-in slide-in-from-right-8 duration-500 text-left">
+      <div className="px-5 py-6 md:px-10 md:py-10 flex-1 flex flex-col justify-center bg-stone-50/30">
+        <div className="max-w-md mx-auto w-full bg-white p-8 rounded-3xl border border-stone-100 shadow-sm">
+          <div className="mb-8 text-center md:text-left">
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-[#0B1426] mb-1 font-serif">Revisão</h2>
+            <p className="text-stone-500 text-xs md:text-sm leading-relaxed">Confirme os dados do seu agendamento antes de finalizar.</p>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] font-extrabold text-stone-400 uppercase tracking-[0.2em] ml-1">Serviço</span>
+              {selectedService ? (
+                <div className="flex items-center justify-between bg-stone-50 p-4 rounded-xl border border-stone-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-stone-200">
+                        {selectedService.image ? (
+                            <img src={selectedService.image} alt={selectedService.name} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="w-full h-full bg-stone-100 flex items-center justify-center">
+                                <Star className="w-4 h-4 text-stone-300" />
+                            </div>
+                        )}
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm text-stone-900">{selectedService.name}</p>
+                      <p className="text-tenant-primary text-xs font-black">R$ {parseFloat(selectedService.price).toFixed(0)}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowModal(true)} className="text-[10px] uppercase font-bold text-stone-400 hover:text-[#0B1426]">Alterar</button>
+                </div>
+              ) : (
+                <button onClick={() => setShowModal(true)} className="w-full py-4 rounded-xl border border-dashed border-stone-300 text-stone-500 hover:border-[#0B1426] hover:text-[#0B1426] hover:bg-stone-50 transition-colors font-bold text-sm">
+                  + Escolha um serviço (Opcional)
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] font-extrabold text-stone-400 uppercase tracking-[0.2em] ml-1">Data e Hora</span>
+              <div className="bg-stone-50 p-4 rounded-xl border border-stone-100 font-bold text-sm text-stone-900">
+                {selDay && new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })} às <span className="text-tenant-primary">{selTime}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] font-extrabold text-stone-400 uppercase tracking-[0.2em] ml-1">Seus Dados</span>
+              <div className="bg-stone-50 p-4 rounded-xl border border-stone-100 flex flex-col gap-1">
+                <span className="font-bold text-sm text-stone-900">{name}</span>
+                <span className="text-xs text-stone-500">{phone}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between p-5 md:p-8 bg-white border-t border-stone-100 mt-auto sticky bottom-0 z-20 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">
+        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[#0B1426] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack} disabled={isSaving}>
+          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Identificação
+        </button>
+        <button 
+          className="bg-[#0B1426] text-white px-6 md:px-12 py-4 md:py-5 rounded-2xl text-[13px] md:text-sm font-black shadow-xl shadow-[#0B1426]/20 disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#0B1426]/30 w-full sm:w-auto uppercase tracking-wider" 
+          disabled={isSaving} 
+          onClick={onFinalize}
+        >
+          {isSaving ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> Processando...</>
+          ) : (
+            <>Finalizar Agendamento <Check className="w-5 h-5" strokeWidth={3} /></>
+          )}
+        </button>
+      </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-2xl h-[80vh] md:h-[600px] rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 md:slide-in-from-bottom-0 md:zoom-in-95 duration-300 absolute bottom-0 md:relative">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100">
+              <h3 className="font-bold text-lg text-[#0B1426]">Escolha um Serviço</h3>
+              <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-full bg-stone-100 text-stone-500 flex items-center justify-center hover:bg-stone-200 transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <ServicePanel services={services} onSelect={handleServiceSelect} selectedServiceId={selectedService?.id} hideFooter={true} />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SuccessPanel({ selDay, selTime, whatsappNumber, clientName, selectedService }: any) {
   const formattedDate = new Date(selDay.y, selDay.m, selDay.d).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })
   const confirmWhatsApp = () => {
     const greeting = clientName ? 'Olá ' + clientName + ', ' : "Olá, "
@@ -516,8 +634,8 @@ function ServicePanel({ services, onSelect, onNext, selectedServiceId }: any) {
     )
 }
 
-export function SchedulingSection({ tenantId, whatsappNumber, services = [], initialServiceId, isModal = false, businessHours }: SchedulingSectionProps) {
-  const [step, setStep] = React.useState<0 | 1 | 2 | 3 | 4>(initialServiceId ? 1 : 0)
+export function SchedulingSection({ tenantId, whatsappNumber, services = [], initialServiceId, isModal = false, businessHours, config, themeColors }: SchedulingSectionProps) {
+  const [step, setStep] = React.useState<1 | 2 | 3 | 4 | 5>(1)
   const [selDay, setSelDay] = React.useState<SelDay | null>(null)
   const [selTime, setSelTime] = React.useState<string | null>(null)
   const [customerName, setCustomerName] = React.useState("")
@@ -612,7 +730,6 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
     if (!customerName || customerName.length < 3) return toast.error("Por favor, informe seu nome completo.")
     if (!customerPhone || customerPhone.length < 8) return toast.error("Por favor, informe seu WhatsApp.")
     if (!tenantId) return toast.error("Erro interno. Recarregue a página.")
-    if (!serviceId) return toast.error("Por favor, selecione um serviço.")
 
     setIsSaving(true)
     const dateStr = selDay.y + '-' + (selDay.m + 1).toString().padStart(2, '0') + '-' + selDay.d.toString().padStart(2, '0')
@@ -627,7 +744,7 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
         serviceId: serviceId
       } as any)
       
-      if (res.success) { setStep(4) } 
+      if (res.success) { setStep(5) } 
       else { toast.error(res.error || "Erro ao registrar agendamento.") }
     } catch (err) { 
       toast.error("Erro de conexão.") 
@@ -651,14 +768,13 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
       <StepIndicator current={(step === 0 ? 1 : step) as any} />
       
       <div className="flex-1 flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar min-h-[500px]">
-        {step === 0 && <ServicePanel services={services} onSelect={setServiceId} onNext={() => setStep(1)} selectedServiceId={serviceId} />}
         {step === 1 && <CalendarPanel selDay={selDay} onSelect={(d: any) => { setSelDay(d); setSelTime(null); }} onNext={() => setStep(2)} businessHours={businessHours} isModal={isModal} selectedService={selectedService} />}
         {step === 2 && selDay && (
           <TimePanel 
             selDay={selDay} 
             selTime={selTime} 
             onSelect={setSelTime} 
-            onBack={() => setStep(initialServiceId ? 1 : 1)} 
+            onBack={() => setStep(1)} 
             onNext={() => setStep(3)} 
             availableSlots={availableSlots}
             isLoading={isLoadingSlots}
@@ -666,28 +782,40 @@ export function SchedulingSection({ tenantId, whatsappNumber, services = [], ini
           />
         )}
         {step === 3 && selDay && selTime && (
-          <ContactPanel name={customerName} phone={customerPhone} setName={setCustomerName} setPhone={setCustomerPhone} onBack={() => setStep(2)} onNext={handleFinalize} isSaving={isSaving} selDay={selDay} selTime={selTime} selectedService={selectedService} />
+          <ContactPanel name={customerName} phone={customerPhone} setName={setCustomerName} setPhone={setCustomerPhone} onBack={() => setStep(2)} onNext={() => setStep(4)} isSaving={false} selDay={selDay} selTime={selTime} selectedService={selectedService} />
         )}
-        {step === 4 && selDay && selTime && <ConfirmPanel selDay={selDay} selTime={selTime} whatsappNumber={whatsappNumber} clientName={customerName} selectedService={selectedService} />}
+        {step === 4 && selDay && selTime && (
+          <ReviewPanel selDay={selDay} selTime={selTime} name={customerName} phone={customerPhone} selectedService={selectedService} services={services} onSelectService={setServiceId} onBack={() => setStep(3)} onFinalize={handleFinalize} isSaving={isSaving} />
+        )}
+        {step === 5 && selDay && selTime && <SuccessPanel selDay={selDay} selTime={selTime} whatsappNumber={whatsappNumber} clientName={customerName} selectedService={selectedService} />}
       </div>
     </div>
   )
 
   if (isModal) return InnerContent
 
+  const highlightColor = themeColors?.primary || 'var(--tenant-primary)'
+  
   return (
-    <section id="agendamento" className="relative py-16 md:py-24 px-4 bg-stone-50 overflow-hidden">
+    <section 
+      id="agendamento" 
+      className="relative py-16 md:py-24 px-4 overflow-hidden border-t border-slate-100" 
+      style={{ 
+        backgroundColor: 'var(--theme-color-surface, #fafaf9)',
+        ['--tenant-hover' as any]: themeColors?.hover || themeColors?.primary || 'var(--tenant-hover)',
+      }}
+    >
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--tenant-hover)_10%,transparent)_0%,transparent_70%)] pointer-events-none" />
       
       <div className="relative z-10 w-full max-w-6xl mx-auto">
         <div className="text-center mb-10 md:mb-16">
-          <h2 className="text-4xl md:text-6xl font-black text-[#0B1426] mb-5 tracking-tight font-serif">
-            Agenda <span className="italic font-serif" style={{ color: 'var(--tenant-hover)' }}>Online</span>
-          </h2>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading, serif)' }}
+              dangerouslySetInnerHTML={{ __html: renderEditorText(config?.title || "Agenda *Online*").replace(/<em>(.*?)<\/em>/g, `<span class="italic" style="color: ${highlightColor}">$1</span>`) }}
+          />
           <div className="flex items-center justify-center gap-4">
-             <div className="h-px w-12 md:w-24" style={{ backgroundColor: 'var(--tenant-hover)', opacity: 0.4 }} />
-             <p className="text-stone-500 text-[10px] uppercase tracking-[0.3em] md:tracking-[0.5em] font-extrabold">Exclusividade e Precisão em cada detalhe</p>
-             <div className="h-px w-12 md:w-24" style={{ backgroundColor: 'var(--tenant-hover)', opacity: 0.4 }} />
+             <div className="h-px w-12 md:w-24 bg-slate-200" />
+             <p className="text-slate-500 text-[10px] md:text-xs uppercase tracking-[0.3em] font-extrabold">{config?.subtitle || "Exclusividade e Precisão em cada detalhe"}</p>
+             <div className="h-px w-12 md:w-24 bg-slate-200" />
           </div>
         </div>
 

@@ -62,11 +62,11 @@ const ImageComparisonSlider = ({ before, after }: { before: string; after: strin
             className="relative aspect-[4/3] rounded-lg overflow-hidden bg-slate-100 select-none"
         >
             {/* After image (full background) */}
-            <img src={after} alt="Depois" className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none" draggable={false} />
+            {after && <img src={after} alt="Depois" className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none" draggable={false} />}
 
             {/* Before image (clipped) */}
             <div className="absolute inset-0 pointer-events-none" style={{ clipPath: `inset(0 ${100 - sliderPos}% 0 0)` }}>
-                <img src={before} alt="Antes" className="absolute inset-0 w-full h-full object-cover select-none" draggable={false} />
+                {before && <img src={before} alt="Antes" className="absolute inset-0 w-full h-full object-cover select-none" draggable={false} />}
             </div>
 
             {/* Divider + Handle — uses setPointerCapture for reliable tracking */}

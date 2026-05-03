@@ -4,12 +4,14 @@ import { faqPlugin } from "./faq-plugin"
 import { aboutPlugin } from "./about-plugin"
 import { beforeAfterPlugin } from "./before-after-plugin"
 import { contactPlugin } from "./contact-plugin"
+import { schedulingPlugin } from "./scheduling-plugin"
 
 export const AGENDA_PLUGINS = [
   trustPlugin,
   servicesPlugin,
   aboutPlugin,
   beforeAfterPlugin,
+  schedulingPlugin,
   faqPlugin,
   contactPlugin,
 ]

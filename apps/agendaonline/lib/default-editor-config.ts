@@ -145,11 +145,20 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             },
             about: { founder: { name: "", bio: "", role: "", imageUrl: "" } },
             beforeAfter: { items: [] },
-            faq: { items: [
-                { id: "1", question: "Como agendar?", answer: "Clique no botão de agendamento e escolha seu serviço." },
-            ]},
+            faq: { 
+                enabled: true,
+                title: "Perguntas *Frequentes*",
+                subtitle: "Tire suas dúvidas sobre nossos serviços.",
+                items: [
+                    { id: "1", question: "Como agendar?", answer: "Clique no botão de agendamento e escolha seu serviço." },
+                ]
+            },
             contact: { info: { phone: "", whatsapp: "", address: "", instagram: "", mapEmbedUrl: "" } },
+            agendamento: {
+                title: "Agenda *Online*",
+                subtitle: "Exclusividade e Precisão em cada detalhe",
+            },
         },
-        sectionOrder: ["header", "hero", "trust", "services", "about", "beforeAfter", "faq", "contact", "footer"],
+        sectionOrder: ["header", "hero", "trust", "services", "agendamento", "about", "beforeAfter", "faq", "contact", "footer"],
     }
 }

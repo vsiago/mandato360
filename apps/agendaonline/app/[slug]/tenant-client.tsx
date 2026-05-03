@@ -326,10 +326,15 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
         categories: categories || []
     }
 
-    const faqConfig = editorConfig?.plugins?.faq || {
-        title: "Principais *Dúvidas*",
-        items: data.faq || []
+    const faqPluginDb = editorConfig?.plugins?.faq || {}
+    const faqConfig = {
+        enabled: faqPluginDb.enabled !== false,
+        title: faqPluginDb.title || "Perguntas *Frequentes*",
+        subtitle: faqPluginDb.subtitle || "Tire suas dúvidas sobre nossos serviços.",
+        items: faqPluginDb.items || data.faq || []
     }
+
+    const schedulingConfig = editorConfig?.plugins?.agendamento || {}
 
     const navigationSections = (editorConfig?.sectionOrder || [])
         .filter(id => id !== 'header' && id !== 'hero' && id !== 'footer' && id !== 'trust')
@@ -860,6 +865,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                 whatsappNumber={data.contact.whatsapp} 
                                 services={services}
                                 businessHours={data.config?.businessHours}
+                                config={schedulingConfig}
                             />
                         </div>
                     ),
@@ -925,13 +931,14 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             </div>
                         </section>
                     ) : null,
-                    'faq': (
+                    'faq': faqConfig.enabled ? (
                          <section id="faq" className="py-24 bg-white border-t border-slate-100">
                             <div className="mx-auto max-w-3xl px-6">
                                 <div className="mb-16 text-center">
                                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}
                                         dangerouslySetInnerHTML={{ __html: renderEditorText(faqConfig.title).replace(/<em>(.*?)<\/em>/g, '<span class="text-tenant-primary italic">$1</span>') }}
                                     />
+                                    {faqConfig.subtitle && <p className="text-lg text-slate-600">{faqConfig.subtitle}</p>}
                                 </div>
                                  {isMounted && (
                                     <Accordion type="single" collapsible className="space-y-4">
@@ -945,8 +952,8 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                 )}
                             </div>
                         </section>
-                    ),
-                    'contato': (
+                    ) : null,
+                    'contact': (
                         <section id="contato" className="py-24 bg-white border-t border-slate-100">
                             <div className="mx-auto max-w-7xl px-6">
                                 <div className="grid lg:grid-cols-2 gap-16 items-start">
@@ -980,22 +987,26 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                     'galeria': null,
                 }
 
-                // If no sections config exist, fallback to the traditional order
+                // Make public site respect the Editor's section order completely!
                 const defaultOrder = ['hero', 'trust', 'services', 'agendamento', 'about', 'beforeAfter', 'faq', 'contact']
-                const seq = data.sections && data.sections.length > 0 
-                                ? [...data.sections].sort((a,b) => a.order - b.order)
-                                : defaultOrder.map((type, i) => ({ type, enabled: true, pro: false, order: i }))
+                let editorSections = editorConfig?.sectionOrder || defaultOrder
 
-                return seq.map((sec, idx) => {
-                    const type = sec.type === 'trust_badges' ? 'trust' : 
-                                sec.type === 'servicos' ? 'services' :
-                                sec.type === 'sobre' ? 'about' :
-                                sec.type === 'antes_depois' ? 'beforeAfter' : sec.type
+                // Retroactive fix: ensure agendamento is present for older tenants that haven't saved yet
+                if (!editorSections.includes('agendamento')) {
+                    editorSections = [...editorSections]
+                    const svcIdx = editorSections.indexOf('services')
+                    if (svcIdx !== -1) {
+                        editorSections.splice(svcIdx + 1, 0, 'agendamento')
+                    } else {
+                        editorSections.push('agendamento')
+                    }
+                }
 
-                    if (!sec.enabled) return null
-                    if (sec.pro && data.plan !== 'premium' && data.plan !== 'profissional') return null
+                return editorSections.map((type: string, idx: number) => {
+                    // Skip header and footer as they are rendered explicitly
+                    if (type === 'header' || type === 'footer') return null
                     
-                    return <React.Fragment key={`${type}-${idx}`}>{elements[type] || null}</React.Fragment>
+                    return <React.Fragment key={`${type}-${idx}`}>{elements[type as keyof typeof elements] || null}</React.Fragment>
                 })
             })()}
 

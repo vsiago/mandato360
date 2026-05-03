@@ -131,16 +131,34 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
       beforeAfter: { items: tenant.beforeAfter },
       faq: { items: tenant.faq },
       contact: { info: tenant.contact },
+      agendamento: {
+        title: "Agenda *Online*",
+        subtitle: "Exclusividade e Precisão em cada detalhe",
+      },
     },
-    sectionOrder: ["header", "hero", "trust", "services", "about", "beforeAfter", "faq", "contact", "footer"],
+    sectionOrder: ["header", "hero", "trust", "services", "agendamento", "about", "beforeAfter", "faq", "contact", "footer"],
   }
 
   // If we have a saved config, deep merge it with the defaults to avoid "undefined" crashes
   if (tenant.config) {
     const savedConfig = tenant.config as any
+    
+    // Retroactive fix: If the user's saved sectionOrder lacks "agendamento", inject it.
+    let mergedSectionOrder = savedConfig.sectionOrder || defaultConfig.sectionOrder
+    if (!mergedSectionOrder.includes("agendamento")) {
+        mergedSectionOrder = [...mergedSectionOrder]
+        const svcIdx = mergedSectionOrder.indexOf("services")
+        if (svcIdx !== -1) {
+            mergedSectionOrder.splice(svcIdx + 1, 0, "agendamento")
+        } else {
+            mergedSectionOrder.push("agendamento")
+        }
+    }
+
     return {
       ...defaultConfig,
       ...savedConfig,
+      sectionOrder: mergedSectionOrder,
       // Ensure nested objects are also merged or exist
       theme: { ...defaultConfig.theme, ...savedConfig.theme },
       header: { 
@@ -175,6 +193,17 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
         },
         about: { founder: tenant.founder },
         contact: { info: tenant.contact },
+        faq: {
+          ...defaultConfig.plugins.faq,
+          ...(savedConfig.plugins?.faq || {}),
+          items: tenant.faq,
+          title: savedConfig.plugins?.faq?.title || defaultConfig.plugins.faq.title,
+          subtitle: savedConfig.plugins?.faq?.subtitle || defaultConfig.plugins.faq.subtitle,
+        },
+        agendamento: {
+          ...defaultConfig.plugins.agendamento,
+          ...(savedConfig.plugins?.agendamento || {}),
+        },
       }
     }
   }
