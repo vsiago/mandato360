@@ -118,8 +118,8 @@ export default function AntesDepoisPage() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {items.map((item) => (
-                        <div key={item.id} className="relative rounded-xl border border-amber-200/20 dark:border-amber-500/10 overflow-hidden group bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/5 transition-all">
+                    {items.map((item, index) => (
+                        <div key={item.id || index} className="relative rounded-xl border border-amber-200/20 dark:border-amber-500/10 overflow-hidden group bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/5 transition-all">
                             <div className="grid grid-cols-2 gap-px bg-stone-200 dark:bg-stone-800">
                                 <div className="relative aspect-square bg-stone-100 dark:bg-stone-900">
                                     {item.before ? (
