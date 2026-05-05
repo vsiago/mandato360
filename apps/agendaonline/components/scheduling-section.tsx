@@ -130,7 +130,7 @@ function StepIndicator({ current }: { current: 1 | 2 | 3 | 4 }) {
             <div key={s.n} className="flex flex-col items-center gap-1 relative z-10 w-24 md:w-32 text-center">
               <div className={cn(
                 "w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-500 ring-[2px] md:ring-[4px] ring-white border",
-                isDone || isActive ? 'bg-[#0B1426] text-white border-[#0B1426]' : 'bg-stone-50 text-stone-400 border-stone-200'
+                isDone || isActive ? 'bg-[var(--tenant-primary)] text-white border-[var(--tenant-primary)]' : 'bg-stone-50 text-stone-400 border-stone-200'
               )}>
                 <Icon className="w-4 h-4 md:w-5 md:h-5" strokeWidth={isDone || isActive ? 2.5 : 2} />
               </div>
@@ -178,7 +178,7 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal, selec
       <SelectionSummary selDay={selDay} selectedService={selectedService} />
 
       <button 
-        className="w-full bg-[#0B1426] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
+        className="w-full bg-[var(--tenant-primary)] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
         disabled={!selDay} 
         onClick={onNext}
       >
@@ -254,9 +254,9 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal, selec
                     onClick={() => onSelect({ d, m: viewMonth, y: viewYear })} 
                     className={cn(
                         "w-full h-full flex flex-col items-center justify-center rounded-[0.8rem] text-sm font-bold transition-all relative group",
-                        isSel ? 'bg-[#0B1426] text-white shadow-md' : 
+                        isSel ? 'bg-[var(--tenant-primary)] text-white shadow-md' : 
                         isPast || !isAvailable ? 'text-stone-300 opacity-50' : 
-                        'text-stone-600 hover:bg-stone-50 hover:text-[#0B1426]'
+                        'text-stone-600 hover:bg-stone-50 hover:text-[var(--tenant-primary)]'
                     )}
                   >
                     <span>{d}</span>
@@ -289,7 +289,7 @@ function CalendarPanel({ selDay, onSelect, onNext, businessHours, isModal, selec
         <div className="p-4 md:p-6 bg-white border-t border-stone-100 mt-auto lg:hidden">
           <div className="max-w-5xl mx-auto flex items-center justify-center">
             <button 
-              className="w-full bg-[#0B1426] text-white px-8 py-4 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
+              className="w-full bg-[var(--tenant-primary)] text-white px-8 py-4 rounded-xl text-sm font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-0.5" 
               disabled={!selDay} 
               onClick={onNext}
             >
@@ -345,8 +345,8 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
                 className={cn(
                     "py-4 rounded-xl border transition-all flex flex-col items-center gap-1 active:scale-95 group",
                     selTime === s.time 
-                      ? 'bg-[#0B1426] border-[#0B1426] text-white shadow-md' 
-                      : 'bg-white border-stone-200 text-stone-600 hover:border-[#0B1426] hover:text-[#0B1426] hover:shadow-sm'
+                      ? 'bg-[var(--tenant-primary)] border-[var(--tenant-primary)] text-white shadow-md' 
+                      : 'bg-white border-stone-200 text-stone-600 hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary)] hover:shadow-sm'
                 )}
               >
                 <span className="text-lg font-bold">{s.time}</span>
@@ -361,10 +361,10 @@ function TimePanel({ selDay, selTime, onSelect, onBack, onNext, availableSlots, 
       </div>
 
       <div className="flex items-center justify-between p-4 md:p-6 bg-white border-t border-stone-100 mt-auto">
-        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[#0B1426] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack}>
+        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[var(--tenant-primary)] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack}>
           <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Voltar
         </button>
-        <button className="bg-[#0B1426] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" disabled={!selTime} onClick={onNext}>
+        <button className="bg-[var(--tenant-primary)] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" disabled={!selTime} onClick={onNext}>
           Identificação <ArrowRight className="w-4 h-4" />
         </button>
       </div>
@@ -389,8 +389,8 @@ function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving
           <div className="space-y-5">
             <div className="space-y-2 group">
               <label className="text-[10px] font-extrabold text-stone-400 uppercase tracking-[0.2em] ml-1">Seu Nome Completo</label>
-              <div className="relative flex items-center h-14 bg-stone-50/50 border border-stone-200 rounded-xl overflow-hidden transition-all focus-within:border-[#0B1426] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#0B1426]/10">
-                <div className="w-14 h-full flex items-center justify-center text-stone-400 group-focus-within:text-[#0B1426] transition-colors">
+              <div className="relative flex items-center h-14 bg-stone-50/50 border border-stone-200 rounded-xl overflow-hidden transition-all focus-within:border-[var(--tenant-primary)] focus-within:bg-white focus-within:ring-2 focus-within:ring-[var(--tenant-primary)]/10">
+                <div className="w-14 h-full flex items-center justify-center text-stone-400 group-focus-within:text-[var(--tenant-primary)] transition-colors">
                   <User className="w-5 h-5" />
                 </div>
                 <div className="w-px h-6 bg-stone-200 transition-colors" />
@@ -406,8 +406,8 @@ function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving
 
             <div className="space-y-2 group">
               <label className="text-[10px] font-extrabold text-stone-400 uppercase tracking-[0.2em] ml-1">Seu WhatsApp</label>
-              <div className="relative flex items-center h-14 bg-stone-50/50 border border-stone-200 rounded-xl overflow-hidden transition-all focus-within:border-[#0B1426] focus-within:bg-white focus-within:ring-2 focus-within:ring-[#0B1426]/10">
-                <div className="w-14 h-full flex items-center justify-center text-stone-400 group-focus-within:text-[#0B1426] transition-colors">
+              <div className="relative flex items-center h-14 bg-stone-50/50 border border-stone-200 rounded-xl overflow-hidden transition-all focus-within:border-[var(--tenant-primary)] focus-within:bg-white focus-within:ring-2 focus-within:ring-[var(--tenant-primary)]/10">
+                <div className="w-14 h-full flex items-center justify-center text-stone-400 group-focus-within:text-[var(--tenant-primary)] transition-colors">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div className="w-px h-6 bg-stone-200 transition-colors" />
@@ -425,11 +425,11 @@ function ContactPanel({ name, phone, setName, setPhone, onBack, onNext, isSaving
       </div>
 
       <div className="flex items-center justify-between p-5 md:p-8 bg-white border-t border-stone-100 mt-auto sticky bottom-0 z-20 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">
-        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[#0B1426] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack}>
+        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[var(--tenant-primary)] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack}>
           <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Horário
         </button>
         <button 
-          className="bg-[#0B1426] text-white px-6 md:px-12 py-4 md:py-5 rounded-2xl text-[13px] md:text-sm font-black shadow-xl shadow-[#0B1426]/20 disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#0B1426]/30 w-full sm:w-auto uppercase tracking-wider" 
+          className="bg-[var(--tenant-primary)] text-white px-6 md:px-12 py-4 md:py-5 rounded-2xl text-[13px] md:text-sm font-black shadow-xl  disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-2xl  w-full sm:w-auto uppercase tracking-wider" 
           disabled={!name || name.length < 3 || !phone || phone.length < 8 || isSaving} 
           onClick={onNext}
         >
@@ -481,10 +481,10 @@ function ReviewPanel({ selDay, selTime, name, phone, selectedService, services, 
                       <p className="text-tenant-primary text-xs font-black">R$ {parseFloat(selectedService.price).toFixed(0)}</p>
                     </div>
                   </div>
-                  <button onClick={() => setShowModal(true)} className="text-[10px] uppercase font-bold text-stone-400 hover:text-[#0B1426]">Alterar</button>
+                  <button onClick={() => setShowModal(true)} className="text-[10px] uppercase font-bold text-stone-400 hover:text-[var(--tenant-primary)]">Alterar</button>
                 </div>
               ) : (
-                <button onClick={() => setShowModal(true)} className="w-full py-4 rounded-xl border border-dashed border-stone-300 text-stone-500 hover:border-[#0B1426] hover:text-[#0B1426] hover:bg-stone-50 transition-colors font-bold text-sm">
+                <button onClick={() => setShowModal(true)} className="w-full py-4 rounded-xl border border-dashed border-stone-300 text-stone-500 hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary)] hover:bg-stone-50 transition-colors font-bold text-sm">
                   + Escolha um serviço (Opcional)
                 </button>
               )}
@@ -509,11 +509,11 @@ function ReviewPanel({ selDay, selTime, name, phone, selectedService, services, 
       </div>
 
       <div className="flex items-center justify-between p-5 md:p-8 bg-white border-t border-stone-100 mt-auto sticky bottom-0 z-20 shadow-[0_-10px_30px_-15px_rgba(0,0,0,0.1)]">
-        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[#0B1426] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack} disabled={isSaving}>
+        <button className="text-[11px] md:text-xs font-bold text-stone-500 hover:text-[var(--tenant-primary)] hover:bg-stone-50 px-4 py-3 rounded-xl transition-colors flex items-center gap-2 uppercase tracking-widest" onClick={onBack} disabled={isSaving}>
           <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" /> Identificação
         </button>
         <button 
-          className="bg-[#0B1426] text-white px-6 md:px-12 py-4 md:py-5 rounded-2xl text-[13px] md:text-sm font-black shadow-xl shadow-[#0B1426]/20 disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#0B1426]/30 w-full sm:w-auto uppercase tracking-wider" 
+          className="bg-[var(--tenant-primary)] text-white px-6 md:px-12 py-4 md:py-5 rounded-2xl text-[13px] md:text-sm font-black shadow-xl  disabled:opacity-50 transition-all active:scale-95 flex items-center justify-center gap-3 hover:-translate-y-1 hover:shadow-2xl  w-full sm:w-auto uppercase tracking-wider" 
           disabled={isSaving} 
           onClick={onFinalize}
         >
@@ -594,7 +594,7 @@ function ServicePanel({ services, onSelect, onNext, selectedServiceId }: any) {
                             className={cn(
                                 "flex items-center gap-4 p-4 rounded-2xl border transition-all text-left group active:scale-[0.98]",
                                 selectedServiceId === s.id 
-                                    ? "bg-[#0B1426] border-[#0B1426] text-white shadow-lg" 
+                                    ? "bg-[var(--tenant-primary)] border-[var(--tenant-primary)] text-white shadow-lg" 
                                     : "bg-white border-stone-100 hover:border-stone-200 hover:shadow-md"
                             )}
                         >
@@ -623,7 +623,7 @@ function ServicePanel({ services, onSelect, onNext, selectedServiceId }: any) {
 
             <div className="p-4 md:p-6 bg-white border-t border-stone-100 mt-auto flex justify-end">
                 <button 
-                    className="bg-[#0B1426] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" 
+                    className="bg-[var(--tenant-primary)] text-white px-8 h-[50px] rounded-xl text-[15px] font-bold shadow-md disabled:opacity-50 transition-all active:scale-95 flex items-center gap-2 hover:-translate-y-0.5" 
                     disabled={!selectedServiceId} 
                     onClick={onNext}
                 >

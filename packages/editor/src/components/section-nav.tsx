@@ -148,14 +148,14 @@ export function SectionNav({
   }
 
   return (
-    <nav className="flex w-16 flex-col items-center gap-1 border-r border-border bg-card py-4 lg:w-20">
+    <nav className="flex w-16 h-full flex-col items-center gap-1 border-r border-border bg-card py-4 lg:w-20 overflow-hidden">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
         <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
-          <div className="flex flex-1 flex-col gap-0.5 w-full">
+          <div className="flex flex-1 flex-col gap-0.5 w-full overflow-y-auto no-scrollbar pb-10">
             {items.map((item) => (
               <SortableSectionItem
                 key={item.id}

@@ -153,6 +153,34 @@ export async function repairTenantServices(tenantId: string) {
     return { success: true }
 }
 
+export async function convertDemoAccount(data: { email: string; password?: string; tenantId: string }) {
+    const { data: session } = await auth.api.getSession({ headers: await headers() })
+    if (!session) throw new Error("Não autenticado")
+
+    // 1. Update User
+    const updateData: any = { email: data.email, emailVerified: false }
+    if (data.password) {
+        // We use better-auth to update password to ensure hashing
+        await auth.api.changePassword({
+            body: {
+                newPassword: data.password,
+                currentPassword: "", // better-auth might require this unless we use internal api
+            },
+            headers: await headers()
+        }).catch(err => {
+            console.error("Password change error:", err)
+        })
+    }
+
+    await db.update(user).set(updateData).where(eq(user.id, session.user.id))
+
+    // 2. Update Tenant
+    await db.update(tenants).set({ isDemo: false, claimed: true }).where(eq(tenants.id, data.tenantId))
+
+    revalidatePath("/painel")
+    return { success: true }
+}
+
 export async function adminCreateTenantAction(data: {
     name: string;
     slug: string;

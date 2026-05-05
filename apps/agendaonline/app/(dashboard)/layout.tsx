@@ -20,6 +20,17 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { convertDemoAccount } from "@/lib/actions/admin"
+import { toast } from "sonner"
 
 const NAV_GROUPS = [
     {
@@ -107,6 +118,39 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 }
             }
         })
+    }
+
+    // Modal state
+    const [newEmail, setNewEmail] = useState("")
+    const [newPassword, setNewPassword] = useState("")
+    const [isConverting, setIsConverting] = useState(false)
+
+    const handleConvert = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!tenant?.id) return
+        if (!newEmail || !newPassword) {
+            toast.error("Por favor, preencha o e-mail e a senha.")
+            return
+        }
+
+        setIsConverting(true)
+        try {
+            const res = await convertDemoAccount({
+                email: newEmail,
+                password: newPassword,
+                tenantId: tenant.id
+            })
+            if (res.success) {
+                toast.success("Conta atualizada com sucesso! Você agora é o dono oficial.")
+                // Refresh data
+                setTenant(prev => prev ? { ...prev, isDemo: false } : null)
+                router.refresh()
+            }
+        } catch (err) {
+            toast.error("Erro ao converter conta. Tente outro e-mail.")
+        } finally {
+            setIsConverting(false)
+        }
     }
 
     const pageTitle = [...NAV_ITEMS, ...CONTENT_ITEMS, ...USER_DROPDOWN_ITEMS].find(i => i.href === pathname)?.label || "Painel"
@@ -360,6 +404,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 {/* Page Content */}
                 <main className="flex-1 flex flex-col px-4 pt-6 sm:px-6">
+                    {/* Demo Warning Banner */}
+                    {mounted && tenant?.isDemo && (
+                        <div className="mb-6 animate-in slide-in-from-top-4 duration-700">
+                            <div className="bg-linear-to-r from-amber-500/10 via-amber-500/5 to-transparent border-l-4 border-amber-500 p-4 rounded-r-2xl shadow-sm group">
+                                <div className="flex items-start gap-4">
+                                    <div className="h-10 w-10 rounded-xl bg-amber-500 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
+                                        <ShieldCheck className="h-5 w-5 text-stone-950" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                                            Conta de Demonstração Ativa
+                                            <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                                        </h3>
+                                        <p className="text-xs text-stone-600 dark:text-stone-400 mt-1 leading-relaxed max-w-2xl">
+                                            Este é um acesso temporário. Para garantir a segurança dos seus dados e do seu site, você <strong>precisa substituir</strong> o e-mail e a senha genéricos por dados oficiais nas configurações.
+                                        </p>
+                                        <div className="flex flex-wrap gap-3 mt-4">
+                                            <Link href="/configuracoes">
+                                                <button className="text-[11px] font-black uppercase tracking-widest bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 px-4 py-2 rounded-lg hover:opacity-90 transition-all cursor-pointer">
+                                                    Configurar Conta Oficial
+                                                </button>
+                                            </Link>
+                                            <Link href="/assinatura">
+                                                <button className="text-[11px] font-black uppercase tracking-widest border border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 px-4 py-2 rounded-lg hover:bg-white dark:hover:bg-stone-900 transition-all cursor-pointer">
+                                                    Ativar Plano
+                                                </button>
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {children}
                 </main>
             </div>
@@ -397,6 +475,83 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     })}
                 </div>
             </nav>
+            {/* ══════════════════════════════════════════════
+                MANDATORY CONVERSION MODAL
+               ══════════════════════════════════════════════ */}
+            {mounted && tenant?.isDemo && (
+                <Dialog open={true} onOpenChange={() => {}}>
+                    <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none bg-white dark:bg-stone-950 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="relative h-32 bg-linear-to-br from-amber-500 to-amber-600 flex items-center justify-center overflow-hidden">
+                            <ShieldCheck className="h-20 w-20 text-white/20 absolute -right-4 -bottom-4 rotate-12" />
+                            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl relative z-10">
+                                <Users className="h-8 w-8 text-white" />
+                            </div>
+                        </div>
+                        
+                        <div className="p-8">
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
+                                    Torne-se o Dono Oficial
+                                </DialogTitle>
+                                <DialogDescription className="text-stone-500 dark:text-stone-400 mt-2 text-sm leading-relaxed">
+                                    Para continuar usando o painel, você precisa substituir o e-mail e a senha temporários por dados reais que só você tenha acesso.
+                                </DialogDescription>
+                            </DialogHeader>
+
+                            <form onSubmit={handleConvert} className="space-y-6 mt-8">
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-stone-400">Seu Novo E-mail</Label>
+                                        <Input 
+                                            id="email" 
+                                            type="email" 
+                                            placeholder="ex: voce@email.com"
+                                            value={newEmail}
+                                            onChange={(e) => setNewEmail(e.target.value)}
+                                            className="h-12 rounded-xl bg-stone-50 dark:bg-stone-900 border-stone-200 dark:border-stone-800 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="pass" className="text-[10px] font-black uppercase tracking-widest text-stone-400">Sua Nova Senha</Label>
+                                        <Input 
+                                            id="pass" 
+                                            type="password" 
+                                            placeholder="Mínimo 6 caracteres"
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            className="h-12 rounded-xl bg-stone-50 dark:bg-stone-900 border-stone-200 dark:border-stone-800 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                            required
+                                            minLength={6}
+                                        />
+                                    </div>
+                                </div>
+
+                                <Button 
+                                    type="submit" 
+                                    disabled={isConverting}
+                                    className="w-full h-12 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-95"
+                                >
+                                    {isConverting ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-4 w-4 border-2 border-stone-900 border-t-transparent rounded-full animate-spin" />
+                                            Salvando...
+                                        </div>
+                                    ) : (
+                                        "Salvar e Começar Agora"
+                                    )}
+                                </Button>
+
+                                <div className="pt-4 text-center">
+                                    <p className="text-[10px] text-stone-400 uppercase tracking-widest">
+                                        Ao salvar, sua conta deixará de ser demo.
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     )
 }
