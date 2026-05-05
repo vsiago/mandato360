@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
-import { MessageCircle, X, Send } from "lucide-react"
+import { MessageCircle, X, Send, User } from "lucide-react"
 
 export function TenantWhatsapp({ DATA, primary }: { DATA: any, primary: string }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -54,8 +54,12 @@ export function TenantWhatsapp({ DATA, primary }: { DATA: any, primary: string }
                             >
                                 <div className="bg-tenant-primary px-6 py-5 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 shrink-0 relative">
-                                            <Image src="/avatar-tenant-jaque.jpg" alt={DATA.name} fill className="object-cover" />
+                                        <div className="w-10 h-10 rounded-full overflow-hidden border border-white/30 shrink-0 relative bg-white/20 flex items-center justify-center">
+                                            {(DATA.chat?.avatarUrl || DATA.avatarUrl || DATA.profileImageUrl) ? (
+                                                <Image src={DATA.chat?.avatarUrl || DATA.avatarUrl || DATA.profileImageUrl} alt={DATA.name} fill className="object-cover" />
+                                            ) : (
+                                                <User className="h-6 w-6 text-white/70" />
+                                            )}
                                         </div>
                                         <div className="flex flex-col">
                                             <span className="font-bold text-white text-sm leading-tight line-clamp-1">{DATA.name}</span>

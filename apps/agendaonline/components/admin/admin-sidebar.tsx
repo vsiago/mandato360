@@ -47,7 +47,7 @@ export function AdminSidebar() {
     const pathname = usePathname()
 
     return (
-        <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-[#0c0c0e] border-r border-stone-800/40 w-72 transition-all duration-300">
+        <aside className="hidden lg:flex flex-col sticky top-0 h-screen bg-[#0c0c0e] border-r border-stone-800/40 w-72 transition-all duration-300 shrink-0">
             {/* Logo */}
             <div className="h-20 flex items-center px-8 border-b border-stone-800/20 group">
                 <div className="h-10 w-10 rounded-xl bg-linear-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform shrink-0">

@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
             hashtagUrlInput.value = data.botConfig.hashtagUrl;
             commentTextInput.value = data.botConfig.commentText;
             dmTextInput.value = data.botConfig.dmText;
+        } else {
+            // Melhores defaults para prospecção do Agenda Online
+            hashtagUrlInput.value = "https://www.instagram.com/explore/tags/barbearia/";
+            commentTextInput.value = "Trabalho impecável! 👏";
+            dmTextInput.value = "Olá! Vi seu perfil e achei seu trabalho incrível. Estamos lançando o Agenda Online e selecionando 10 parceiros fundadores para testar o sistema por apenas R$ 29/mês. Topa conhecer? agendaonline.app/oferta";
         }
         updateStatus(data.botActive);
     });

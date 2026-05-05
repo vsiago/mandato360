@@ -34,14 +34,21 @@ export async function getAllClients() {
     const { error } = await requireRoot()
     if (error) throw new Error("Não autorizado")
 
-    return await db.select({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        emailVerified: user.emailVerified,
-        createdAt: user.createdAt
-    }).from(user).orderBy(sql`${user.createdAt} DESC`)
+    const results = await db.select()
+    .from(user)
+    .leftJoin(tenants, eq(user.id, tenants.ownerId))
+    .orderBy(sql`${user.createdAt} DESC`)
+
+    return results.map(row => ({
+        id: row.user.id,
+        name: row.user.name,
+        email: row.user.email,
+        role: row.user.role,
+        emailVerified: row.user.emailVerified,
+        createdAt: row.user.createdAt ? new Date(row.user.createdAt).toISOString() : null,
+        tenantSlug: row.tenants?.slug,
+        tenantId: row.tenants?.id
+    }))
 }
 
 export async function deleteClient(id: string) {
@@ -58,6 +65,91 @@ export async function updateClient(id: string, data: any) {
     if (error) throw new Error("Não autorizado")
 
     await db.update(user).set(data).where(eq(user.id, id))
+    return { success: true }
+}
+
+export async function getClientDetails(id: string) {
+    const { error } = await requireRoot()
+    if (error) throw new Error("Não autorizado")
+
+    try {
+        const result = await db.select({
+            user: user,
+            tenants: tenants,
+            businessType: businessTypes
+        })
+        .from(user)
+        .leftJoin(tenants, eq(user.id, tenants.ownerId))
+        .leftJoin(businessTypes, eq(tenants.businessTypeId, businessTypes.id))
+        .where(eq(user.id, id))
+        .limit(1)
+
+        if (!result[0]) return null
+
+        const row = result[0]
+
+        // If tenant id is null, it means the left join didn't find anything
+        return {
+            user: {
+                id: row.user.id,
+                name: row.user.name,
+                email: row.user.email,
+                role: row.user.role,
+                emailVerified: row.user.emailVerified,
+                image: row.user.image,
+                createdAt: row.user.createdAt ? new Date(row.user.createdAt).toISOString() : null
+            },
+            tenant: row.tenants?.id ? {
+                id: row.tenants.id,
+                slug: row.tenants.slug,
+                name: row.tenants.name,
+                whatsapp: row.tenants.whatsapp,
+                phone: row.tenants.phone,
+                address: row.tenants.address,
+                instagram: row.tenants.instagram,
+                plan: row.tenants.plan,
+                isDemo: row.tenants.isDemo,
+                claimed: row.tenants.claimed,
+                businessType: row.businessType?.name,
+                createdAt: row.tenants.createdAt ? new Date(row.tenants.createdAt).toISOString() : null
+            } : null
+        }
+    } catch (e: any) {
+        console.error("Error in getClientDetails:", e)
+        throw new Error(e.message || "Erro ao buscar detalhes do cliente")
+    }
+}
+
+export async function repairTenantServices(tenantId: string) {
+    const { error } = await requireRoot()
+    if (error) throw new Error("Não autorizado")
+
+    const tenant = await db.query.tenants.findFirst({
+        where: eq(tenants.id, tenantId)
+    })
+
+    if (!tenant || !tenant.businessTypeId) throw new Error("Tenant ou Categoria de Negócio não encontrada")
+
+    const gSvcs = await db.query.globalServices.findMany({
+        where: eq(globalServices.businessTypeId, tenant.businessTypeId)
+    })
+
+    for (const gSvc of gSvcs) {
+        const existingSvc = await db.query.services.findFirst({
+            where: and(
+                eq(services.tenantId, tenantId),
+                eq(services.slug, gSvc.slug)
+            )
+        })
+
+        if (existingSvc) {
+            await db.update(services).set({
+                image: gSvc.image,
+                description: gSvc.defaultDescription
+            }).where(eq(services.id, existingSvc.id))
+        }
+    }
+
     return { success: true }
 }
 
@@ -161,6 +253,8 @@ export async function adminCreateTenantAction(data: {
                 slug: gSvc.slug,
                 duration: gSvc.defaultDuration,
                 price: gSvc.defaultPrice?.toString() || "0",
+                image: gSvc.image,
+                description: gSvc.defaultDescription,
                 isActive: true
             })
         }

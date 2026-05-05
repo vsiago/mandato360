@@ -135,6 +135,7 @@ export interface TenantData {
     // Branding
     logoUrl: string
     avatarUrl: string
+    profileImageUrl?: string
 
     // Header (scrolled nav)
     headerBgColor?: string   // e.g. '#0f172acc' — background when nav is scrolled

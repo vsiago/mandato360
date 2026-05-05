@@ -63,6 +63,19 @@ export const PLANS = {
             "Suporte prioritário",
         ],
     },
+    fundador: {
+        name: "Plano Fundador",
+        description: "Oferta exclusiva de lançamento",
+        productId: process.env.STRIPE_PRODUCT_FUNDADOR || "prod_placeholder_fundador",
+        amount: 2900,
+        displayPrice: "R$29",
+        features: [
+            "Tudo do plano Profissional +",
+            "Preço vitalício de lançamento",
+            "Selo de Parceiro Fundador",
+            "Suporte direto pelo WhatsApp",
+        ],
+    },
 } as const;
 
 export type PlanKey = keyof typeof PLANS;
@@ -72,6 +85,7 @@ export function getPriceId(plan: PlanKey): string {
         essencial: "STRIPE_PRICE_ESSENCIAL",
         profissional: "STRIPE_PRICE_PROFISSIONAL",
         premium: "STRIPE_PRICE_COMPLETO",
+        fundador: "STRIPE_PRICE_FUNDADOR",
     };
     const priceId = process.env[envKeys[plan]];
     if (!priceId || priceId.startsWith("price_COLE")) {
@@ -87,6 +101,7 @@ export function getPriceId(plan: PlanKey): string {
 export function getPlanFromPriceId(priceId: string): PlanKey {
     if (priceId === process.env.STRIPE_PRICE_ESSENCIAL) return "essencial";
     if (priceId === process.env.STRIPE_PRICE_PROFISSIONAL) return "profissional";
+    if (priceId === process.env.STRIPE_PRICE_FUNDADOR) return "fundador";
     return "premium";
 }
 

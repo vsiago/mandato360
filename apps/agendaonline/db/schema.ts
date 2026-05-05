@@ -168,6 +168,8 @@ export const tenants = pgTable("tenants", {
     chat: jsonb("chat").$type<{ greeting: string; avatarUrl: string; status: string }>(),
     // Status
     onboardingCompleted: boolean("onboarding_completed").notNull().default(false),
+    isDemo: boolean("is_demo").notNull().default(false),
+    claimed: boolean("claimed").notNull().default(false),
     // Versioning & Publishing
     configVersion: integer("config_version").notNull().default(1),
     lastPublished: timestamp("last_published"),

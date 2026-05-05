@@ -174,13 +174,13 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
         return base
     }
 
-    const heroDesktop = resolveHeroForSite('desktop')
-    const heroTablet = resolveHeroForSite('tablet')
-    const heroMobile = resolveHeroForSite('mobile')
+    const heroDesktop = resolveHeroForSite('desktop') || {}
+    const heroTablet = resolveHeroForSite('tablet') || {}
+    const heroMobile = resolveHeroForSite('mobile') || {}
 
     // ─── Absolute Parity — Responsive Overrides Engine ───
     const generateHeroResponsiveCSS = () => {
-        if (!heroMobile || !heroTablet || !heroDesktop) return ""
+        if (!heroMobile?.orientation || !heroTablet?.orientation || !heroDesktop?.orientation) return ""
         
         const getFlexAlign = (orientation: string) => orientation === 'center' ? 'center' : orientation === 'right' ? 'flex-end' : 'flex-start'
         const getTextAlign = (orientation: string) => orientation === 'center' ? 'center' : orientation === 'right' ? 'right' : 'left'
@@ -652,7 +652,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                             <span className="hero-highlight-res font-light italic" style={{ color: 'var(--tenant-accent)', textShadow: `0 0 15px #eec58466` }}>{data.heroHighlight}</span>.
                                         </h1>
                                     )}
-                                    <p className={cn("hero-desc-res text-sm sm:text-base lg:text-lg mb-6 sm:mb-10 opacity-90 leading-relaxed font-medium hero-mx-auto", heroMobile.orientation === "center" ? "max-w-2xl" : "max-w-xl")} style={{ color: themeText }}>
+                                    <p className={cn("hero-desc-res text-sm sm:text-base lg:text-lg mb-6 sm:mb-10 opacity-90 leading-relaxed font-medium hero-mx-auto", heroMobile?.orientation === "center" ? "max-w-2xl" : "max-w-xl")} style={{ color: themeText }}>
                                         <span dangerouslySetInnerHTML={{ __html: renderEditorText(heroDesc) }} />
                                     </p>
                                     <div className={cn("hero-ctas-container w-full flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 mt-2 hero-justify-res")}>
