@@ -540,7 +540,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             id="inicio"
                             className={cn(
                                 "relative overflow-hidden flex flex-col justify-center min-h-0",
-                                (effectiveHero?.autoHeight !== false) ? "min-h-[90vh] lg:min-h-screen flex-1" : "shrink-0"
+                                (effectiveHero?.autoHeight !== false) ? "min-h-[calc(100vh-60px)] lg:min-h-[calc(100vh-60px)] flex-1" : "shrink-0"
                             )}
                             style={{ 
                                 backgroundColor: themeBg,
