@@ -269,6 +269,7 @@ export const appointments = pgTable("appointments", {
     time: text("time").notNull(), // HH:MM
     status: text("status").notNull().default("pending"), // pending, confirmed, cancelled, blocked, completed
     notes: text("notes"),
+    customFields: jsonb("custom_fields").$type<Record<string, unknown>>().default({}),
     createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

@@ -191,7 +191,8 @@ export default function AgendaPage() {
                     status: apt.status as any,
                     price: totalPrice > 0 ? `R$ ${totalPrice.toFixed(0)}` : (apt.status === "blocked" ? "-" : "R$ 0"),
                     notes: displayNotes,
-                    rawNotes: apt.notes
+                    rawNotes: apt.notes,
+                    customFields: apt.customFields
                 })
             })
 

@@ -84,6 +84,7 @@ export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onD
                     { label: "Data", value: formatDate(apt.date) }, 
                     { label: "Horário", value: apt.time },
                     { label: "Duração", value: "50 min" }, 
+                    ...(apt.customFields ? Object.entries(apt.customFields).map(([k, v]) => ({ label: k, value: String(v) })) : []),
                     ...(apt.notes ? [{ label: "Obs", value: apt.notes }] : [])
                 ].map(row => (
                     <div key={row.label} className="flex items-stretch gap-4 group/row min-h-[32px]">

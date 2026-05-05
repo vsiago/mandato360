@@ -43,6 +43,13 @@
       "when": 1777028397972,
       "tag": "0005_smooth_hawkeye",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778020235225,
+      "tag": "0006_powerful_pyro",
+      "breakpoints": true
     }
   ]
 }

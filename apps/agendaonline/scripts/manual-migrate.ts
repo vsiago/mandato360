@@ -1,10 +1,11 @@
+import "dotenv/config";
 import { db } from "../db";
 import { sql } from "drizzle-orm";
 
 async function main() {
-    console.log("Adding role column manually...");
+    console.log("Adding custom_fields to appointments...");
     try {
-        await db.execute(sql`ALTER TABLE "user" ADD COLUMN "role" text NOT NULL DEFAULT 'user'`);
+        await db.execute(sql`ALTER TABLE "appointments" ADD COLUMN "custom_fields" jsonb DEFAULT '{}'::jsonb`);
         console.log("Column added successfully.");
     } catch (e: any) {
         if (e.message?.includes("already exists")) {

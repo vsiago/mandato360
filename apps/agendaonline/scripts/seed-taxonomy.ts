@@ -558,6 +558,41 @@ const TAXONOMY: BusinessTypeSeed[] = [
             }
         ]
     },
+    {
+        name: "Advocacia",
+        icon: "⚖️",
+        description: "Serviços jurídicos especializados, consultoria e acompanhamento processual.",
+        sortOrder: 14,
+        categories: [
+            {
+                name: "Consultoria",
+                sortOrder: 0,
+                services: [
+                    { name: "Consulta Inicial", defaultDuration: 60, defaultPrice: 350, defaultDescription: "Avaliação do caso e orientação jurídica primária.", sortOrder: 0, placeholder: "Esclareça suas dúvidas e entenda seus direitos.", image: "/images/global-services/consulta-inicial-adv.png" },
+                    { name: "Análise de Contrato", defaultDuration: 120, defaultPrice: 500, defaultDescription: "Revisão minuciosa de cláusulas e riscos contratuais.", sortOrder: 1, placeholder: "Revisão minuciosa de cláusulas para segurança jurídica.", image: "/images/global-services/analise-contrato-adv.png" },
+                    { name: "Parecer Jurídico", defaultDuration: 180, defaultPrice: 800, defaultDescription: "Opinião legal fundamentada sobre caso específico.", sortOrder: 2, placeholder: "Opinião legal técnica e fundamentada por escrito.", image: "/images/global-services/parecer-juridico-adv.png" },
+                ]
+            },
+            {
+                name: "Contencioso",
+                sortOrder: 1,
+                services: [
+                    { name: "Abertura de Processo", defaultDuration: 120, defaultPrice: 1500, defaultDescription: "Ajuizamento de ação e procedimentos iniciais.", sortOrder: 0, placeholder: "Reunião para coleta de provas e protocolo de ação.", image: "/images/global-services/abertura-processo-adv.png" },
+                    { name: "Acompanhamento Processual", defaultDuration: 60, defaultPrice: 250, defaultDescription: "Atualização sobre o andamento do caso.", sortOrder: 1, placeholder: "Reunião de alinhamento sobre o andamento do processo.", image: "/images/global-services/acompanhamento-processual-adv.png" },
+                    { name: "Audiência Conciliatória", defaultDuration: 90, defaultPrice: 600, defaultDescription: "Representação em tentativa de acordo.", sortOrder: 2, placeholder: "Preparação e representação em audiência de conciliação.", image: "/images/global-services/audiencia-adv.png" },
+                ]
+            },
+            {
+                name: "Documentos",
+                sortOrder: 2,
+                services: [
+                    { name: "Elaboração de Contrato", defaultDuration: 180, defaultPrice: 700, defaultDescription: "Criação de instrumentos contratuais personalizados.", sortOrder: 0, placeholder: "Criação de contratos seguros e adequados à sua necessidade.", image: "/images/global-services/elaboracao-contrato-adv.png" },
+                    { name: "Notificação Extrajudicial", defaultDuration: 90, defaultPrice: 400, defaultDescription: "Redação e envio de comunicação formal.", sortOrder: 1, placeholder: "Cobranças ou requisições amigáveis via cartório.", image: "/images/global-services/notificacao-adv.png" },
+                    { name: "Acordo Extrajudicial", defaultDuration: 120, defaultPrice: 900, defaultDescription: "Negociação e redação de termo de acordo.", sortOrder: 2, placeholder: "Resolução rápida e eficaz fora do ambiente judicial.", image: "/images/global-services/acordo-extrajudicial-adv.png" },
+                ]
+            }
+        ]
+    }
 ]
 
 /* ─── Seed Execution ─── */

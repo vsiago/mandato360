@@ -14,7 +14,7 @@ function ServicesPreview({ config, device, themeColors }: PluginSectionProps) {
     const items = config.items || []
     const cats = config.categories || []
     const title = config.title || "Nossa Expertise"
-    const subtitle = config.subtitle || "Procedimentos personalizados para valorizar a arquitetura do seu rosto e realçar a sua beleza natural."
+    const subtitle = config.subtitle || "Soluções personalizadas desenvolvidas para atender as suas necessidades com excelência."
 
     // Group services by category
     const filteredCategories = cats.length > 0 ? cats : [{ id: "all", label: "Todos" }]

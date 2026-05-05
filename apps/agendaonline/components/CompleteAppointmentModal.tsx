@@ -253,6 +253,24 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment }: Detail
                     </div>
                 </div>
 
+                {/* Custom Fields */}
+                {appointment.customFields && Object.keys(appointment.customFields).length > 0 && (
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-stone-500 px-1">
+                            <Info className="h-3.5 w-3.5" />
+                            <span className="text-[9px] font-black uppercase tracking-widest">Informações Adicionais</span>
+                        </div>
+                        <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-4 divide-y divide-white/5 shadow-inner">
+                            {Object.entries(appointment.customFields).map(([key, value], i) => (
+                                <div key={i} className={cn("flex flex-col justify-between py-2", i === 0 && "pt-0", i === Object.keys(appointment.customFields).length - 1 && "pb-0")}>
+                                    <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">{key}</span>
+                                    <span className="text-xs font-medium text-stone-300 break-words">{String(value)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Services List */}
                 <div className="space-y-3">
                     <div className="flex items-center justify-between px-1">

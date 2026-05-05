@@ -18,6 +18,8 @@ interface DefaultConfigParams {
     heroBadge?: string
     description?: string
     ctaText?: string
+    servicesTitle?: string
+    servicesSubtitle?: string
 }
 
 export function buildDefaultEditorConfig(params: DefaultConfigParams) {
@@ -30,6 +32,8 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
         heroBadge = "✨ BEM-VINDO",
         description = "Seja muito bem-vindo ao nosso espaço. Agende seu horário e descubra uma experiência única.",
         ctaText = "Agendar Horário",
+        servicesTitle = "Nossa *Expertise*",
+        servicesSubtitle = "Soluções personalizadas desenvolvidas para atender as suas necessidades com excelência."
     } = params
 
     return {
@@ -138,8 +142,8 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
                 speed: 25,
             },
             services: {
-                title: "Nossa *Expertise*",
-                subtitle: "Procedimentos personalizados para valorizar a arquitetura do seu rosto e realçar a sua beleza natural.",
+                title: servicesTitle,
+                subtitle: servicesSubtitle,
                 items: [],
                 categories: [],
             },
