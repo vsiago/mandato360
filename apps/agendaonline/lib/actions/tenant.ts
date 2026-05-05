@@ -1,5 +1,7 @@
 "use server"
 
+// Forced rebuild touch
+
 import { revalidatePath } from "next/cache"
 import { db } from "@/db"
 import { tenants, services, categories, globalCategories, globalServices, globalPlaceholders, subscriptions, businessTypes } from "@/db/schema"
@@ -199,16 +201,6 @@ export async function createTenantAction(data: Partial<TenantData>): Promise<{ s
         const resolvedPrimary = dbValues.primaryColor || "#8c6239"
         const resolvedHover = dbValues.hoverColor || "#6d4a2a"
         
-        let servicesTitle = "Nossa *Expertise*"
-        let servicesSubtitle = "Soluções personalizadas desenvolvidas para atender as suas necessidades com excelência."
-        
-        if (btSlug === "advocacia") {
-            servicesTitle = "Áreas de *Atuação*"
-            servicesSubtitle = "Assessoria jurídica especializada para proteger seus direitos e patrimônio."
-        } else if (btSlug === "estetica" || btSlug === "salao-de-beleza" || btSlug === "clinica") {
-            servicesSubtitle = "Procedimentos personalizados para valorizar a arquitetura do seu rosto e realçar a sua beleza natural."
-        }
-
         // Generate a COMPLETE config — identical to what /editar-site produces
         const defaultConfig = buildDefaultEditorConfig({
             name: dbValues.name || data.name || "Meu Negócio",
@@ -219,8 +211,7 @@ export async function createTenantAction(data: Partial<TenantData>): Promise<{ s
             heroBadge: dbValues.heroBadge || undefined,
             description: dbValues.description || undefined,
             ctaText: dbValues.ctaText || undefined,
-            servicesTitle,
-            servicesSubtitle
+            nicheSlug: btSlug,
         })
 
         const result = await db.insert(tenants).values({

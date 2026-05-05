@@ -755,8 +755,8 @@ export default function AgendaPage() {
                             <CalendarDays className="h-5 w-5 text-brand-primary" />
                         </div>
                         <div className="min-w-0">
-                            <h2 className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>Sua Agenda</h2>
-                            <p className="text-[11px] text-stone-500 font-medium">Gerencie seus horários e atendimentos com eficiência.</p>
+                            <h2 className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>{tenant?.segmento === 'advocacia' ? 'Sua Agenda Jurídica' : 'Sua Agenda'}</h2>
+                            <p className="text-[11px] text-stone-500 font-medium">{tenant?.segmento === 'advocacia' ? 'Gerencie suas consultas e audiências.' : 'Gerencie seus horários e atendimentos com eficiência.'}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
@@ -767,7 +767,7 @@ export default function AgendaPage() {
                             <Filter className="h-4 w-4" /> Filtrar
                         </button>
                         <button onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }} className="h-9 px-4 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-stone-950 transition-all hover:scale-[1.02] text-xs flex items-center gap-2 cursor-pointer">
-                            <Plus className="h-4 w-4" /> Novo Agendamento <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
+                            <Plus className="h-4 w-4" /> {tenant?.segmento === 'advocacia' ? 'Nova Consulta' : 'Novo Agendamento'} <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
                         </button>
                     </div>
                 </div>
@@ -920,14 +920,14 @@ export default function AgendaPage() {
                                                                     </div>
                                                                     <div>
                                                                         <p className="text-[13px] font-bold text-stone-400 uppercase tracking-wider mb-0.5">Horário Livre</p>
-                                                                        <p className="text-[12px] text-stone-500">Disponível para agendamento</p>
+                                                                        <p className="text-[12px] text-stone-500">{tenant?.segmento === 'advocacia' ? 'Disponível para consulta' : 'Disponível para agendamento'}</p>
                                                                     </div>
                                                                 </div>
                                                                 <div className="flex items-center gap-2">
                                                                     <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer opacity-0 group-hover/empty:opacity-100" title="Bloquear Horário">
                                                                         <CalendarOff className="h-4 w-4" />
                                                                     </button>
-                                                                    <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer" title="Novo Agendamento">
+                                                                    <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer" title={tenant?.segmento === 'advocacia' ? 'Nova Consulta' : 'Novo Agendamento'}>
                                                                         <Plus className="h-5 w-5" />
                                                                     </button>
                                                                 </div>
@@ -947,6 +947,7 @@ export default function AgendaPage() {
                     <div className="flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1 order-3">
                         <DesktopDetailsPanel
                             apt={selectedAppointment}
+                            segmento={tenant?.segmento}
                             onEdit={handleEdit}
                             onComplete={(a) => { setAppointmentToComplete(a); setIsCompleteModalOpen(true); }}
                             onDetails={(a) => { setAppointmentToComplete(a); setIsDetailsModalOpen(true); }}
@@ -955,7 +956,7 @@ export default function AgendaPage() {
                             onDelete={handleDelete}
                             onSaveClient={(a) => { setClientToSave(a); setIsSaveClientModalOpen(true); }}
                         />
-                        <DesktopOccupationCard summary={daySummary} />
+                        <DesktopOccupationCard summary={daySummary} segmento={tenant?.segmento} />
                         <DesktopNextActionsPanel 
                             appointments={appointments} 
                             currentTime={currentTime} 
@@ -973,7 +974,7 @@ export default function AgendaPage() {
                             appointments={appointments}
                             isDayFullyBlocked={isDayFullyBlocked}
                         />
-                        <DesktopDaySummary summary={daySummary} />
+                        <DesktopDaySummary summary={daySummary} segmento={tenant?.segmento} />
                         <DesktopFreeSlots slots={freeTimeSlots} onAddAt={(time) => { setActiveTime(time); setIsAddModalOpen(true); }} />
                     </div>
                 </div>
@@ -1063,7 +1064,7 @@ export default function AgendaPage() {
                     </div>
                     <div className="text-right shrink-0">
                         <p className="text-lg font-bold text-foreground leading-none">{todayAppointmentsCount}</p>
-                        <p className="text-[9px] text-stone-500 font-medium">agendados</p>
+                        <p className="text-[9px] text-stone-500 font-medium">{tenant?.segmento === 'advocacia' ? 'consultas' : 'agendados'}</p>
                     </div>
                 </div>
 
@@ -1194,7 +1195,7 @@ export default function AgendaPage() {
                                                             <p className={cn("text-[11px]",
                                                                 isBlocked ? "text-red-500/60" : isUnavailable ? "text-stone-600" : "text-stone-500"
                                                             )}>
-                                                                {isBlocked ? "Indisponível para clientes" : isUnavailable ? "Fora do horário de func." : "Disponível para agendamento"}
+                                                                {isBlocked ? "Indisponível para clientes" : isUnavailable ? "Fora do horário de func." : tenant?.segmento === 'advocacia' ? "Disponível para consulta" : "Disponível para agendamento"}
                                                             </p>
                                                         </div>
                                                     </div>

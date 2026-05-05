@@ -20,21 +20,92 @@ interface DefaultConfigParams {
     ctaText?: string
     servicesTitle?: string
     servicesSubtitle?: string
+    nicheSlug?: string
 }
 
 export function buildDefaultEditorConfig(params: DefaultConfigParams) {
+    const isAdvocacia = params.nicheSlug === "advocacia"
+
     const {
         name,
         heroImage,
         primaryColor,
         hoverColor,
-        heroHeadline = "Excelência em cada detalhe",
-        heroBadge = "✨ BEM-VINDO",
-        description = "Seja muito bem-vindo ao nosso espaço. Agende seu horário e descubra uma experiência única.",
-        ctaText = "Agendar Horário",
-        servicesTitle = "Nossa *Expertise*",
-        servicesSubtitle = "Soluções personalizadas desenvolvidas para atender as suas necessidades com excelência."
+        heroHeadline = isAdvocacia
+            ? "Advocacia com *excelência* e compromisso"
+            : "Excelência em cada detalhe",
+        heroBadge = isAdvocacia
+            ? "⚖️ ESCRITÓRIO DE ADVOCACIA"
+            : "✨ BEM-VINDO",
+        description = isAdvocacia
+            ? "Assessoria jurídica especializada para proteger seus direitos e patrimônio. Agende sua consulta."
+            : "Seja muito bem-vindo ao nosso espaço. Agende seu horário e descubra uma experiência única.",
+        ctaText = isAdvocacia ? "Agendar Consulta" : "Agendar Horário",
+        servicesTitle = isAdvocacia ? "Áreas de *Atuação*" : "Nossa *Expertise*",
+        servicesSubtitle = isAdvocacia
+            ? "Assessoria jurídica especializada para proteger seus direitos e patrimônio."
+            : "Soluções personalizadas desenvolvidas para atender as suas necessidades com excelência."
     } = params
+
+    // ─── Niche-specific plugin defaults ───
+    const trustBadges = isAdvocacia
+        ? [
+            { text: "Advocacia Especializada", icon: "ShieldCheck" },
+            { text: "Sigilo Profissional", icon: "ShieldCheck" },
+            { text: "Registro OAB Ativo", icon: "Award" },
+            { text: "Atendimento Humanizado", icon: "Heart" },
+        ]
+        : [
+            { text: "Atendimento VIP", icon: "Star" },
+            { text: "Ambiente Seguro", icon: "ShieldCheck" },
+        ]
+
+    const faqItems = isAdvocacia
+        ? [
+            { id: "1", question: "Como funciona a primeira consulta?", answer: "A primeira consulta é uma conversa para entendermos o seu caso, analisar documentos relevantes e traçar a melhor estratégia jurídica. Dura em média 50 minutos." },
+            { id: "2", question: "Quais documentos preciso levar?", answer: "Depende do caso, mas recomendamos trazer documentos pessoais (RG e CPF), comprovante de residência, e quaisquer documentos relacionados ao caso (contratos, notificações, etc.)." },
+            { id: "3", question: "Vocês atuam em quais áreas do Direito?", answer: "Atuamos em diversas áreas, incluindo Direito Civil, Trabalhista, Empresarial, Família e Sucessões, Criminal e Consumidor. Consulte-nos para mais detalhes." },
+            { id: "4", question: "Qual o custo dos honorários?", answer: "Os honorários são definidos com transparência na primeira consulta, de acordo com a complexidade do caso e as tabelas da OAB. Trabalhamos com valores justos e opções de parcelamento." },
+        ]
+        : [
+            { id: "1", question: "Como agendar?", answer: "Clique no botão de agendamento e escolha seu serviço." },
+        ]
+
+    const aboutDefaults = isAdvocacia
+        ? {
+            founder: { name: "", bio: "", role: "Advogado(a) | OAB", imageUrl: "" },
+            badge: "Compromisso com a Justiça",
+            title: "Seu Direito, Nossa *Prioridade*",
+        }
+        : { founder: { name: "", bio: "", role: "", imageUrl: "" } }
+
+    const practiceAreasPlugin = isAdvocacia
+        ? {
+            enabled: true,
+            title: "Áreas de *Atuação*",
+            subtitle: "Assessoria jurídica completa nas principais áreas do Direito.",
+            items: [
+                { id: "pa-1", name: "Direito Civil", description: "Contratos, responsabilidade civil, direito do consumidor e questões patrimoniais.", icon: "FileText" },
+                { id: "pa-2", name: "Direito Trabalhista", description: "Defesa dos seus direitos trabalhistas, rescisões, horas extras e ações judiciais.", icon: "Briefcase" },
+                { id: "pa-3", name: "Direito de Família", description: "Divórcio, guarda de filhos, pensão alimentícia, inventário e partilha de bens.", icon: "Heart" },
+            ],
+        }
+        : { enabled: false, title: "", subtitle: "", items: [] }
+
+    const teamPlugin = isAdvocacia
+        ? {
+            enabled: true,
+            title: "Nossa *Equipe*",
+            subtitle: "Profissionais altamente qualificados e dedicados à defesa dos seus direitos.",
+            members: [
+                { id: "m-1", name: `Dr. ${name.split(" ")[0] || "Nome"}`, role: "Sócio Fundador", oab: "OAB/SP 00000", bio: "Especialista com ampla experiência em contencioso e consultoria jurídica.", imageUrl: "" },
+            ],
+        }
+        : { enabled: false, title: "", subtitle: "", members: [] }
+
+    const sectionOrder = isAdvocacia
+        ? ["header", "hero", "trust", "services", "practiceAreas", "agendamento", "team", "about", "faq", "contact", "footer"]
+        : ["header", "hero", "trust", "services", "agendamento", "about", "beforeAfter", "faq", "contact", "footer"]
 
     return {
         theme: {
@@ -65,7 +136,9 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
         header: {
             logo: "",
             logoText: name,
-            menuItems: ["Serviços", "Sobre", "Contato"],
+            menuItems: isAdvocacia
+                ? ["Áreas de Atuação", "Equipe", "Sobre", "Contato"]
+                : ["Serviços", "Sobre", "Contato"],
             menuStyle: "transparent",
             backgroundColor: "#0f172a",
             logoHeight: 32,
@@ -98,7 +171,7 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             subtitle: "",
             description: description,
             ctaPrimary: ctaText,
-            ctaSecondary: "Ver Serviços",
+            ctaSecondary: isAdvocacia ? "Áreas de Atuação" : "Ver Serviços",
             badge: heroBadge,
             images: {
                 desktop: heroImage,
@@ -127,17 +200,19 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             copyright: `© ${new Date().getFullYear()} ${name}. Todos os direitos reservados.`,
             showNewsletter: false,
             newsletterTitle: "Newsletter",
-            columns: [
-                { title: "Explorar", links: ["Início", "Serviços", "Sobre"] },
-                { title: "Suporte", links: ["FAQ", "Contato"] },
-            ],
+            columns: isAdvocacia
+                ? [
+                    { title: "Navegação", links: ["Início", "Áreas de Atuação", "Equipe"] },
+                    { title: "Suporte", links: ["FAQ", "Contato"] },
+                ]
+                : [
+                    { title: "Explorar", links: ["Início", "Serviços", "Sobre"] },
+                    { title: "Suporte", links: ["FAQ", "Contato"] },
+                ],
         },
         plugins: {
             trust: {
-                badges: [
-                    { text: "Atendimento VIP", icon: "Star" },
-                    { text: "Ambiente Seguro", icon: "ShieldCheck" },
-                ],
+                badges: trustBadges,
                 autoplay: true,
                 speed: 25,
             },
@@ -147,22 +222,24 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
                 items: [],
                 categories: [],
             },
-            about: { founder: { name: "", bio: "", role: "", imageUrl: "" } },
+            practiceAreas: practiceAreasPlugin,
+            team: teamPlugin,
+            about: aboutDefaults,
             beforeAfter: { items: [] },
             faq: { 
                 enabled: true,
                 title: "Perguntas *Frequentes*",
-                subtitle: "Tire suas dúvidas sobre nossos serviços.",
-                items: [
-                    { id: "1", question: "Como agendar?", answer: "Clique no botão de agendamento e escolha seu serviço." },
-                ]
+                subtitle: isAdvocacia
+                    ? "Tire suas dúvidas sobre nossos serviços jurídicos."
+                    : "Tire suas dúvidas sobre nossos serviços.",
+                items: faqItems,
             },
             contact: { info: { phone: "", whatsapp: "", address: "", instagram: "", mapEmbedUrl: "" } },
             agendamento: {
-                title: "Agenda *Online*",
-                subtitle: "Exclusividade e Precisão em cada detalhe",
+                title: isAdvocacia ? "Agende sua *Consulta*" : "Agenda *Online*",
+                subtitle: isAdvocacia ? "Atendimento personalizado com hora marcada" : "Exclusividade e Precisão em cada detalhe",
             },
         },
-        sectionOrder: ["header", "hero", "trust", "services", "agendamento", "about", "beforeAfter", "faq", "contact", "footer"],
+        sectionOrder,
     }
 }

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, ShieldCheck, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, ChevronDown, Plug, Layout, Puzzle } from "lucide-react"
+import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, ShieldCheck, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, ChevronDown, Plug, Layout, Puzzle, Scale, Briefcase, FileText } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -32,42 +32,44 @@ import { Label } from "@/components/ui/label"
 import { convertDemoAccount } from "@/lib/actions/admin"
 import { toast } from "sonner"
 
-const NAV_GROUPS = [
-    {
-        label: "SITE",
-        items: [
-            { href: "/editar-site", label: "Editor de Site", icon: Globe },
-        ]
-    },
-    {
-        label: "GESTÃO",
-        items: [
-            { href: "/painel", label: "Painel", icon: BarChart3 },
-            { href: "/agenda", label: "Agenda", icon: Calendar },
-            { href: "/servicos", label: "Serviços", icon: Scissors },
-            { href: "/clientes", label: "Clientes", icon: Users },
-            { href: "/financeiro", label: "Financeiro", icon: DollarSign },
-            { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
-        ]
-    },
-    {
-        label: "CONTEÚDO",
-        items: [
-            { href: "/antes-depois", label: "Fotos", icon: ImageIcon },
-            { href: "/depoimentos", label: "Depoimentos", icon: Star },
-            { href: "/faq", label: "Perguntas (FAQ)", icon: HelpCircle },
-        ]
-    },
-    {
-        label: "SISTEMA",
-        items: [
-            { href: "/configuracoes", label: "Configurações", icon: Settings },
-            { href: "/assinatura", label: "Assinatura", icon: CreditCard },
-        ]
-    }
-]
-
-const NAV_ITEMS = NAV_GROUPS.flatMap(group => group.items)
+function buildNavGroups(segmento?: string) {
+    const isAdvocacia = segmento === "advocacia"
+    
+    return [
+        {
+            label: "SITE",
+            items: [
+                { href: "/editar-site", label: "Editor de Site", icon: Globe },
+            ]
+        },
+        {
+            label: "GESTÃO",
+            items: [
+                { href: "/painel", label: "Painel", icon: BarChart3 },
+                { href: "/agenda", label: "Agenda", icon: Calendar },
+                { href: "/servicos", label: isAdvocacia ? "Áreas Jurídicas" : "Serviços", icon: isAdvocacia ? Scale : Scissors },
+                { href: "/clientes", label: "Clientes", icon: Users },
+                { href: "/financeiro", label: "Financeiro", icon: DollarSign },
+                { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
+            ]
+        },
+        {
+            label: "CONTEÚDO",
+            items: [
+                { href: "/antes-depois", label: isAdvocacia ? "Portfólio de Casos" : "Fotos", icon: isAdvocacia ? Briefcase : ImageIcon },
+                { href: "/depoimentos", label: "Depoimentos", icon: Star },
+                { href: "/faq", label: "Perguntas (FAQ)", icon: HelpCircle },
+            ]
+        },
+        {
+            label: "SISTEMA",
+            items: [
+                { href: "/configuracoes", label: "Configurações", icon: Settings },
+                { href: "/assinatura", label: "Assinatura", icon: CreditCard },
+            ]
+        }
+    ]
+}
 
 const USER_DROPDOWN_ITEMS = [
     { href: "/assinatura", label: "Assinatura", icon: CreditCard },
@@ -77,12 +79,15 @@ const USER_DROPDOWN_ITEMS = [
 const CONTENT_ITEMS: { href: string; label: string; icon: any }[] = []
 
 /* Bottom bar items (mobile) — subset of NAV_ITEMS for thumb-friendly access */
-const BOTTOM_BAR_ITEMS = [
-    { href: "/painel", label: "Início", icon: LayoutDashboard },
-    { href: "/agenda", label: "Agenda", icon: Calendar },
-    { href: "/servicos", label: "Serviços", icon: Scissors },
-    { href: "/antes-depois", label: "Fotos", icon: ImageIcon },
-]
+function buildBottomBarItems(segmento?: string) {
+    const isAdvocacia = segmento === "advocacia"
+    return [
+        { href: "/painel", label: "Início", icon: LayoutDashboard },
+        { href: "/agenda", label: "Agenda", icon: Calendar },
+        { href: "/servicos", label: isAdvocacia ? "Jurídico" : "Serviços", icon: isAdvocacia ? Scale : Scissors },
+        { href: "/antes-depois", label: isAdvocacia ? "Casos" : "Fotos", icon: isAdvocacia ? Briefcase : ImageIcon },
+    ]
+}
 
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -152,6 +157,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setIsConverting(false)
         }
     }
+
+    const NAV_GROUPS = buildNavGroups(tenant?.segmento)
+    const NAV_ITEMS = NAV_GROUPS.flatMap(group => group.items)
+    const BOTTOM_BAR_ITEMS = buildBottomBarItems(tenant?.segmento)
 
     const pageTitle = [...NAV_ITEMS, ...CONTENT_ITEMS, ...USER_DROPDOWN_ITEMS].find(i => i.href === pathname)?.label || "Painel"
     const isEditorPage = pathname === "/editar-site"

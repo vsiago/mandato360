@@ -100,6 +100,7 @@ export interface TenantData {
     title: string
     description: string
     businessTypeId?: string
+    segmento?: string  // business type slug (e.g. "advocacia", "estetica")
 
     // Hero
     heroBadge: string

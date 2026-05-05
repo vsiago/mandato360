@@ -135,6 +135,8 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
         title: "Agenda *Online*",
         subtitle: "Exclusividade e Precisão em cada detalhe",
       },
+      practiceAreas: { enabled: false, title: "", subtitle: "", items: [] },
+      team: { enabled: false, title: "", subtitle: "", members: [] },
     },
     sectionOrder: ["header", "hero", "trust", "services", "agendamento", "about", "beforeAfter", "faq", "contact", "footer"],
   }
@@ -203,6 +205,14 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
         agendamento: {
           ...defaultConfig.plugins.agendamento,
           ...(savedConfig.plugins?.agendamento || {}),
+        },
+        practiceAreas: {
+          ...defaultConfig.plugins.practiceAreas,
+          ...(savedConfig.plugins?.practiceAreas || {}),
+        },
+        team: {
+          ...defaultConfig.plugins.team,
+          ...(savedConfig.plugins?.team || {}),
         },
       }
     }

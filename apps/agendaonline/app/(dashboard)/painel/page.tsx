@@ -9,7 +9,7 @@ import {
     ExternalLink, Globe, Eye, DollarSign,
     Clock, BarChart3, CheckCircle2, X, Scissors,
     Loader2, Share2, Info, ChevronRight, Pencil, Plus, MoreVertical,
-    Lightbulb, ChevronDown
+    Lightbulb, ChevronDown, Scale, Briefcase
 } from "lucide-react"
 import {
     DropdownMenu,
@@ -114,6 +114,7 @@ function PainelContent() {
         : tenant?.name?.split(" ")[0] || "Usuário"
 
     const serviceCount = tenant?.services?.length || 0
+    const isAdvocacia = tenant?.segmento === "advocacia"
 
     const checklistItems = [
         { label: "Site publicado", done: !!tenant?.slug, href: `/${tenant?.slug}` },
@@ -233,8 +234,8 @@ function PainelContent() {
                 <h3 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest px-1">AÇÕES RÁPIDAS</h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                     {[
-                        { href: "/agenda?action=new", icon: CalendarDays, title: "Novo Agendamento", desc: "Criar um novo horário" },
-                        { href: "/servicos", icon: Scissors, title: "Gerenciar Serviços", desc: "Adicionar ou editar serviços" },
+                        { href: "/agenda?action=new", icon: isAdvocacia ? Scale : CalendarDays, title: isAdvocacia ? "Nova Consulta" : "Novo Agendamento", desc: isAdvocacia ? "Agendar consulta jurídica" : "Criar um novo horário" },
+                        { href: "/servicos", icon: isAdvocacia ? Briefcase : Scissors, title: isAdvocacia ? "Áreas Jurídicas" : "Gerenciar Serviços", desc: isAdvocacia ? "Gerencie suas áreas de atuação" : "Adicionar ou editar serviços" },
                         { href: "/editar-site", icon: Pencil, title: "Editar Site", desc: "Personalize seu site público" },
                         { href: "#", icon: Share2, title: "Compartilhar Link", desc: "Compartilhe seu site", action: () => {
                             if (tenant?.slug) {
@@ -436,8 +437,8 @@ function PainelContent() {
                         {[
                             { title: "Faturamento", value: "R$ 0,00", sub: "0% em relação ao mês anterior", icon: DollarSign, chart: true },
                             { title: "Clientes", value: "0", sub: "Total de clientes", icon: Users },
-                            { title: "Serviços", value: String(serviceCount), sub: "Cadastrados", icon: Scissors },
-                            { title: "Hoje", value: "0", sub: "Agendamentos", icon: CalendarDays },
+                            { title: isAdvocacia ? "Áreas Jurídicas" : "Serviços", value: String(serviceCount), sub: "Cadastrados", icon: isAdvocacia ? Scale : Scissors },
+                            { title: "Hoje", value: "0", sub: isAdvocacia ? "Consultas" : "Agendamentos", icon: CalendarDays },
                         ].map((m, i) => (
                             <div key={i} className="group cursor-pointer bg-stone-900/30 border border-white/5 p-4 lg:p-6 rounded-2xl hover:bg-stone-900/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[140px] lg:min-h-[160px]">
                                 <div className="flex items-start justify-between">
@@ -471,7 +472,10 @@ function PainelContent() {
                             <div className="max-w-[400px]">
                                 <h4 className="text-sm font-bold text-foreground mb-1">Dica para você</h4>
                                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                    Complete seu perfil com foto e descrição para transmitir mais confiança aos seus clientes.
+                                    {isAdvocacia 
+                                        ? "Complete o cadastro da OAB e áreas de atuação do seu escritório para transmitir mais credibilidade aos seus clientes."
+                                        : "Complete seu perfil com foto e descrição para transmitir mais confiança aos seus clientes."
+                                    }
                                 </p>
                             </div>
                         </div>

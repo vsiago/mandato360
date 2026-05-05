@@ -238,6 +238,7 @@ export function configToTenantData(config: TenantConfig): TenantData {
     title: `${config.branding.name} | ${config.branding.surname}`,
     description: config.content.description,
     businessTypeId: undefined,
+    segmento: config.segmento,
 
     heroBadge: config.content.heroBadge,
     heroImageUrl: config.branding.heroImageUrl,

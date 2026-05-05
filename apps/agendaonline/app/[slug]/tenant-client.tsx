@@ -11,7 +11,8 @@ import {
     Image as ImageIcon, ShieldCheck as Shield, Gem, Zap, Flag, Heart, CheckCircle2,
     Calendar,
     MessageSquare,
-    Info
+    Info,
+    Users
 } from "lucide-react"
 
 const PUBLIC_ICON_MAP: Record<string, any> = {
@@ -309,7 +310,9 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
         'faq': 'FAQ',
         'contact': 'Contato',
         'agendamento': 'Agendar',
-        'antes_depois': 'Resultados'
+        'antes_depois': 'Resultados',
+        'practiceAreas': 'Áreas de Atuação',
+        'team': 'Equipe'
     }
 
     const beforeAfterConfig = editorConfig?.plugins?.beforeAfter || { 
@@ -335,6 +338,9 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
     }
 
     const schedulingConfig = editorConfig?.plugins?.agendamento || {}
+
+    const practiceAreasConfig = editorConfig?.plugins?.practiceAreas || { enabled: false, title: "", subtitle: "", items: [] }
+    const teamConfig = editorConfig?.plugins?.team || { enabled: false, title: "", subtitle: "", members: [] }
 
     const navigationSections = (editorConfig?.sectionOrder || [])
         .filter(id => id !== 'header' && id !== 'hero' && id !== 'footer' && id !== 'trust')
@@ -983,6 +989,72 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                         </section>
                     ),
                     'depoimentos': null, // To be implemented later by specialized agents
+                    'practiceAreas': practiceAreasConfig.enabled && practiceAreasConfig.items?.length > 0 ? (
+                        <section id="practiceAreas" className="py-20 px-6 bg-slate-50">
+                            <div className="max-w-6xl mx-auto">
+                                <div className="mb-16 text-center max-w-3xl mx-auto">
+                                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}
+                                        dangerouslySetInnerHTML={{ __html: renderEditorText(practiceAreasConfig.title).replace(/<em>(.*?)<\/em>/g, '<span class="text-tenant-primary italic">$1</span>') }}
+                                    />
+                                    <p className="text-lg text-slate-600">{practiceAreasConfig.subtitle}</p>
+                                </div>
+                                <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                                    {practiceAreasConfig.items.map((item: any, i: number) => (
+                                        <div key={i} className="group bg-white rounded-(--theme-card-radius) border border-slate-200 hover:border-tenant-primary/30 hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
+                                            {item.image && item.image.trim() !== "" ? (
+                                                <div className="h-48 w-full overflow-hidden bg-slate-100 relative">
+                                                    <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                                    <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent" />
+                                                    <div className="absolute bottom-4 left-6 text-white font-bold text-lg tracking-wide">{item.title}</div>
+                                                </div>
+                                            ) : (
+                                                <div className="h-3 bg-tenant-primary" />
+                                            )}
+                                            <div className="p-8 flex flex-col flex-1">
+                                                {(!item.image || item.image.trim() === "") && (
+                                                    <h4 className="text-xl font-bold text-slate-900 mb-4" style={{ fontFamily: "var(--theme-font-heading, var(--font-serif, serif))" }}>{item.title}</h4>
+                                                )}
+                                                <p className="text-slate-600 text-sm leading-relaxed mb-6">{item.description}</p>
+                                                <div className="mt-auto">
+                                                    <button className="text-sm font-bold uppercase tracking-wider flex items-center gap-2 group/btn transition-colors text-tenant-primary">
+                                                        Saiba Mais <span className="transform translate-x-0 group-hover/btn:translate-x-1 transition-transform">→</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    ) : null,
+                    'team': teamConfig.enabled && teamConfig.members?.length > 0 ? (
+                        <section id="team" className="py-20 px-6 bg-white">
+                            <div className="max-w-6xl mx-auto">
+                                <div className="mb-16 text-center max-w-3xl mx-auto">
+                                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900 mb-6" style={{ fontFamily: 'var(--theme-font-heading)' }}
+                                        dangerouslySetInnerHTML={{ __html: renderEditorText(teamConfig.title).replace(/<em>(.*?)<\/em>/g, '<span class="text-tenant-primary italic">$1</span>') }}
+                                    />
+                                    <p className="text-lg text-slate-600">{teamConfig.subtitle}</p>
+                                </div>
+                                <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                                    {teamConfig.members.map((member: any, i: number) => (
+                                        <div key={i} className="flex flex-col items-center text-center group">
+                                            <div className="w-48 h-48 rounded-full overflow-hidden mb-6 border-4 border-slate-50 transition-transform duration-500 group-hover:scale-105 group-hover:shadow-xl bg-slate-100 flex items-center justify-center">
+                                                {member.image ? (
+                                                    <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <Users className="w-12 h-12 text-slate-300" />
+                                                )}
+                                            </div>
+                                            <h4 className="text-lg font-bold text-slate-900 mb-1">{member.name}</h4>
+                                            <p className="text-sm font-semibold mb-3 tracking-wide text-tenant-primary">{member.role}</p>
+                                            <p className="text-sm text-slate-500 line-clamp-3">{member.bio}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    ) : null,
                     'equipe': null,
                     'galeria': null,
                 }

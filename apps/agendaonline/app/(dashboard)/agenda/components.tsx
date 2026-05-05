@@ -18,8 +18,9 @@ const MONTH_NAMES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
 /* ═══════════════════════════════════════════
    DESKTOP: Appointment Details Panel
    ═══════════════════════════════════════════ */
-export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onDetails, onConfirm, onDelete, onSaveClient }: {
+export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onComplete, onDetails, onConfirm, onDelete, onSaveClient }: {
     apt: any
+    segmento?: string
     onEdit: (apt: any) => void
     onReschedule: (apt: any) => void
     onComplete: (apt: any) => void
@@ -42,7 +43,7 @@ export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onD
         <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em]">
-                    Detalhes do Agendamento
+                    {segmento === 'advocacia' ? 'Detalhes da Consulta' : 'Detalhes do Agendamento'}
                 </h3>
             </div>
             {/* Client info */}
@@ -79,7 +80,7 @@ export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onD
             {/* Details grid */}
             <div className="space-y-4 mb-6">
                 {[
-                    { label: "Serviço", value: apt.service },
+                    { label: segmento === 'advocacia' ? "Atendimento" : "Serviço", value: apt.service },
                     { label: "Valor", value: apt.price },
                     { label: "Data", value: formatDate(apt.date) }, 
                     { label: "Horário", value: apt.time },
@@ -95,7 +96,7 @@ export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onD
                         <div className="w-[2px] bg-stone-800/80 self-stretch rounded-full group-hover/row:bg-brand-primary/40 transition-colors shrink-0" />
                         
                         <div className="flex-1 py-1 flex items-center">
-                            {row.label === "Serviço" && apt.allServices?.length > 1 ? (
+                            {(row.label === "Serviço" || row.label === "Atendimento") && apt.allServices?.length > 1 ? (
                                 <div className="flex flex-col gap-1.5 py-1">
                                     {apt.allServices.map((s: string, idx: number) => (
                                         <div key={idx} className="flex items-center gap-2">
@@ -167,7 +168,7 @@ export function DesktopDetailsPanel({ apt, onEdit, onReschedule, onComplete, onD
 /* ═══════════════════════════════════════════
    DESKTOP: Occupation Card
    ═══════════════════════════════════════════ */
-export function DesktopOccupationCard({ summary }: { summary: { total: number, free: number } }) {
+export function DesktopOccupationCard({ summary, segmento }: { summary: { total: number, free: number }, segmento?: string }) {
     const totalSlots = summary.total + summary.free;
     const occupationPercent = totalSlots > 0 ? Math.round((summary.total / totalSlots) * 100) : 0;
 
@@ -183,7 +184,7 @@ export function DesktopOccupationCard({ summary }: { summary: { total: number, f
                         style={{ width: `${occupationPercent}%` }} 
                     />
                 </div>
-                <p className="text-[10px] text-stone-400">{summary.total} / {totalSlots} agendamentos</p>
+                <p className="text-[10px] text-stone-400">{summary.total} / {totalSlots} {segmento === 'advocacia' ? 'consultas' : 'agendamentos'}</p>
             </div>
 
             {/* Right Side */}
@@ -376,8 +377,9 @@ export function DesktopMiniCalendar({ currentMonth, setCurrentMonth, selectedDat
 /* ═══════════════════════════════════════════
    DESKTOP: Day Summary
    ═══════════════════════════════════════════ */
-export function DesktopDaySummary({ summary }: {
-    summary: { total: number; confirmed: number; pending: number; blocked: number; free: number; completed: number }
+export function DesktopDaySummary({ summary, segmento }: {
+    summary: { total: number; confirmed: number; pending: number; blocked: number; free: number; completed: number },
+    segmento?: string
 }) {
     return (
         <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
@@ -385,7 +387,7 @@ export function DesktopDaySummary({ summary }: {
             <div className="grid grid-cols-3 gap-2 mb-2">
                 <div className="col-span-1 rounded-xl bg-stone-900/50 border border-white/5 p-3">
                     <p className="text-xl font-bold text-stone-300 mb-1">{summary.total + summary.completed}</p>
-                    <p className="text-[9px] text-stone-500 leading-tight">Total de<br />agendamentos</p>
+                    <p className="text-[9px] text-stone-500 leading-tight">Total de<br />{segmento === 'advocacia' ? 'consultas' : 'agendamentos'}</p>
                 </div>
                 <div className="col-span-1 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10 p-3 relative overflow-hidden">
                     <CheckCircle2 className="absolute -bottom-2 -right-2 h-10 w-10 text-emerald-500/10" />
