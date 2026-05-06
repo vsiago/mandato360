@@ -52,7 +52,8 @@ export default async function ServicosPage() {
         description: s.description || "",
         price: s.price || "0.00",
         duration: s.duration || 60,
-        isActive: s.isActive
+        isActive: s.isActive,
+        image: s.image || ""
     }))
 
     const formattedCategories = myCategories.map(c => ({
@@ -65,6 +66,7 @@ export default async function ServicosPage() {
             initialServices={formattedServices}
             initialCategories={formattedCategories}
             tenantId={userTenant.id}
+            tenantSegmento={userTenant.segmento || ""}
         />
     )
 }

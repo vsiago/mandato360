@@ -143,7 +143,7 @@ function PainelContent() {
     }
 
     return (
-        <div className="flex-1 flex flex-col space-y-6 animate-in fade-in duration-500 relative">
+        <div className="flex-1 flex flex-col space-y-4 lg:space-y-6 animate-in fade-in duration-500 relative">
             {/* ── Trial Lock Overlay ── */}
             {tenant?.trialStatus?.isExpired && (
                 <div className="fixed inset-0 z-[100] bg-stone-950/80 backdrop-blur-md flex items-center justify-center p-4">
@@ -181,7 +181,7 @@ function PainelContent() {
 
             {/* ── Trial Banner ── */}
             {tenant?.trialStatus && !tenant.trialStatus.isExpired && tenant.plan === "free" && (
-                <div className="relative group rounded-2xl overflow-hidden border border-brand-primary/20 bg-brand-primary/5 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
+                <div className="lg:mx-0 relative group rounded-2xl overflow-hidden border border-brand-primary/20 bg-brand-primary/5 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
                     <div className="flex items-center gap-4">
                         <div className="h-10 w-10 bg-brand-primary/10 rounded-xl flex items-center justify-center border border-brand-primary/20">
                             <Clock className="h-5 w-5 text-brand-primary" />
@@ -203,41 +203,44 @@ function PainelContent() {
             )}
 
             {/* ── Header ── */}
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-2">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-1 lg:mb-2 lg:px-0">
                 <div className="flex-1">
-                    <h2 className="text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                    <h2 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
                         {greeting()}, <span className="text-brand-primary">{displayName}!</span> 👋
                     </h2>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1">
                         Aqui está o que acontece no seu negócio hoje.
                     </p>
                 </div>
                 
-                <div className="flex flex-row w-full lg:w-auto items-center gap-2 lg:gap-3 mt-4 lg:mt-0">
+                <div className="flex flex-row w-full lg:w-auto items-center gap-2 lg:gap-3 mt-1 lg:mt-0">
                     <Link href="/agenda" className="flex-1 lg:flex-none">
                         <Button 
-                            className="w-full text-white rounded-xl px-4 lg:px-6 h-12 font-bold shadow-lg shadow-brand-secondary/10 flex items-center justify-center gap-2 transition-all hover:scale-105 bg-brand-gold text-xs lg:text-sm"
+                            variant="outline"
+                            className="w-full text-brand-primary border-brand-primary/20 bg-brand-primary/5 hover:bg-brand-primary/10 rounded-xl px-4 lg:px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all text-[11px] lg:text-sm"
                         >
-                            <CalendarDays className="h-5 w-5" /> <span className="hidden sm:inline">Abrir</span> Agenda <ChevronRight className="h-4 w-4 hidden lg:block" />
+                            <CalendarDays className="h-4 w-4 lg:h-5 lg:w-5" /> Agenda
                         </Button>
                     </Link>
                     <Link href={`/${tenant?.slug || ""}`} target="_blank" className="flex-1 lg:flex-none">
-                        <Button variant="outline" className="w-full border-stone-800 bg-transparent hover:bg-stone-900 text-white rounded-xl px-4 lg:px-6 h-12 font-bold flex items-center justify-center gap-2 text-xs lg:text-sm">
-                            <ExternalLink className="h-5 w-5" /> <span className="hidden sm:inline">Ver Meu</span> Site
+                        <Button variant="ghost" className="w-full bg-stone-900/40 hover:bg-stone-800 text-stone-400 hover:text-white rounded-xl px-4 lg:px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 text-[11px] lg:text-sm border border-white/5">
+                            <ExternalLink className="h-4 w-4 lg:h-5 lg:w-5" /> Site
                         </Button>
                     </Link>
                 </div>
             </div>
 
             {/* ── Quick Actions ── */}
-            <div className="space-y-4">
-                <h3 className="text-[10px] font-bold text-stone-500 uppercase tracking-widest px-1">AÇÕES RÁPIDAS</h3>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            <div className="space-y-3 lg:px-0">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-[10px] font-black text-stone-500 uppercase tracking-[0.2em]">AÇÕES RÁPIDAS</h3>
+                </div>
+                <div className="flex lg:grid lg:grid-cols-4 gap-3 overflow-x-auto lg:overflow-visible hide-scrollbar snap-x">
                     {[
-                        { href: "/agenda?action=new", icon: isAdvocacia ? Scale : CalendarDays, title: isAdvocacia ? "Nova Consulta" : "Novo Agendamento", desc: isAdvocacia ? "Agendar consulta jurídica" : "Criar um novo horário" },
-                        { href: "/servicos", icon: isAdvocacia ? Briefcase : Scissors, title: isAdvocacia ? "Áreas Jurídicas" : "Gerenciar Serviços", desc: isAdvocacia ? "Gerencie suas áreas de atuação" : "Adicionar ou editar serviços" },
-                        { href: "/editar-site", icon: Pencil, title: "Editar Site", desc: "Personalize seu site público" },
-                        { href: "#", icon: Share2, title: "Compartilhar Link", desc: "Compartilhe seu site", action: () => {
+                        { href: "/agenda?action=new", icon: isAdvocacia ? Scale : CalendarDays, title: isAdvocacia ? "Consulta" : "Agendar", desc: isAdvocacia ? "Agendar consulta" : "Novo horário" },
+                        { href: "/servicos", icon: isAdvocacia ? Briefcase : Scissors, title: isAdvocacia ? "Áreas" : "Serviços", desc: isAdvocacia ? "Gerencie áreas" : "Editar serviços" },
+                        { href: "/editar-site", icon: Pencil, title: "Editar Site", desc: "Personalizar" },
+                        { href: "#", icon: Share2, title: "Compartilhar", desc: "Copiar link", action: () => {
                             if (tenant?.slug) {
                                 navigator.clipboard.writeText(`${window.location.origin}/${tenant.slug}`);
                                 toast.success("Link copiado!");
@@ -247,137 +250,53 @@ function PainelContent() {
                         <div 
                             key={i} 
                             onClick={() => item.action ? item.action() : null}
-                            className="group cursor-pointer bg-stone-900/30 hover:bg-stone-900/50 border border-white/5 p-3 lg:p-4 rounded-2xl flex flex-col lg:flex-row items-center text-center lg:text-left gap-2 lg:gap-4 transition-all"
+                            className="group cursor-pointer bg-stone-900/30 hover:bg-stone-900/50 border border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center text-center gap-2 transition-all min-w-[100px] lg:min-w-0 flex-1 snap-start"
                         >
                             <div 
-                                className="h-10 w-10 lg:h-12 lg:w-12 rounded-xl lg:rounded-2xl flex items-center justify-center shrink-0 border border-white/5 bg-stone-900/50 group-hover:border-brand-primary/30 transition-colors"
+                                className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 border border-white/5 bg-white/[0.03] group-hover:border-brand-primary/30 transition-colors shadow-sm"
                             >
-                                <item.icon className="h-5 w-5 lg:h-6 lg:w-6 text-stone-500 group-hover:text-brand-primary transition-colors" />
+                                <item.icon className="h-5 w-5 text-stone-400 group-hover:text-brand-primary transition-colors" />
                             </div>
-                            <div className="flex-1 min-w-0 flex flex-col items-center lg:items-start justify-center">
-                                <h4 className="text-[11px] lg:text-sm font-bold text-foreground group-hover:text-brand-primary transition-colors leading-tight">{item.title}</h4>
-                                <p className="hidden lg:block text-[10px] text-muted-foreground truncate w-full">{item.desc}</p>
+                            <div className="min-w-0">
+                                <h4 className="text-[10px] lg:text-xs font-bold text-foreground group-hover:text-brand-primary transition-colors leading-tight truncate">{item.title}</h4>
                             </div>
-                            <ChevronRight className="hidden lg:block h-4 w-4 text-stone-700 group-hover:text-brand-primary group-hover:translate-x-1 transition-all" />
                         </div>
                     ))}
                 </div>
             </div>
 
-            {/* ── Setup Checklist (Refined Horizontal Style) ── */}
-            {showChecklist && (
-                <div className="bg-stone-900/30 border border-white/5 rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden">
-                    
-                    {/* Left Section: Progress & Info */}
-                    <div className="flex items-center gap-6 pr-8 lg:border-r border-white/5 shrink-0">
-                        <div className="relative h-20 w-20 flex items-center justify-center shrink-0">
-                            <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-                                <circle cx="18" cy="18" r="16" fill="none" className="stroke-stone-800" strokeWidth="3" />
-                                <circle 
-                                    cx="18" cy="18" r="16" fill="none" 
-                                    className="stroke-brand-primary transition-all duration-1000" 
-                                    strokeWidth="3" 
-                                    strokeDasharray={`${progress}, 100`} 
-                                    strokeLinecap="round" 
-                                />
-                            </svg>
-                            <span className="absolute text-lg font-bold text-foreground">{progress}%</span>
-                        </div>
-                        <div className="space-y-1">
-                            <h3 className="text-xl font-bold text-foreground tracking-tight">Configuração da Agenda</h3>
-                            <p className="text-[13px] text-muted-foreground">
-                                {completedCount} de {checklistItems.length} etapas concluídas
-                            </p>
-                            <p className="text-[11px] text-stone-500 max-w-[200px]">Complete as etapas e destaque seu negócio.</p>
-                        </div>
-                    </div>
-
-                    {/* Middle Section: Stepper */}
-                    <div className="flex-1 w-full lg:w-auto overflow-x-auto hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0 lg:overflow-visible">
-                        <div className="relative flex justify-start lg:justify-between items-start gap-8 lg:gap-0 w-max lg:w-full px-4 pb-2 lg:pb-0">
-                            {/* Connector Line */}
-                            <div className="absolute top-3.5 left-8 right-8 h-[1px] bg-stone-800 z-0 hidden lg:block" />
-                            
-                            {checklistItems.map((item, i) => {
-                                const isActive = !item.done && (i === 0 || checklistItems[i-1].done)
-                                return (
-                                    <div key={i} className="relative z-10 flex flex-col items-center gap-3 lg:gap-4 w-16 shrink-0">
-                                        <div className={cn(
-                                            "h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all border-2",
-                                            item.done 
-                                                ? "bg-green-500/80 border-green-500/20 text-white" 
-                                                : isActive 
-                                                    ? "bg-brand-primary border-brand-primary text-white shadow-lg shadow-brand-secondary/40 scale-110" 
-                                                    : "bg-stone-900 border-stone-800 text-stone-500"
-                                        )}>
-                                            {item.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
-                                        </div>
-                                        <span className={cn(
-                                            "text-[9px] lg:text-[10px] text-center font-medium leading-tight whitespace-pre-line",
-                                            item.done ? "text-green-500/60" : isActive ? "text-brand-primary font-bold" : "text-stone-500"
-                                        )}>
-                                            {item.label.replace(" ", "\n")}
-                                        </span>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Right Section: Action Button */}
-                    <div className="shrink-0">
-                        <Link href="/configuracoes">
-                            <Button 
-                                className="text-white rounded-xl px-8 h-14 font-bold shadow-xl shadow-brand-secondary/10 transition-all hover:scale-[1.02] bg-brand-gold"
-                            >
-                                Continuar configuração
-                            </Button>
-                        </Link>
-                    </div>
-                </div>
-            )}
-
             {/* ── Main Content Grid ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch pb-4">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 
                 {/* ── Left Column: Agendamentos ── */}
-                <div className="lg:col-span-5 bg-stone-900/30 border border-white/5 rounded-2xl overflow-hidden flex flex-col h-full">
-                    <div className="p-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/5">
-                        <div className="flex items-center gap-2">
-                            <CalendarDays className="h-5 w-5 text-brand-primary" />
-                            <h3 className="font-bold text-foreground">Próximos agendamentos</h3>
+                <div className="lg:col-span-5 bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl overflow-hidden flex flex-col h-full lg:mx-0 shadow-2xl">
+                    <div className="p-5 lg:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.03] bg-white/[0.01]">
+                        <div className="flex items-center gap-2.5">
+                            <div className="h-8 w-8 rounded-xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
+                                <CalendarDays className="h-4 w-4 text-brand-primary" />
+                            </div>
+                            <h3 className="text-sm lg:text-base font-bold text-foreground tracking-tight">Agenda</h3>
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-stone-900 border border-stone-800 rounded-xl cursor-pointer hover:bg-stone-800 transition-colors">
-                                    <span className="text-[10px] font-bold text-foreground">{agendaFilter}</span>
-                                    <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-stone-900/50 border border-white/5 rounded-xl cursor-pointer hover:bg-stone-800 transition-colors">
+                                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">{agendaFilter}</span>
+                                    <ChevronDown className="h-3 w-3 text-stone-600" />
                                 </div>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40 bg-stone-950 border-white/10 shadow-xl">
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Hoje")} className="text-xs font-medium cursor-pointer text-stone-300 hover:text-white hover:bg-stone-800">
-                                    Hoje
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Amanhã")} className="text-xs font-medium cursor-pointer text-stone-300 hover:text-white hover:bg-stone-800">
-                                    Amanhã
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Próximos 7 dias")} className="text-xs font-medium cursor-pointer text-stone-300 hover:text-white hover:bg-stone-800">
-                                    Próximos 7 dias
-                                </DropdownMenuItem>
+                            <DropdownMenuContent align="end" className="w-40 bg-stone-950 border-white/10 shadow-2xl rounded-xl">
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Hoje")} className="text-xs font-medium cursor-pointer text-stone-300 focus:bg-white/5 rounded-lg">Hoje</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Amanhã")} className="text-xs font-medium cursor-pointer text-stone-300 focus:bg-white/5 rounded-lg">Amanhã</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Próximos 7 dias")} className="text-xs font-medium cursor-pointer text-stone-300 focus:bg-white/5 rounded-lg">Próximos 7 dias</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
 
-                    <div className="p-6 space-y-3">
+                    <div className="p-5 lg:p-6 space-y-3">
                         {filteredAppointments.length > 0 ? filteredAppointments.map((apt, i) => {
-                            // Extract initials
                             const customerName = apt.customerName || "Cliente";
-                            const nameParts = customerName.split(" ");
-                            const initials = nameParts.length > 1 
-                                ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`.toUpperCase()
-                                : nameParts[0].substring(0, 2).toUpperCase();
+                            const initials = customerName.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase();
 
-                            // Format Date text if not "Hoje" or "Amanhã"
                             let dateLabel = "Hoje";
                             const pad = (n: number) => n.toString().padStart(2, '0');
                             const today = new Date();
@@ -394,105 +313,159 @@ function PainelContent() {
                             }
 
                             return (
-                                <div key={apt.id} className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-2xl bg-stone-900/10 border border-white/5 border-l-2 border-l-brand-primary/50 hover:bg-white/5 transition-all group overflow-hidden relative">
-                                    <div className="text-center w-10 sm:w-12 shrink-0">
-                                        <p className="text-xs sm:text-sm font-bold text-stone-400 group-hover:text-brand-primary transition-colors">{apt.time}</p>
-                                        <p className="uppercase font-bold tracking-wider mt-0.5 text-[8px] sm:text-[9px] text-stone-500">{dateLabel}</p>
+                                <div key={apt.id} className="flex items-center gap-4 p-4 rounded-[1.25rem] bg-white/[0.02] border border-white/[0.03] hover:bg-white/[0.05] transition-all group relative overflow-hidden">
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-primary/40" />
+                                    <div className="text-center w-10 shrink-0">
+                                        <p className="text-xs font-black text-stone-300 group-hover:text-brand-primary transition-colors">{apt.time}</p>
+                                        <p className="uppercase font-black tracking-widest mt-0.5 text-[8px] text-stone-500">{dateLabel}</p>
                                     </div>
-                                    <div className="flex-1 flex items-center justify-end gap-2 sm:gap-3 min-w-0">
-                                        <div className="min-w-0 flex-1 text-right flex flex-col justify-center">
-                                            <p className="font-bold text-foreground truncate text-[13px] sm:text-sm">{customerName}</p>
-                                        </div>
-                                        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full border flex items-center justify-center text-[9px] sm:text-[10px] font-bold shrink-0 transition-colors bg-stone-800 border-stone-700 text-stone-400">
+                                    <div className="flex-1 flex items-center justify-between min-w-0">
+                                        <p className="font-bold text-foreground truncate text-sm">{customerName}</p>
+                                        <div className="h-8 w-8 rounded-full border border-white/5 flex items-center justify-center text-[10px] font-black shrink-0 transition-colors bg-stone-900 text-stone-500">
                                             {initials}
                                         </div>
                                     </div>
-                                    <Link href="/agenda" className="shrink-0">
-                                        <Button variant="ghost" size="icon" className="hidden sm:flex h-8 w-8 text-stone-600 hover:text-foreground shrink-0 ml-1">
-                                            <MoreVertical className="h-4 w-4" />
-                                        </Button>
-                                    </Link>
                                 </div>
                             )
                         }) : (
-                            <div className="text-center p-6 border border-dashed border-white/10 rounded-2xl bg-stone-900/10 mt-4 mb-4">
-                                <p className="text-xs sm:text-sm text-stone-500">Nenhum agendamento para este período.</p>
+                            <div className="text-center p-6 border border-dashed border-white/5 rounded-[1.25rem] bg-white/[0.01]">
+                                <p className="text-xs text-stone-500 font-medium italic">Nenhum agendamento pendente.</p>
                             </div>
                         )}
                     </div>
 
-                    <div className="p-6 pt-0 mt-auto">
+                    <div className="p-5 lg:p-6 pt-0 mt-auto">
                         <Link href="/agenda">
-                            <Button variant="outline" className="w-full border-stone-800 hover:bg-stone-900 rounded-2xl h-12 text-xs font-bold text-brand-primary flex items-center justify-center gap-2">
-                                <CalendarDays className="h-4 w-4" /> Ver agenda completa <ChevronRight className="h-3 w-3" />
+                            <Button variant="ghost" className="w-full bg-white/[0.03] hover:bg-white/[0.06] rounded-xl h-11 text-xs font-bold text-brand-primary border border-brand-primary/10">
+                                Ver agenda completa
                             </Button>
                         </Link>
                     </div>
                 </div>
 
                 {/* ── Right Column: Metrics Grid & Tip Card ── */}
-                <div className="lg:col-span-7 space-y-6">
-                    {/* Metrics Grid (2 columns on mobile) */}
+                <div className="lg:col-span-7 space-y-4 lg:space-y-6 lg:px-0">
                     <div className="grid grid-cols-2 gap-3 lg:gap-4">
                         {[
-                            { title: "Faturamento", value: "R$ 0,00", sub: "0% em relação ao mês anterior", icon: DollarSign, chart: true },
-                            { title: "Clientes", value: "0", sub: "Total de clientes", icon: Users },
-                            { title: isAdvocacia ? "Áreas Jurídicas" : "Serviços", value: String(serviceCount), sub: "Cadastrados", icon: isAdvocacia ? Scale : Scissors },
-                            { title: "Hoje", value: "0", sub: isAdvocacia ? "Consultas" : "Agendamentos", icon: CalendarDays },
+                            { title: "Faturamento", value: "R$ 0,00", sub: "Este mês", icon: DollarSign, accent: "bg-emerald-500/10 text-emerald-500" },
+                            { title: "Clientes", value: "0", sub: "Ativos", icon: Users, accent: "bg-blue-500/10 text-blue-500" },
+                            { title: isAdvocacia ? "Áreas" : "Serviços", value: String(serviceCount), sub: "Catálogo", icon: isAdvocacia ? Scale : Scissors, accent: "bg-amber-500/10 text-amber-500" },
+                            { title: "Hoje", value: "0", sub: "Agendados", icon: CalendarDays, accent: "bg-brand-primary/10 text-brand-primary" },
                         ].map((m, i) => (
-                            <div key={i} className="group cursor-pointer bg-stone-900/30 border border-white/5 p-4 lg:p-6 rounded-2xl hover:bg-stone-900/50 transition-all relative overflow-hidden flex flex-col justify-between min-h-[140px] lg:min-h-[160px]">
+                            <div key={i} className="group cursor-pointer bg-stone-900/40 backdrop-blur-md border border-white/[0.03] p-4 lg:p-6 rounded-2xl hover:bg-white/[0.04] transition-all relative overflow-hidden flex flex-col justify-between min-h-[120px] lg:min-h-[170px] shadow-lg">
                                 <div className="flex items-start justify-between">
-                                    <div className="h-8 w-8 lg:h-10 lg:w-10 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center group-hover:border-brand-primary/30 transition-colors">
-                                        <m.icon className="h-4 w-4 lg:h-5 lg:w-5 text-stone-500 group-hover:text-brand-primary transition-colors" />
+                                    <div className={cn("h-9 w-9 lg:h-11 lg:w-11 rounded-xl flex items-center justify-center border border-white/5 shadow-inner", m.accent)}>
+                                        <m.icon className="h-4 w-4 lg:h-5 lg:w-5" />
                                     </div>
-                                    <ChevronRight className="h-4 w-4 text-stone-700 group-hover:text-brand-primary transition-all" />
+                                    <div className="h-6 w-6 rounded-lg bg-white/[0.03] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ChevronRight className="h-3.5 w-3.5 text-stone-500" />
+                                    </div>
                                 </div>
                                 
-                                <div className="mt-4 lg:mt-0">
-                                    <p className="text-[9px] lg:text-[10px] font-bold text-stone-500 uppercase tracking-widest truncate">{m.title}</p>
-                                    <p className="text-xl lg:text-2xl font-bold text-foreground tracking-tight mt-0.5 lg:mt-1">{m.value}</p>
-                                    <p className="text-[9px] lg:text-[10px] text-muted-foreground mt-0.5 lg:mt-1 truncate">{m.sub}</p>
+                                <div className="mt-4">
+                                    <p className="text-[9px] lg:text-[10px] font-black text-stone-500 uppercase tracking-[0.15em]">{m.title}</p>
+                                    <p className="text-lg lg:text-2xl font-black text-foreground tracking-tight mt-0.5">{m.value}</p>
+                                    <p className="text-[9px] text-muted-foreground mt-0.5 font-medium">{m.sub}</p>
                                 </div>
-
-                                {m.chart && (
-                                    <div className="absolute bottom-4 lg:bottom-6 right-4 lg:right-6 opacity-20 group-hover:opacity-60 transition-opacity">
-                                        <TrendingUp className="h-8 w-8 lg:h-10 lg:w-10 text-brand-primary" />
-                                    </div>
-                                )}
                             </div>
                         ))}
                     </div>
 
-                    {/* Tip Card (Full width horizontal) */}
-                    <div className="bg-stone-900/30 border border-white/5 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="bg-stone-900/40 backdrop-blur-md border border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg">
                         <div className="flex items-center gap-4">
-                            <div className="h-14 w-14 rounded-full bg-stone-900 border border-white/5 flex items-center justify-center shrink-0">
-                                <Lightbulb className="h-7 w-7 text-stone-500" />
+                            <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 flex items-center justify-center shrink-0">
+                                <Lightbulb className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />
                             </div>
-                            <div className="max-w-[400px]">
-                                <h4 className="text-sm font-bold text-foreground mb-1">Dica para você</h4>
-                                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                            <div className="max-w-[360px]">
+                                <h4 className="text-sm font-bold text-foreground mb-1">Insights Premium</h4>
+                                <p className="text-[10px] lg:text-[11px] text-muted-foreground leading-relaxed font-medium">
                                     {isAdvocacia 
-                                        ? "Complete o cadastro da OAB e áreas de atuação do seu escritório para transmitir mais credibilidade aos seus clientes."
-                                        : "Complete seu perfil com foto e descrição para transmitir mais confiança aos seus clientes."
+                                        ? "Destaque suas especialidades para atrair clientes qualificados."
+                                        : "Adicione fotos reais do seu trabalho para converter mais visitantes."
                                     }
                                 </p>
                             </div>
                         </div>
-                        <Link href="/configuracoes">
-                            <Button variant="outline" className="border-stone-800 hover:bg-stone-900 text-brand-primary text-[11px] font-bold h-11 px-6 rounded-xl transition-all whitespace-nowrap">
-                                Ir para perfil
+                        <Link href="/configuracoes" className="w-full sm:w-auto">
+                            <Button variant="outline" className="w-full sm:w-auto border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-stone-300 text-[10px] font-bold h-10 px-6 rounded-xl transition-all">
+                                Perfil Completo
                             </Button>
                         </Link>
                     </div>
-
                 </div>
             </div>
 
+            {/* ── Setup Checklist (Premium Mobile Concept) ── */}
+            {showChecklist && (
+                <div className="lg:mx-0 bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden shadow-2xl">
+                    <div className="absolute top-0 right-0 p-4">
+                        <button onClick={handleDismissChecklist} className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-stone-500 hover:text-white transition-colors">
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-6 w-full lg:w-auto">
+                        <div className="relative h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center shrink-0">
+                            <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" r="16" fill="none" className="stroke-white/[0.03]" strokeWidth="3.5" />
+                                <circle 
+                                    cx="18" cy="18" r="16" fill="none" 
+                                    className="stroke-brand-primary transition-all duration-1000 shadow-[0_0_15px_rgba(var(--brand-primary-rgb),0.3)]" 
+                                    strokeWidth="3.5" 
+                                    strokeDasharray={`${progress}, 100`} 
+                                    strokeLinecap="round" 
+                                />
+                            </svg>
+                            <span className="absolute text-sm lg:text-lg font-black text-foreground">{progress}%</span>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-base lg:text-xl font-black text-foreground tracking-tight">Evolução do Negócio</h3>
+                            <p className="text-[11px] lg:text-[13px] text-muted-foreground font-medium mt-0.5">
+                                {completedCount} de {checklistItems.length} etapas concluídas
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 w-full overflow-x-auto hide-scrollbar lg:mx-0 lg:px-0 snap-x scroll-pl-6">
+                        <div className="flex justify-between items-start gap-8 lg:gap-4 w-max lg:w-full pb-2">
+                            {checklistItems.map((item, i) => {
+                                const isActive = !item.done && (i === 0 || checklistItems[i-1].done)
+                                return (
+                                    <div key={i} className="flex flex-col items-center gap-3 w-16 lg:w-20 shrink-0 snap-start">
+                                        <div className={cn(
+                                            "h-7 w-7 lg:h-8 lg:w-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all border-2",
+                                            item.done 
+                                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
+                                                : isActive 
+                                                    ? "bg-brand-primary border-brand-primary text-white shadow-xl scale-110" 
+                                                    : "bg-white/5 border-white/[0.03] text-stone-600"
+                                        )}>
+                                            {item.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
+                                        </div>
+                                        <span className={cn(
+                                            "text-[8px] lg:text-[9px] text-center font-black leading-tight whitespace-pre-line uppercase tracking-wider",
+                                            item.done ? "text-emerald-500/60" : isActive ? "text-brand-primary" : "text-stone-600"
+                                        )}>
+                                            {item.label.split(" ").join("\n")}
+                                        </span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    <Link href="/configuracoes" className="w-full lg:w-auto">
+                        <Button className="w-full lg:w-auto text-white rounded-2xl px-8 h-12 lg:h-14 text-xs font-black uppercase tracking-widest shadow-xl bg-brand-gold hover:scale-[1.02] transition-transform">
+                            Avançar
+                        </Button>
+                    </Link>
+                </div>
+            )}
+
             {/* Footer */}
-            <div className="pt-0 text-center pb-6">
-                <p className="text-[9px] text-stone-600 font-medium uppercase tracking-[0.2em]">
-                    © 2024 AgendaOnline. Todos os direitos reservados.
+            <div className="pt-4 text-center pb-8 opacity-40">
+                <p className="text-[8px] text-stone-500 font-black uppercase tracking-[0.3em]">
+                    © 2024 AgendaOnline • Inteligência em Gestão
                 </p>
             </div>
         </div>

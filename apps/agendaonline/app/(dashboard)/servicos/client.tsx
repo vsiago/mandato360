@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Clock, Filter, Search, LayoutGrid, List, Scissors } from "lucide-react"
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Clock, Filter, Search, LayoutGrid, List, Scissors, Scale, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -34,12 +34,16 @@ export interface Category {
 export default function ServicosClient({
     initialServices,
     initialCategories,
-    tenantId
+    tenantId,
+    tenantSegmento
 }: {
     initialServices: Service[],
     initialCategories: Category[],
-    tenantId: string
+    tenantId: string,
+    tenantSegmento?: string
 }) {
+    const isAdvocacia = tenantSegmento === "advocacia"
+    const FallbackIcon = isAdvocacia ? Scale : Scissors
     const router = useRouter()
     const [services, setServices] = useState<Service[]>(initialServices)
     const [categories, setCategories] = useState<Category[]>(initialCategories)
@@ -188,110 +192,133 @@ export default function ServicosClient({
     const inactiveServices = filteredServices.filter(s => !s.isActive)
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="flex-1 flex flex-col space-y-4 lg:space-y-6 animate-in fade-in duration-500">
 
             {/* ── Header ── */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-semibold text-foreground tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>Catálogo de Serviços</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Cadastre e gerencie o que você oferece.</p>
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-1 lg:mb-2 lg:px-0">
+                <div className="flex-1">
+                    <h2 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        Catálogo de Serviços
+                    </h2>
+                    <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1">
+                        Gerencie as especialidades e valores do seu negócio.
+                    </p>
                 </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                    <Button variant="outline" onClick={() => setIsCategoryDialogOpen(true)} className="flex-1 sm:flex-none rounded-lg px-4 border-dashed border-amber-500/20 hover:border-amber-500/40 hover:bg-amber-500/5">
-                        Organizar Categorias
+                
+                <div className="flex flex-row w-full lg:w-auto items-center gap-2 lg:gap-3 mt-1 lg:mt-0">
+                    <Button 
+                        variant="outline"
+                        onClick={() => setIsCategoryDialogOpen(true)}
+                        className="flex-1 lg:flex-none text-stone-400 border-white/5 bg-stone-900/40 hover:bg-stone-800 rounded-xl px-4 lg:px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all text-[11px] lg:text-sm"
+                    >
+                        Categorias
                     </Button>
-                    <Button onClick={handleNew} className="flex-1 sm:flex-none btn-gold-solid font-semibold rounded-lg px-4">
-                        <Plus className="h-4 w-4 mr-2" /> Novo serviço
+                    <Button 
+                        onClick={handleNew}
+                        className="flex-1 lg:flex-none text-white rounded-xl px-4 lg:px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all bg-brand-gold text-[11px] lg:text-sm"
+                    >
+                        <Plus className="h-4 w-4 lg:h-5 lg:w-5" /> Novo Serviço
                     </Button>
                 </div>
             </div>
 
-            {/* ── Toolbar ── */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 relative rounded-xl border border-amber-200/20 dark:border-amber-500/10 p-3 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm overflow-hidden">
-                <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(232,168,58,0.03) 0%, transparent 40%)' }} />
-                <div className="relative z-10 w-full flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500/50" />
-                    <Input
-                        placeholder="Buscar por nome ou categoria..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 h-10 bg-muted border-none rounded-lg text-sm"
-                    />
+            {/* ── Search & Filter ── */}
+            <div className="relative group px-0 lg:px-0">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <Search className="h-4 w-4 text-stone-500 group-focus-within:text-brand-primary transition-colors" />
                 </div>
+                <Input
+                    placeholder="Buscar serviço por nome ou categoria..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-stone-900/40 backdrop-blur-md border-white/[0.03] rounded-2xl pl-12 h-12 lg:h-14 text-sm lg:text-base focus-visible:ring-brand-primary/20 transition-all shadow-lg"
+                />
             </div>
 
             {/* ── Services Grid ── */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
                 {activeServices.map(service => (
-                    <div key={service.id} className="group relative rounded-xl border border-amber-200/20 dark:border-amber-500/10 p-5 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm hover:border-amber-500/30 hover:shadow-lg hover:shadow-amber-500/5 transition-all duration-200 flex flex-col h-full overflow-hidden">
-                        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => toggleActive(service.id)} className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center text-emerald-500">
-                                <ToggleRight className="h-5 w-5" />
-                            </button>
-                        </div>
-
-                        <div className="mb-4">
-                            <Badge variant="secondary" className="bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400 text-xs font-medium rounded-full px-2.5 py-0.5 mb-3">
-                                {getCategoryLabel(service.category)}
-                            </Badge>
-                            <h3 className="text-lg font-semibold text-foreground mb-1 leading-tight">{service.name}</h3>
-                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                {service.description}
-                            </p>
-                        </div>
-
-                        <div className="mt-auto pt-4 border-t flex items-center justify-between">
-                            <div>
-                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-0.5">
-                                    <Clock className="h-3 w-3" /> {service.duration} min
+                    <div key={service.id} className="group flex flex-col bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl overflow-hidden hover:bg-stone-900/60 transition-all shadow-xl">
+                        {/* Service Image Header */}
+                        <div className="relative h-40 lg:h-48 w-full bg-stone-800 overflow-hidden">
+                            {service.image ? (
+                                <img src={service.image} alt={service.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-stone-800 to-stone-900">
+                                    <FallbackIcon className="h-10 w-10 text-stone-700" />
                                 </div>
-                                <div className="text-lg font-bold text-foreground">
-                                    R$ {service.price}
-                                </div>
+                            )}
+                            <div className="absolute top-3 left-3">
+                                <Badge className="bg-brand-primary/90 text-white border-0 rounded-lg px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-lg">
+                                    {getCategoryLabel(service.category)}
+                                </Badge>
                             </div>
-                            <div className="flex items-center gap-1">
-                                <button onClick={() => handleEdit(service)} className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-all">
-                                    <Pencil className="h-4 w-4" />
+                            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onClick={() => toggleActive(service.id)} className="h-8 w-8 rounded-lg bg-stone-950/80 backdrop-blur-md flex items-center justify-center text-emerald-500 border border-white/5 hover:scale-110 transition-all">
+                                    <ToggleRight className="h-5 w-5" />
                                 </button>
-                                <button onClick={() => deleteService(service.id)} className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-500 transition-all">
-                                    <Trash2 className="h-4 w-4" />
-                                </button>
+                            </div>
+                        </div>
+
+                        {/* Service Body */}
+                        <div className="p-5 flex flex-col flex-1">
+                            <h3 className="text-lg font-bold text-foreground mb-1 leading-tight group-hover:text-brand-primary transition-colors">{service.name}</h3>
+                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-4 flex-1">
+                                {service.description || "Nenhuma descrição fornecida."}
+                            </p>
+
+                            <div className="flex items-end justify-between pt-4 border-t border-white/5">
+                                <div>
+                                    <div className="flex items-center gap-1.5 text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">
+                                        <Clock className="h-3 w-3" /> {service.duration} MIN
+                                    </div>
+                                    <div className="text-xl font-black text-brand-primary tracking-tight">
+                                        R$ {service.price}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <button onClick={() => handleEdit(service)} className="h-10 w-10 rounded-xl flex items-center justify-center text-stone-400 bg-white/[0.03] border border-white/5 hover:bg-white/[0.08] hover:text-white transition-all">
+                                        <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button onClick={() => deleteService(service.id)} className="h-10 w-10 rounded-xl flex items-center justify-center text-stone-400 bg-white/[0.03] border border-white/5 hover:bg-red-500/10 hover:text-red-500 transition-all">
+                                        <Trash2 className="h-4 w-4" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 ))}
 
-                {/* Add New Placeholder */}
+                {/* Add New Slot */}
                 <button
                     onClick={handleNew}
-                    className="group rounded-xl border-2 border-dashed border-amber-500/20 p-5 flex flex-col items-center justify-center gap-3 hover:bg-amber-500/5 hover:border-amber-500/40 transition-all duration-200 min-h-60"
+                    className="group min-h-[300px] lg:min-h-full rounded-2xl border-2 border-dashed border-white/5 bg-stone-900/20 flex flex-col items-center justify-center gap-4 hover:bg-brand-primary/5 hover:border-brand-primary/20 transition-all shadow-inner"
                 >
-                    <div className="h-11 w-11 rounded-xl bg-card border flex items-center justify-center text-muted-foreground group-hover:text-amber-500 group-hover:scale-105 transition-all shadow-sm">
-                        <Plus className="h-5 w-5" />
+                    <div className="h-14 w-14 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-stone-500 group-hover:text-brand-primary group-hover:scale-110 transition-all shadow-xl">
+                        <Plus className="h-6 w-6" />
                     </div>
                     <div className="text-center">
-                        <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Adicionar Novo</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Expanda seu catálogo</p>
+                        <p className="text-sm font-bold text-stone-400 group-hover:text-foreground transition-colors uppercase tracking-widest">Novo Serviço</p>
+                        <p className="text-[10px] text-stone-600 mt-1 max-w-[140px]">Cadastre uma nova especialidade</p>
                     </div>
                 </button>
             </div>
 
             {/* ── Inactive Services ── */}
             {inactiveServices.length > 0 && (
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                        <div className="h-px flex-1 bg-border" />
-                        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Serviços Inativos</h4>
-                        <div className="h-px flex-1 bg-border" />
+                <div className="space-y-4 pt-4 lg:pt-8">
+                    <div className="flex items-center gap-4">
+                        <h4 className="text-[10px] font-black text-stone-500 uppercase tracking-[0.2em] whitespace-nowrap">SERVIÇOS INATIVOS</h4>
+                        <div className="h-px w-full bg-white/[0.03]" />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 opacity-60">
                         {inactiveServices.map(service => (
-                            <div key={service.id} className="bg-card rounded-xl border p-4 flex items-center justify-between">
+                            <div key={service.id} className="bg-stone-900/40 border border-white/5 rounded-xl p-4 flex items-center justify-between hover:bg-stone-900/60 transition-all group">
                                 <div className="min-w-0">
-                                    <p className="text-xs font-medium text-muted-foreground line-through truncate">{service.name}</p>
-                                    <p className="text-xs text-muted-foreground">{getCategoryLabel(service.category)}</p>
+                                    <p className="text-xs font-bold text-stone-400 line-through truncate">{service.name}</p>
+                                    <p className="text-[10px] text-stone-600 uppercase tracking-widest">{getCategoryLabel(service.category)}</p>
                                 </div>
-                                <button onClick={() => toggleActive(service.id)} className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-amber-500 hover:bg-muted transition-all">
+                                <button onClick={() => toggleActive(service.id)} className="h-8 w-8 rounded-lg flex items-center justify-center text-stone-500 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all">
                                     <ToggleLeft className="h-5 w-5" />
                                 </button>
                             </div>
@@ -305,15 +332,16 @@ export default function ServicosClient({
                 isOpen={isCategoryDialogOpen}
                 onClose={() => setIsCategoryDialogOpen(false)}
                 title="Categorias de Serviços"
+                icon={LayoutGrid}
                 footer={
                     <div className="flex gap-2 w-full">
                         <Input
                             placeholder="Nova categoria..."
                             value={newCategoryLabel}
                             onChange={(e) => setNewCategoryLabel(e.target.value)}
-                            className="bg-stone-900 border-white/5 rounded-xl h-11"
+                            className="bg-stone-950 border-white/5 rounded-xl h-11 text-sm"
                         />
-                        <Button onClick={handleAddCategory} className="btn-gold-solid rounded-xl h-11 font-bold">
+                        <Button onClick={handleAddCategory} className="bg-brand-gold text-white rounded-xl h-11 font-black uppercase tracking-widest text-[10px] px-6">
                             Adicionar
                         </Button>
                     </div>
@@ -321,15 +349,17 @@ export default function ServicosClient({
             >
                 <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
                     {categories.map(cat => (
-                        <div key={cat.id} className="flex items-center justify-between p-3 rounded-xl bg-stone-900/50 border border-white/5 group">
-                            <span className="text-sm font-medium text-stone-200">{cat.label}</span>
-                            <button onClick={() => handleDeleteCategory(cat.id)} className="h-8 w-8 rounded-lg flex items-center justify-center text-stone-500 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100">
+                        <div key={cat.id} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5 group hover:bg-white/[0.04] transition-all">
+                            <span className="text-sm font-bold text-stone-300">{cat.label}</span>
+                            <button onClick={() => handleDeleteCategory(cat.id)} className="h-8 w-8 rounded-lg flex items-center justify-center text-stone-600 hover:text-red-500 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100">
                                 <Trash2 className="h-4 w-4" />
                             </button>
                         </div>
                     ))}
                     {categories.length === 0 && (
-                        <p className="text-xs text-stone-500 text-center py-4 italic">Nenhuma categoria cadastrada.</p>
+                        <div className="text-center py-8">
+                            <p className="text-xs text-stone-500 font-medium italic">Nenhuma categoria cadastrada.</p>
+                        </div>
                     )}
                 </div>
             </BaseModal>
@@ -339,34 +369,35 @@ export default function ServicosClient({
                 isOpen={isDialogOpen}
                 onClose={() => setIsDialogOpen(false)}
                 title={editingService?.id ? "Editar Serviço" : "Novo Serviço"}
+                icon={FallbackIcon}
                 footer={
                     <div className="flex gap-3 w-full">
-                        <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 h-12 rounded-xl border-white/5 text-stone-400 hover:bg-white/5">
+                        <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1 h-12 rounded-xl border-white/5 text-stone-500 hover:bg-white/5 font-bold">
                             Cancelar
                         </Button>
-                        <Button onClick={handleSave} className="btn-gold-solid rounded-xl flex-1 h-12 font-bold">
+                        <Button onClick={handleSave} className="bg-brand-gold text-white rounded-xl flex-1 h-12 font-black uppercase tracking-widest text-xs shadow-xl">
                             Salvar Serviço
                         </Button>
                     </div>
                 }
             >
-                <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar pb-2">
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Imagem do serviço</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Imagem do Serviço</Label>
                         <ImageUpload value={editingService?.image || ""} onChange={url => setEditingService(prev => prev ? { ...prev, image: url } : null)} />
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Nome do serviço</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Nome do Serviço</Label>
                         <Input value={editingService?.name} onChange={e => setEditingService(prev => prev ? { ...prev, name: e.target.value } : null)}
-                            className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm" placeholder="Ex: Brow Lamination" />
+                            className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Ex: Consulta Jurídica" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Categoria</Label>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Categoria</Label>
                             <select
                                 value={editingService?.category}
                                 onChange={e => setEditingService(prev => prev ? { ...prev, category: e.target.value } : null)}
-                                className="w-full h-12 bg-stone-950/40 border border-white/5 rounded-xl text-sm px-3 focus:ring-2 focus:ring-amber-500/20"
+                                className="w-full h-12 bg-stone-950/40 border border-white/5 rounded-xl text-sm px-3 focus:ring-2 focus:ring-brand-primary/20 outline-none font-bold text-stone-300"
                             >
                                 <option value="" disabled className="bg-stone-900">Selecione...</option>
                                 {categories.map(cat => (
@@ -375,37 +406,37 @@ export default function ServicosClient({
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Preço (R$)</Label>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Valor (R$)</Label>
                             <Input type="number" value={editingService?.price} onChange={e => setEditingService(prev => prev ? { ...prev, price: e.target.value } : null)}
-                                className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="150" />
+                                className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-black text-brand-primary" placeholder="0.00" />
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Duração (minutos)</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Duração do Atendimento</Label>
                         <div className="flex bg-stone-950/40 border border-white/5 rounded-xl p-1 gap-1">
                             {[30, 45, 60, 90, 120].map(val => (
                                 <button
                                     key={val}
                                     onClick={() => setEditingService(prev => prev ? { ...prev, duration: val } : null)}
                                     className={cn(
-                                        "flex-1 h-10 rounded-lg text-xs font-bold transition-all",
+                                        "flex-1 h-10 rounded-lg text-[10px] font-black transition-all",
                                         editingService?.duration === val
                                             ? "bg-brand-primary text-white shadow-lg"
                                             : "text-stone-500 hover:text-stone-300"
                                     )}
                                 >
-                                    {val}m
+                                    {val}M
                                 </button>
                             ))}
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-400">Descrição</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Descrição Detalhada</Label>
                         <textarea
                             value={editingService?.description}
                             onChange={e => setEditingService(prev => prev ? { ...prev, description: e.target.value } : null)}
-                            className="w-full min-h-24 bg-stone-950/40 border border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-amber-500/20 text-stone-300"
-                            placeholder="Explique o que o serviço inclui..."
+                            className="w-full min-h-24 bg-stone-950/40 border border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-brand-primary/20 text-stone-300 outline-none font-medium leading-relaxed"
+                            placeholder="Descreva o que está incluído neste serviço..."
                         />
                     </div>
                 </div>
