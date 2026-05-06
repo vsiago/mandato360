@@ -24,23 +24,43 @@ export default async function TenantLoginPage({ params }: PageProps) {
   }
 
   const editorConfig = config.config as any
-  const editorTheme = editorConfig?.theme
+  const editorTheme = editorConfig?.theme || {}
   const heroConfig = editorConfig?.hero || {}
   const themeBg = editorTheme?.colors?.background || '#0f172a'
   
-  // Hero-level gradient (desktop), fallback to theme gradient
-  const heroDesktop = heroConfig.responsive?.desktop || {}
-  const activeGradient = heroDesktop.gradient?.enabled ? heroDesktop.gradient : editorTheme?.gradient
-  const gradientStyle = activeGradient?.enabled
-      ? `linear-gradient(${activeGradient.angle}deg, ${activeGradient.stops
+  // ─── Resolve Background exactly like resolveHero() ───
+  // 1. Start with Mobile (Base)
+  let resolvedGradient = heroConfig.gradient?.enabled ? heroConfig.gradient : editorTheme?.gradient
+  let resolvedOverlay = heroConfig.overlay || { enabled: false }
+  let resolvedVignette = heroConfig.vignette || { enabled: false }
+
+  // 2. Apply Tablet Overrides
+  const tablet = heroConfig.overrides?.tablet
+  if (tablet) {
+    if (tablet.gradient?.enabled) resolvedGradient = { ...resolvedGradient, ...tablet.gradient }
+    if (tablet.overlay) resolvedOverlay = { ...resolvedOverlay, ...tablet.overlay }
+    if (tablet.vignette) resolvedVignette = { ...resolvedVignette, ...tablet.vignette }
+  }
+
+  // 3. Apply Desktop Overrides (Login page is usually desktop-first)
+  const desktop = heroConfig.overrides?.desktop
+  if (desktop) {
+    if (desktop.gradient?.enabled) resolvedGradient = { ...resolvedGradient, ...desktop.gradient }
+    if (desktop.overlay) resolvedOverlay = { ...resolvedOverlay, ...desktop.overlay }
+    if (desktop.vignette) resolvedVignette = { ...resolvedVignette, ...desktop.vignette }
+  }
+
+  // 4. Construct Gradient Style
+  const gradientStyle = resolvedGradient?.enabled
+      ? `linear-gradient(${resolvedGradient.angle}deg, ${resolvedGradient.stops
           .map((stop: any) => `${hexToRgba(stop.color, stop.opacity ?? 100)} ${stop.position}%`)
           .join(", ")})`
       : undefined
 
-  const overlayColor = heroConfig.overlay?.enabled ? heroConfig.overlay.color : undefined
-  const overlayOpacity = heroConfig.overlay?.enabled ? heroConfig.overlay.opacity : 0
+  const overlayColor = resolvedOverlay?.enabled ? resolvedOverlay.color : undefined
+  const overlayOpacity = resolvedOverlay?.enabled ? resolvedOverlay.opacity : 0
   
-  const vignette = heroConfig.vignette?.enabled ? heroConfig.vignette : undefined
+  const vignette = resolvedVignette?.enabled ? resolvedVignette : undefined
 
   return (
     <main 
@@ -61,7 +81,7 @@ export default async function TenantLoginPage({ params }: PageProps) {
         />
       )}
 
-      {/* 2. Color Overlay (Burgundy/Maroon feel from site) */}
+      {/* 2. Color Overlay */}
       {overlayColor && (
         <div 
           className="absolute inset-0 z-[1] pointer-events-none"
@@ -73,7 +93,7 @@ export default async function TenantLoginPage({ params }: PageProps) {
       {gradientStyle && (
         <div 
           className="absolute inset-0 z-[2] pointer-events-none"
-          style={{ background: gradientStyle, opacity: (activeGradient.opacity ?? 100) / 100 }}
+          style={{ background: gradientStyle, opacity: (resolvedGradient.opacity ?? 100) / 100 }}
         />
       )}
 
