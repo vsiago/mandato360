@@ -13,7 +13,14 @@ import {
     Clock,
     User,
     Scissors,
-    UserPlus
+    UserPlus,
+    Scale,
+    Briefcase,
+    Video,
+    MapPin,
+    Hash,
+    Phone,
+    Globe
 } from "lucide-react"
 import { SaveClientModal } from "./SaveClientModal"
 import { cn } from "@/lib/utils"
@@ -192,16 +199,38 @@ interface DetailsModalProps {
 export function AppointmentDetailsModal({ isOpen, onClose, appointment }: DetailsModalProps) {
     const [isSaveClientModalOpen, setIsSaveClientModalOpen] = React.useState(false)
 
+    const details = React.useMemo(() => {
+        if (!appointment?.notes) return null
+        try {
+            return JSON.parse(appointment.notes)
+        } catch (e) {
+            return null
+        }
+    }, [appointment])
+
     if (!isOpen || !appointment) return null
+
+    const isLegal = !!details?.mode
+    const mode = details?.mode || 'standard'
+    
+    const getBadgeColor = () => {
+        switch(mode) {
+            case 'audiencia': return 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+            case 'diligencia': return 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+            case 'reuniao': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+            case 'financeiro': return 'bg-brand-gold/10 text-brand-gold border-brand-gold/20'
+            default: return 'bg-brand-primary/10 text-brand-primary border-brand-primary/20'
+        }
+    }
 
     return (
         <BaseModal
             isOpen={isOpen}
             onClose={onClose}
-            title="Resumo do Atendimento"
-            description="Confira os detalhes e informações do agendamento concluído."
-            icon={Info}
-            maxWidth="sm:max-w-[480px]"
+            title={details?.titulo || "Resumo do Atendimento"}
+            description={isLegal ? `Compromisso do tipo ${mode.toUpperCase()}` : "Confira os detalhes e informações do agendamento."}
+            icon={mode === 'audiencia' ? Scale : mode === 'diligencia' ? Briefcase : mode === 'reuniao' ? Video : Info}
+            maxWidth="sm:max-w-[500px]"
             footer={
                 <Button
                     onClick={onClose}
@@ -211,107 +240,173 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment }: Detail
                 </Button>
             }
         >
-            <div className="space-y-6">
-                {/* Customer Info */}
-                <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-inner">
-                    <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-full bg-stone-900 border border-white/5 flex items-center justify-center text-xs font-bold text-stone-500">
-                            {appointment.name.charAt(0).toUpperCase()}
+            <div className="space-y-5">
+                {/* Header Badge */}
+                <div className="flex justify-center">
+                    <div className={cn("px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-[0.2em]", getBadgeColor())}>
+                        {mode === 'standard' ? 'Consulta / Atendimento' : mode.toUpperCase()}
+                    </div>
+                </div>
+
+                {/* Client & Status */}
+                <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="h-12 w-12 rounded-2xl bg-stone-950 border border-white/5 flex items-center justify-center text-sm font-bold text-stone-400">
+                                {appointment.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold text-white">{appointment.name}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                    <span className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">{appointment.status === 'confirmed' ? 'Confirmado' : appointment.status}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm font-bold text-foreground">{appointment.name}</p>
-                            <p className="text-[10px] text-stone-500 font-medium">{appointment.time} • {appointment.service}</p>
-                        </div>
+                        {appointment.phone && (
+                            <a 
+                                href={`https://wa.me/55${appointment.phone.replace(/\D/g, '')}`} 
+                                target="_blank"
+                                className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/20 transition-all"
+                            >
+                                <Phone className="h-5 w-5" />
+                            </a>
+                        )}
                     </div>
                     
                     {!appointment.customerId && (
-                        <button 
+                        <Button 
                             onClick={() => setIsSaveClientModalOpen(true)}
-                            className="h-8 px-3 rounded-lg border border-brand-primary/20 bg-brand-primary/5 text-[9px] font-black text-brand-primary uppercase tracking-widest hover:bg-brand-primary/10 transition-all flex items-center gap-1.5"
+                            variant="outline"
+                            className="w-full h-10 rounded-xl border-brand-primary/20 bg-brand-primary/5 text-[10px] font-black text-brand-primary uppercase tracking-widest hover:bg-brand-primary/10 transition-all flex items-center gap-2"
                         >
-                            <UserPlus className="h-3 w-3" />
-                            Adicionar Cliente
-                        </button>
+                            <UserPlus className="h-4 w-4" />
+                            Salvar como Cliente Oficial
+                        </Button>
                     )}
                 </div>
 
-                {/* Summary Details */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-4 shadow-inner">
-                        <div className="flex items-center gap-2 text-stone-500 mb-2">
-                            <Calendar className="h-3.5 w-3.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Data</span>
-                        </div>
-                        <p className="text-xs font-bold text-foreground">Concluído Hoje</p>
+                {/* Main Data (Contextual) */}
+                <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-5 space-y-4">
+                    <div className="flex items-center gap-2 text-stone-500 mb-2">
+                        <Info className="h-4 w-4" />
+                        <span className="text-[10px] font-black uppercase tracking-widest">Informações do Processo</span>
                     </div>
-                    <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-4 shadow-inner">
-                        <div className="flex items-center gap-2 text-stone-500 mb-2">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Horário</span>
-                        </div>
-                        <p className="text-xs font-bold text-foreground">{appointment.time}</p>
-                    </div>
-                </div>
 
-                {/* Custom Fields */}
-                {appointment.customFields && Object.keys(appointment.customFields).length > 0 && (
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-stone-500 px-1">
-                            <Info className="h-3.5 w-3.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Informações Adicionais</span>
-                        </div>
-                        <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-4 divide-y divide-white/5 shadow-inner">
-                            {Object.entries(appointment.customFields).map(([key, value], i) => (
-                                <div key={i} className={cn("flex flex-col justify-between py-2", i === 0 && "pt-0", i === Object.keys(appointment.customFields).length - 1 && "pb-0")}>
-                                    <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">{key}</span>
-                                    <span className="text-xs font-medium text-stone-300 break-words">{String(value)}</span>
+                    <div className="grid grid-cols-1 gap-4">
+                        {details?.processNumber && (
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Hash className="h-3 w-3" /> Número do Processo
+                                </p>
+                                <p className="text-sm font-bold text-white tracking-wider">{details.processNumber}</p>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-4">
+                            {details?.foro && (
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Fórum</p>
+                                    <p className="text-xs font-bold text-stone-200">{details.foro}</p>
                                 </div>
-                            ))}
+                            )}
+                            {details?.vara && (
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Vara</p>
+                                    <p className="text-xs font-bold text-stone-200">{details.vara}</p>
+                                </div>
+                            )}
                         </div>
-                    </div>
-                )}
 
-                {/* Services List */}
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between px-1">
-                        <div className="flex items-center gap-2 text-stone-500">
-                            <Scissors className="h-3.5 w-3.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Serviços Executados</span>
-                        </div>
-                        <span className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Valor</span>
-                    </div>
-                    <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-4 divide-y divide-white/5 shadow-inner">
-                        <div className="flex items-center justify-between py-1 pb-2">
-                            <span className="text-xs font-bold text-stone-300">{appointment.service}</span>
-                            <span className="text-xs font-bold text-foreground">{appointment.price}</span>
-                        </div>
-                        {appointment.notes?.includes("Serviços adicionais:") && (
-                            <div className="pt-2 text-xs text-stone-500">
-                                {appointment.notes.split("Serviços adicionais:")[1].split("\n")[0]}
+                        {details?.location && (
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <MapPin className="h-3 w-3" /> {mode === 'reuniao' ? 'Local da Reunião' : 'Localização'}
+                                </p>
+                                <p className="text-xs font-bold text-stone-200">{details.location}</p>
+                            </div>
+                        )}
+
+                        {details?.audiencia?.linkOnline && (
+                            <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 space-y-2">
+                                <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Globe className="h-3 w-3" /> Link da Audiência Virtual
+                                </p>
+                                <a href={details.audiencia.linkOnline} target="_blank" className="text-xs font-bold text-blue-300 underline break-all">
+                                    {details.audiencia.linkOnline}
+                                </a>
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* Payment Info */}
-                <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-inner">
-                    <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center">
-                            <CreditCard className="h-4 w-4 text-brand-primary/60" />
+                {/* Financial Block (blueprint item 3) */}
+                {details?.financeiro && (
+                    <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-5 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-stone-500">
+                                <Banknote className="h-4 w-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Financeiro</span>
+                            </div>
+                            <div className={cn("px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest", details.financeiro.pago ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500")}>
+                                {details.financeiro.pago ? 'Pago' : 'Pendente'}
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Forma de Pagamento</p>
-                            <p className="text-xs font-bold text-foreground capitalize">
-                                {appointment.notes?.match(/Pagamento: (\w+)/)?.[1] || "Dinheiro"}
-                            </p>
+
+                        <div className="flex items-end justify-between">
+                            <div>
+                                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-1">Valor Total</p>
+                                <p className="text-xl font-black text-white">R$ {details.financeiro.valor || '0,00'}</p>
+                            </div>
+                            {details.financeiro.formaPagamento && (
+                                <div className="text-right">
+                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-1">Forma</p>
+                                    <p className="text-xs font-bold text-stone-300 uppercase">{details.financeiro.formaPagamento}</p>
+                                </div>
+                            )}
                         </div>
+
+                        {details.financeiro.parcelas > 1 && (
+                            <div className="pt-3 border-t border-white/5">
+                                <p className="text-[9px] font-bold text-stone-500 uppercase tracking-widest">Recorrência: {details.financeiro.parcelas} parcelas mensais</p>
+                            </div>
+                        )}
                     </div>
-                    <div className="text-right">
-                        <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Valor Total</p>
-                        <p className="text-base font-black text-brand-primary">{appointment.price}</p>
+                )}
+
+                {/* Standard Summary Details */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-4">
+                        <div className="flex items-center gap-2 text-stone-500 mb-2">
+                            <Calendar className="h-3.5 w-3.5" />
+                            <span className="text-[9px] font-black uppercase tracking-widest">Data</span>
+                        </div>
+                        <p className="text-xs font-bold text-white">{appointment.date.split('-').reverse().join('/')}</p>
+                    </div>
+                    <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-4">
+                        <div className="flex items-center gap-2 text-stone-500 mb-2">
+                            <Clock className="h-3.5 w-3.5" />
+                            <span className="text-[9px] font-black uppercase tracking-widest">Horário</span>
+                        </div>
+                        <p className="text-xs font-bold text-white">{appointment.time}</p>
                     </div>
                 </div>
+
+                {/* Reminders */}
+                {details?.lembrete?.ativo && (
+                    <div className="px-1 flex items-center gap-2 text-emerald-500/60">
+                        <Bell className="h-3 w-3" />
+                        <span className="text-[9px] font-bold uppercase tracking-[0.15em]">Lembretes automáticos ativos</span>
+                    </div>
+                )}
             </div>
+
+            <SaveClientModal 
+                isOpen={isSaveClientModalOpen} 
+                onClose={() => setIsSaveClientModalOpen(false)} 
+                initialData={{ name: appointment.name, phone: appointment.phone }}
+                tenantId={appointment.tenantId}
+            />
         </BaseModal>
     )
 }

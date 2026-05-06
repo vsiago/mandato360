@@ -72,12 +72,23 @@ export function AppointmentModal({
     
     // Legal specialized states
     const [processNumber, setProcessNumber] = useState("")
+    const [foro, setForo] = useState("")
+    const [vara, setVara] = useState("")
     const [location, setLocation] = useState("")
     const [description, setDescription] = useState("")
     const [paymentMethod, setPaymentMethod] = useState("pendente")
+    const [formaPagamento, setFormaPagamento] = useState<string | null>(null)
+    const [pago, setPago] = useState(false)
     const [sendReminders, setSendReminders] = useState(true)
     const [meetingChannel, setMeetingChannel] = useState("presencial")
+    const [linkOnline, setLinkOnline] = useState("")
     const [totalValue, setTotalValue] = useState("")
+    const [origem, setOrigem] = useState("")
+    const [assunto, setAssunto] = useState("")
+    const [financeiroTipo, setFinanceiroTipo] = useState("honorario")
+    const [diligenciaTipo, setDiligenciaTipo] = useState("externa")
+    const [audienciaTipo, setAudienciaTipo] = useState("conciliacao")
+    const [reuniaoTipo, setReuniaoTipo] = useState("cliente")
 
     useEffect(() => {
         if (isOpen) {
@@ -199,14 +210,44 @@ export function AppointmentModal({
         try {
             const legalData = {
                 mode,
-                processNumber: (mode === 'audiencia' || mode === 'diligencia') ? processNumber : undefined,
-                location: (mode === 'diligencia' || mode === 'audiencia') ? location : undefined,
-                description: mode !== 'standard' ? description : undefined,
-                paymentMethod: mode === 'standard' ? paymentMethod : undefined,
-                sendReminders: mode === 'standard' ? sendReminders : undefined,
-                meetingChannel: mode === 'reuniao' ? meetingChannel : undefined,
-                installments: mode === 'financeiro' ? installments : undefined,
-                totalValue: (mode === 'financeiro' || mode === 'standard') ? totalValue : undefined,
+                titulo: mode === 'standard' ? `Consulta: ${name}` : 
+                       mode === 'diligencia' ? `Diligência: ${location || 'Externa'}` :
+                       mode === 'audiencia' ? `Audiência: ${processNumber || 'Judicial'}` :
+                       mode === 'reuniao' ? `Reunião: ${description || 'Pautada'}` :
+                       `Financeiro: ${financeiroTipo}`,
+                
+                // Fields for all
+                processNumber: (mode === 'audiencia' || mode === 'diligencia' || mode === 'financeiro') ? processNumber : undefined,
+                foro: (mode === 'audiencia' || mode === 'diligencia') ? foro : undefined,
+                vara: (mode === 'audiencia' || mode === 'diligencia') ? vara : undefined,
+                location: (mode === 'diligencia' || mode === 'audiencia' || mode === 'reuniao') ? location : undefined,
+                description: description || undefined,
+                
+                // Specific fields
+                consulta: mode === 'standard' ? { origem, assunto } : undefined,
+                diligencia: mode === 'diligencia' ? { tipo: diligenciaTipo } : undefined,
+                audiencia: mode === 'audiencia' ? { tipo: audienciaTipo, presencial: meetingChannel === 'presencial', linkOnline } : undefined,
+                reuniao: mode === 'reuniao' ? { tipo: reuniaoTipo } : undefined,
+                financeiroEvento: mode === 'financeiro' ? { tipo: financeiroTipo } : undefined,
+
+                // Standardized Finance Block
+                financeiro: (totalValue || installments > 1) ? {
+                    tipo: mode === 'financeiro' && financeiroTipo === 'despesa' ? 'despesa' : 'receita',
+                    valor: totalValue,
+                    pago: pago,
+                    formaPagamento: formaPagamento,
+                    recorrente: installments > 1,
+                    parcelas: installments,
+                    descricao: description
+                } : undefined,
+
+                // Reminders
+                lembrete: {
+                    ativo: sendReminders,
+                    antecedenciaMin: 60,
+                    recorrente: installments > 1
+                },
+
                 serviceIds: selectedServices.filter(Boolean)
             }
 
@@ -403,6 +444,28 @@ export function AppointmentModal({
                             {mode === 'standard' && (
                                 <div className="space-y-4">
                                     <div className="p-4 rounded-2xl bg-stone-900/40 border border-white/5 space-y-4">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] text-stone-500 font-bold ml-1">Origem</Label>
+                                                <Select value={origem} onValueChange={setOrigem}>
+                                                    <SelectTrigger className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold">
+                                                        <SelectValue placeholder="Origem" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-stone-900 border-white/10 text-white">
+                                                        <SelectItem value="instagram">Instagram</SelectItem>
+                                                        <SelectItem value="indicacao">Indicação</SelectItem>
+                                                        <SelectItem value="google">Google / Maps</SelectItem>
+                                                        <SelectItem value="site">Site Próprio</SelectItem>
+                                                        <SelectItem value="outro">Outro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] text-stone-500 font-bold ml-1">Assunto</Label>
+                                                <Input value={assunto} onChange={e => setAssunto(e.target.value)} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Ex: Família, Cível..." />
+                                            </div>
+                                        </div>
+                                        
                                         <div className="flex items-center justify-between p-3 rounded-xl bg-stone-950/40 border border-white/5">
                                             <div className="flex items-center gap-3">
                                                 <Bell className="h-4 w-4 text-emerald-500" />
@@ -410,6 +473,7 @@ export function AppointmentModal({
                                             </div>
                                             <Switch checked={sendReminders} onCheckedChange={setSendReminders} />
                                         </div>
+
                                         <div className="space-y-2">
                                             <Label className="text-[10px] text-stone-500 font-bold ml-1">Valor da Consulta</Label>
                                             <div className="relative">
@@ -417,13 +481,33 @@ export function AppointmentModal({
                                                 <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="0,00" />
                                             </div>
                                         </div>
+
+                                        {totalValue && (
+                                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                                <div className="flex items-center justify-between p-3 rounded-xl bg-stone-950/40 border border-white/5">
+                                                    <span className="text-[10px] font-bold text-stone-400 uppercase">Pago?</span>
+                                                    <Switch checked={pago} onCheckedChange={setPago} />
+                                                </div>
+                                                <Select value={formaPagamento || ""} onValueChange={setFormaPagamento}>
+                                                    <SelectTrigger className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-xs font-bold">
+                                                        <SelectValue placeholder="Forma Pagamento" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-stone-900 border-white/10 text-white">
+                                                        <SelectItem value="pix">PIX</SelectItem>
+                                                        <SelectItem value="cartao">Cartão</SelectItem>
+                                                        <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
                                     </div>
+                                    
                                     {/* Services Selection */}
                                     <div className="p-4 rounded-2xl bg-stone-900/40 border border-white/5 space-y-3">
-                                        <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 ml-1">Serviços Vinculados</Label>
+                                        <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 ml-1">Área Jurídica / Serviço</Label>
                                         <Select value={selectedServices[0]} onValueChange={val => setSelectedServices([val])}>
                                             <SelectTrigger className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold">
-                                                <SelectValue placeholder="Selecione o serviço principal" />
+                                                <SelectValue placeholder="Selecione a área" />
                                             </SelectTrigger>
                                             <SelectContent className="bg-stone-900 border-white/10 text-white">
                                                 {services.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
@@ -434,45 +518,162 @@ export function AppointmentModal({
                             )}
 
                             {(mode === 'audiencia' || mode === 'diligencia') && (
-                                <div className="p-4 rounded-2xl bg-stone-900/40 border border-white/5 space-y-4">
-                                    <div className="relative group">
-                                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
-                                        <Input value={processNumber} onChange={e => setProcessNumber(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Nº do Processo" />
+                                <div className="space-y-4">
+                                    <div className="p-4 rounded-2xl bg-stone-900/40 border border-white/5 space-y-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] text-stone-500 font-bold ml-1">Tipo de {mode === 'audiencia' ? 'Audiência' : 'Diligência'}</Label>
+                                            <Select value={mode === 'audiencia' ? audienciaTipo : diligenciaTipo} onValueChange={val => mode === 'audiencia' ? setAudienciaTipo(val) : setDiligenciaTipo(val)}>
+                                                <SelectTrigger className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold">
+                                                    <SelectValue placeholder="Selecione o tipo" />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-stone-900 border-white/10 text-white">
+                                                    {mode === 'audiencia' ? (
+                                                        <>
+                                                            <SelectItem value="conciliacao">Conciliação</SelectItem>
+                                                            <SelectItem value="instrucao">Instrução e Julgamento</SelectItem>
+                                                            <SelectItem value="julgamento">Julgamento / Sentença</SelectItem>
+                                                            <SelectItem value="outra">Outra</SelectItem>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <SelectItem value="externa">Diligência Externa</SelectItem>
+                                                            <SelectItem value="forum">Fórum / Tribunal</SelectItem>
+                                                            <SelectItem value="cartorio">Cartório</SelectItem>
+                                                        </>
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="relative group">
+                                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
+                                                <Input value={processNumber} onChange={e => setProcessNumber(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Nº Processo" />
+                                            </div>
+                                            <div className="relative group">
+                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
+                                                <Input value={location} onChange={e => setLocation(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Cidade / Local" />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="relative group">
+                                                <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
+                                                <Input value={foro} onChange={e => setForo(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Fórum" />
+                                            </div>
+                                            <div className="relative group">
+                                                <Scale className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
+                                                <Input value={vara} onChange={e => setVara(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Vara" />
+                                            </div>
+                                        </div>
+
+                                        {mode === 'audiencia' && (
+                                            <div className="space-y-3 pt-2">
+                                                <div className="flex gap-2">
+                                                    {['presencial', 'virtual'].map(c => (
+                                                        <button key={c} type="button" onClick={() => setMeetingChannel(c)} className={cn("flex-1 h-10 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all", meetingChannel === c ? "bg-blue-500/10 border-blue-500 text-blue-400" : "bg-stone-950/40 border-white/5 text-stone-500")}>
+                                                            {c}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                {meetingChannel === 'virtual' && (
+                                                    <div className="relative group animate-in slide-in-from-top-2 duration-300">
+                                                        <Video className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400" />
+                                                        <Input value={linkOnline} onChange={e => setLinkOnline(e.target.value)} className="pl-11 h-12 bg-blue-500/5 border-blue-500/20 rounded-xl text-xs font-bold text-blue-100" placeholder="Link da Videochamada" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="relative group">
-                                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
-                                        <Input value={location} onChange={e => setLocation(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder={mode === 'audiencia' ? "Sala / Link Virtual" : "Local da Diligência"} />
+                                    <div className="p-4 rounded-2xl bg-stone-900/40 border border-white/5">
+                                        <Label className="text-[10px] text-stone-500 font-bold ml-1 mb-2 block">Observações</Label>
+                                        <Input value={description} onChange={e => setDescription(e.target.value)} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Notas adicionais..." />
                                     </div>
                                 </div>
                             )}
 
                             {mode === 'reuniao' && (
                                 <div className="p-4 rounded-2xl bg-stone-900/40 border border-white/5 space-y-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] text-stone-500 font-bold ml-1">Tipo de Reunião</Label>
+                                        <Select value={reuniaoTipo} onValueChange={setReuniaoTipo}>
+                                            <SelectTrigger className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold">
+                                                <SelectValue placeholder="Tipo" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-stone-900 border-white/10 text-white">
+                                                <SelectItem value="cliente">Com Cliente</SelectItem>
+                                                <SelectItem value="parceiro">Com Parceiro</SelectItem>
+                                                <SelectItem value="interna">Equipe Interna</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                     <div className="relative group">
                                         <Info className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
-                                        <Input value={description} onChange={e => setDescription(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Assunto da Reunião" />
+                                        <Input value={description} onChange={e => setDescription(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Pauta da Reunião" />
                                     </div>
-                                    <div className="flex gap-2">
-                                        {['presencial', 'virtual'].map(c => (
-                                            <button key={c} type="button" onClick={() => setMeetingChannel(c)} className={cn("flex-1 h-12 rounded-xl border text-xs font-bold transition-all capitalize", meetingChannel === c ? "bg-brand-primary/10 border-brand-primary text-brand-primary" : "bg-stone-950/40 border-white/5 text-stone-500")}>
-                                                {c}
-                                            </button>
-                                        ))}
+                                    <div className="space-y-3">
+                                        <div className="flex gap-2">
+                                            {['presencial', 'virtual'].map(c => (
+                                                <button key={c} type="button" onClick={() => setMeetingChannel(c)} className={cn("flex-1 h-12 rounded-xl border text-xs font-bold transition-all capitalize", meetingChannel === c ? "bg-emerald-500/10 border-emerald-500 text-emerald-400" : "bg-stone-950/40 border-white/5 text-stone-500")}>
+                                                    {c}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div className="relative group">
+                                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
+                                            <Input value={location} onChange={e => setLocation(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder={meetingChannel === 'virtual' ? "Link da reunião" : "Endereço / Sala"} />
+                                        </div>
                                     </div>
                                 </div>
                             )}
 
                             {mode === 'financeiro' && (
                                 <div className="p-4 rounded-2xl bg-brand-gold/5 border border-brand-gold/10 space-y-4">
+                                    <div className="space-y-2">
+                                        <Label className="text-[10px] text-brand-gold font-bold ml-1">Tipo de Evento</Label>
+                                        <Select value={financeiroTipo} onValueChange={setFinanceiroTipo}>
+                                            <SelectTrigger className="h-12 bg-stone-950/40 border-brand-gold/20 rounded-xl text-sm font-bold text-brand-gold">
+                                                <SelectValue placeholder="Tipo" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-stone-900 border-white/10 text-white">
+                                                <SelectItem value="honorario">Honorário (Receita)</SelectItem>
+                                                <SelectItem value="despesa">Despesa (Gasto)</SelectItem>
+                                                <SelectItem value="parcela">Parcela de Acordo</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="relative group">
+                                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-gold/60" />
+                                        <Input value={processNumber} onChange={e => setProcessNumber(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-brand-gold/10 rounded-xl text-sm font-bold text-brand-gold" placeholder="Processo Relacionado (Opcional)" />
+                                    </div>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-2">
-                                            <Label className="text-[10px] text-stone-500 font-bold ml-1">Valor Parcela</Label>
-                                            <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="R$ 0,00" />
+                                            <Label className="text-[10px] text-stone-500 font-bold ml-1">Valor Total</Label>
+                                            <div className="relative">
+                                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-600">R$</span>
+                                                <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="0,00" />
+                                            </div>
                                         </div>
                                         <div className="space-y-2">
                                             <Label className="text-[10px] text-stone-500 font-bold ml-1">Parcelas</Label>
-                                            <Input type="number" value={installments} onChange={e => setInstallments(parseInt(e.target.value))} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
+                                            <Input type="number" value={installments} onChange={e => setInstallments(parseInt(e.target.value))} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" min={1} />
                                         </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="flex items-center justify-between p-3 rounded-xl bg-stone-950/40 border border-white/5">
+                                            <span className="text-[10px] font-bold text-stone-400 uppercase">Pago?</span>
+                                            <Switch checked={pago} onCheckedChange={setPago} />
+                                        </div>
+                                        <Select value={formaPagamento || ""} onValueChange={setFormaPagamento}>
+                                            <SelectTrigger className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-xs font-bold">
+                                                <SelectValue placeholder="Forma Pagamento" />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-stone-900 border-white/10 text-white">
+                                                <SelectItem value="pix">PIX</SelectItem>
+                                                <SelectItem value="cartao">Cartão</SelectItem>
+                                                <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
                             )}
