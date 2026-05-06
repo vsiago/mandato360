@@ -124,31 +124,34 @@ export default function ProcessosPage() {
     }
 
     return (
-        <div className="flex-1 flex flex-col bg-stone-950 min-h-screen">
+        <div className="flex-1 flex flex-col">
             {/* Header Area */}
-            <div className="p-8 border-b border-white/5 space-y-6 bg-stone-950/50 backdrop-blur-xl sticky top-0 z-10">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="py-5 sm:py-6 lg:py-5 border-b border-white/5 space-y-4 bg-stone-950/50 backdrop-blur-xl sticky top-0 z-20">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="h-10 w-10 rounded-2xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
-                                <FileText className="h-6 w-6 text-brand-primary" />
+                            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20 shrink-0">
+                                <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
                             </div>
-                            <h1 className="text-3xl font-black text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            <h1 className="text-2xl sm:text-3xl font-black text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
                                 Gestão de Processos
                             </h1>
                         </div>
-                        <p className="text-stone-500 text-sm font-medium">Visualize e gerencie toda a sua carteira jurídica em um só lugar.</p>
+                        <p className="text-stone-500 text-xs sm:text-sm font-medium">Visualize e gerencie toda a sua carteira jurídica em um só lugar.</p>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto">
                         <Button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="h-12 px-6 rounded-2xl bg-brand-primary text-stone-950 font-bold text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20 gap-2"
+                            className="flex-1 md:flex-none h-11 sm:h-12 px-4 sm:px-6 rounded-2xl bg-brand-primary text-stone-950 font-bold text-[10px] sm:text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20 gap-2"
                         >
-                            <Plus className="h-4 w-4" /> Novo Processo
+                            <Plus className="h-4 w-4" /> <span className="sm:inline">Novo Processo</span><span className="sm:hidden">Novo</span>
                         </Button>
-                        <Button variant="outline" className="h-12 px-6 rounded-2xl border-white/5 bg-stone-900/50 text-white font-bold text-xs uppercase tracking-widest hover:bg-stone-800 transition-all gap-2">
-                            <Download className="h-4 w-4" /> Exportar Planilha
+                        <Button 
+                            variant="outline" 
+                            className="flex-1 md:flex-none h-11 sm:h-12 px-4 sm:px-6 rounded-2xl border-white/5 bg-stone-900/50 text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest hover:bg-stone-800 transition-all gap-2"
+                        >
+                            <Download className="h-4 w-4" /> <span className="hidden sm:inline">Exportar Planilha</span><span className="sm:hidden">Exportar</span>
                         </Button>
                     </div>
                 </div>
@@ -160,12 +163,12 @@ export default function ProcessosPage() {
                         <Input 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-12 h-14 bg-stone-900/40 border-white/5 rounded-2xl text-sm font-bold placeholder:text-stone-700" 
+                            className="pl-12 h-12 sm:h-14 bg-stone-900/40 border-white/5 rounded-2xl text-sm font-bold placeholder:text-stone-700" 
                             placeholder="Buscar por cliente, processo ou NB..." 
                         />
                     </div>
                     
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-hide px-1">
                         {[
                             { id: "all", label: "Todos", icon: FileText },
                             { id: "standard", label: "Consultas", icon: User },
@@ -177,7 +180,7 @@ export default function ProcessosPage() {
                                 key={filter.id}
                                 onClick={() => setTypeFilter(filter.id)}
                                 className={cn(
-                                    "flex items-center gap-2 px-6 h-14 rounded-2xl border font-black text-[10px] uppercase tracking-widest transition-all shrink-0",
+                                    "flex items-center gap-2 px-4 sm:px-6 h-11 sm:h-14 rounded-2xl border font-black text-[9px] sm:text-[10px] uppercase tracking-widest transition-all shrink-0",
                                     typeFilter === filter.id 
                                         ? "bg-brand-primary/10 border-brand-primary/40 text-brand-primary shadow-lg shadow-brand-primary/5" 
                                         : "bg-stone-900/40 border-white/5 text-stone-500 hover:border-white/10"
@@ -191,9 +194,10 @@ export default function ProcessosPage() {
                 </div>
             </div>
 
-            {/* Table Area */}
-            <div className="flex-1 p-8">
-                <div className="bg-stone-900/20 border border-white/5 rounded-[32px] overflow-hidden backdrop-blur-sm shadow-2xl">
+            {/* List/Table Area */}
+            <div className="flex-1 py-4 sm:py-6 lg:py-4">
+                {/* Desktop View */}
+                <div className="hidden md:block bg-stone-900/20 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-sm shadow-2xl">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
@@ -267,21 +271,78 @@ export default function ProcessosPage() {
                                 )) : (
                                     <tr>
                                         <td colSpan={5} className="px-6 py-24 text-center">
-                                            <div className="flex flex-col items-center gap-4">
-                                                <div className="h-16 w-16 rounded-3xl bg-stone-900 flex items-center justify-center border border-white/5">
-                                                    <Search className="h-8 w-8 text-stone-700" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-stone-500">Nenhum processo encontrado</p>
-                                                    <p className="text-xs text-stone-700">Tente ajustar seus filtros ou busca.</p>
-                                                </div>
-                                            </div>
+                                            <EmptyState />
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                {/* Mobile View */}
+                <div className="md:hidden space-y-4">
+                    {filteredData.length > 0 ? filteredData.map((item) => (
+                        <div 
+                            key={item.id}
+                            onClick={() => { setSelectedAppointment(item); setIsDetailsOpen(true); }}
+                            className="bg-stone-900/40 border border-white/5 rounded-3xl p-5 space-y-4 active:scale-[0.98] transition-all shadow-xl"
+                        >
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-11 w-11 rounded-2xl bg-stone-950 border border-white/5 flex items-center justify-center text-xs font-bold text-stone-500">
+                                        {item.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <p className="text-[13px] font-bold text-white line-clamp-1">{item.name}</p>
+                                        <p className="text-[9px] text-stone-600 font-bold uppercase tracking-widest">{item.phone || 'Sem Telefone'}</p>
+                                    </div>
+                                </div>
+                                <Button variant="ghost" className="h-8 w-8 p-0 rounded-xl hover:bg-white/5">
+                                    <MoreVertical className="h-4 w-4 text-stone-600" />
+                                </Button>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4 py-4 border-y border-white/[0.03]">
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        {getIconForMode(item.mode)}
+                                        <span className="text-[9px] font-black text-stone-500 uppercase tracking-widest">{item.mode}</span>
+                                    </div>
+                                    <p className="text-xs font-bold text-stone-200 line-clamp-1">{item.natureza}</p>
+                                </div>
+                                <div className="text-right">
+                                    <div className="flex items-center justify-end gap-1.5 mb-1">
+                                        <Calendar className="h-3 w-3 text-stone-600" />
+                                        <span className="text-[10px] font-bold text-stone-400">
+                                            {format(parseISO(item.date), "dd/MM/yy", { locale: ptBR })}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-end gap-1.5">
+                                        <Clock className="h-3 w-3 text-stone-600" />
+                                        <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">{item.time}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                                <div className="flex items-center gap-1.5 bg-stone-950/50 px-2.5 py-1.5 rounded-xl border border-white/5">
+                                    <span className="text-[8px] font-black text-stone-600 uppercase tracking-tighter">PROC</span>
+                                    <span className="text-[10px] font-bold text-stone-400">{item.processNumber}</span>
+                                </div>
+                                {item.nbNumber !== '-' && (
+                                    <div className="flex items-center gap-1.5 bg-amber-500/5 px-2.5 py-1.5 rounded-xl border border-amber-500/10">
+                                        <span className="text-[8px] font-black text-amber-600 uppercase tracking-tighter">NB</span>
+                                        <span className="text-[10px] font-bold text-amber-200/60">{item.nbNumber}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )) : (
+                        <div className="py-20 px-6 bg-stone-900/20 border border-white/5 rounded-3xl">
+                            <EmptyState />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -314,6 +375,20 @@ export default function ProcessosPage() {
                 }}
                 segmento={tenant?.segmento}
             />
+        </div>
+    )
+}
+ 
+function EmptyState() {
+    return (
+        <div className="flex flex-col items-center gap-4">
+            <div className="h-16 w-16 rounded-3xl bg-stone-900 flex items-center justify-center border border-white/5">
+                <Search className="h-8 w-8 text-stone-700" />
+            </div>
+            <div>
+                <p className="text-sm font-bold text-stone-500">Nenhum processo encontrado</p>
+                <p className="text-xs text-stone-700">Tente ajustar seus filtros ou busca.</p>
+            </div>
         </div>
     )
 }

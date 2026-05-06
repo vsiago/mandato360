@@ -286,7 +286,7 @@ function ConfiguracoesContent() {
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
                                         <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Logotipo Principal</Label>
-                                        <span className="text-[9px] text-stone-600 italic">PNG transparente recomendado</span>
+                                        <span className="text-[9px] text-stone-600 italic">Horizontal</span>
                                     </div>
                                     <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 min-h-[160px] relative overflow-hidden group">
                                         {data.logoUrl ? (
@@ -302,7 +302,28 @@ function ConfiguracoesContent() {
                                     </div>
                                 </div>
 
-                                {/* Colors Selection */}
+                                {/* Mini Logo Upload */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Logotipo Ícone (Variação)</Label>
+                                        <span className="text-[9px] text-stone-600 italic">Quadrado</span>
+                                    </div>
+                                    <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 min-h-[160px] relative overflow-hidden group">
+                                        {data.logoMiniUrl ? (
+                                            <div className="relative w-full h-full flex items-center justify-center p-4">
+                                                <img src={data.logoMiniUrl} alt="Logo Mini" className="max-h-20 w-20 object-contain brightness-110 shadow-2xl" />
+                                                <button onClick={() => setField('logoMiniUrl', '')} className="absolute top-0 right-0 h-8 w-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <ImageUpload value={""} onChange={url => setField('logoMiniUrl', url)} />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                                 <div className="space-y-6">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">

@@ -333,16 +333,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 {/* Logo */}
                 <div className={cn("h-20 flex items-center border-b border-stone-800/20 transition-all duration-500", isCollapsed ? "px-0 justify-center" : "px-6")}>
-                    <Link href="/painel" className="flex items-center gap-2.5">
+                    <Link href="/painel" className="flex items-center gap-2.5 overflow-hidden">
                         <img
                             src={(tenant?.logoUrl || cachedBranding?.logo)
                                 ? (isCollapsed 
-                                    ? (tenant?.logoMiniUrl || tenant?.avatarUrl || tenant?.logoUrl || cachedBranding?.mini) 
+                                    ? (tenant?.logoMiniUrl || tenant?.avatarUrl || cachedBranding?.mini || tenant?.logoUrl || cachedBranding?.logo) 
                                     : (tenant?.logoUrl || cachedBranding?.logo))
                                 : (isCollapsed ? "/logo-agenda-online-icon.svg" : "/logo-agenda-online.svg")
                             }
                             alt={tenant?.title || cachedBranding?.title || "Agenda Online"}
-                            className={cn("w-auto transition-all duration-500", isCollapsed ? "h-10 animate-in zoom-in-50" : "h-9", (tenant?.logoUrl || cachedBranding?.logo) && "object-contain")}
+                            className={cn(
+                                "transition-all duration-500", 
+                                isCollapsed ? "h-10 w-10 object-contain animate-in zoom-in-50" : "h-9 w-auto",
+                                (tenant?.logoUrl || cachedBranding?.logo) && "object-contain"
+                            )}
                         />
                     </Link>
                 </div>
@@ -469,7 +473,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <div className="flex items-center gap-3">
                         <Link href="/painel" className="lg:hidden flex items-center gap-2">
                             <img 
-                                src={tenant?.logoUrl || cachedBranding?.logo || "/logo-agenda-online.svg"} 
+                                src={tenant?.logoMiniUrl || tenant?.logoUrl || cachedBranding?.mini || cachedBranding?.logo || "/logo-agenda-online.svg"} 
                                 alt={tenant?.title || cachedBranding?.title || "Agenda Online"} 
                                 className="h-10 w-auto object-contain" 
                             />
