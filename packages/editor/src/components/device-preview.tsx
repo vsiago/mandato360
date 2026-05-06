@@ -238,6 +238,19 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
   // Plugin sections to render between hero and footer
   const pluginMap = new Map(plugins.map((p) => [p.id, p]))
   const middleSections = sectionOrder.filter((id) => id !== "header" && id !== "hero" && id !== "footer")
+  
+  const navigationItems = [
+    ...middleSections.map(id => {
+      const customItem = (header.menuItems || []).find((m: any) => m.id === id)
+      const plugin = pluginMap.get(id)
+      return {
+        id,
+        label: customItem?.label || (id === 'team' && header.logoText?.includes('Adv') ? 'Equipe Jurídica' : plugin?.label || id),
+        href: customItem?.href || `#${id}`
+      }
+    }),
+    ...(header.menuItems || []).filter((m: any) => !sectionOrder.includes(m.id))
+  ]
 
   const isHeaderScrolled = header.behavior === "fixed" && header.scrolled.enabled && isScrolled
   const currentHeaderHeight = isHeaderScrolled ? header.scrolled.height : header.height
@@ -430,16 +443,22 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                     )}
                   </div>
                   {device === "desktop" ? (
-                    <nav className="flex items-center gap-6">
-                      {middleSections.filter(id => id !== "trust").map((id) => {
-                        const plugin = pluginMap.get(id)
-                        if (!plugin) return null
-                        return (
-                          <span key={id} className={cn("text-sm font-medium opacity-90 transition-all duration-300 hover:opacity-100 cursor-pointer", secondaryFont)} style={{ color: headerColors.menu }}>
-                            {plugin.label}
-                          </span>
-                        )
-                      })}
+                    <nav 
+                      className="flex items-center"
+                      style={{ gap: `${header.menuSpacing || 24}px` }}
+                    >
+                      {navigationItems.map((item, idx) => (
+                        <span 
+                          key={`${item.id}-${idx}`} 
+                          className={cn("font-medium opacity-90 transition-all duration-300 hover:opacity-100 cursor-pointer", secondaryFont)} 
+                          style={{ 
+                            color: headerColors.menu,
+                            fontSize: `${header.menuFontSize || 14}px`
+                          }}
+                        >
+                          {item.label}
+                        </span>
+                      ))}
                       {header.showCta && (
                         <button className={cn("px-4 py-2 text-sm font-medium transition-all duration-300 hover:scale-105", btnRadius, primaryFont)} style={{ backgroundColor: isHeaderScrolled ? theme.colors.primary : theme.colors.primary, color: headerColors.cta }}>
                           {header.ctaText}

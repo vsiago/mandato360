@@ -92,16 +92,16 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
         }
         : { enabled: false, title: "", subtitle: "", items: [] }
 
-    const teamPlugin = isAdvocacia
+        const teamPlugin = isAdvocacia
         ? {
             enabled: true,
             title: "Nossa *Equipe*",
             subtitle: "Profissionais altamente qualificados e dedicados à defesa dos seus direitos.",
-            members: [
-                { id: "m-1", name: `Dr. ${name.split(" ")[0] || "Nome"}`, role: "Sócio Fundador", oab: "OAB/SP 00000", bio: "Especialista com ampla experiência em contencioso e consultoria jurídica.", imageUrl: "" },
+            items: [
+                { id: "m-1", name: `Dr. ${name.split(" ")[0] || "Nome"}`, role: "Sócio Fundador", oab: "OAB/SP 00000", bio: "Especialista com ampla experiência em contencioso e consultoria jurídica.", image: "" },
             ],
         }
-        : { enabled: false, title: "", subtitle: "", members: [] }
+        : { enabled: false, title: "", subtitle: "", items: [] }
 
     const sectionOrder = isAdvocacia
         ? ["header", "hero", "trust", "services", "practiceAreas", "agendamento", "team", "about", "faq", "contact", "footer"]
@@ -137,8 +137,19 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             logo: "",
             logoText: name,
             menuItems: isAdvocacia
-                ? ["Áreas de Atuação", "Equipe", "Sobre", "Contato"]
-                : ["Serviços", "Sobre", "Contato"],
+                ? [
+                    { id: "practiceAreas", label: "Áreas de Atuação", href: "#practiceAreas" },
+                    { id: "team", label: "Equipe Jurídica", href: "#team" },
+                    { id: "about", label: "Sobre", href: "#about" },
+                    { id: "contact", label: "Contato", href: "#contact" }
+                ]
+                : [
+                    { id: "services", label: "Serviços", href: "#services" },
+                    { id: "about", label: "Sobre", href: "#about" },
+                    { id: "contact", label: "Contato", href: "#contact" }
+                ],
+            menuFontSize: 14,
+            menuSpacing: 32,
             menuStyle: "transparent",
             backgroundColor: "#0f172a",
             logoHeight: 32,

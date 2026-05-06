@@ -2,6 +2,22 @@ import { TenantData } from "./tenant-types"
 import { EditorConfig } from "@mandato360/editor"
 
 /**
+ * Map of section IDs to human-readable labels for the navigation menu.
+ */
+const SECTION_LABELS: Record<string, string> = {
+  'trust': 'Destaques',
+  'services': 'Serviços',
+  'about': 'Sobre',
+  'beforeAfter': 'Resultados',
+  'faq': 'FAQ',
+  'contact': 'Contato',
+  'agendamento': 'Agendar',
+  'antes_depois': 'Resultados',
+  'practiceAreas': 'Áreas de Atuação',
+  'team': 'Equipe'
+}
+
+/**
  * Adapts TenantData (Agenda Online) to EditorConfig (@mandato360/editor)
  */
 export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
@@ -34,7 +50,9 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
     header: {
       logo: tenant.logoUrl,
       logoText: tenant.name,
-      menuItems: ["Serviços", "Sobre", "Contato"],
+      menuItems: [],
+      menuFontSize: 14,
+      menuSpacing: 32,
       menuStyle: "transparent",
       backgroundColor: "#0f172a",
       logoHeight: 32,
@@ -157,26 +175,48 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
         }
     }
 
+    const mergedHeader = { 
+      ...defaultConfig.header, 
+      ...savedConfig.header, 
+      logo: tenant.logoUrl, 
+      logoText: tenant.name,
+      scrolled: {
+        ...defaultConfig.header.scrolled,
+        ...(savedConfig.header?.scrolled || {}),
+        colors: {
+          ...defaultConfig.header.scrolled.colors,
+          ...(savedConfig.header?.scrolled?.colors || {})
+        }
+      }
+    }
+
+    // Retroactive fix: if menuItems is string[], convert to NavItem[]
+    if (mergedHeader.menuItems && mergedHeader.menuItems.length > 0 && typeof mergedHeader.menuItems[0] === 'string') {
+        mergedHeader.menuItems = mergedHeader.menuItems.map((label: string) => ({
+            id: label.toLowerCase().replace(/\s+/g, '-'),
+            label,
+            href: `#${label.toLowerCase().replace(/\s+/g, '-')}`
+        }))
+    }
+
+    // New Fix: if menuItems is empty, populate from current sectionOrder mapping
+    if (!mergedHeader.menuItems || mergedHeader.menuItems.length === 0) {
+        mergedHeader.menuItems = mergedSectionOrder
+            .filter((id: string) => id !== 'header' && id !== 'hero' && id !== 'footer' && id !== 'trust')
+            .map((id: string) => ({
+                id,
+                label: SECTION_LABELS[id] || id,
+                href: `#${id}`
+            }))
+    }
+
     return {
       ...defaultConfig,
       ...savedConfig,
+      header: mergedHeader,
       sectionOrder: mergedSectionOrder,
       // Ensure nested objects are also merged or exist
       theme: { ...defaultConfig.theme, ...savedConfig.theme },
-      header: { 
-        ...defaultConfig.header, 
-        ...savedConfig.header, 
-        logo: tenant.logoUrl, 
-        logoText: tenant.name,
-        scrolled: {
-          ...defaultConfig.header.scrolled,
-          ...(savedConfig.header?.scrolled || {}),
-          colors: {
-            ...defaultConfig.header.scrolled.colors,
-            ...(savedConfig.header?.scrolled?.colors || {})
-          }
-        }
-      },
       hero: { ...defaultConfig.hero, ...savedConfig.hero },
       footer: { ...defaultConfig.footer, ...savedConfig.footer },
       plugins: {
@@ -215,7 +255,7 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
           ...(savedConfig.plugins?.team || {}),
         },
       }
-    }
+    } as any
   }
 
   return defaultConfig

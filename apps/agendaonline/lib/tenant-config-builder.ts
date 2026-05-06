@@ -151,6 +151,7 @@ export async function buildTenantConfig(
   // 10. Assemble TenantConfig
   const config: TenantConfig = {
     id: tenantDb.id,
+    ownerId: tenantDb.ownerId || "",
     slug: tenantDb.slug,
     segmento: businessTypeSlug,
     segmentoName: businessTypeName,

@@ -342,15 +342,29 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
     const practiceAreasConfig = editorConfig?.plugins?.practiceAreas || { enabled: false, title: "", subtitle: "", items: [] }
     const teamConfig = editorConfig?.plugins?.team || { enabled: false, title: "", subtitle: "", members: [] }
 
-    const navigationSections = (editorConfig?.sectionOrder || [])
+    const headerConfig = editorConfig?.header || {}
+    
+    // ─── Dynamic Navigation Logic ───
+    // 1. Get all active sections and apply overrides from menuItems
+    const activeSections = (editorConfig?.sectionOrder || [])
         .filter(id => id !== 'header' && id !== 'hero' && id !== 'footer' && id !== 'trust')
-        .map(id => ({
-            id,
-            label: SECTION_LABELS[id] || id
-        }))
+        .map(id => {
+            const customItem = (headerConfig.menuItems || []).find((m: any) => m.id === id)
+            return {
+                id,
+                label: customItem?.label || (id === 'team' && data.name?.includes('Adv') ? 'Equipe Jurídica' : SECTION_LABELS[id] || id),
+                href: customItem?.href || `#${id}`
+            }
+        })
+
+    // 2. Get any manual/custom items added via the editor (that aren't linked to sections)
+    const manualItems = (headerConfig.menuItems || [])
+        .filter((m: any) => !(editorConfig?.sectionOrder || []).includes(m.id))
+
+    const navigationSections = [...activeSections, ...manualItems]
 
     // ─── Header Parity Logic ───
-    const headerConfig = editorConfig?.header || {}
+
     const headerGradient = headerConfig.gradient || {}
     const headerGradientStyle = headerConfig.menuStyle === 'gradient' && headerGradient.stops?.length > 0
         ? `linear-gradient(${headerGradient.angle ?? 180}deg, ${headerGradient.stops
@@ -464,10 +478,17 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             <span className={`font-bold transition-all duration-300`} style={{ fontFamily: 'var(--theme-font-heading)', color: headerColors.logo, fontSize: isHeaderScrolled ? '1.25rem' : '1.5rem' }}>{data.name}</span>
                         )}
                     </Link>
-                    <div className="hidden items-center gap-8 lg:flex">
-                        {navigationSections.map((item) => (
-                            <Link key={item.id} href={`#${item.id}`}
-                                className="text-sm font-bold transition-colors" style={{ color: headerColors.menu }}>{item.label}</Link>
+                    <div className="hidden items-center lg:flex" style={{ gap: `${headerConfig.menuSpacing || 32}px` }}>
+                        {navigationSections.map((item: any) => (
+                            <Link key={item.id} href={item.href || `#${item.id}`}
+                                className="font-bold transition-colors" 
+                                style={{ 
+                                    color: headerColors.menu,
+                                    fontSize: `${headerConfig.menuFontSize || 14}px`
+                                }}
+                            >
+                                {item.label}
+                            </Link>
                         ))}
                         {headerConfig.showCta !== false && (
                             <Link href={`https://wa.me/${data.contact.whatsapp}?text=Ol%C3%A1%20${encodeURIComponent(data.name)}%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio.`} target="_blank">
@@ -495,9 +516,9 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                     </div>
                                 </SheetHeader>
                                 <div className="flex flex-col flex-1 gap-1 px-4 py-6 overflow-y-auto">
-                                    {navigationSections.map((item) => (
+                                    {navigationSections.map((item: any) => (
                                         <SheetClose asChild key={item.id}>
-                                            <Link href={`#${item.id}`}
+                                            <Link href={item.href || `#${item.id}`}
                                                 className="group flex items-center justify-between text-[17px] font-medium text-slate-600 hover:text-tenant-primary hover:bg-white hover:shadow-sm px-5 py-4 rounded-2xl transition-all duration-300">
                                                 {item.label}
                                                 <ArrowRight className="h-4 w-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-tenant-primary" />
@@ -1027,7 +1048,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             </div>
                         </section>
                     ) : null,
-                    'team': teamConfig.enabled && teamConfig.members?.length > 0 ? (
+                    'team': teamConfig.enabled && (teamConfig.items?.length > 0 || teamConfig.members?.length > 0) ? (
                         <section id="team" className="py-20 px-6 bg-white">
                             <div className="max-w-6xl mx-auto">
                                 <div className="mb-16 text-center max-w-3xl mx-auto">
@@ -1037,7 +1058,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                     <p className="text-lg text-slate-600">{teamConfig.subtitle}</p>
                                 </div>
                                 <div className="grid gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                                    {teamConfig.members.map((member: any, i: number) => (
+                                    {(teamConfig.items || teamConfig.members || []).map((member: any, i: number) => (
                                         <div key={i} className="flex flex-col items-center text-center group">
                                             <div className="w-48 h-48 rounded-full overflow-hidden mb-6 border-4 border-slate-50 transition-transform duration-500 group-hover:scale-105 group-hover:shadow-xl bg-slate-100 flex items-center justify-center">
                                                 {member.image ? (

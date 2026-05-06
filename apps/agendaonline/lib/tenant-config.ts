@@ -23,6 +23,7 @@ export type ConfigEnvironment = "lab" | "production"
 export interface TenantConfig {
   // Identity
   id: string
+  ownerId: string
   slug: string
   segmento: string               // businessType slug
   segmentoName: string           // businessType display name

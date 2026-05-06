@@ -5,7 +5,7 @@ import type { ComponentType } from "react"
 // ─── Device & Section Types ───
 export type DeviceType = "mobile" | "tablet" | "desktop"
 export type SectionType = "header" | "hero" | "footer"
-export type AccordionType = "theme" | "colors" | "image" | "position" | "effects" | "content" | "header-content" | "layout" | "button-primary" | "button-secondary"
+export type AccordionType = "theme" | "colors" | "image" | "position" | "effects" | "content" | "header-content" | "header-nav" | "layout" | "button-primary" | "button-secondary"
 export type ThemePresetType = "neutral" | "classic" | "hightech" | "emerald" | "custom"
 export type OrientationType = "left" | "center" | "right"
 export type FontFamily = "sans" | "serif" | "mono" | "display"
@@ -57,10 +57,18 @@ export interface ThemeConfig {
 }
 
 // ─── Header ───
+export interface NavItem {
+  id: string
+  label: string
+  href: string
+}
+
 export interface HeaderConfig {
   logo: string | null
   logoText: string
-  menuItems: string[]
+  menuItems: NavItem[]
+  menuFontSize?: number
+  menuSpacing?: number
   menuStyle: "transparent" | "solid" | "gradient"
   backgroundColor: string
   logoHeight: number

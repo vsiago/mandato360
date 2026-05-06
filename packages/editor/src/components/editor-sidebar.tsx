@@ -30,6 +30,8 @@ import {
   Check,
   Star,
   Zap,
+  Trash2,
+  GripVertical,
 } from "lucide-react"
 
 // ... (existing imports and helpers)
@@ -62,6 +64,19 @@ const ICON_OPTIONS = [
   { id: "Star", icon: Star },
   { id: "Info", icon: Info },
 ]
+
+const SECTION_LABELS: Record<string, string> = {
+  'trust': 'Destaques',
+  'services': 'Serviços',
+  'about': 'Sobre',
+  'beforeAfter': 'Resultados',
+  'faq': 'FAQ',
+  'contact': 'Contato',
+  'agendamento': 'Agendar',
+  'antes_depois': 'Resultados',
+  'practiceAreas': 'Áreas de Atuação',
+  'team': 'Equipe'
+}
 
 interface ButtonEditorProps {
   label: string
@@ -1139,6 +1154,166 @@ export function EditorSidebar({
                   checked={config.header.showCta}
                   onCheckedChange={(showCta) => updateHeader({ showCta })}
                 />
+              </div>
+            </div>
+          </AccordionItem>
+        )}
+
+        {activeSection === "header" && (
+          <AccordionItem
+            id="header-nav"
+            icon={AlignLeft}
+            label="Menu de Navegação"
+            isOpen={openAccordion === "header-nav"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Itens do Menu</Label>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      const newItems = [...(config.header.menuItems || [])]
+                      // Generate a safe ID
+                      const newId = `item-${Math.random().toString(36).substr(2, 9)}`
+                      newItems.push({ id: newId, label: "Novo Item", href: "#" })
+                      updateHeader({ menuItems: newItems as any })
+                    }}
+                    className="h-6 gap-1 px-1.5 text-[9px] font-bold uppercase"
+                    style={{ color: accentColor }}
+                  >
+                    <Plus className="h-3 w-3" /> Adicionar
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  {/* Automatic items from sectionOrder */}
+                  {config.sectionOrder
+                    .filter(id => id !== 'header' && id !== 'hero' && id !== 'footer' && id !== 'trust')
+                    .map((id) => {
+                      const item = (config.header.menuItems || []).find((m: any) => m.id === id)
+                      const label = item?.label || (id === 'team' && config.header.logoText?.includes('Adv') ? 'Equipe Jurídica' : SECTION_LABELS[id] || id)
+                      const href = item?.href || `#${id}`
+
+                      return (
+                        <div key={id} className="group relative flex flex-col gap-2 rounded-lg border border-border/50 bg-muted/20 p-3 transition-all hover:bg-muted/40">
+                          <div className="flex items-center gap-2">
+                            <div className="h-2 w-2 rounded-full bg-accent/40" style={{ backgroundColor: accentColor + '66' }} />
+                            <Input
+                              value={label}
+                              onChange={(e) => {
+                                const newItems = [...(config.header.menuItems || [])]
+                                const idx = newItems.findIndex((m: any) => m.id === id)
+                                if (idx !== -1) {
+                                  newItems[idx] = { ...newItems[idx], label: e.target.value }
+                                } else {
+                                  newItems.push({ id, label: e.target.value, href })
+                                }
+                                updateHeader({ menuItems: newItems })
+                              }}
+                              placeholder="Label"
+                              className="h-8 flex-1 text-[11px] border-border/50 bg-background"
+                            />
+                            <div className="text-[9px] font-bold text-muted-foreground/30 uppercase tracking-tighter">Auto</div>
+                          </div>
+                          <Input
+                            value={href}
+                            onChange={(e) => {
+                              const newItems = [...(config.header.menuItems || [])]
+                              const idx = newItems.findIndex((m: any) => m.id === id)
+                              if (idx !== -1) {
+                                newItems[idx] = { ...newItems[idx], href: e.target.value }
+                              } else {
+                                newItems.push({ id, label, href: e.target.value })
+                              }
+                              updateHeader({ menuItems: newItems })
+                            }}
+                            placeholder="Link (#secao ou URL)"
+                            className="h-7 text-[10px] border-border/30 bg-background/50 font-mono"
+                          />
+                        </div>
+                      )
+                    })
+                  }
+
+                  {/* Custom items from menuItems (not in sectionOrder) */}
+                  {(config.header.menuItems || [])
+                    .filter((m: any) => !config.sectionOrder.includes(m.id))
+                    .map((item: any, index: number) => (
+                      <div key={item.id || index} className="group relative flex flex-col gap-2 rounded-lg border border-accent/20 bg-accent/5 p-3 transition-all hover:bg-accent/10">
+                        <div className="flex items-center gap-2">
+                          <Plus className="h-3 w-3 text-accent" style={{ color: accentColor }} />
+                          <Input
+                            value={item.label}
+                            onChange={(e) => {
+                              const newItems = [...config.header.menuItems]
+                              const idx = newItems.findIndex((m: any) => m.id === item.id)
+                              newItems[idx] = { ...item, label: e.target.value }
+                              updateHeader({ menuItems: newItems })
+                            }}
+                            placeholder="Label"
+                            className="h-8 flex-1 text-[11px] border-border/50 bg-background"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              const newItems = config.header.menuItems.filter((m: any) => m.id !== item.id)
+                              updateHeader({ menuItems: newItems })
+                            }}
+                            className="h-8 w-8 p-0 text-muted-foreground/30 hover:text-red-500"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Input
+                          value={item.href}
+                          onChange={(e) => {
+                            const newItems = [...config.header.menuItems]
+                            const idx = newItems.findIndex((m: any) => m.id === item.id)
+                            newItems[idx] = { ...item, href: e.target.value }
+                            updateHeader({ menuItems: newItems })
+                          }}
+                          placeholder="Link (#secao ou URL)"
+                          className="h-7 text-[10px] border-border/30 bg-background/50 font-mono"
+                        />
+                      </div>
+                    ))
+                  }
+                </div>
+              </div>
+
+              <div className="space-y-4 border-t border-border pt-4">
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Tamanho do Texto</Label>
+                    <span className="text-xs font-mono text-muted-foreground">{config.header.menuFontSize || 14}px</span>
+                  </div>
+                  <Slider
+                    value={[config.header.menuFontSize || 14]}
+                    onValueChange={([val]) => updateHeader({ menuFontSize: val })}
+                    min={10}
+                    max={24}
+                    step={1}
+                  />
+                </div>
+
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Espaçamento entre Itens</Label>
+                    <span className="text-xs font-mono text-muted-foreground">{config.header.menuSpacing || 32}px</span>
+                  </div>
+                  <Slider
+                    value={[config.header.menuSpacing || 32]}
+                    onValueChange={([val]) => updateHeader({ menuSpacing: val })}
+                    min={8}
+                    max={64}
+                    step={2}
+                  />
+                </div>
               </div>
             </div>
           </AccordionItem>
