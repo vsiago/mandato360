@@ -164,7 +164,7 @@ function PainelContent() {
                         <div className="space-y-3">
                             <Link href="/checkout?plan=profissional" className="block">
                                 <Button 
-                                    className="w-full text-stone-950 h-14 rounded-xl text-base font-bold shadow-xl shadow-brand-secondary/20 transition-all hover:scale-[1.02] bg-brand-gold"
+                                    className="w-full text-white h-14 rounded-xl text-base font-bold shadow-xl shadow-brand-secondary/20 transition-all hover:scale-[1.02] bg-brand-gold"
                                 >
                                     Ativar Minha Assinatura
                                 </Button>
@@ -194,7 +194,7 @@ function PainelContent() {
                     <Link href="/checkout?plan=profissional">
                         <Button 
                             size="sm" 
-                            className="text-stone-950 rounded-xl px-6 h-10 text-xs font-bold shadow-lg shadow-brand-secondary/20 border-0 transition-all hover:scale-105 bg-brand-gold"
+                            className="text-white rounded-xl px-6 h-10 text-xs font-bold shadow-lg shadow-brand-secondary/20 border-0 transition-all hover:scale-105 bg-brand-gold"
                         >
                             Ativar Assinatura
                         </Button>
@@ -216,7 +216,7 @@ function PainelContent() {
                 <div className="flex flex-row w-full lg:w-auto items-center gap-2 lg:gap-3 mt-4 lg:mt-0">
                     <Link href="/agenda" className="flex-1 lg:flex-none">
                         <Button 
-                            className="w-full text-stone-950 rounded-xl px-4 lg:px-6 h-12 font-bold shadow-lg shadow-brand-secondary/10 flex items-center justify-center gap-2 transition-all hover:scale-105 bg-brand-gold text-xs lg:text-sm"
+                            className="w-full text-white rounded-xl px-4 lg:px-6 h-12 font-bold shadow-lg shadow-brand-secondary/10 flex items-center justify-center gap-2 transition-all hover:scale-105 bg-brand-gold text-xs lg:text-sm"
                         >
                             <CalendarDays className="h-5 w-5" /> <span className="hidden sm:inline">Abrir</span> Agenda <ChevronRight className="h-4 w-4 hidden lg:block" />
                         </Button>
@@ -305,9 +305,9 @@ function PainelContent() {
                                         <div className={cn(
                                             "h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all border-2",
                                             item.done 
-                                                ? "bg-green-500/80 border-green-500/20 text-stone-950" 
+                                                ? "bg-green-500/80 border-green-500/20 text-white" 
                                                 : isActive 
-                                                    ? "bg-brand-primary border-brand-primary text-stone-950 shadow-lg shadow-brand-secondary/40 scale-110" 
+                                                    ? "bg-brand-primary border-brand-primary text-white shadow-lg shadow-brand-secondary/40 scale-110" 
                                                     : "bg-stone-900 border-stone-800 text-stone-500"
                                         )}>
                                             {item.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
@@ -328,7 +328,7 @@ function PainelContent() {
                     <div className="shrink-0">
                         <Link href="/configuracoes">
                             <Button 
-                                className="text-stone-950 rounded-xl px-8 h-14 font-bold shadow-xl shadow-brand-secondary/10 transition-all hover:scale-[1.02] bg-brand-gold"
+                                className="text-white rounded-xl px-8 h-14 font-bold shadow-xl shadow-brand-secondary/10 transition-all hover:scale-[1.02] bg-brand-gold"
                             >
                                 Continuar configuração
                             </Button>

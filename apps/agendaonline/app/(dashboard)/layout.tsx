@@ -96,7 +96,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { data: session } = authClient.useSession()
     const { theme, setTheme } = useTheme()
     const [tenant, setTenant] = useState<TenantData | null>(null)
-    const [cachedBranding, setCachedBranding] = useState<{ logo: string; mini: string; title: string } | null>(null)
+    const [cachedBranding, setCachedBranding] = useState<{ logo: string; mini: string; title: string; primary: string; hover: string } | null>(null)
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [mounted, setMounted] = useState(false)
 
@@ -118,7 +118,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 const branding = {
                     logo: data.logoUrl,
                     mini: data.logoMiniUrl || data.avatarUrl || data.logoUrl,
-                    title: data.title || "Agenda Online"
+                    title: data.title || "Agenda Online",
+                    primary: data.colors?.primary || "#F5CC70",
+                    hover: data.colors?.hover || "#CA912A"
                 }
                 localStorage.setItem("tenant_branding_cache", JSON.stringify(branding))
                 setCachedBranding(branding)
@@ -193,8 +195,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )
     }
 
+    const accentColor = tenant?.colors?.primary || cachedBranding?.primary || "#F5CC70"
+    const hoverColor = tenant?.colors?.hover || cachedBranding?.hover || "#CA912A"
+
     return (
-        <div className="min-h-screen bg-[#F6F3ED] dark:bg-stone-950 selection:bg-amber-100 selection:text-amber-900">
+        <div 
+            className="min-h-screen bg-[#F6F3ED] dark:bg-stone-950 selection:bg-amber-100 selection:text-amber-900"
+            style={{ 
+                '--tenant-primary': accentColor,
+                '--tenant-hover': hoverColor
+            } as React.CSSProperties}
+        >
 
             {/* ══════════════════════════════════════════════
                 DESKTOP SIDEBAR — hidden on mobile
@@ -254,8 +265,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         >
                                             <item.icon className={cn(
                                                 "h-5 w-5 transition-all duration-300 shrink-0",
-                                                isActive ? "text-brand-primary drop-shadow-[0_0_8px_rgba(202,145,42,0.4)]" : "text-stone-500 group-hover:text-stone-300"
-                                            )} />
+                                                isActive ? "text-brand-primary drop-shadow-[0_0_8px_var(--tenant-primary)]" : "text-stone-500 group-hover:text-stone-300"
+                                            )} style={isActive ? { filter: `drop-shadow(0 0 8px ${accentColor}66)` } : {}} />
                                             {!isCollapsed && (
                                                 <span className={cn(
                                                     "transition-colors tracking-wide animate-in fade-in slide-in-from-left-2 duration-500",
@@ -292,8 +303,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             >
                                 <ShieldCheck className={cn(
                                     "h-5 w-5 transition-all duration-300 shrink-0",
-                                    pathname.startsWith("/admin") ? "text-brand-primary drop-shadow-[0_0_8px_rgba(202,145,42,0.4)]" : "text-stone-500 group-hover:text-stone-300"
-                                )} />
+                                    pathname.startsWith("/admin") ? "text-brand-primary" : "text-stone-500 group-hover:text-stone-300"
+                                )} style={pathname.startsWith("/admin") ? { filter: `drop-shadow(0 0 8px ${accentColor}66)` } : {}} />
                                 {!isCollapsed && <span className={cn("transition-colors tracking-wide animate-in fade-in slide-in-from-left-2 duration-500", pathname.startsWith("/admin") ? "font-semibold" : "font-medium")}>Administração</span>}
                                 
                                 {/* Active Glow Effect */}
