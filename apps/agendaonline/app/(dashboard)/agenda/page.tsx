@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
     MessageCircle, MoreVertical, Filter, UserPlus, TrendingUp, Users, Calendar as CalendarIcon, ChevronDown,
-    Pencil, Trash2, Smartphone, X, LayoutGrid, Play, CalendarSearch, Zap, Lock, CalendarOff, Unlock
+    Pencil, Trash2, Smartphone, X, LayoutGrid, Play, CalendarSearch, Zap, Lock, CalendarOff, Unlock,
+    Briefcase, Scale, Banknote
 } from "lucide-react"
 import { toast } from "sonner"
 import { DesktopDetailsPanel, DesktopNextActionsPanel, DesktopOccupationCard, DesktopMiniCalendar, DesktopDaySummary, DesktopFreeSlots } from "./components"
@@ -96,6 +97,7 @@ export default function AgendaPage() {
     const [tenantId, setTenantId] = useState<string | null>(null)
     const [isIdling, setIsIdling] = useState(true)
     const [tenant, setTenant] = useState<any>(null)
+    const [appointmentMode, setAppointmentMode] = useState<string>("standard")
     const lastKnownPendingIds = useRef<Set<string>>(new Set())
     const initialLoadDone = useRef(false)
 
@@ -855,8 +857,11 @@ export default function AgendaPage() {
                         <button onClick={() => setIsCalendarModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-800 bg-stone-900/40 text-stone-300 hover:text-white hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
                             <Filter className="h-4 w-4" /> Filtrar
                         </button>
-                        <button onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }} className="h-9 px-4 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-white transition-all hover:scale-[1.02] text-xs flex items-center gap-2 cursor-pointer">
-                            <Plus className="h-4 w-4" /> {tenant?.segmento === 'advocacia' ? 'Nova Consulta' : 'Novo Agendamento'} <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
+                        <button 
+                            onClick={() => { setAppointmentMode("standard"); setIsAddModalOpen(true); }}
+                            className="h-9 px-4 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-white transition-all hover:scale-[1.02] text-xs flex items-center gap-2 cursor-pointer"
+                        >
+                            <Plus className="h-4 w-4" /> Novo Registro
                         </button>
                     </div>
                 </div>
@@ -1306,6 +1311,18 @@ export default function AgendaPage() {
 
             </div>{/* end mobile wrapper */}
 
+            {/* ═══ MOBILE FLOATING ACTION BUTTON (FAB) ═══ */}
+            {!isDesktop && tenant?.segmento === 'advocacia' && (
+                <div className="fixed bottom-24 right-6 z-50 lg:hidden">
+                    <button 
+                        onClick={() => { setAppointmentMode("standard"); setIsAddModalOpen(true); }}
+                        className="h-14 w-14 rounded-full bg-brand-gold text-stone-950 shadow-[0_8px_30px_rgb(245,204,112,0.4)] flex items-center justify-center transition-all active:scale-90 border-2 border-white/10"
+                    >
+                        <Plus className="h-7 w-7" />
+                    </button>
+                </div>
+            )}
+
             {/* ═══ CALENDAR MODAL (Full Month) ═══ */}
             {isDesktop ? (
                 <Dialog open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
@@ -1324,13 +1341,15 @@ export default function AgendaPage() {
 
             <AppointmentModal
                 isOpen={isAddModalOpen}
-                onClose={() => { setIsAddModalOpen(false); setEditingAppointment(null); }}
+                onClose={() => { setIsAddModalOpen(false); setEditingAppointment(null); setAppointmentMode("standard"); }}
                 date={selectedDate}
                 time={activeTime}
                 tenantId={tenantId || ""}
                 services={services}
                 onSuccess={handleAddSuccess}
                 appointment={editingAppointment}
+                initialMode={appointmentMode}
+                segmento={tenant?.segmento}
             />
 
             <CompleteAppointmentModal

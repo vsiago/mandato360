@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Save, ExternalLink, Palette, Store, User, Stars, Instagram, Phone, MapPin, ImagePlus, Globe, Loader2, CreditCard, Smartphone, Banknote, Info, ChevronRight, Layout, ShieldCheck, Sparkles, X } from "lucide-react"
+import { Save, ExternalLink, Palette, Store, User, Stars, Instagram, Phone, MapPin, ImagePlus, Globe, Loader2, CreditCard, Smartphone, Banknote, Info, ChevronRight, Layout, ShieldCheck, Sparkles, X, MessageCircle } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { getMyTenant, saveTenant } from "@/lib/tenant-api"
 import type { TenantData } from "@/lib/tenant-types"
@@ -162,13 +162,13 @@ function ConfiguracoesContent() {
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Nome do Negócio</Label>
-                                    <Input value={data.name} onChange={e => setField('name', e.target.value)} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
+                                    <Input value={data.name || ""} onChange={e => setField('name', e.target.value)} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Link Personalizado (URL)</Label>
                                     <div className="relative group">
                                         <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                        <Input value={data.slug} onChange={e => setField('slug', e.target.value)} className="pl-11 pr-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold text-brand-primary" />
+                                        <Input value={data.slug || ""} onChange={e => setField('slug', e.target.value)} className="pl-11 pr-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold text-brand-primary" />
                                         <a href={`/${data.slug}`} target="_blank" rel="noopener noreferrer" className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-600 hover:text-white transition-colors">
                                             <ExternalLink className="h-4 w-4" />
                                         </a>
@@ -178,33 +178,32 @@ function ConfiguracoesContent() {
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Telefone para Contato</Label>
                                     <div className="relative group">
                                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                        <Input value={data.contact.phone} onChange={e => setContact('phone', e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
+                                        <Input value={data.contact.phone || ""} onChange={e => setContact('phone', e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">WhatsApp para Notificações</Label>
                                     <div className="relative group">
-                                        <MessageCircleQuestion className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                        <Input value={data.contact.whatsapp} onChange={e => setContact('whatsapp', e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Ex: 5521999999999" />
+                                        <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                        <Input value={data.contact.whatsapp || ""} onChange={e => setContact('whatsapp', e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Ex: 5521999999999" />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Instagram (@usuario)</Label>
                                     <div className="relative group">
                                         <Instagram className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                        <Input value={data.contact.instagram} onChange={e => setContact('instagram', e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="https://instagram.com/..." />
+                                        <Input value={data.contact.instagram || ""} onChange={e => setContact('instagram', e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="https://instagram.com/..." />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Slogan ou Chamada</Label>
-                                    <Input value={data.surname} onChange={e => setField('surname', e.target.value)} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Ex: Excelência em cada detalhe" />
+                                    <Input value={data.surname || ""} onChange={e => setField('surname', e.target.value)} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Ex: Excelência em cada detalhe" />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Endereço de Atendimento</Label>
                                 <div className="relative group">
-                                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                    <Input value={data.contact.address} onChange={e => setContact('address', e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
+                                    <Input value={data.contact.address || ""} onChange={e => setContact('address', e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
                                 </div>
                             </div>
                         </div>
@@ -245,11 +244,11 @@ function ConfiguracoesContent() {
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Nome Completo</Label>
-                                            <Input value={data.founder.name} onChange={e => setFounder('name', e.target.value)} className="h-11 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
+                                            <Input value={data.founder.name || ""} onChange={e => setFounder('name', e.target.value)} className="h-11 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
                                         </div>
                                         <div className="space-y-2">
                                             <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Cargo / Especialidade</Label>
-                                            <Input value={data.founder.role} onChange={e => setFounder('role', e.target.value)} className="h-11 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
+                                            <Input value={data.founder.role || ""} onChange={e => setFounder('role', e.target.value)} className="h-11 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
                                         </div>
                                     </div>
                                 </div>
@@ -258,7 +257,7 @@ function ConfiguracoesContent() {
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Mini Bio (Quem Somos)</Label>
                                 <textarea
-                                    value={data.founder.bio}
+                                    value={data.founder.bio || ""}
                                     onChange={e => setFounder('bio', e.target.value)}
                                     className="w-full min-h-[120px] bg-stone-950/40 border border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-brand-primary/20 text-stone-300 outline-none font-medium leading-relaxed"
                                     placeholder="Descreva sua trajetória e experiência..."
@@ -310,7 +309,7 @@ function ConfiguracoesContent() {
                                             <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Cor Primária</Label>
                                             <div className="flex items-center gap-3 bg-stone-950/40 border border-white/5 rounded-xl p-2 h-12">
                                                 <div className="h-8 w-8 rounded-lg border border-white/10 relative overflow-hidden shrink-0">
-                                                    <input type="color" value={data.colors.primary} onChange={e => setColors('primary', e.target.value)}
+                                                    <input type="color" value={data.colors?.primary || "#000000"} onChange={e => setColors('primary', e.target.value)}
                                                         className="absolute inset-0 w-full h-full cursor-pointer scale-150 border-none bg-transparent" />
                                                 </div>
                                                 <span className="text-xs font-black text-stone-300 uppercase font-mono">{data.colors.primary}</span>
@@ -320,7 +319,7 @@ function ConfiguracoesContent() {
                                             <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Cor Hover</Label>
                                             <div className="flex items-center gap-3 bg-stone-950/40 border border-white/5 rounded-xl p-2 h-12">
                                                 <div className="h-8 w-8 rounded-lg border border-white/10 relative overflow-hidden shrink-0">
-                                                    <input type="color" value={data.colors.hover} onChange={e => setColors('hover', e.target.value)}
+                                                    <input type="color" value={data.colors?.hover || "#000000"} onChange={e => setColors('hover', e.target.value)}
                                                         className="absolute inset-0 w-full h-full cursor-pointer scale-150 border-none bg-transparent" />
                                                 </div>
                                                 <span className="text-xs font-black text-stone-300 uppercase font-mono">{data.colors.hover}</span>
