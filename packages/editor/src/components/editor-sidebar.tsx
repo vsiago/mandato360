@@ -1037,6 +1037,35 @@ export function EditorSidebar({
     updateHeader({ logo: null })
   }
 
+  const handleHeaderLogoMiniUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (onImageUpload) {
+      try {
+        setIsUploading(true)
+        const url = await onImageUpload(file)
+        updateHeader({ logoMini: url })
+      } catch (err: any) {
+        console.error("Mini Logo Upload Error:", err)
+      } finally {
+        setIsUploading(false)
+      }
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const imageUrl = e.target?.result as string
+      updateHeader({ logoMini: imageUrl })
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeHeaderLogoMini = () => {
+    updateHeader({ logoMini: null })
+  }
+
   const toggleAccordion = (id: AccordionType) => {
     onToggleAccordion(openAccordion === id ? null : id)
   }
@@ -1146,6 +1175,42 @@ export function EditorSidebar({
                     step={1}
                     className="touch-none"
                   />
+                </div>
+
+                {/* Logo Mini (Dashboard Sidebar Collapsed) */}
+                <div className="pt-4 border-t border-border/50">
+                  <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
+                    Logo Miniatura
+                    <span className="text-[9px] font-normal lowercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground/60">Painel Contraído</span>
+                  </Label>
+                  {config.header.logoMini ? (
+                    <div className="relative group w-20">
+                      <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-border bg-muted p-3">
+                        <img src={config.header.logoMini} alt="Mini Logo Preview" className="max-h-full max-w-full object-contain" />
+                      </div>
+                      <button
+                        onClick={removeHeaderLogoMini}
+                        className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1 text-white shadow-lg opacity-0 transition-opacity group-hover:opacity-100"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className={cn(
+                      "flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed transition-colors hover:bg-muted",
+                      isUploading && "pointer-events-none opacity-50"
+                    )} style={{ borderColor: `${accentColor}40` }}>
+                      {isUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" style={{ color: accentColor }} />
+                      ) : (
+                        <Upload className="h-4 w-4" style={{ color: accentColor }} />
+                      )}
+                      <span className="text-[10px] font-medium text-center" style={{ color: accentColor }}>
+                        Upload
+                      </span>
+                      <input type="file" accept="image/*" onChange={handleHeaderLogoMiniUpload} className="hidden" disabled={isUploading} />
+                    </label>
+                  )}
                 </div>
               </div>
               <div className="flex items-center justify-between border-t border-border pt-4">

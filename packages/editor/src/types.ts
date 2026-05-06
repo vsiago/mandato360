@@ -65,6 +65,7 @@ export interface NavItem {
 
 export interface HeaderConfig {
   logo: string | null
+  logoMini?: string | null
   logoText: string
   menuItems: NavItem[]
   menuFontSize?: number

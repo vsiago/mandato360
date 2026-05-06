@@ -68,6 +68,7 @@ export interface TenantConfig {
     name: string
     surname: string
     logoUrl: string
+    logoMiniUrl?: string
     heroImageUrl: string
     avatarUrl: string
     primaryColor: string

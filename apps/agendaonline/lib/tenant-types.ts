@@ -135,6 +135,7 @@ export interface TenantData {
 
     // Branding
     logoUrl: string
+    logoMiniUrl?: string
     avatarUrl: string
     profileImageUrl?: string
 

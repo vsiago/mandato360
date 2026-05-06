@@ -181,7 +181,8 @@ export async function buildTenantConfig(
     branding: {
       name: mergedData.name,
       surname: mergedData.surname,
-      logoUrl: mergedData.logoUrl,
+      logoUrl: (tenantDb.config as any)?.header?.logo || mergedData.logoUrl,
+      logoMiniUrl: (tenantDb.config as any)?.header?.logoMini,
       heroImageUrl: mergedData.heroImageUrl,
       avatarUrl: mergedData.avatarUrl,
       primaryColor: tenantDb.primaryColor,
@@ -258,6 +259,7 @@ export function configToTenantData(config: TenantConfig): TenantData {
     founder: config.founder,
 
     logoUrl: config.branding.logoUrl,
+    logoMiniUrl: config.branding.logoMiniUrl,
     avatarUrl: config.branding.avatarUrl,
     headerBgColor: config.branding.headerBgColor,
 

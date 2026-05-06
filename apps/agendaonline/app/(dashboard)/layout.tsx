@@ -96,15 +96,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { data: session } = authClient.useSession()
     const { theme, setTheme } = useTheme()
     const [tenant, setTenant] = useState<TenantData | null>(null)
+    const [cachedBranding, setCachedBranding] = useState<{ logo: string; mini: string; title: string } | null>(null)
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
         setMounted(true)
+        // Load branding from cache for immediate display
+        const cached = localStorage.getItem("tenant_branding_cache")
+        if (cached) {
+            try {
+                setCachedBranding(JSON.parse(cached))
+            } catch (e) {}
+        }
     }, [])
 
     useEffect(() => {
-        getMyTenant().then(setTenant).catch(() => {})
+        getMyTenant().then((data) => {
+            setTenant(data)
+            if (data) {
+                const branding = {
+                    logo: data.logoUrl,
+                    mini: data.logoMiniUrl || data.avatarUrl || data.logoUrl,
+                    title: data.title || "Agenda Online"
+                }
+                localStorage.setItem("tenant_branding_cache", JSON.stringify(branding))
+                setCachedBranding(branding)
+            }
+        }).catch(() => {})
     }, [])
 
     // Root users should always be in the admin area
@@ -139,6 +158,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
 
         setIsConverting(true)
+        
         try {
             const res = await convertDemoAccount({
                 email: newEmail,
@@ -195,9 +215,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className={cn("h-20 flex items-center border-b border-stone-800/20 transition-all duration-500", isCollapsed ? "px-0 justify-center" : "px-6")}>
                     <Link href="/painel" className="flex items-center gap-2.5">
                         <img
-                            src={isCollapsed ? "/logo-agenda-online-icon.svg" : "/logo-agenda-online.svg"}
-                            alt="Agenda Online"
-                            className={cn("w-auto transition-all duration-500", isCollapsed ? "h-10 animate-in zoom-in-50" : "h-9")}
+                            src={(tenant?.logoUrl || cachedBranding?.logo)
+                                ? (isCollapsed 
+                                    ? (tenant?.logoMiniUrl || tenant?.avatarUrl || tenant?.logoUrl || cachedBranding?.mini) 
+                                    : (tenant?.logoUrl || cachedBranding?.logo))
+                                : (isCollapsed ? "/logo-agenda-online-icon.svg" : "/logo-agenda-online.svg")
+                            }
+                            alt={tenant?.title || cachedBranding?.title || "Agenda Online"}
+                            className={cn("w-auto transition-all duration-500", isCollapsed ? "h-10 animate-in zoom-in-50" : "h-9", (tenant?.logoUrl || cachedBranding?.logo) && "object-contain")}
                         />
                     </Link>
                 </div>
@@ -323,7 +348,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {/* Mobile logo + Page title */}
                     <div className="flex items-center gap-3">
                         <Link href="/painel" className="lg:hidden flex items-center gap-2">
-                            <img src="/logo-agenda-online.svg" alt="Agenda Online" className="h-10 w-auto" />
+                            <img 
+                                src={tenant?.logoUrl || cachedBranding?.logo || "/logo-agenda-online.svg"} 
+                                alt={tenant?.title || cachedBranding?.title || "Agenda Online"} 
+                                className="h-10 w-auto object-contain" 
+                            />
                         </Link>
                         <h1 className="hidden lg:block text-sm font-semibold text-foreground">{pageTitle}</h1>
                     </div>
