@@ -346,7 +346,7 @@ export function DesktopMiniCalendar({ currentMonth, setCurrentMonth, selectedDat
                         <button key={day} onClick={() => setSelectedDate(dateKey)}
                             className={cn(
                                 "h-8 w-8 mx-auto rounded-full text-xs font-bold transition-all relative flex flex-col items-center justify-center cursor-pointer",
-                                isSelected ? "bg-brand-gold text-stone-950 shadow-[0_0_10px_rgba(245,204,112,0.3)]" :
+                                isSelected ? "bg-brand-gold text-white shadow-[0_0_10px_rgba(245,204,112,0.3)]" :
                                     isToday ? "text-brand-primary border border-brand-primary/30" :
                                         blocked ? "text-stone-600" : "text-stone-300 hover:bg-stone-800 hover:text-white"
                             )}>

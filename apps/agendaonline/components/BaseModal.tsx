@@ -4,6 +4,8 @@ import * as React from "react"
 import { X, LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Drawer, DrawerContent, DrawerTitle, DrawerDescription } from "@/components/ui/drawer"
+import { useMediaQuery } from "@/hooks/use-media-query"
 
 interface BaseModalProps {
     isOpen: boolean
@@ -26,17 +28,79 @@ export function BaseModal({
     footer,
     maxWidth = "sm:max-w-md"
 }: BaseModalProps) {
-    return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent 
-                showCloseButton={false}
-                className={cn(
-                    "p-0 overflow-hidden bg-stone-900 border border-white/10 rounded-3xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col",
-                    maxWidth
+    const isDesktop = useMediaQuery("(min-width: 768px)")
+
+    const header = (
+        <div className="px-8 py-8 flex items-center gap-6 relative overflow-hidden bg-stone-950/20 border-b border-white/5">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 blur-3xl -z-10 rounded-full -translate-y-1/2 translate-x-1/2" />
+            
+            <div className="h-14 w-14 rounded-2xl bg-stone-900 border border-white/5 flex items-center justify-center shrink-0 shadow-2xl">
+                <Icon className="h-7 w-7 text-brand-primary" />
+            </div>
+            
+            <div className="flex-1">
+                {isDesktop ? (
+                    <DialogTitle className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        {title}
+                    </DialogTitle>
+                ) : (
+                    <DrawerTitle className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        {title}
+                    </DrawerTitle>
                 )}
+                {description && (
+                    isDesktop ? (
+                        <DialogDescription className="text-[11px] text-stone-500 font-medium leading-relaxed mt-1">
+                            {description}
+                        </DialogDescription>
+                    ) : (
+                        <DrawerDescription className="text-[11px] text-stone-500 font-medium leading-relaxed mt-1">
+                            {description}
+                        </DrawerDescription>
+                    )
+                )}
+            </div>
+            
+            <button 
+                onClick={onClose}
+                className="absolute top-6 right-6 h-8 w-8 rounded-full bg-stone-900/50 flex items-center justify-center text-stone-500 hover:text-white hover:bg-stone-800 transition-all cursor-pointer z-10"
             >
-                {/* Header */}
-                <div className="px-8 py-8 flex items-center gap-6 relative overflow-hidden bg-stone-950/20 border-b border-white/5">
+                <X className="h-4 w-4" />
+            </button>
+        </div>
+    )
+
+    if (isDesktop) {
+        return (
+            <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+                <DialogContent 
+                    showCloseButton={false}
+                    className={cn(
+                        "p-0 overflow-hidden bg-stone-900 border border-white/10 rounded-3xl shadow-2xl animate-in fade-in zoom-in-95 duration-200 flex flex-col",
+                        maxWidth
+                    )}
+                >
+                    {header}
+                    <div className="p-8">
+                        {children}
+                    </div>
+                    {footer && (
+                        <div className="p-8 pt-0">
+                            {footer}
+                        </div>
+                    )}
+                </DialogContent>
+            </Dialog>
+        )
+    }
+
+    return (
+        <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DrawerContent className="p-0 overflow-hidden bg-stone-900 border-white/10 rounded-t-[2.5rem] flex flex-col max-h-[92vh]">
+                <div className={cn(
+                    "px-8 flex items-center gap-6 relative overflow-hidden bg-stone-950/20 border-b border-white/5",
+                    isDesktop ? "py-8" : "py-6 mt-2"
+                )}>
                     <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 blur-3xl -z-10 rounded-full -translate-y-1/2 translate-x-1/2" />
                     
                     <div className="h-14 w-14 rounded-2xl bg-stone-900 border border-white/5 flex items-center justify-center shrink-0 shadow-2xl">
@@ -44,13 +108,25 @@ export function BaseModal({
                     </div>
                     
                     <div className="flex-1">
-                        <DialogTitle className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
-                            {title}
-                        </DialogTitle>
+                        {isDesktop ? (
+                            <DialogTitle className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+                                {title}
+                            </DialogTitle>
+                        ) : (
+                            <DrawerTitle className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+                                {title}
+                            </DrawerTitle>
+                        )}
                         {description && (
-                            <DialogDescription className="text-[11px] text-stone-500 font-medium leading-relaxed mt-1">
-                                {description}
-                            </DialogDescription>
+                            isDesktop ? (
+                                <DialogDescription className="text-[11px] text-stone-500 font-medium leading-relaxed mt-1">
+                                    {description}
+                                </DialogDescription>
+                            ) : (
+                                <DrawerDescription className="text-[11px] text-stone-500 font-medium leading-relaxed mt-1">
+                                    {description}
+                                </DrawerDescription>
+                            )
                         )}
                     </div>
                     
@@ -61,19 +137,15 @@ export function BaseModal({
                         <X className="h-4 w-4" />
                     </button>
                 </div>
-
-                {/* Content */}
-                <div className="p-8">
+                <div className="p-6 overflow-y-auto">
                     {children}
                 </div>
-
-                {/* Footer */}
                 {footer && (
-                    <div className="p-8 pt-0">
+                    <div className="p-6 pt-0">
                         {footer}
                     </div>
                 )}
-            </DialogContent>
-        </Dialog>
+            </DrawerContent>
+        </Drawer>
     )
 }

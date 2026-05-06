@@ -40,6 +40,8 @@ import {
     DialogDescription,
     DialogFooter,
 } from "@/components/ui/dialog"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer"
+import { useMediaQuery } from "@/hooks/use-media-query"
 import {
     Accordion,
     AccordionContent,
@@ -97,8 +99,12 @@ export default function AgendaPage() {
     const lastKnownPendingIds = useRef<Set<string>>(new Set())
     const initialLoadDone = useRef(false)
 
-    // Modal state
+    // ── Desktop-specific state ──
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+
+
+
+    // Modal state
     const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false)
     const [appointmentToReschedule, setAppointmentToReschedule] = useState<any>(null)
     const [activeTime, setActiveTime] = useState("")
@@ -110,6 +116,8 @@ export default function AgendaPage() {
     const [appointmentToComplete, setAppointmentToComplete] = useState<any>(null)
     const [clientToSave, setClientToSave] = useState<any>(null)
     const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month')
+    const isDesktop = useMediaQuery("(min-width: 768px)")
+
     const [selectedWeek, setSelectedWeek] = useState(0)
     const [loading, setLoading] = useState(false)
     const [dateToBlock, setDateToBlock] = useState<string | null>(null)
@@ -713,6 +721,87 @@ export default function AgendaPage() {
 
     const selectedDateObj = new Date(selectedDate + "T12:00:00")
 
+    const calendarContent = (
+        <>
+            <DialogHeader className={cn("p-0 text-left", !isDesktop && "mt-4")}>
+                <div className="flex items-center gap-3 mb-2">
+                    <CalendarIcon className="h-6 w-6 text-brand-primary" />
+                    {isDesktop ? (
+                        <DialogTitle className="text-2xl font-bold text-white">Calendário</DialogTitle>
+                    ) : (
+                        <DrawerTitle className="text-2xl font-bold text-white">Calendário</DrawerTitle>
+                    )}
+                </div>
+                {isDesktop ? (
+                    <DialogDescription className="text-stone-400 text-xs">
+                        Selecione uma data para visualizar a agenda.
+                    </DialogDescription>
+                ) : (
+                    <DrawerDescription className="text-stone-400 text-xs">
+                        Selecione uma data para visualizar a agenda.
+                    </DrawerDescription>
+                )}
+            </DialogHeader>
+
+            <div className="mt-8">
+                <div className="flex items-center justify-between mb-8">
+                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-stone-400 hover:text-white transition-all">
+                        <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <span className="text-sm font-bold text-white capitalize">{MONTH_NAMES[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
+                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-stone-400 hover:text-white transition-all">
+                        <ChevronRight className="h-5 w-5" />
+                    </button>
+                </div>
+
+                <div className="grid grid-cols-7 gap-y-2 mb-4">
+                    {WEEKDAYS.map(d => (
+                        <div key={d} className="text-center text-[10px] font-black text-stone-600 uppercase tracking-widest">{d.slice(0, 3)}</div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-7 gap-y-4">
+                    {Array.from({ length: new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay() }).map((_, i) => <div key={`e-${i}`} />)}
+                    {Array.from({ length: new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate() }).map((_, i) => {
+                        const day = i + 1
+                        const m = (currentMonth.getMonth() + 1).toString().padStart(2, "0")
+                        const d = day.toString().padStart(2, "0")
+                        const dateKey = `${currentMonth.getFullYear()}-${m}-${d}`
+                        const isSelected = dateKey === selectedDate
+                        const apts = appointments[dateKey] || []
+                        const isToday = dateKey === new Date().toISOString().split('T')[0]
+                        const blocked = isDayFullyBlocked(dateKey)
+                        const isOpen = isDateOpen(dateKey)
+
+                        return (
+                            <button
+                                key={day}
+                                onClick={() => { setSelectedDate(dateKey); setIsCalendarModalOpen(false); }}
+                                className={cn(
+                                    "h-10 w-full rounded-xl text-xs font-bold transition-all relative flex flex-col items-center justify-center cursor-pointer",
+                                    isSelected ? "bg-brand-primary text-white shadow-lg shadow-brand-primary/20" :
+                                        isToday ? "text-brand-primary border border-brand-primary/30" :
+                                            blocked || !isOpen ? "text-stone-700 pointer-events-none" : "text-stone-400 hover:bg-white/5 hover:text-white"
+                                )}
+                            >
+                                <span>{day}</span>
+                                <div className="flex gap-0.5 absolute bottom-1.5">
+                                    {apts.length > 0 && (
+                                        <>
+                                            {apts.some(a => a.status === 'confirmed' || a.status === 'completed') && <div className="h-1 w-1 rounded-full bg-emerald-500" />}
+                                            {apts.some(a => a.status === 'pending') && <div className="h-1 w-1 rounded-full bg-brand-primary" />}
+                                            {apts.some(a => a.status === 'blocked') && <div className="h-1 w-1 rounded-full bg-red-500" />}
+                                        </>
+                                    )}
+                                </div>
+                            </button>
+                        )
+                    })}
+                </div>
+            </div>
+        </>
+    )
+
     // ── Desktop-specific state ──
     const [selectedAppointment, setSelectedAppointment] = useState<any>(null)
 
@@ -766,7 +855,7 @@ export default function AgendaPage() {
                         <button onClick={() => setIsCalendarModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-800 bg-stone-900/40 text-stone-300 hover:text-white hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
                             <Filter className="h-4 w-4" /> Filtrar
                         </button>
-                        <button onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }} className="h-9 px-4 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-stone-950 transition-all hover:scale-[1.02] text-xs flex items-center gap-2 cursor-pointer">
+                        <button onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }} className="h-9 px-4 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-white transition-all hover:scale-[1.02] text-xs flex items-center gap-2 cursor-pointer">
                             <Plus className="h-4 w-4" /> {tenant?.segmento === 'advocacia' ? 'Nova Consulta' : 'Novo Agendamento'} <ChevronDown className="h-3.5 w-3.5 opacity-60 ml-0.5" />
                         </button>
                     </div>
@@ -981,24 +1070,6 @@ export default function AgendaPage() {
             </div>
 
             <div className="lg:hidden flex flex-col flex-1 min-h-0 h-full overflow-hidden">
-                <div className="shrink-0 flex items-center justify-end px-2 py-3 gap-3">
-                    <div className="flex items-center gap-2 shrink-0">
-                        <button
-                            onClick={() => setIsCalendarModalOpen(true)}
-                            className="h-10 w-10 rounded-full bg-stone-900/60 border border-white/5 text-stone-400 hover:text-white transition-all flex items-center justify-center cursor-pointer"
-                            title="Calendário completo"
-                        >
-                            <Filter className="h-4 w-4" />
-                        </button>
-                        <button
-                            onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }}
-                            className="h-10 w-10 rounded-full shadow-lg shadow-brand-secondary/20 bg-brand-gold text-stone-950 transition-all hover:scale-[1.02] flex items-center justify-center cursor-pointer"
-                        >
-                            <Plus className="h-5 w-5" />
-                        </button>
-                    </div>
-                </div>
-
                 {/* ═══ DATE PICKER HORIZONTAL (iOS-style) ═══ */}
                 <div className="shrink-0 px-2 pb-3">
                     <div ref={datePickerRef} className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 snap-x snap-mandatory">
@@ -1043,6 +1114,15 @@ export default function AgendaPage() {
                                 </button>
                             );
                         })}
+
+                        {/* Calendar Button to open modal */}
+                        <button
+                            onClick={() => setIsCalendarModalOpen(true)}
+                            className="flex flex-col items-center justify-center min-w-[54px] h-[72px] rounded-2xl transition-all snap-center cursor-pointer shrink-0 relative border border-white/5 bg-stone-900/40 text-stone-400 hover:text-white"
+                        >
+                            <CalendarIcon className="h-6 w-6" />
+                            <span className="text-[9px] font-bold uppercase tracking-tighter mt-1">Calendário</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1050,7 +1130,7 @@ export default function AgendaPage() {
                 <div className="shrink-0 mx-1 mb-3 p-3 rounded-2xl bg-stone-900/40 border border-white/5 flex items-center gap-4">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1.5">
-                            <Zap className="h-3.5 w-3.5 text-brand-primary shrink-0" />
+                            <TrendingUp className="h-3.5 w-3.5 text-brand-primary shrink-0" />
                             <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest truncate">
                                 {occupancyNumber}% ocupado · {freeSlotCount} {freeSlotCount === 1 ? 'horário livre' : 'horários livres'}
                             </span>
@@ -1071,7 +1151,7 @@ export default function AgendaPage() {
                 {/* ═══ TIMELINE DO DIA (Core UX) ═══ */}
                 <div className="flex-1 min-h-0 overflow-hidden flex flex-col relative">
                     {/* Timeline vertical line */}
-                    <div className="absolute left-[29px] top-0 bottom-0 w-px bg-gradient-to-b from-brand-primary/30 via-brand-primary/10 to-transparent pointer-events-none z-0" />
+                    <div className="absolute left-[23px] top-0 bottom-0 w-px bg-brand-primary/20 pointer-events-none z-0" />
 
                     <TooltipProvider>
                         <div ref={timelineRef} className="flex-1 overflow-y-auto px-1 py-2 space-y-2 custom-scrollbar scroll-smooth relative z-10">
@@ -1089,9 +1169,9 @@ export default function AgendaPage() {
                                 const isUnavailable = !isOpenByConfig && !isLiberado;
 
                                 return (
-                                    <div key={time} id={`slot-${time}`} className={cn("flex gap-2 items-start transition-all duration-300 relative group/row", isUnavailable && !apt ? "opacity-50" : "opacity-100")}>
+                                    <div key={time} id={`slot-${time}`} className={cn("flex gap-0.5 items-start transition-all duration-300 relative group/row", isUnavailable && !apt ? "opacity-50" : "opacity-100")}>
                                         {/* Time + dot */}
-                                        <div className="w-[58px] shrink-0 flex items-center gap-1.5 pt-3 relative z-10">
+                                        <div className="w-[46px] shrink-0 flex items-center gap-1 pt-3 relative z-10">
                                             <div className={cn("h-2 w-2 rounded-full shrink-0 border-2 transition-all",
                                                 isCurrentSlot ? "bg-brand-primary border-brand-primary shadow-[0_0_8px_rgba(245,204,112,0.4)]" :
                                                     apt && !isBlocked && !isLiberado ? "bg-stone-600 border-stone-500" :
@@ -1224,74 +1304,22 @@ export default function AgendaPage() {
                     </TooltipProvider>
                 </div>
 
-                {/* ═══ FAB — Floating Action Button ═══ */}
-                <button
-                    onClick={() => { setActiveTime(filteredTimeSlots[0] || TIME_SLOTS[0]); setIsAddModalOpen(true); }}
-                    className="fixed bottom-24 right-5 z-50 h-14 w-14 rounded-full bg-brand-gold shadow-xl shadow-brand-secondary/30 flex items-center justify-center text-stone-950 hover:scale-110 active:scale-95 transition-all cursor-pointer sm:hidden"
-                    title="Novo Agendamento"
-                >
-                    <Plus className="h-6 w-6" strokeWidth={2.5} />
-                </button>
             </div>{/* end mobile wrapper */}
 
             {/* ═══ CALENDAR MODAL (Full Month) ═══ */}
-            <Dialog open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
-                <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-md p-6">
-                    <DialogHeader>
-                        <DialogTitle className="text-lg font-black text-white flex items-center gap-2">
-                            <CalendarIcon className="h-5 w-5 text-brand-primary" /> Calendário
-                        </DialogTitle>
-                        <DialogDescription className="text-stone-400 text-xs">
-                            Selecione uma data para visualizar a agenda.
-                        </DialogDescription>
-                    </DialogHeader>
-                    {/* Month navigation */}
-                    <div className="flex items-center justify-between mt-4 mb-3">
-                        <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="h-8 w-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
-                            <ChevronLeft className="h-4 w-4" />
-                        </button>
-                        <span className="text-sm font-bold text-foreground">{MONTH_NAMES[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
-                        <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="h-8 w-8 rounded-lg bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
-                            <ChevronRight className="h-4 w-4" />
-                        </button>
-                    </div>
-                    {/* Weekday headers */}
-                    <div className="grid grid-cols-7 gap-1 mb-1">
-                        {WEEKDAYS.map(d => <div key={d} className="text-center text-[9px] font-black text-stone-600 uppercase tracking-widest py-1">{d}</div>)}
-                    </div>
-                    {/* Days grid */}
-                    <div className="grid grid-cols-7 gap-1">
-                        {Array.from({ length: firstDay }).map((_, i) => <div key={`e-${i}`} />)}
-                        {Array.from({ length: daysInMonth }).map((_, i) => {
-                            const day = i + 1;
-                            const dateKey = getDateKey(day);
-                            const isSelected = dateKey === selectedDate;
-                            const apts = appointments[dateKey] || [];
-                            const isToday = dateKey === new Date().toISOString().split('T')[0];
-                            const blocked = isDayFullyBlocked(dateKey);
-                            return (
-                                <button key={day} onClick={() => { setSelectedDate(dateKey); setIsCalendarModalOpen(false); }}
-                                    className={cn(
-                                        "h-9 w-full rounded-lg text-xs font-bold transition-all relative flex flex-col items-center justify-center gap-0.5 cursor-pointer",
-                                        isSelected ? (blocked ? "bg-red-500/20 text-red-400" : "bg-brand-gold text-stone-950") :
-                                            blocked ? "text-stone-600 bg-stone-900/30" : "text-stone-400 hover:bg-stone-800/50 hover:text-white"
-                                    )}>
-                                    <span>{day}</span>
-                                    <div className="flex gap-0.5">
-                                        {apts.slice(0, 2).map((a, idx) => (
-                                            <div key={idx} className={cn("h-1 w-1 rounded-full",
-                                                isSelected ? "bg-stone-950/30" :
-                                                    a.status === 'completed' ? "bg-emerald-500" : a.status === 'confirmed' ? "bg-green-500" : a.status === 'pending' ? "bg-amber-400" : "bg-stone-600"
-                                            )} />
-                                        ))}
-                                    </div>
-                                    {isToday && !isSelected && <div className="absolute top-0.5 right-0.5 h-1 w-1 rounded-full bg-brand-primary" />}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </DialogContent>
-            </Dialog>
+            {isDesktop ? (
+                <Dialog open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
+                    <DialogContent className="bg-stone-950 border-white/5 rounded-3xl max-w-sm p-8 shadow-2xl">
+                        {calendarContent}
+                    </DialogContent>
+                </Dialog>
+            ) : (
+                <Drawer open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
+                    <DrawerContent className="bg-stone-950 border-white/5 rounded-t-3xl px-8 pt-4 pb-12 shadow-2xl border-t">
+                        {calendarContent}
+                    </DrawerContent>
+                </Drawer>
+            )}
 
 
             <AppointmentModal
@@ -1346,43 +1374,85 @@ export default function AgendaPage() {
                 businessHours={tenant?.businessHours}
             />
 
-            <Dialog open={isBlockConfirmOpen} onOpenChange={setIsBlockConfirmOpen}>
-                <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-black text-white">Bloquear dia inteiro?</DialogTitle>
-                        <DialogDescription className="text-stone-400 text-sm">
-                            Isso irá fechar todos os horários disponíveis para o dia {dateToBlock && new Date(dateToBlock + 'T00:00:00').toLocaleDateString('pt-BR')}.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter className="flex gap-2 mt-4">
-                        <Button variant="ghost" onClick={() => setIsBlockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
-                            Cancelar
-                        </Button>
-                        <Button onClick={() => dateToBlock && handleBlockDay(dateToBlock)} className="flex-1 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold" disabled={loading}>
-                            {loading ? "Bloqueando..." : "Bloquear"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            {isDesktop ? (
+                <Dialog open={isBlockConfirmOpen} onOpenChange={setIsBlockConfirmOpen}>
+                    <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-sm">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-black text-white">Bloquear dia inteiro?</DialogTitle>
+                            <DialogDescription className="text-stone-400 text-sm">
+                                Isso irá fechar todos os horários disponíveis para o dia {dateToBlock && new Date(dateToBlock + 'T00:00:00').toLocaleDateString('pt-BR')}.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="flex gap-2 mt-4">
+                            <Button variant="ghost" onClick={() => setIsBlockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                                Cancelar
+                            </Button>
+                            <Button onClick={() => dateToBlock && handleBlockDay(dateToBlock)} className="flex-1 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold" disabled={loading}>
+                                {loading ? "Bloqueando..." : "Bloquear"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            ) : (
+                <Drawer open={isBlockConfirmOpen} onOpenChange={setIsBlockConfirmOpen}>
+                    <DrawerContent className="bg-stone-950 border-white/10 rounded-t-3xl px-6 pt-2 pb-6 shadow-2xl border-t">
+                        <DrawerHeader className="text-left p-0">
+                            <DrawerTitle className="text-xl font-black text-white">Bloquear dia inteiro?</DrawerTitle>
+                            <DrawerDescription className="text-stone-400 text-sm">
+                                Isso irá fechar todos os horários disponíveis para o dia {dateToBlock && new Date(dateToBlock + 'T00:00:00').toLocaleDateString('pt-BR')}.
+                            </DrawerDescription>
+                        </DrawerHeader>
+                        <DrawerFooter className="flex flex-col gap-2 mt-6 p-0 pb-6">
+                            <Button onClick={() => dateToBlock && handleBlockDay(dateToBlock)} className="w-full h-12 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold" disabled={loading}>
+                                {loading ? "Bloqueando..." : "Bloquear Dia Inteiro"}
+                            </Button>
+                            <Button variant="ghost" onClick={() => setIsBlockConfirmOpen(false)} className="w-full h-12 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                                Cancelar
+                            </Button>
+                        </DrawerFooter>
+                    </DrawerContent>
+                </Drawer>
+            )}
 
-            <Dialog open={isUnblockConfirmOpen} onOpenChange={setIsUnblockConfirmOpen}>
-                <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-sm">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-black text-white">Liberar dia inteiro?</DialogTitle>
-                        <DialogDescription className="text-stone-400 text-sm">
-                            Isso irá remover todos os bloqueios manuais para o dia {dateToUnblock && new Date(dateToUnblock + 'T00:00:00').toLocaleDateString('pt-BR')}.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter className="flex gap-2 mt-4">
-                        <Button variant="ghost" onClick={() => setIsUnblockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
-                            Cancelar
-                        </Button>
-                        <Button onClick={() => dateToUnblock && handleUnblockDay(dateToUnblock)} className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold" disabled={loading}>
-                            {loading ? "Liberando..." : "Liberar"}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            {isDesktop ? (
+                <Dialog open={isUnblockConfirmOpen} onOpenChange={setIsUnblockConfirmOpen}>
+                    <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-sm">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-black text-white">Liberar dia inteiro?</DialogTitle>
+                            <DialogDescription className="text-stone-400 text-sm">
+                                Isso irá remover todos os bloqueios manuais para o dia {dateToUnblock && new Date(dateToUnblock + 'T00:00:00').toLocaleDateString('pt-BR')}.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="flex gap-2 mt-4">
+                            <Button variant="ghost" onClick={() => setIsUnblockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                                Cancelar
+                            </Button>
+                            <Button onClick={() => dateToUnblock && handleUnblockDay(dateToUnblock)} className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold" disabled={loading}>
+                                {loading ? "Liberando..." : "Liberar"}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            ) : (
+                <Drawer open={isUnblockConfirmOpen} onOpenChange={setIsUnblockConfirmOpen}>
+                    <DrawerContent className="bg-stone-950 border-white/10 rounded-t-3xl px-6 pt-2 pb-6 shadow-2xl border-t">
+                        <DrawerHeader className="text-left p-0">
+                            <DrawerTitle className="text-xl font-black text-white">Liberar dia inteiro?</DrawerTitle>
+                            <DrawerDescription className="text-stone-400 text-sm">
+                                Isso irá remover todos os bloqueios manuais para o dia {dateToUnblock && new Date(dateToUnblock + 'T00:00:00').toLocaleDateString('pt-BR')}.
+                            </DrawerDescription>
+                        </DrawerHeader>
+                        <DrawerFooter className="flex flex-col gap-2 mt-6 p-0 pb-6">
+                            <Button onClick={() => dateToUnblock && handleUnblockDay(dateToUnblock)} className="w-full h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold" disabled={loading}>
+                                {loading ? "Liberando..." : "Liberar Dia Inteiro"}
+                            </Button>
+                            <Button variant="ghost" onClick={() => setIsUnblockConfirmOpen(false)} className="w-full h-12 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                                Cancelar
+                            </Button>
+                        </DrawerFooter>
+                    </DrawerContent>
+                </Drawer>
+            )}
             <BusinessHoursModal
                 isOpen={isBusinessHoursModalOpen}
                 onClose={() => setIsBusinessHoursModalOpen(false)}

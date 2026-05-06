@@ -20,15 +20,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer"
+import { useMediaQuery } from "@/hooks/use-media-query"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { convertDemoAccount } from "@/lib/actions/admin"
 import { toast } from "sonner"
 
@@ -99,6 +96,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [cachedBranding, setCachedBranding] = useState<{ logo: string; mini: string; title: string; primary: string; hover: string } | null>(null)
     const [isCollapsed, setIsCollapsed] = useState(false)
     const [mounted, setMounted] = useState(false)
+    const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
         setMounted(true)
@@ -106,7 +104,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         const cached = localStorage.getItem("tenant_branding_cache")
         if (cached) {
             try {
-                setCachedBranding(JSON.parse(cached))
+                const branding = JSON.parse(cached)
+                setCachedBranding(branding)
+                
+                // Inject into root for portals to access
+                document.documentElement.style.setProperty('--tenant-primary', branding.primary);
+                document.documentElement.style.setProperty('--tenant-hover', branding.hover);
             } catch (e) {}
         }
     }, [])
@@ -124,6 +127,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 }
                 localStorage.setItem("tenant_branding_cache", JSON.stringify(branding))
                 setCachedBranding(branding)
+
+                // Inject into root for portals to access
+                document.documentElement.style.setProperty('--tenant-primary', branding.primary);
+                document.documentElement.style.setProperty('--tenant-hover', branding.hover);
             }
         }).catch(() => {})
     }, [])
@@ -198,6 +205,90 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const accentColor = tenant?.colors?.primary || cachedBranding?.primary || "#F5CC70"
     const hoverColor = tenant?.colors?.hover || cachedBranding?.hover || "#CA912A"
 
+    const convertModalContent = (
+        <>
+            <div className="relative h-32 bg-linear-to-br from-amber-500 to-amber-600 flex items-center justify-center overflow-hidden">
+                <ShieldCheck className="h-20 w-20 text-white/20 absolute -right-4 -bottom-4 rotate-12" />
+                <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl relative z-10">
+                    <Users className="h-8 w-8 text-white" />
+                </div>
+            </div>
+            
+            <div className="p-8">
+                {isDesktop ? (
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            Torne-se o Dono Oficial
+                        </DialogTitle>
+                        <DialogDescription className="text-stone-500 dark:text-stone-400 mt-2 text-sm leading-relaxed">
+                            Para continuar usando o painel, você precisa substituir o e-mail e a senha temporários por dados reais que só você tenha acesso.
+                        </DialogDescription>
+                    </DialogHeader>
+                ) : (
+                    <DrawerHeader className="p-0 text-left">
+                        <DrawerTitle className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            Torne-se o Dono Oficial
+                        </DrawerTitle>
+                        <DrawerDescription className="text-stone-500 dark:text-stone-400 mt-2 text-sm leading-relaxed">
+                            Para continuar usando o painel, você precisa substituir o e-mail e a senha temporários por dados reais que só você tenha acesso.
+                        </DrawerDescription>
+                    </DrawerHeader>
+                )}
+
+                <form onSubmit={handleConvert} className="space-y-6 mt-8">
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-stone-400">Seu Novo E-mail</Label>
+                            <Input 
+                                id="email" 
+                                type="email" 
+                                placeholder="ex: voce@email.com"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                                className="h-12 rounded-xl bg-stone-50 dark:bg-stone-900 border-stone-200 dark:border-stone-800 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="pass" className="text-[10px] font-black uppercase tracking-widest text-stone-400">Sua Nova Senha</Label>
+                            <Input 
+                                id="pass" 
+                                type="password" 
+                                placeholder="Mínimo 6 caracteres"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="h-12 rounded-xl bg-stone-50 dark:bg-stone-900 border-stone-200 dark:border-stone-800 focus:ring-amber-500 focus:border-amber-500 transition-all"
+                                required
+                                minLength={6}
+                            />
+                        </div>
+                    </div>
+
+                    <Button 
+                        type="submit" 
+                        disabled={isConverting}
+                        className="w-full h-12 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-95"
+                    >
+                        {isConverting ? (
+                            <div className="flex items-center gap-2">
+                                <div className="h-4 w-4 border-2 border-stone-900 border-t-transparent rounded-full animate-spin" />
+                                Salvando...
+                            </div>
+                        ) : (
+                            "Salvar e Começar Agora"
+                        )}
+                    </Button>
+
+                    <div className="pt-4 text-center">
+                        <p className="text-[10px] text-stone-400 uppercase tracking-widest">
+                            Ao salvar, sua conta deixará de ser demo.
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </>
+    )
+
     return (
         <div 
             className="min-h-screen bg-[#F6F3ED] dark:bg-stone-950 selection:bg-amber-100 selection:text-amber-900"
@@ -206,6 +297,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 '--tenant-hover': hoverColor
             } as React.CSSProperties}
         >
+
+            {/* Conversion Modal */}
+            {mounted && tenant?.isDemo && (
+                isDesktop ? (
+                    <Dialog open={true} onOpenChange={() => {}}>
+                        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none bg-white dark:bg-stone-950 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300">
+                            {convertModalContent}
+                        </DialogContent>
+                    </Dialog>
+                ) : (
+                    <Drawer open={true} onOpenChange={() => {}}>
+                        <DrawerContent className="p-0 overflow-hidden border-none bg-white dark:bg-stone-950 rounded-t-3xl shadow-2xl">
+                            {convertModalContent}
+                        </DrawerContent>
+                    </Drawer>
+                )
+            )}
 
             {/* ══════════════════════════════════════════════
                 DESKTOP SIDEBAR — hidden on mobile
@@ -471,7 +579,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         </p>
                                         <div className="flex flex-wrap gap-3 mt-4">
                                             <Link href="/configuracoes">
-                                                <button className="text-[11px] font-black uppercase tracking-widest bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 px-4 py-2 rounded-lg hover:opacity-90 transition-all cursor-pointer">
+                                                <button className="text-[11px] font-black uppercase tracking-widest bg-stone-900 dark:bg-stone-100 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-all cursor-pointer">
                                                     Configurar Conta Oficial
                                                 </button>
                                             </Link>
@@ -524,83 +632,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     })}
                 </div>
             </nav>
-            {/* ══════════════════════════════════════════════
-                MANDATORY CONVERSION MODAL
-               ══════════════════════════════════════════════ */}
-            {mounted && tenant?.isDemo && (
-                <Dialog open={true} onOpenChange={() => {}}>
-                    <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none bg-white dark:bg-stone-950 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-300">
-                        <div className="relative h-32 bg-linear-to-br from-amber-500 to-amber-600 flex items-center justify-center overflow-hidden">
-                            <ShieldCheck className="h-20 w-20 text-white/20 absolute -right-4 -bottom-4 rotate-12" />
-                            <div className="h-16 w-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shadow-xl relative z-10">
-                                <Users className="h-8 w-8 text-white" />
-                            </div>
-                        </div>
-                        
-                        <div className="p-8">
-                            <DialogHeader>
-                                <DialogTitle className="text-2xl font-bold tracking-tight text-stone-900 dark:text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
-                                    Torne-se o Dono Oficial
-                                </DialogTitle>
-                                <DialogDescription className="text-stone-500 dark:text-stone-400 mt-2 text-sm leading-relaxed">
-                                    Para continuar usando o painel, você precisa substituir o e-mail e a senha temporários por dados reais que só você tenha acesso.
-                                </DialogDescription>
-                            </DialogHeader>
-
-                            <form onSubmit={handleConvert} className="space-y-6 mt-8">
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-stone-400">Seu Novo E-mail</Label>
-                                        <Input 
-                                            id="email" 
-                                            type="email" 
-                                            placeholder="ex: voce@email.com"
-                                            value={newEmail}
-                                            onChange={(e) => setNewEmail(e.target.value)}
-                                            className="h-12 rounded-xl bg-stone-50 dark:bg-stone-900 border-stone-200 dark:border-stone-800 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="pass" className="text-[10px] font-black uppercase tracking-widest text-stone-400">Sua Nova Senha</Label>
-                                        <Input 
-                                            id="pass" 
-                                            type="password" 
-                                            placeholder="Mínimo 6 caracteres"
-                                            value={newPassword}
-                                            onChange={(e) => setNewPassword(e.target.value)}
-                                            className="h-12 rounded-xl bg-stone-50 dark:bg-stone-900 border-stone-200 dark:border-stone-800 focus:ring-amber-500 focus:border-amber-500 transition-all"
-                                            required
-                                            minLength={6}
-                                        />
-                                    </div>
-                                </div>
-
-                                <Button 
-                                    type="submit" 
-                                    disabled={isConverting}
-                                    className="w-full h-12 rounded-xl bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-95"
-                                >
-                                    {isConverting ? (
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-4 w-4 border-2 border-stone-900 border-t-transparent rounded-full animate-spin" />
-                                            Salvando...
-                                        </div>
-                                    ) : (
-                                        "Salvar e Começar Agora"
-                                    )}
-                                </Button>
-
-                                <div className="pt-4 text-center">
-                                    <p className="text-[10px] text-stone-400 uppercase tracking-widest">
-                                        Ao salvar, sua conta deixará de ser demo.
-                                    </p>
-                                </div>
-                            </form>
-                        </div>
-                    </DialogContent>
-                </Dialog>
-            )}
         </div>
     )
 }

@@ -279,11 +279,11 @@
 
 /* Primary CTA */
 .btn-gold-solid {
-  background: linear-gradient(90deg, #FBBF24 0%, #F59E0B 50%, #D97706 100%);
-  color: #fff;
+  background: linear-gradient(90deg, var(--tenant-primary, #FBBF24) 0%, var(--tenant-hover, #F59E0B) 100%);
+  color: #fff !important;
   font-weight: 700;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(var(--tenant-primary-rgb, 245, 158, 11), 0.4);
   transition: all 0.2s ease;
 }
 
@@ -293,10 +293,10 @@
 }
 
 .dark .btn-gold-solid {
-  background: linear-gradient(90deg, #FADC8A 0%, #E8A83A 50%, #C6811E 100%);
-  color: #111111;
+  background: linear-gradient(90deg, var(--tenant-primary, #FADC8A) 0%, var(--tenant-hover, #E8A83A) 100%);
+  color: #fff !important;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 30px -10px rgba(232, 168, 58, 0.4);
+  box-shadow: 0 10px 30px -10px rgba(var(--tenant-primary-rgb, 232, 168, 58), 0.4);
 }
 
 /* Secondary CTA */
