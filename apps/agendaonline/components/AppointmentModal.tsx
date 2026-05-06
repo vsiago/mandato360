@@ -72,6 +72,8 @@ export function AppointmentModal({
     
     // Legal specialized states
     const [processNumber, setProcessNumber] = useState("")
+    const [nbNumber, setNbNumber] = useState("")
+    const [naturezaCausa, setNaturezaCausa] = useState("")
     const [foro, setForo] = useState("")
     const [vara, setVara] = useState("")
     const [location, setLocation] = useState("")
@@ -89,6 +91,13 @@ export function AppointmentModal({
     const [diligenciaTipo, setDiligenciaTipo] = useState("externa")
     const [audienciaTipo, setAudienciaTipo] = useState("conciliacao")
     const [reuniaoTipo, setReuniaoTipo] = useState("cliente")
+    const [internalDate, setInternalDate] = useState(date)
+    const [internalTime, setInternalTime] = useState(time)
+
+    useEffect(() => {
+        setInternalDate(date)
+        setInternalTime(time)
+    }, [date, time])
 
     useEffect(() => {
         if (isOpen) {
@@ -201,8 +210,8 @@ export function AppointmentModal({
             return
         }
 
-        if (!date || !time) {
-            toast.error("Data ou horário não identificados. Tente selecionar o slot novamente.")
+        if (!internalDate || !internalTime) {
+            toast.error("Data ou horário não identificados.")
             return
         }
 
@@ -218,6 +227,8 @@ export function AppointmentModal({
                 
                 // Fields for all
                 processNumber: (mode === 'audiencia' || mode === 'diligencia' || mode === 'financeiro') ? processNumber : undefined,
+                nbNumber: nbNumber || undefined,
+                naturezaCausa: naturezaCausa || undefined,
                 foro: (mode === 'audiencia' || mode === 'diligencia') ? foro : undefined,
                 vara: (mode === 'audiencia' || mode === 'diligencia') ? vara : undefined,
                 location: (mode === 'diligencia' || mode === 'audiencia' || mode === 'reuniao') ? location : undefined,
@@ -269,7 +280,7 @@ export function AppointmentModal({
                 }
             } else if (mode === 'financeiro') {
                 for (let i = 0; i < installments; i++) {
-                    const installmentDate = addMonths(parseISO(date), i)
+                    const installmentDate = addMonths(parseISO(internalDate), i)
                     const formattedDate = format(installmentDate, 'yyyy-MM-dd')
                     
                     await createAppointmentAction({
@@ -277,7 +288,7 @@ export function AppointmentModal({
                         customerName: name,
                         customerPhone: phone,
                         date: formattedDate,
-                        time: time,
+                        time: internalTime,
                         status: 'pending',
                         notes: `[Financeiro] Parcela ${i + 1}/${installments} - ${notes}`
                     })
@@ -292,8 +303,8 @@ export function AppointmentModal({
                     customerName: name,
                     customerPhone: phone,
                     serviceId: selectedServices[0] || undefined,
-                    date,
-                    time,
+                    date: internalDate,
+                    time: internalTime,
                     status: 'confirmed',
                     notes,
                 })
@@ -418,6 +429,32 @@ export function AppointmentModal({
                                      mode === 'reuniao' ? 'Reunião Pautada' :
                                      'Lembrete Financeiro'}
                                 </h4>
+                            </div>
+                        </div>
+
+                        {/* Date and Time Pickers */}
+                        <div className="grid grid-cols-2 gap-3 p-4 rounded-2xl bg-brand-primary/5 border border-brand-primary/10">
+                            <div className="space-y-2">
+                                <Label className="text-[10px] text-brand-primary font-bold ml-1 flex items-center gap-2">
+                                    <Calendar className="h-3 w-3" /> Data
+                                </Label>
+                                <Input 
+                                    type="date" 
+                                    value={internalDate} 
+                                    onChange={e => setInternalDate(e.target.value)} 
+                                    className="h-12 bg-stone-950/40 border-brand-primary/20 rounded-xl text-sm font-bold text-white"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[10px] text-brand-primary font-bold ml-1 flex items-center gap-2">
+                                    <ClockIcon className="h-3 w-3" /> Horário
+                                </Label>
+                                <Input 
+                                    type="time" 
+                                    value={internalTime} 
+                                    onChange={e => setInternalTime(e.target.value)} 
+                                    className="h-12 bg-stone-950/40 border-brand-primary/20 rounded-xl text-sm font-bold text-white"
+                                />
                             </div>
                         </div>
 
@@ -551,9 +588,14 @@ export function AppointmentModal({
                                                 <Input value={processNumber} onChange={e => setProcessNumber(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Nº Processo" />
                                             </div>
                                             <div className="relative group">
-                                                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
-                                                <Input value={location} onChange={e => setLocation(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Cidade / Local" />
+                                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500/60" />
+                                                <Input value={nbNumber} onChange={e => setNbNumber(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="NB / ID Secundário" />
                                             </div>
+                                        </div>
+
+                                        <div className="relative group">
+                                            <Info className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
+                                            <Input value={naturezaCausa} onChange={e => setNaturezaCausa(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="Natureza da Causa (ex: LOAS, Auxílio...)" />
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-3">

@@ -1201,7 +1201,7 @@ export default function AgendaPage() {
                                                         : apt.status === 'confirmed'
                                                             ? "bg-gradient-to-r from-emerald-500/[0.08] to-emerald-500/[0.02] border-emerald-500/20"
                                                     : "bg-gradient-to-r from-amber-500/[0.08] to-amber-500/[0.02] border-amber-500/20 animate-pulse"
-                                                )} onClick={() => { setAppointmentToComplete(apt); apt.status === 'completed' ? setIsDetailsModalOpen(true) : setIsCompleteModalOpen(true); }}>
+                                                )} onClick={() => { setAppointmentToComplete(apt); setIsDetailsModalOpen(true); }}>
                                                     <div className="flex items-center justify-between gap-2">
                                                         <div className="flex flex-col min-w-0 flex-1">
                                                             <h4 className="text-sm font-bold text-foreground truncate">{apt.name}</h4>
@@ -1364,6 +1364,7 @@ export default function AgendaPage() {
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
                 appointment={appointmentToComplete}
+                onComplete={() => { setIsDetailsModalOpen(false); setTimeout(() => setIsCompleteModalOpen(true), 200); }}
             />
 
             <PixConfigModal

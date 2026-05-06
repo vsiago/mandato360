@@ -44,6 +44,7 @@ function buildNavGroups(segmento?: string) {
             items: [
                 { href: "/painel", label: "Painel", icon: BarChart3 },
                 { href: "/agenda", label: "Agenda", icon: Calendar },
+                { href: "/processos", label: isAdvocacia ? "Processos" : "Serviços em Aberto", icon: FileText },
                 { href: "/servicos", label: isAdvocacia ? "Áreas Jurídicas" : "Serviços", icon: isAdvocacia ? Scale : Scissors },
                 { href: "/clientes", label: "Clientes", icon: Users },
                 { href: "/financeiro", label: "Financeiro", icon: DollarSign },
@@ -81,8 +82,8 @@ function buildBottomBarItems(segmento?: string) {
     return [
         { href: "/painel", label: "Início", icon: LayoutDashboard },
         { href: "/agenda", label: "Agenda", icon: Calendar },
+        { href: "/processos", label: isAdvocacia ? "Processos" : "Casos", icon: FileText },
         { href: "/servicos", label: isAdvocacia ? "Jurídico" : "Serviços", icon: isAdvocacia ? Scale : Scissors },
-        { href: "/antes-depois", label: isAdvocacia ? "Casos" : "Fotos", icon: isAdvocacia ? Briefcase : ImageIcon },
     ]
 }
 

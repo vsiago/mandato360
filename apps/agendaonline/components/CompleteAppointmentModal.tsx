@@ -194,9 +194,10 @@ interface DetailsModalProps {
     isOpen: boolean
     onClose: () => void
     appointment: any
+    onComplete?: () => void
 }
 
-export function AppointmentDetailsModal({ isOpen, onClose, appointment }: DetailsModalProps) {
+export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComplete }: DetailsModalProps) {
     const [isSaveClientModalOpen, setIsSaveClientModalOpen] = React.useState(false)
 
     const details = React.useMemo(() => {
@@ -232,12 +233,23 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment }: Detail
             icon={mode === 'audiencia' ? Scale : mode === 'diligencia' ? Briefcase : mode === 'reuniao' ? Video : Info}
             maxWidth="sm:max-w-[500px]"
             footer={
-                <Button
-                    onClick={onClose}
-                    className="w-full h-12 rounded-2xl bg-brand-gold text-stone-950 font-bold uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-brand-secondary/20 active:scale-[0.98] cursor-pointer"
-                >
-                    Fechar Resumo
-                </Button>
+                <div className="flex flex-col gap-3 w-full">
+                    {appointment.status !== 'completed' && onComplete && (
+                        <Button
+                            onClick={onComplete}
+                            className="w-full h-12 rounded-2xl bg-brand-primary text-stone-950 font-bold uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20 active:scale-[0.98] cursor-pointer"
+                        >
+                            Finalizar e Receber
+                        </Button>
+                    )}
+                    <Button
+                        onClick={onClose}
+                        variant="ghost"
+                        className="w-full h-12 rounded-2xl text-stone-400 font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
+                    >
+                        Fechar
+                    </Button>
+                </div>
             }
         >
             <div className="space-y-5">
@@ -300,6 +312,24 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment }: Detail
                                     <Hash className="h-3 w-3" /> Número do Processo
                                 </p>
                                 <p className="text-sm font-bold text-white tracking-wider">{details.processNumber}</p>
+                            </div>
+                        )}
+
+                        {details?.nbNumber && (
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black text-amber-500/60 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Hash className="h-3 w-3" /> NB / Benefício
+                                </p>
+                                <p className="text-sm font-bold text-amber-100 tracking-wider">{details.nbNumber}</p>
+                            </div>
+                        )}
+
+                        {details?.naturezaCausa && (
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <Info className="h-3 w-3" /> Natureza da Causa / Benefício
+                                </p>
+                                <p className="text-xs font-bold text-stone-300">{details.naturezaCausa}</p>
                             </div>
                         )}
 
