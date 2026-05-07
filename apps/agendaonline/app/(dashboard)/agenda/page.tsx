@@ -119,6 +119,7 @@ export default function AgendaPage() {
     const [clientToSave, setClientToSave] = useState<any>(null)
     const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month')
     const isDesktop = useMediaQuery("(min-width: 768px)")
+    const isXL = useMediaQuery("(min-width: 1280px)")
 
     const [selectedWeek, setSelectedWeek] = useState(0)
     const [loading, setLoading] = useState(false)
@@ -836,46 +837,45 @@ export default function AgendaPage() {
         <div className="h-[calc(100vh-100px)] flex flex-col animate-in fade-in duration-700 overflow-hidden bg-transparent">
 
             {/* ═══════════════════════════════════════════════════════
-                DESKTOP LAYOUT (≥ lg) — 3-column grid
+                DESKTOP LAYOUT (≥ md) — 2 or 3 column grid
                ═══════════════════════════════════════════════════════ */}
-            <div className="hidden lg:flex flex-col h-full overflow-hidden">
+            <div className="hidden md:flex flex-col h-full overflow-hidden">
                 {/* Desktop Header */}
-                <div className="shrink-0 flex items-center justify-between px-2 py-3 gap-4">
+                <div className="shrink-0 flex items-center justify-between px-1 pt-1 pb-3 gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-10 w-10 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center shrink-0">
-                            <CalendarDays className="h-5 w-5 text-brand-primary" />
+                        <div className="h-9 w-9 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center shrink-0">
+                            <CalendarDays className="h-4 w-4 text-brand-primary" />
                         </div>
                         <div className="min-w-0">
-                            <h2 className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>{tenant?.segmento === 'advocacia' ? 'Sua Agenda Jurídica' : 'Sua Agenda'}</h2>
-                            <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">{tenant?.segmento === 'advocacia' ? 'Gerencie suas consultas e audiências.' : 'Gerencie seus horários e atendimentos com eficiência.'}</p>
+                            <h2 className="text-lg font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>{tenant?.segmento === 'advocacia' ? 'Sua Agenda Jurídica' : 'Sua Agenda'}</h2>
+                            <p className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{tenant?.segmento === 'advocacia' ? 'Gerencie suas consultas e audiências.' : 'Gerencie seus horários e atendimentos com eficiência.'}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                        <button onClick={() => setIsBusinessHoursModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
-                            <Clock className="h-4 w-4" /> Funcionamento
+                        <button onClick={() => setIsBusinessHoursModalOpen(true)} className="h-8 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-[11px] font-semibold cursor-pointer">
+                            <Clock className="h-3.5 w-3.5" /> Funcionamento
                         </button>
-                        <button onClick={() => setIsCalendarModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
-                            <Filter className="h-4 w-4" /> Filtrar
+                        <button onClick={() => setIsCalendarModalOpen(true)} className="h-8 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-[11px] font-semibold cursor-pointer">
+                            <Filter className="h-3.5 w-3.5" /> Filtrar
                         </button>
                         <button 
                             onClick={() => { setAppointmentMode("standard"); setIsAddModalOpen(true); }}
-                            className="h-9 px-4 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-white transition-all hover:scale-[1.02] text-xs flex items-center gap-2 cursor-pointer"
+                            className="h-8 px-3 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-white transition-all hover:scale-[1.02] text-[11px] flex items-center gap-2 cursor-pointer"
                         >
-                            <Plus className="h-4 w-4" /> Novo Registro
+                            <Plus className="h-3.5 w-3.5" /> Novo Registro
                         </button>
                     </div>
                 </div>
 
-                {/* Desktop 3-column body */}
-                <div className="flex-1 min-h-0 grid grid-cols-[minmax(300px,360px)_minmax(0,1fr)_minmax(300px,360px)] gap-4 px-2 pb-2">
+                {/* Desktop 2 or 3-column body */}
+                <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)_minmax(300px,360px)] gap-4 px-1 pb-2">
                     {/* ── CENTER COLUMN (Visual): Timeline ── */}
                     <div className="flex flex-col min-h-0 gap-4 relative order-2">
                         {/* Date picker Card */}
-                        <div className="shrink-0 h-[116px] rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 flex items-center shadow-sm relative overflow-hidden">
-                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 bg-stone-50 dark:bg-stone-900/20 hover:bg-stone-100 dark:hover:bg-stone-800/30 transition-all shrink-0 border-r border-stone-100 dark:border-white/5 cursor-pointer">
-                                <ChevronLeft className="h-6 w-6" />
+                        <div className="shrink-0 h-[84px] rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 flex items-center shadow-sm relative overflow-hidden">
+                            <button className="w-12 h-full flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 bg-stone-50 dark:bg-stone-900/20 hover:bg-stone-100 dark:hover:bg-stone-800/30 transition-all shrink-0 border-r border-stone-100 dark:border-white/5 cursor-pointer">
+                                <ChevronLeft className="h-5 w-5" />
                             </button>
-
                             <div className="flex-1 flex justify-around items-center px-4 gap-1">
                                 {datePickerDays.slice(0, 7).map((day, i) => {
                                     const isSelected = day.dateKey === selectedDate
@@ -887,47 +887,47 @@ export default function AgendaPage() {
                                         <React.Fragment key={day.dateKey}>
                                             <button onClick={() => { setSelectedDate(day.dateKey); setSelectedAppointment(null); }}
                                                 className={cn(
-                                                    "flex flex-col items-center justify-center flex-1 min-w-0 max-w-[88px] h-[100px] rounded-[18px] transition-all cursor-pointer border relative overflow-hidden",
+                                                    "flex flex-col items-center justify-center flex-1 min-w-0 max-w-[88px] h-[72px] rounded-[14px] transition-all cursor-pointer border relative overflow-hidden",
                                                     isSelected ? "bg-brand-gold/[0.04] border-brand-gold/30 shadow-[inset_0_0_20px_rgba(245,204,112,0.03)]" :
                                                         isBlocked ? "border-transparent opacity-50" :
                                                             "border-transparent hover:bg-stone-50 dark:hover:bg-white/[0.02]"
                                                 )}>
-                                                <span className={cn("text-[9px] 2xl:text-[11px] font-bold tracking-[0.1em] uppercase mb-1.5", isSelected ? "text-stone-700 dark:text-stone-300" : "text-stone-500 dark:text-stone-400")}>{day.dayName}</span>
-                                                <span className={cn("text-[20px] 2xl:text-[28px] font-bold leading-none mb-2.5 transition-all", isSelected ? "text-stone-900 dark:text-white" : "text-stone-700 dark:text-stone-200")}>{day.dayNum}</span>
+                                                <span className={cn("text-[8px] 2xl:text-[10px] font-bold tracking-[0.1em] uppercase mb-0.5", isSelected ? "text-stone-700 dark:text-stone-300" : "text-stone-500 dark:text-stone-400")}>{day.dayName}</span>
+                                                <span className={cn("text-[18px] 2xl:text-[24px] font-bold leading-none mb-1.5 transition-all", isSelected ? "text-stone-900 dark:text-white" : "text-stone-700 dark:text-stone-200")}>{day.dayNum}</span>
 
-                                                <div className="flex gap-1.5 h-1.5">
-                                                    {isBlocked ? <div className="h-1.5 w-1.5 rounded-full bg-red-500/60" /> :
+                                                <div className="flex gap-1 h-1">
+                                                    {isBlocked ? <div className="h-1 w-1 rounded-full bg-red-500/60" /> :
                                                         isSelected ? (
-                                                            <div className="h-1.5 w-1.5 rounded-full bg-brand-gold shadow-[0_0_6px_rgba(245,204,112,0.6)]" />
+                                                            <div className="h-1 w-1 rounded-full bg-brand-gold shadow-[0_0_6px_rgba(245,204,112,0.6)]" />
                                                         ) : hasApts ? (
                                                             <>
-                                                                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                                                                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                                                                <div className="h-1 w-1 rounded-full bg-emerald-500" />
+                                                                <div className="h-1 w-1 rounded-full bg-emerald-500" />
                                                             </>
                                                         ) : (
-                                                            <div className="h-1.5 w-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />
+                                                            <div className="h-1 w-1 rounded-full bg-stone-300 dark:bg-stone-600" />
                                                         )}
                                                 </div>
                                             </button>
 
                                             {i < 6 && (
-                                                <div className="w-[1px] h-14 bg-gradient-to-b from-transparent via-stone-200 dark:via-stone-800/40 to-transparent opacity-50" />
+                                                <div className="w-[1px] h-10 bg-gradient-to-b from-transparent via-stone-200 dark:via-stone-800/40 to-transparent opacity-50" />
                                             )}
                                         </React.Fragment>
                                     )
                                 })}
                             </div>
 
-                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 bg-stone-50 dark:bg-stone-900/20 hover:bg-stone-100 dark:hover:bg-stone-800/30 transition-all shrink-0 border-l border-stone-100 dark:border-white/5 cursor-pointer">
-                                <ChevronRight className="h-6 w-6" />
+                            <button className="w-12 h-full flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 bg-stone-50 dark:bg-stone-900/20 hover:bg-stone-100 dark:hover:bg-stone-800/30 transition-all shrink-0 border-l border-stone-100 dark:border-white/5 cursor-pointer">
+                                <ChevronRight className="h-5 w-5" />
                             </button>
                         </div>
 
                         {/* Timeline Card */}
                         <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 overflow-hidden shadow-sm relative">
                             {/* Selected Date Header */}
-                            <div className="shrink-0 px-5 pl-6 pt-6 pb-5">
-                                <h3 className="text-[11px] font-bold text-stone-600 dark:text-stone-300 uppercase tracking-widest">
+                            <div className="shrink-0 px-6 pt-4 pb-2">
+                                <h3 className="text-[10px] font-bold text-stone-600 dark:text-stone-300 uppercase tracking-widest">
                                     {new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(selectedDate + "T12:00:00"))}
                                 </h3>
                             </div>
@@ -936,7 +936,7 @@ export default function AgendaPage() {
                             <div className="flex-1 min-h-0 overflow-hidden relative">
                                 <div className="absolute left-[45px] top-4 bottom-4 w-px bg-stone-100 dark:bg-stone-800/30 pointer-events-none z-0" />
                                 <TooltipProvider>
-                                    <div ref={timelineRef} onClick={() => setSelectedAppointment(null)} className="h-full overflow-y-auto p-5 space-y-0 custom-scrollbar scroll-smooth relative z-10">
+                                    <div ref={timelineRef} onClick={() => setSelectedAppointment(null)} className="h-full overflow-y-auto px-6 py-2 space-y-2 custom-scrollbar scroll-smooth relative z-10">
                                         {visibleTimeSlots.map((time) => {
                                             const isToday = selectedDate === currentTime.toISOString().split('T')[0]
                                             const nowTime = currentTime.getHours() * 60 + currentTime.getMinutes()
@@ -950,12 +950,19 @@ export default function AgendaPage() {
                                             const isUnavailable = !isOpenByConfig && !isLiberado
                                             return (
                                                 <div key={time} id={`slot-${time}`} className={cn("flex gap-8 items-start transition-all duration-300 relative group/row", isUnavailable && !apt ? "opacity-50" : "opacity-100")}>
-                                                    <div className="w-[50px] shrink-0 flex items-center justify-center pt-3 relative z-10">
-                                                        <span className={cn("text-[13px] font-medium tabular-nums", isCurrentSlot ? "text-brand-primary" : "text-stone-600 dark:text-stone-300")}>{time}</span>
+                                                    <div className="w-[50px] shrink-0 flex items-center justify-center pt-2 relative z-10">
+                                                        <span className={cn("text-[12px] font-medium tabular-nums", isCurrentSlot ? "text-brand-primary" : "text-stone-600 dark:text-stone-300")}>{time}</span>
                                                     </div>
-                                                    <div className="flex-1 min-w-0 pb-3">
+                                                    <div className="flex-1 min-w-0 pb-2">
                                                         {apt && !isBlocked && !isLiberado ? (
-                                                            <div onClick={(e) => { e.stopPropagation(); setSelectedAppointment(apt); }} className={cn(
+                                                            <div onClick={(e) => { 
+                                                                e.stopPropagation(); 
+                                                                setSelectedAppointment(apt); 
+                                                                if (!isXL) {
+                                                                    setAppointmentToComplete(apt);
+                                                                    setIsDetailsModalOpen(true);
+                                                                }
+                                                            }} className={cn(
                                                                 "rounded-[14px] p-4 transition-all cursor-pointer border-y border-r border-stone-100 dark:border-white/[0.04]",
                                                                 selectedAppointment?.id === apt.id ? "ring-1 ring-brand-primary/40 shadow-[0_0_15px_rgba(245,204,112,0.1)]" : "",
                                                                 apt.status === 'completed' ? "bg-gradient-to-r from-emerald-500/10 to-transparent border-l-4 border-l-emerald-500" :
@@ -1038,7 +1045,7 @@ export default function AgendaPage() {
                     </div>
 
                     {/* ── RIGHT COLUMN (Visual): Details + States ── */}
-                    <div className="flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1 order-3">
+                    <div className="hidden xl:flex flex-col gap-4 min-h-0 overflow-y-auto custom-scrollbar pr-1 order-3">
                         <DesktopDetailsPanel
                             apt={selectedAppointment}
                             segmento={tenant?.segmento}
@@ -1074,7 +1081,7 @@ export default function AgendaPage() {
                 </div>
             </div>
 
-            <div className="lg:hidden flex flex-col flex-1 min-h-0 h-full overflow-hidden">
+            <div className="md:hidden flex flex-col flex-1 min-h-0 h-full overflow-hidden">
                 {/* ═══ DATE PICKER HORIZONTAL (iOS-style) ═══ */}
                 <div className="shrink-0 px-2 pb-3">
                     <div ref={datePickerRef} className="flex gap-2 overflow-x-auto hide-scrollbar pb-1 snap-x snap-mandatory">

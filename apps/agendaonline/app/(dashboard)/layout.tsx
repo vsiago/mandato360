@@ -34,18 +34,11 @@ function buildNavGroups(segmento?: string) {
     
     return [
         {
-            label: "SITE",
-            items: [
-                { href: "/editar-site", label: "Editor de Site", icon: Globe },
-            ]
-        },
-        {
             label: "GESTÃO",
             items: [
                 { href: "/painel", label: "Painel", icon: BarChart3 },
-                { href: "/agenda", label: "Agenda", icon: Calendar },
                 { href: "/processos", label: isAdvocacia ? "Processos" : "Serviços em Aberto", icon: FileText },
-                { href: "/servicos", label: isAdvocacia ? "Áreas Jurídicas" : "Serviços", icon: isAdvocacia ? Scale : Scissors },
+                { href: "/agenda", label: "Agenda", icon: Calendar },
                 { href: "/clientes", label: "Clientes", icon: Users },
                 { href: "/financeiro", label: "Financeiro", icon: DollarSign },
                 { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
@@ -54,9 +47,16 @@ function buildNavGroups(segmento?: string) {
         {
             label: "CONTEÚDO",
             items: [
+                { href: "/servicos", label: isAdvocacia ? "Áreas Jurídicas" : "Serviços", icon: isAdvocacia ? Scale : Scissors },
                 { href: "/antes-depois", label: isAdvocacia ? "Portfólio de Casos" : "Fotos", icon: isAdvocacia ? Briefcase : ImageIcon },
                 { href: "/depoimentos", label: "Depoimentos", icon: Star },
                 { href: "/faq", label: "Perguntas (FAQ)", icon: HelpCircle },
+            ]
+        },
+        {
+            label: "SITE",
+            items: [
+                { href: "/editar-site", label: "Editor de Site", icon: Globe },
             ]
         },
         {
@@ -95,12 +95,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const { theme, setTheme } = useTheme()
     const [tenant, setTenant] = useState<TenantData | null>(null)
     const [cachedBranding, setCachedBranding] = useState<{ logo: string; mini: string; title: string; primary: string; hover: string } | null>(null)
-    const [isCollapsed, setIsCollapsed] = useState(false)
+    const [isCollapsed, setIsCollapsed] = useState(true)
     const [mounted, setMounted] = useState(false)
     const isDesktop = useMediaQuery("(min-width: 768px)")
 
     useEffect(() => {
         setMounted(true)
+        
+        // Load sidebar state
+        const savedCollapsed = localStorage.getItem("sidebar_collapsed")
+        if (savedCollapsed !== null) {
+            setIsCollapsed(savedCollapsed === "true")
+        }
+
         // Load branding from cache for immediate display
         const cached = localStorage.getItem("tenant_branding_cache")
         if (cached) {
@@ -325,7 +332,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             )}>
                 {/* Collapse Toggle Button */}
                 <button 
-                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    onClick={() => {
+                        const newState = !isCollapsed
+                        setIsCollapsed(newState)
+                        localStorage.setItem("sidebar_collapsed", String(newState))
+                    }}
                     className="absolute -right-3 top-10 w-6 h-6 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 flex items-center justify-center shadow-xl z-50 hover:scale-110 hover:bg-stone-50 dark:hover:bg-stone-800 transition-all cursor-pointer group/toggle"
                 >
                     <ChevronRight className={cn("w-3.5 h-3.5 text-stone-500 dark:text-stone-400 group-hover/toggle:text-brand-primary transition-transform duration-500", !isCollapsed && "rotate-180")} />
