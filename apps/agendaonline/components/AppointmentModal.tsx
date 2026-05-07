@@ -335,7 +335,7 @@ export function AppointmentModal({
             onBack={step === 2 && !appointment ? () => setStep(1) : undefined}
             maxWidth="sm:max-w-[900px]"
             footer={step !== 3 && (
-                <div className="flex gap-3 pt-6 border-t border-white/5">
+                <div className="flex gap-3 pt-6 border-t border-stone-100 dark:border-white/5">
                     <Button onClick={handleSubmit} disabled={loading} className="flex-1 h-14 rounded-2xl bg-brand-gold !text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-brand-gold/20">
                         {loading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Confirmar Registro'}
                     </Button>
@@ -345,48 +345,48 @@ export function AppointmentModal({
             <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar pb-2">
                 {step === 1 && (
                     <div className="grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <button onClick={() => { setMode('standard'); setStep(2); }} className="p-5 rounded-2xl bg-stone-900/40 border border-white/5 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all group flex items-center gap-4 text-left">
+                        <button onClick={() => { setMode('standard'); setStep(2); }} className="p-5 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all group flex items-center gap-4 text-left shadow-sm">
                             <div className="h-12 w-12 rounded-xl bg-brand-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Users className="h-6 w-6 text-brand-primary" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-white">Novo Cliente / Consulta</h4>
+                                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Novo Cliente / Consulta</h4>
                                 <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Ficha completa + Pagamento</p>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-stone-700" />
+                            <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-700" />
                         </button>
                         
-                        <button onClick={() => { setMode('diligencia'); setStep(2); }} className="p-5 rounded-2xl bg-stone-900/40 border border-white/5 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all group flex items-center gap-4 text-left">
+                        <button onClick={() => { setMode('diligencia'); setStep(2); }} className="p-5 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all group flex items-center gap-4 text-left shadow-sm">
                             <div className="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Briefcase className="h-6 w-6 text-amber-500" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-white">Diligência</h4>
+                                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Diligência</h4>
                                 <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Fórum ou Compromisso Externo</p>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-stone-700" />
+                            <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-700" />
                         </button>
 
-                        <button onClick={() => { setMode('audiencia'); setStep(2); }} className="p-5 rounded-2xl bg-stone-900/40 border border-white/5 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all group flex items-center gap-4 text-left">
+                        <button onClick={() => { setMode('audiencia'); setStep(2); }} className="p-5 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all group flex items-center gap-4 text-left shadow-sm">
                             <div className="h-12 w-12 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Scale className="h-6 w-6 text-blue-400" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-white">Audiência</h4>
+                                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Audiência</h4>
                                 <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Conciliação, Instrução ou Julgamento</p>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-stone-700" />
+                            <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-700" />
                         </button>
 
-                        <button onClick={() => { setMode('reuniao'); setStep(2); }} className="p-5 rounded-2xl bg-stone-900/40 border border-white/5 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all group flex items-center gap-4 text-left">
+                        <button onClick={() => { setMode('reuniao'); setStep(2); }} className="p-5 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all group flex items-center gap-4 text-left shadow-sm">
                             <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Video className="h-6 w-6 text-emerald-400" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-white">Reunião</h4>
+                                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Reunião</h4>
                                 <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Pauta com Cliente ou Parceiros</p>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-stone-700" />
+                            <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-700" />
                         </button>
 
                         <button onClick={() => { setMode('financeiro'); setStep(2); }} className="p-5 rounded-2xl bg-brand-gold/5 border border-brand-gold/10 hover:border-brand-gold/40 hover:bg-brand-gold/10 transition-all group flex items-center gap-4 text-left">
@@ -405,7 +405,7 @@ export function AppointmentModal({
                 {step === 2 && (
                     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
                         {/* Mode Indicator - Top Banner */}
-                        <div className="flex items-center gap-4 p-4 rounded-[24px] bg-stone-950/60 border border-white/5 shadow-2xl">
+                        <div className="flex items-center gap-4 p-4 rounded-[24px] bg-white dark:bg-stone-950/60 border border-stone-200 dark:border-white/5 shadow-sm dark:shadow-2xl">
                             <div className={cn(
                                 "h-12 w-12 rounded-xl flex items-center justify-center transition-transform hover:scale-105 duration-300",
                                 mode === 'standard' ? "bg-brand-primary/10 text-brand-primary" :
@@ -422,7 +422,7 @@ export function AppointmentModal({
                             </div>
                             <div className="flex-1">
                                 <p className="text-[10px] uppercase tracking-[0.3em] font-black text-stone-500 mb-0.5 leading-none">Categoria Profissional</p>
-                                <h4 className="text-lg font-black text-white leading-tight">
+                                <h4 className="text-lg font-black text-stone-900 dark:text-white leading-tight">
                                     {mode === 'standard' ? 'Novo Cliente / Consulta' :
                                      mode === 'diligencia' ? 'Diligência Externa' :
                                      mode === 'audiencia' ? 'Audiência Judicial' :
@@ -437,42 +437,42 @@ export function AppointmentModal({
                             {/* LEFT COLUMN: Core Registration */}
                             <div className="space-y-6">
                                 {/* Date and Time Section */}
-                                <div className="p-5 rounded-[24px] bg-stone-900/40 border border-white/5 space-y-4 shadow-sm">
+                                <div className="p-5 rounded-[24px] bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-4 shadow-sm">
                                     <Label className="text-[10px] uppercase tracking-widest font-black text-brand-primary flex items-center gap-2">
                                         <Calendar className="h-3.5 w-3.5" /> Agenda do Compromisso
                                     </Label>
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="relative group">
-                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                            <Input type="date" value={internalDate} onChange={e => setInternalDate(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold text-white focus:border-brand-primary/50 transition-all" />
+                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                            <Input type="date" value={internalDate} onChange={e => setInternalDate(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white focus:border-brand-primary/50 transition-all" />
                                         </div>
                                         <div className="relative group">
-                                            <ClockIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                            <Input type="time" value={internalTime} onChange={e => setInternalTime(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold text-white focus:border-brand-primary/50 transition-all" />
+                                            <ClockIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                            <Input type="time" value={internalTime} onChange={e => setInternalTime(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white focus:border-brand-primary/50 transition-all" />
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Identification Section */}
-                                <div className="p-5 rounded-[24px] bg-stone-900/40 border border-white/5 space-y-4 shadow-sm">
-                                    <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 flex items-center gap-2">
+                                <div className="p-5 rounded-[24px] bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-4 shadow-sm">
+                                    <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 dark:text-stone-500 flex items-center gap-2">
                                         <User className="h-3.5 w-3.5" /> Dados do Cliente
                                     </Label>
                                     <div className="space-y-3">
                                         <div className="relative group">
-                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                            <Input value={name} onChange={e => setName(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold placeholder:text-stone-700" placeholder="Nome Completo" />
+                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                            <Input value={name} onChange={e => setName(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Nome Completo" />
                                         </div>
                                         <div className="relative group">
-                                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                            <Input value={phone} onChange={e => setPhone(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold placeholder:text-stone-700" placeholder="WhatsApp (DDD + Número)" />
+                                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                            <Input value={phone} onChange={e => setPhone(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="WhatsApp (DDD + Número)" />
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Mode Specific: Finance Section for ALL if has value or mode is financeiro */}
                                 {(mode === 'standard' || mode === 'financeiro') && (
-                                    <div className={cn("p-5 rounded-[24px] border space-y-4 shadow-sm", mode === 'financeiro' ? "bg-brand-gold/5 border-brand-gold/20" : "bg-stone-900/40 border-white/5")}>
+                                    <div className={cn("p-5 rounded-[24px] border space-y-4 shadow-sm", mode === 'financeiro' ? "bg-brand-gold/5 border-brand-gold/20" : "bg-stone-50/50 dark:bg-stone-900/40 border-stone-100 dark:border-white/5")}>
                                         <Label className="text-[10px] uppercase tracking-widest font-black text-emerald-500 flex items-center gap-2">
                                             <Banknote className="h-3.5 w-3.5" /> Informações Financeiras
                                         </Label>
@@ -481,26 +481,26 @@ export function AppointmentModal({
                                             <div className="space-y-2">
                                                 <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">Valor Total</Label>
                                                 <div className="relative group">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-600">R$</span>
-                                                    <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" placeholder="0,00" />
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-400 dark:text-stone-600">R$</span>
+                                                    <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold" placeholder="0,00" />
                                                 </div>
                                             </div>
                                             <div className="space-y-2">
                                                 <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">Parcelas</Label>
-                                                <Input type="number" value={installments} onChange={e => setInstallments(parseInt(e.target.value))} className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" min={1} />
+                                                <Input type="number" value={installments} onChange={e => setInstallments(parseInt(e.target.value))} className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold" min={1} />
                                             </div>
                                         </div>
 
                                         <div className="grid grid-cols-2 gap-3 pt-2">
-                                            <div className="flex items-center justify-between p-3 rounded-xl bg-stone-950/40 border border-white/5">
+                                            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 shadow-sm">
                                                 <span className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Pago?</span>
                                                 <Switch checked={pago} onCheckedChange={setPago} />
                                             </div>
                                             <Select value={formaPagamento || ""} onValueChange={setFormaPagamento}>
-                                                <SelectTrigger className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                                <SelectTrigger className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-stone-900 dark:text-white">
                                                     <SelectValue placeholder="Pagamento" />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-stone-900 border-white/10 text-white">
+                                                <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
                                                     <SelectItem value="pix">PIX</SelectItem>
                                                     <SelectItem value="cartao">Cartão</SelectItem>
                                                     <SelectItem value="dinheiro">Dinheiro</SelectItem>
@@ -515,7 +515,7 @@ export function AppointmentModal({
                             <div className="space-y-6">
                                 {/* Specialized Fields based on Mode */}
                                 {(mode === 'audiencia' || mode === 'diligencia' || mode === 'standard') && (
-                                    <div className="p-5 rounded-[24px] bg-stone-900/40 border border-white/5 space-y-4 shadow-sm">
+                                    <div className="p-5 rounded-[24px] bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-4 shadow-sm">
                                         <Label className="text-[10px] uppercase tracking-widest font-black text-blue-400 flex items-center gap-2">
                                             <Scale className="h-3.5 w-3.5" /> Contexto Jurídico
                                         </Label>
@@ -525,10 +525,10 @@ export function AppointmentModal({
                                                 <div className="space-y-2">
                                                     <Label className="text-[10px] text-stone-500 font-bold ml-1">Tipo de Evento</Label>
                                                     <Select value={mode === 'audiencia' ? audienciaTipo : diligenciaTipo} onValueChange={val => mode === 'audiencia' ? setAudienciaTipo(val) : setDiligenciaTipo(val)}>
-                                                        <SelectTrigger className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold">
+                                                        <SelectTrigger className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
                                                             <SelectValue placeholder="Selecione o tipo" />
                                                         </SelectTrigger>
-                                                        <SelectContent className="bg-stone-900 border-white/10 text-white">
+                                                        <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
                                                             {mode === 'audiencia' ? (
                                                                 <>
                                                                     <SelectItem value="conciliacao">Conciliação</SelectItem>
@@ -550,23 +550,23 @@ export function AppointmentModal({
 
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="relative group">
-                                                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
-                                                    <Input value={processNumber} onChange={e => setProcessNumber(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold placeholder:text-stone-700" placeholder="Processo" />
+                                                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
+                                                    <Input value={processNumber} onChange={e => setProcessNumber(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Processo" />
                                                 </div>
                                                 <div className="relative group">
                                                     <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500/60" />
-                                                    <Input value={nbNumber} onChange={e => setNbNumber(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold placeholder:text-stone-700" placeholder="NB / ID" />
+                                                    <Input value={nbNumber} onChange={e => setNbNumber(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="NB / ID" />
                                                 </div>
                                             </div>
 
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="relative group">
-                                                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
-                                                    <Input value={foro} onChange={e => setForo(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold placeholder:text-stone-700" placeholder="Fórum" />
+                                                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
+                                                    <Input value={foro} onChange={e => setForo(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Fórum" />
                                                 </div>
                                                 <div className="relative group">
-                                                    <Scale className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
-                                                    <Input value={vara} onChange={e => setVara(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold placeholder:text-stone-700" placeholder="Vara" />
+                                                    <Scale className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
+                                                    <Input value={vara} onChange={e => setVara(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Vara" />
                                                 </div>
                                             </div>
 
@@ -574,7 +574,7 @@ export function AppointmentModal({
                                                 <div className="space-y-3">
                                                     <div className="flex gap-2">
                                                         {['presencial', 'virtual'].map(c => (
-                                                            <button key={c} type="button" onClick={() => setMeetingChannel(c)} className={cn("flex-1 h-10 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all", meetingChannel === c ? "bg-blue-500/10 border-blue-500 text-blue-400" : "bg-stone-950/40 border-white/5 text-stone-500")}>
+                                                            <button key={c} type="button" onClick={() => setMeetingChannel(c)} className={cn("flex-1 h-10 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all", meetingChannel === c ? "bg-blue-500/10 border-blue-500 text-blue-400" : "bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 text-stone-500 shadow-sm")}>
                                                                 {c}
                                                             </button>
                                                         ))}
@@ -582,29 +582,29 @@ export function AppointmentModal({
                                                     {meetingChannel === 'virtual' && (
                                                         <div className="relative group animate-in slide-in-from-top-2">
                                                             <Video className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400" />
-                                                            <Input value={linkOnline} onChange={e => setLinkOnline(e.target.value)} className="pl-11 h-12 bg-blue-500/5 border-blue-500/20 rounded-xl text-[10px] font-black text-blue-100" placeholder="Link da Videochamada" />
+                                                            <Input value={linkOnline} onChange={e => setLinkOnline(e.target.value)} className="pl-11 h-12 bg-blue-50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20 rounded-xl text-[10px] font-black text-blue-900 dark:text-blue-100" placeholder="Link da Videochamada" />
                                                         </div>
                                                     )}
                                                 </div>
                                             )}
 
                                             <div className="relative group">
-                                                <Info className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-600" />
-                                                <Input value={naturezaCausa} onChange={e => setNaturezaCausa(e.target.value)} className="pl-11 h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold placeholder:text-stone-700" placeholder="Natureza da Causa (ex: LOAS, Auxílio...)" />
+                                                <Info className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
+                                                <Input value={naturezaCausa} onChange={e => setNaturezaCausa(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Natureza da Causa (ex: LOAS, Auxílio...)" />
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
                                 {/* Notes and Extra Details */}
-                                <div className="p-5 rounded-[24px] bg-stone-900/40 border border-white/5 space-y-4 shadow-sm">
+                                <div className="p-5 rounded-[24px] bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-4 shadow-sm">
                                     <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 flex items-center gap-2">
                                         <Info className="h-3.5 w-3.5" /> Observações Gerais
                                     </Label>
                                     <textarea 
                                         value={description} 
                                         onChange={e => setDescription(e.target.value)}
-                                        className="w-full h-32 bg-stone-950/40 border border-white/5 rounded-xl p-4 text-sm font-bold text-white placeholder:text-stone-700 focus:border-brand-primary/50 transition-all outline-none resize-none"
+                                        className="w-full h-32 bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl p-4 text-sm font-bold text-stone-900 dark:text-white placeholder:text-stone-300 dark:placeholder:text-stone-700 focus:border-brand-primary/50 transition-all outline-none resize-none shadow-sm"
                                         placeholder="Descreva detalhes importantes deste processo ou compromisso..."
                                     />
                                 </div>
@@ -621,7 +621,7 @@ export function AppointmentModal({
                         </div>
                         
                         <div className="space-y-2">
-                            <h3 className="text-2xl font-black text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            <h3 className="text-2xl font-black text-stone-900 dark:text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
                                 {successData?.type === 'financeiro' ? 'Lembretes Gerados!' : 'Registro Concluído!'}
                             </h3>
                             <p className="text-stone-500 text-sm max-w-[280px] mx-auto">
@@ -632,7 +632,7 @@ export function AppointmentModal({
                         <div className="pt-4 w-full">
                             <Button 
                                 onClick={() => { onClose(); setTimeout(() => setStep(1), 300); }}
-                                className="w-full h-12 rounded-2xl bg-white/5 border border-white/10 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all"
+                                className="w-full h-12 rounded-2xl bg-stone-100 dark:bg-white/5 border border-stone-200 dark:border-white/10 text-stone-900 dark:text-white font-bold text-xs uppercase tracking-widest hover:bg-stone-200 dark:hover:bg-white/10 transition-all shadow-sm"
                             >
                                 Concluir e Fechar
                             </Button>

@@ -124,47 +124,47 @@ export default function FAQPage() {
                     placeholder="Buscar pergunta ou resposta..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-stone-900/40 backdrop-blur-md border-white/[0.03] rounded-2xl pl-12 h-12 lg:h-14 text-sm lg:text-base focus-visible:ring-brand-primary/20 transition-all shadow-lg"
+                    className="w-full bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl pl-12 h-12 lg:h-14 text-sm lg:text-base focus-visible:ring-brand-primary/20 transition-all shadow-lg text-stone-900 dark:text-white"
                 />
             </div>
 
             {/* ── FAQ List ── */}
             {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl shadow-2xl">
-                    <div className="h-20 w-20 rounded-[2.5rem] bg-stone-900 border border-white/5 flex items-center justify-center mb-6 shadow-2xl">
-                        <HelpCircle className="h-10 w-10 text-stone-700" />
+                <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl shadow-2xl">
+                    <div className="h-20 w-20 rounded-[2.5rem] bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-white/5 flex items-center justify-center mb-6 shadow-2xl">
+                        <HelpCircle className="h-10 w-10 text-stone-300 dark:text-stone-700" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                    <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
                         Nenhuma pergunta cadastrada
                     </h3>
                     <p className="text-sm text-stone-500 max-w-xs mx-auto mb-8">
                         Ajude seus clientes a tirarem dúvidas rápidas e aumente sua taxa de agendamentos.
                     </p>
-                    <Button onClick={handleNew} className="bg-brand-gold text-white rounded-xl px-8 h-12 font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-gold/10">
+                    <Button onClick={handleNew} className="bg-brand-gold text-white rounded-xl px-8 h-12 font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-secondary/20">
                         Adicionar Primeira Pergunta
                     </Button>
                 </div>
             ) : (
-                <div className="bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl divide-y divide-white/[0.03]">
-                    {filteredItems.map((item) => (
-                        <div key={item.id} className="group">
-                            <div className="flex items-center gap-4 px-5 py-4 lg:py-5 hover:bg-white/[0.02] transition-all">
-                                <div className="h-8 w-8 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-center shrink-0">
-                                    <HelpIcon className="h-4 w-4 text-stone-600 group-hover:text-brand-primary transition-colors" />
+                <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl divide-y divide-stone-100 dark:divide-white/[0.03]">
+                    {filteredItems.map((item, index) => (
+                        <div key={`faq-item-${item.id || index}-${index}`} className="group">
+                            <div className="flex items-center gap-4 px-5 py-4 lg:py-5 hover:bg-stone-50 dark:hover:bg-white/[0.02] transition-all">
+                                <div className="h-8 w-8 rounded-lg bg-stone-100 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 flex items-center justify-center shrink-0 shadow-sm">
+                                    <HelpIcon className="h-4 w-4 text-stone-400 dark:text-stone-600 group-hover:text-brand-primary transition-colors" />
                                 </div>
                                 <button onClick={() => toggleExpand(item.id)} className="flex-1 text-left min-w-0">
-                                    <p className="text-sm lg:text-base font-bold text-white truncate group-hover:text-brand-primary transition-colors">{item.question}</p>
+                                    <p className="text-sm lg:text-base font-bold text-stone-900 dark:text-white truncate group-hover:text-brand-primary transition-colors">{item.question}</p>
                                 </button>
                                 <div className="flex items-center gap-2">
                                     <div className="hidden lg:flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => handleEdit(item)} className="h-10 w-10 rounded-xl flex items-center justify-center text-stone-400 bg-white/[0.03] border border-white/5 hover:bg-white/[0.08] hover:text-white transition-all">
+                                        <button onClick={() => handleEdit(item)} className="h-10 w-10 rounded-xl flex items-center justify-center text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 hover:bg-stone-100 dark:hover:bg-white/[0.08] hover:text-stone-900 dark:hover:text-white transition-all shadow-sm">
                                             <Pencil className="h-4 w-4" />
                                         </button>
-                                        <button onClick={() => handleDelete(item.id)} className="h-10 w-10 rounded-xl flex items-center justify-center text-stone-400 bg-white/[0.03] border border-white/5 hover:bg-red-500/10 hover:text-red-500 transition-all">
+                                        <button onClick={() => handleDelete(item.id)} className="h-10 w-10 rounded-xl flex items-center justify-center text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 hover:bg-red-500/10 hover:text-red-500 transition-all shadow-sm">
                                             <Trash2 className="h-4 w-4" />
                                         </button>
                                     </div>
-                                    <button onClick={() => toggleExpand(item.id)} className="h-10 w-10 rounded-xl flex items-center justify-center text-stone-500 hover:text-white hover:bg-white/5 transition-all">
+                                    <button onClick={() => toggleExpand(item.id)} className="h-10 w-10 rounded-xl flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5 transition-all">
                                         {expandedId === item.id ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
                                     </button>
                                 </div>
@@ -175,17 +175,17 @@ export default function FAQPage() {
                                 "lg:hidden flex items-center gap-2 px-14 pb-4 transition-all overflow-hidden",
                                 expandedId === item.id ? "h-auto opacity-100" : "h-0 opacity-0"
                             )}>
-                                <button onClick={() => handleEdit(item)} className="h-9 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-stone-400 bg-white/[0.03] border border-white/5">
+                                <button onClick={() => handleEdit(item)} className="h-9 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 shadow-sm">
                                     <Pencil className="h-3 w-3" /> Editar
                                 </button>
-                                <button onClick={() => handleDelete(item.id)} className="h-9 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-red-500 bg-red-500/5 border border-red-500/10">
+                                <button onClick={() => handleDelete(item.id)} className="h-9 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold text-red-500 bg-red-500/5 dark:bg-red-500/5 border border-red-500/20 dark:border-red-500/10 shadow-sm">
                                     <Trash2 className="h-3 w-3" /> Excluir
                                 </button>
                             </div>
 
                             {expandedId === item.id && (
                                 <div className="px-5 pb-6 pl-16 animate-in slide-in-from-top-2 duration-200">
-                                    <p className="text-xs lg:text-sm text-stone-400 leading-relaxed max-w-2xl">{item.answer}</p>
+                                    <p className="text-xs lg:text-sm text-stone-600 dark:text-stone-400 leading-relaxed max-w-2xl font-medium">{item.answer}</p>
                                 </div>
                             )}
                         </div>
@@ -199,17 +199,17 @@ export default function FAQPage() {
             )}
 
             {/* ── Tip Card ── */}
-            <div className="bg-stone-900/40 backdrop-blur-md border border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg mt-4 lg:mt-8">
+            <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg mt-4 lg:mt-8">
                 <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
-                    <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 flex items-center justify-center shrink-0">
+                    <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/10 dark:bg-brand-primary/5 border border-brand-primary/20 dark:border-brand-primary/10 flex items-center justify-center shrink-0 shadow-md">
                         <Sparkles className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />
                     </div>
                     <div>
-                        <h4 className="text-sm lg:text-base font-bold text-white leading-tight">Dica de Atendimento</h4>
-                        <p className="text-xs text-stone-500 mt-1">Antecipar dúvidas comuns reduz o tempo de suporte e passa mais segurança para o cliente agendar.</p>
+                        <h4 className="text-sm lg:text-base font-bold text-stone-900 dark:text-white leading-tight">Dica de Atendimento</h4>
+                        <p className="text-xs text-stone-500 mt-1 font-medium">Antecipar dúvidas comuns reduz o tempo de suporte e passa mais segurança para o cliente agendar.</p>
                     </div>
                 </div>
-                <Button variant="outline" className="w-full sm:w-auto h-11 lg:h-12 px-6 rounded-xl border-white/5 text-stone-400 hover:bg-white/5 font-bold text-[11px] lg:text-xs">
+                <Button variant="outline" className="w-full sm:w-auto h-11 lg:h-12 px-6 rounded-xl border-stone-200 dark:border-white/5 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/5 font-bold text-[11px] lg:text-xs shadow-sm">
                     Ver no Site
                 </Button>
             </div>
@@ -222,10 +222,10 @@ export default function FAQPage() {
                 icon={HelpIcon}
                 footer={
                     <div className="flex gap-3 w-full">
-                        <Button variant="outline" onClick={() => setDialogOpen(false)} className="flex-1 h-12 rounded-xl border-white/5 text-stone-500 hover:bg-white/5 font-bold">
+                        <Button variant="outline" onClick={() => setDialogOpen(false)} className="flex-1 h-12 rounded-xl border-stone-200 dark:border-white/5 text-stone-500 hover:bg-stone-50 dark:hover:bg-white/5 font-bold">
                             Cancelar
                         </Button>
-                        <Button onClick={handleSave} disabled={!formQuestion || !formAnswer || saving} className="bg-brand-gold text-white rounded-xl flex-1 h-12 font-black uppercase tracking-widest text-xs shadow-xl">
+                        <Button onClick={handleSave} disabled={!formQuestion || !formAnswer || saving} className="bg-brand-gold text-white rounded-xl flex-1 h-12 font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-secondary/20">
                             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                             {editingItem ? "Salvar Pergunta" : "Adicionar Pergunta"}
                         </Button>
@@ -236,7 +236,7 @@ export default function FAQPage() {
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Pergunta do Cliente</Label>
                         <Input value={formQuestion} onChange={e => setFormQuestion(e.target.value)} placeholder="Ex: Quais são os horários de atendimento?" 
-                            className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
+                            className="h-12 bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white shadow-sm" />
                     </div>
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Resposta Detalhada</Label>
@@ -244,7 +244,7 @@ export default function FAQPage() {
                             value={formAnswer} 
                             onChange={e => setFormAnswer(e.target.value)} 
                             placeholder="Escreva a resposta de forma clara e objetiva..."
-                            className="w-full min-h-[140px] bg-stone-950/40 border border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-brand-primary/20 text-stone-300 outline-none font-medium leading-relaxed"
+                            className="w-full min-h-[140px] bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-brand-primary/20 text-stone-900 dark:text-stone-300 outline-none font-medium leading-relaxed shadow-sm"
                         />
                     </div>
                 </div>

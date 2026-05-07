@@ -80,11 +80,11 @@ export default function ClientesPage() {
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-6">
                 {stats.map((stat, i) => (
                     <div key={i} className={cn(
-                        "bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl p-4 lg:p-6 shadow-xl flex flex-col justify-between min-h-[100px] lg:min-h-[140px]",
+                        "bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl p-4 lg:p-6 shadow-xl flex flex-col justify-between min-h-[100px] lg:min-h-[140px]",
                         i === 2 && "col-span-2 lg:col-span-1" // Mobile full width for the 3rd one
                     )}>
                         <div className="flex items-start justify-between">
-                            <div className={cn("h-9 w-9 lg:h-11 lg:w-11 rounded-xl flex items-center justify-center border border-white/5 shadow-inner", stat.accent)}>
+                            <div className={cn("h-9 w-9 lg:h-11 lg:w-11 rounded-xl flex items-center justify-center border border-stone-100 dark:border-white/5 shadow-inner", stat.accent)}>
                                 <stat.icon className="h-4 w-4 lg:h-5 lg:w-5" />
                             </div>
                             <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
@@ -92,7 +92,7 @@ export default function ClientesPage() {
                             </span>
                         </div>
                         <div>
-                            <div className="text-xl lg:text-2xl font-black text-white mt-3 leading-none">
+                            <div className="text-xl lg:text-2xl font-black text-stone-900 dark:text-white mt-3 leading-none">
                                 {stat.value}
                             </div>
                             <div className="text-[10px] font-black text-stone-500 uppercase tracking-widest mt-1">
@@ -111,26 +111,26 @@ export default function ClientesPage() {
                         placeholder="Buscar por nome, email ou telefone..." 
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full bg-stone-900/40 backdrop-blur-md border-white/[0.03] rounded-2xl pl-12 h-12 lg:h-14 text-sm lg:text-base focus-visible:ring-brand-primary/20 transition-all shadow-lg" 
+                        className="w-full bg-white dark:bg-stone-900/40 backdrop-blur-md border-stone-200 dark:border-white/[0.03] text-stone-900 dark:text-white rounded-2xl pl-12 h-12 lg:h-14 text-sm lg:text-base focus-visible:ring-brand-primary/20 transition-all shadow-lg" 
                     />
                 </div>
-                <Button variant="outline" className="w-full lg:w-auto h-12 lg:h-14 px-6 rounded-2xl border-white/[0.03] bg-stone-900/40 backdrop-blur-md text-stone-400 font-bold hover:bg-stone-800 flex items-center justify-center gap-2">
+                <Button variant="outline" className="w-full lg:w-auto h-12 lg:h-14 px-6 rounded-2xl border-stone-200 dark:border-white/[0.03] bg-white dark:bg-stone-900/40 backdrop-blur-md text-stone-500 dark:text-stone-400 font-bold hover:bg-stone-50 dark:hover:bg-stone-800 flex items-center justify-center gap-2 transition-all shadow-sm">
                     <Filter className="h-4 w-4" /> Filtros
                 </Button>
             </div>
 
             {/* ── Customers List ── */}
-            <div className="bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl flex flex-col">
+            <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden shadow-2xl flex flex-col">
                 {filteredCustomers.length > 0 ? (
-                    <div className="divide-y divide-white/[0.03]">
+                    <div className="divide-y divide-stone-100 dark:divide-white/[0.03]">
                         {filteredCustomers.map((customer) => (
-                            <div key={customer.id} className="group hover:bg-white/[0.02] transition-all p-4 lg:p-5 flex items-center gap-4 cursor-pointer">
+                            <div key={customer.id} className="group hover:bg-stone-50 dark:hover:bg-white/[0.02] transition-all p-4 lg:p-5 flex items-center gap-4 cursor-pointer">
                                 {/* Avatar */}
-                                <div className="h-12 w-12 rounded-2xl bg-stone-800 border border-white/10 flex items-center justify-center shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform">
+                                <div className="h-12 w-12 rounded-2xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-white/10 flex items-center justify-center shrink-0 overflow-hidden relative group-hover:scale-105 transition-transform">
                                     {customer.image ? (
                                         <img src={customer.image} alt={customer.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <span className="text-sm font-black text-stone-400">
+                                        <span className="text-sm font-black text-stone-500 dark:text-stone-400">
                                             {customer.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)}
                                         </span>
                                     )}
@@ -138,7 +138,7 @@ export default function ClientesPage() {
 
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="text-sm lg:text-base font-bold text-white group-hover:text-brand-primary transition-colors truncate">
+                                    <h4 className="text-sm lg:text-base font-bold text-stone-900 dark:text-white group-hover:text-brand-primary transition-colors truncate">
                                         {customer.name}
                                     </h4>
                                     <div className="flex flex-wrap items-center gap-3 mt-1">
@@ -166,7 +166,7 @@ export default function ClientesPage() {
                                     >
                                         <MessageCircle className="h-4 w-4" />
                                     </a>
-                                    <button className="h-10 w-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-stone-500 hover:text-white transition-all">
+                                    <button className="h-10 w-10 rounded-xl bg-stone-50 dark:bg-white/[0.03] border border-stone-200 dark:border-white/10 flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-white transition-all">
                                         <ChevronRight className="h-5 w-5" />
                                     </button>
                                 </div>
@@ -176,13 +176,13 @@ export default function ClientesPage() {
                 ) : (
                     /* ── Empty State ── */
                     <div className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                        <div className="h-20 w-20 rounded-[2.5rem] bg-stone-900 border border-white/5 flex items-center justify-center mb-6 shadow-2xl">
-                            <Users className="h-10 w-10 text-stone-700" />
+                        <div className="h-20 w-20 rounded-[2.5rem] bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center mb-6 shadow-2xl">
+                            <Users className="h-10 w-10 text-stone-300 dark:text-stone-700" />
                         </div>
-                        <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                        <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
                             Sua lista está vazia
                         </h3>
-                        <p className="text-sm text-stone-500 max-w-xs mx-auto mb-8">
+                        <p className="text-sm text-stone-400 dark:text-stone-500 max-w-xs mx-auto mb-8">
                             {searchQuery 
                                 ? "Nenhum cliente encontrado para sua busca." 
                                 : "Os clientes que agendarem pelo seu site aparecerão aqui automaticamente."}
@@ -197,17 +197,17 @@ export default function ClientesPage() {
             </div>
             
             {/* ── Tip Card ── */}
-            <div className="bg-stone-900/40 backdrop-blur-md border border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg">
+            <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg">
                 <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
-                    <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 flex items-center justify-center shrink-0">
+                    <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center shrink-0">
                         <ShieldCheck className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />
                     </div>
                     <div>
-                        <h4 className="text-sm lg:text-base font-bold text-white leading-tight">Privacidade e Segurança</h4>
-                        <p className="text-xs text-stone-500 mt-1">Sua base de dados é criptografada e protegida conforme a LGPD.</p>
+                        <h4 className="text-sm lg:text-base font-bold text-stone-900 dark:text-white leading-tight">Privacidade e Segurança</h4>
+                        <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">Sua base de dados é criptografada e protegida conforme a LGPD.</p>
                     </div>
                 </div>
-                <Button variant="outline" className="w-full sm:w-auto h-11 lg:h-12 px-6 rounded-xl border-white/5 text-stone-400 hover:bg-white/5 font-bold text-[11px] lg:text-xs">
+                <Button variant="outline" className="w-full sm:w-auto h-11 lg:h-12 px-6 rounded-xl border-stone-200 dark:border-white/5 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/5 font-bold text-[11px] lg:text-xs">
                     Saiba Mais
                 </Button>
             </div>

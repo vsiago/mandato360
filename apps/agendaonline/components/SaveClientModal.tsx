@@ -119,14 +119,14 @@ export function SaveClientModal({ isOpen, onClose, tenantId, initialData }: Save
                     <Button
                         variant="ghost"
                         onClick={onClose}
-                        className="rounded-2xl text-stone-500 hover:text-stone-300 font-bold text-xs uppercase tracking-widest flex-1 h-12"
+                        className="rounded-2xl text-stone-500 dark:text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/5 font-bold text-xs uppercase tracking-widest flex-1 h-12 transition-all"
                     >
                         Agora não
                     </Button>
                     <Button
                         onClick={handleSave}
                         disabled={loading}
-                        className="rounded-2xl bg-brand-gold text-stone-950 font-bold px-8 shadow-xl shadow-brand-secondary/20 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] text-xs uppercase tracking-widest h-12 flex-1 cursor-pointer"
+                        className="rounded-2xl bg-brand-gold text-white font-bold px-8 shadow-xl shadow-brand-secondary/20 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] text-xs uppercase tracking-widest h-12 flex-1 cursor-pointer"
                     >
                         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                         Confirmar Cadastro
@@ -144,7 +144,7 @@ export function SaveClientModal({ isOpen, onClose, tenantId, initialData }: Save
                             value={formData.name} 
                             onChange={e => setFormData({...formData, name: e.target.value})} 
                             placeholder="Ex: Maria Oliveira"
-                            className="h-12 rounded-2xl border-white/5 bg-stone-950/40 text-stone-200 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition-all" 
+                            className="h-12 rounded-2xl border-stone-200 dark:border-white/5 bg-white dark:bg-stone-950/40 text-stone-900 dark:text-stone-200 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition-all shadow-sm" 
                         />
                     </div>
 
@@ -157,7 +157,7 @@ export function SaveClientModal({ isOpen, onClose, tenantId, initialData }: Save
                                 value={formData.phone} 
                                 onChange={e => setFormData({...formData, phone: e.target.value})} 
                                 placeholder="(00) 00000-0000"
-                                className="h-12 rounded-2xl border-white/5 bg-stone-950/40 text-stone-200 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition-all" 
+                                className="h-12 rounded-2xl border-stone-200 dark:border-white/5 bg-white dark:bg-stone-950/40 text-stone-900 dark:text-stone-200 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition-all shadow-sm" 
                             />
                         </div>
                         <div className="space-y-2">
@@ -169,7 +169,7 @@ export function SaveClientModal({ isOpen, onClose, tenantId, initialData }: Save
                                     <Button
                                         variant="outline"
                                         className={cn(
-                                            "w-full h-12 justify-start text-left font-normal rounded-2xl border-white/5 bg-stone-950/40 text-stone-200 hover:bg-stone-900 hover:text-stone-100 transition-all focus:ring-brand-primary/20 focus:border-brand-primary/40",
+                                            "w-full h-12 justify-start text-left font-normal rounded-2xl border-stone-200 dark:border-white/5 bg-white dark:bg-stone-950/40 text-stone-900 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-900 hover:text-stone-900 dark:hover:text-stone-100 transition-all focus:ring-brand-primary/20 focus:border-brand-primary/40 shadow-sm",
                                             !date && "text-stone-500"
                                         )}
                                     >
@@ -177,7 +177,7 @@ export function SaveClientModal({ isOpen, onClose, tenantId, initialData }: Save
                                         {date ? format(date, "PPP", { locale: ptBR }) : <span>dd/mm/aaaa</span>}
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0 rounded-2xl border-white/10 bg-stone-900 shadow-2xl" align="start">
+                                <PopoverContent className="w-auto p-0 rounded-2xl border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 shadow-2xl" align="start">
                                     <Calendar
                                         mode="single"
                                         selected={date}
@@ -199,7 +199,7 @@ export function SaveClientModal({ isOpen, onClose, tenantId, initialData }: Save
                             value={formData.email} 
                             onChange={e => setFormData({...formData, email: e.target.value})} 
                             placeholder="cliente@email.com"
-                            className="h-12 rounded-2xl border-white/5 bg-stone-950/40 text-stone-200 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition-all" 
+                            className="h-12 rounded-2xl border-stone-200 dark:border-white/5 bg-white dark:bg-stone-950/40 text-stone-900 dark:text-stone-200 focus:ring-brand-primary/20 focus:border-brand-primary/40 transition-all shadow-sm" 
                         />
                     </div>
                 </div>

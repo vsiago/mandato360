@@ -833,7 +833,7 @@ export default function AgendaPage() {
     }, [filteredTimeSlots, dayAppointments])
 
     return (
-        <div className="h-[calc(100vh-100px)] flex flex-col animate-in fade-in duration-700 overflow-hidden">
+        <div className="h-[calc(100vh-100px)] flex flex-col animate-in fade-in duration-700 overflow-hidden bg-transparent">
 
             {/* ═══════════════════════════════════════════════════════
                 DESKTOP LAYOUT (≥ lg) — 3-column grid
@@ -842,19 +842,19 @@ export default function AgendaPage() {
                 {/* Desktop Header */}
                 <div className="shrink-0 flex items-center justify-between px-2 py-3 gap-4">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-10 w-10 rounded-xl bg-stone-900 border border-white/5 flex items-center justify-center shrink-0">
+                        <div className="h-10 w-10 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center shrink-0">
                             <CalendarDays className="h-5 w-5 text-brand-primary" />
                         </div>
                         <div className="min-w-0">
                             <h2 className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>{tenant?.segmento === 'advocacia' ? 'Sua Agenda Jurídica' : 'Sua Agenda'}</h2>
-                            <p className="text-[11px] text-stone-500 font-medium">{tenant?.segmento === 'advocacia' ? 'Gerencie suas consultas e audiências.' : 'Gerencie seus horários e atendimentos com eficiência.'}</p>
+                            <p className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">{tenant?.segmento === 'advocacia' ? 'Gerencie suas consultas e audiências.' : 'Gerencie seus horários e atendimentos com eficiência.'}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                        <button onClick={() => setIsBusinessHoursModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-800 bg-stone-900/40 text-stone-300 hover:text-white hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                        <button onClick={() => setIsBusinessHoursModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
                             <Clock className="h-4 w-4" /> Funcionamento
                         </button>
-                        <button onClick={() => setIsCalendarModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-800 bg-stone-900/40 text-stone-300 hover:text-white hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
+                        <button onClick={() => setIsCalendarModalOpen(true)} className="h-9 px-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-xs font-semibold cursor-pointer">
                             <Filter className="h-4 w-4" /> Filtrar
                         </button>
                         <button 
@@ -871,8 +871,8 @@ export default function AgendaPage() {
                     {/* ── CENTER COLUMN (Visual): Timeline ── */}
                     <div className="flex flex-col min-h-0 gap-4 relative order-2">
                         {/* Date picker Card */}
-                        <div className="shrink-0 h-[116px] rounded-2xl border border-white/5 bg-stone-900/30 flex items-center shadow-lg relative overflow-hidden">
-                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-stone-900/20 hover:bg-stone-800/30 transition-all shrink-0 border-r border-white/5 cursor-pointer">
+                        <div className="shrink-0 h-[116px] rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 flex items-center shadow-sm relative overflow-hidden">
+                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 bg-stone-50 dark:bg-stone-900/20 hover:bg-stone-100 dark:hover:bg-stone-800/30 transition-all shrink-0 border-r border-stone-100 dark:border-white/5 cursor-pointer">
                                 <ChevronLeft className="h-6 w-6" />
                             </button>
 
@@ -890,10 +890,10 @@ export default function AgendaPage() {
                                                     "flex flex-col items-center justify-center flex-1 min-w-0 max-w-[88px] h-[100px] rounded-[18px] transition-all cursor-pointer border relative overflow-hidden",
                                                     isSelected ? "bg-brand-gold/[0.04] border-brand-gold/30 shadow-[inset_0_0_20px_rgba(245,204,112,0.03)]" :
                                                         isBlocked ? "border-transparent opacity-50" :
-                                                            "border-transparent hover:bg-white/[0.02]"
+                                                            "border-transparent hover:bg-stone-50 dark:hover:bg-white/[0.02]"
                                                 )}>
-                                                <span className={cn("text-[9px] 2xl:text-[11px] font-bold tracking-[0.1em] uppercase mb-1.5", isSelected ? "text-stone-300" : "text-stone-400")}>{day.dayName}</span>
-                                                <span className={cn("text-[20px] 2xl:text-[28px] font-bold leading-none mb-2.5 transition-all", isSelected ? "text-white" : "text-stone-200")}>{day.dayNum}</span>
+                                                <span className={cn("text-[9px] 2xl:text-[11px] font-bold tracking-[0.1em] uppercase mb-1.5", isSelected ? "text-stone-700 dark:text-stone-300" : "text-stone-500 dark:text-stone-400")}>{day.dayName}</span>
+                                                <span className={cn("text-[20px] 2xl:text-[28px] font-bold leading-none mb-2.5 transition-all", isSelected ? "text-stone-900 dark:text-white" : "text-stone-700 dark:text-stone-200")}>{day.dayNum}</span>
 
                                                 <div className="flex gap-1.5 h-1.5">
                                                     {isBlocked ? <div className="h-1.5 w-1.5 rounded-full bg-red-500/60" /> :
@@ -905,36 +905,36 @@ export default function AgendaPage() {
                                                                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                                             </>
                                                         ) : (
-                                                            <div className="h-1.5 w-1.5 rounded-full bg-stone-600" />
+                                                            <div className="h-1.5 w-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />
                                                         )}
                                                 </div>
                                             </button>
 
                                             {i < 6 && (
-                                                <div className="w-[1px] h-14 bg-gradient-to-b from-transparent via-stone-800/40 to-transparent opacity-50" />
+                                                <div className="w-[1px] h-14 bg-gradient-to-b from-transparent via-stone-200 dark:via-stone-800/40 to-transparent opacity-50" />
                                             )}
                                         </React.Fragment>
                                     )
                                 })}
                             </div>
 
-                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-300 bg-stone-900/20 hover:bg-stone-800/30 transition-all shrink-0 border-l border-white/5 cursor-pointer">
+                            <button className="w-14 h-full flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 bg-stone-50 dark:bg-stone-900/20 hover:bg-stone-100 dark:hover:bg-stone-800/30 transition-all shrink-0 border-l border-stone-100 dark:border-white/5 cursor-pointer">
                                 <ChevronRight className="h-6 w-6" />
                             </button>
                         </div>
 
                         {/* Timeline Card */}
-                        <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-white/5 bg-stone-900/30 overflow-hidden shadow-lg relative">
+                        <div className="flex-1 flex flex-col min-h-0 rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 overflow-hidden shadow-sm relative">
                             {/* Selected Date Header */}
                             <div className="shrink-0 px-5 pl-6 pt-6 pb-5">
-                                <h3 className="text-[11px] font-bold text-stone-300 uppercase tracking-widest">
+                                <h3 className="text-[11px] font-bold text-stone-600 dark:text-stone-300 uppercase tracking-widest">
                                     {new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(selectedDate + "T12:00:00"))}
                                 </h3>
                             </div>
 
                             {/* Timeline scroll */}
                             <div className="flex-1 min-h-0 overflow-hidden relative">
-                                <div className="absolute left-[45px] top-4 bottom-4 w-px bg-stone-800/30 pointer-events-none z-0" />
+                                <div className="absolute left-[45px] top-4 bottom-4 w-px bg-stone-100 dark:bg-stone-800/30 pointer-events-none z-0" />
                                 <TooltipProvider>
                                     <div ref={timelineRef} onClick={() => setSelectedAppointment(null)} className="h-full overflow-y-auto p-5 space-y-0 custom-scrollbar scroll-smooth relative z-10">
                                         {visibleTimeSlots.map((time) => {
@@ -951,12 +951,12 @@ export default function AgendaPage() {
                                             return (
                                                 <div key={time} id={`slot-${time}`} className={cn("flex gap-8 items-start transition-all duration-300 relative group/row", isUnavailable && !apt ? "opacity-50" : "opacity-100")}>
                                                     <div className="w-[50px] shrink-0 flex items-center justify-center pt-3 relative z-10">
-                                                        <span className={cn("text-[13px] font-medium tabular-nums", isCurrentSlot ? "text-brand-primary" : "text-stone-300")}>{time}</span>
+                                                        <span className={cn("text-[13px] font-medium tabular-nums", isCurrentSlot ? "text-brand-primary" : "text-stone-600 dark:text-stone-300")}>{time}</span>
                                                     </div>
                                                     <div className="flex-1 min-w-0 pb-3">
                                                         {apt && !isBlocked && !isLiberado ? (
                                                             <div onClick={(e) => { e.stopPropagation(); setSelectedAppointment(apt); }} className={cn(
-                                                                "rounded-[14px] p-4 transition-all cursor-pointer border-y border-r border-white/[0.04]",
+                                                                "rounded-[14px] p-4 transition-all cursor-pointer border-y border-r border-stone-100 dark:border-white/[0.04]",
                                                                 selectedAppointment?.id === apt.id ? "ring-1 ring-brand-primary/40 shadow-[0_0_15px_rgba(245,204,112,0.1)]" : "",
                                                                 apt.status === 'completed' ? "bg-gradient-to-r from-emerald-500/10 to-transparent border-l-4 border-l-emerald-500" :
                                                                     apt.status === 'confirmed' ? "bg-gradient-to-r from-emerald-500/10 to-transparent border-l-4 border-l-emerald-500" :
@@ -964,8 +964,8 @@ export default function AgendaPage() {
                                                             )}>
                                                                 <div className="flex items-center justify-between gap-3">
                                                                     <div className="flex flex-col min-w-0 flex-1">
-                                                                        <h4 className="text-[15px] font-bold text-white truncate mb-0.5">{apt.name}</h4>
-                                                                        <p className="text-[12px] text-stone-400 truncate">{apt.service} • <span className="text-stone-300">{apt.price}</span></p>
+                                                                        <h4 className="text-[15px] font-bold text-stone-900 dark:text-white truncate mb-0.5">{apt.name}</h4>
+                                                                        <p className="text-[12px] text-stone-500 dark:text-stone-400 truncate">{apt.service} • <span className="text-stone-700 dark:text-stone-300">{apt.price}</span></p>
                                                                     </div>
                                                                     <div className="flex items-center gap-3 shrink-0">
                                                                         <div className={cn("text-[9px] font-bold uppercase px-2.5 py-1 rounded-sm tracking-wider",
@@ -974,17 +974,17 @@ export default function AgendaPage() {
                                                                                     "text-amber-400 bg-amber-500/10"
                                                                         )}>{apt.status === 'completed' ? 'Concluído' : apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}</div>
 
-                                                                        <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 bg-stone-800 flex items-center justify-center text-[10px] font-bold text-stone-400 ml-1">
+                                                                        <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-[10px] font-bold text-stone-500 dark:text-stone-400 ml-1">
                                                                             {apt.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
                                                                         </div>
 
                                                                         <DropdownMenu>
                                                                             <DropdownMenuTrigger asChild>
-                                                                                <button onClick={e => e.stopPropagation()} className="h-8 w-8 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">
+                                                                                <button onClick={e => e.stopPropagation()} className="h-8 w-8 rounded-full flex items-center justify-center text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5 transition-all outline-none cursor-pointer">
                                                                                     <MoreVertical className="h-5 w-5" />
                                                                                 </button>
                                                                             </DropdownMenuTrigger>
-                                                                            <DropdownMenuContent align="end" sideOffset={4} className="w-44 bg-stone-950 border border-white/10 rounded-xl p-1 shadow-2xl">
+                                                                            <DropdownMenuContent align="end" sideOffset={4} className="w-44 bg-white dark:bg-stone-950 border border-stone-200 dark:border-white/10 rounded-xl p-1 shadow-2xl">
                                                                                 <DropdownMenuItem onClick={() => handleEdit(apt)} className="rounded-lg text-xs gap-2 py-1.5 cursor-pointer"><Pencil className="h-3 w-3" /> Editar</DropdownMenuItem>
                                                                                 <DropdownMenuItem onClick={() => confirmAppointment(time)} className="rounded-lg text-xs gap-2 py-1.5 cursor-pointer"><CheckCircle2 className="h-3 w-3 text-green-500" /> Confirmar</DropdownMenuItem>
                                                                                 <DropdownMenuItem onClick={() => handleDelete(apt.id)} className="rounded-lg text-xs gap-2 py-1.5 text-red-500 cursor-pointer"><Trash2 className="h-3 w-3" /> Excluir</DropdownMenuItem>
@@ -1007,21 +1007,21 @@ export default function AgendaPage() {
                                                                 </button>
                                                             </div>
                                                         ) : (
-                                                            <div className="rounded-[14px] p-3 pl-4 bg-stone-900/40 border border-white/5 hover:border-white/10 flex items-center justify-between group/empty transition-all">
+                                                            <div className="rounded-[14px] p-3 pl-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 hover:border-stone-200 dark:hover:border-white/10 flex items-center justify-between group/empty transition-all shadow-sm dark:shadow-none">
                                                                 <div className="flex items-center gap-4">
-                                                                    <div className="h-10 w-10 rounded-[10px] border border-dashed border-white/10 flex items-center justify-center text-stone-500">
+                                                                    <div className="h-10 w-10 rounded-[10px] border border-dashed border-stone-200 dark:border-white/10 flex items-center justify-center text-stone-400 dark:text-stone-500">
                                                                         <LayoutGrid className="h-4 w-4 opacity-50" />
                                                                     </div>
                                                                     <div>
-                                                                        <p className="text-[13px] font-bold text-stone-400 uppercase tracking-wider mb-0.5">Horário Livre</p>
+                                                                        <p className="text-[13px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-0.5">Horário Livre</p>
                                                                         <p className="text-[12px] text-stone-500">{tenant?.segmento === 'advocacia' ? 'Disponível para consulta' : 'Disponível para agendamento'}</p>
                                                                     </div>
                                                                 </div>
                                                                 <div className="flex items-center gap-2">
-                                                                    <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer opacity-0 group-hover/empty:opacity-100" title="Bloquear Horário">
+                                                                    <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-10 w-10 rounded-xl border border-stone-200 dark:border-white/5 bg-white dark:bg-white/[0.02] text-stone-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-200 dark:hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer opacity-0 group-hover/empty:opacity-100 shadow-sm dark:shadow-none" title="Bloquear Horário">
                                                                         <CalendarOff className="h-4 w-4" />
                                                                     </button>
-                                                                    <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-white/5 bg-white/[0.02] text-stone-300 hover:text-white hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer" title={tenant?.segmento === 'advocacia' ? 'Nova Consulta' : 'Novo Agendamento'}>
+                                                                    <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-stone-200 dark:border-white/5 bg-white dark:bg-white/[0.02] text-stone-700 dark:text-stone-300 hover:text-brand-primary dark:hover:text-white hover:bg-stone-50 dark:hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer shadow-sm dark:shadow-none" title={tenant?.segmento === 'advocacia' ? 'Nova Consulta' : 'Novo Agendamento'}>
                                                                         <Plus className="h-5 w-5" />
                                                                     </button>
                                                                 </div>
@@ -1091,16 +1091,16 @@ export default function AgendaPage() {
                                     className={cn(
                                         "flex flex-col items-center justify-center min-w-[54px] h-[72px] rounded-2xl transition-all snap-center cursor-pointer shrink-0 relative border",
                                         isSelected
-                                            ? "bg-stone-900/80 border-brand-primary/50 text-brand-primary"
+                                            ? "bg-stone-100 dark:bg-stone-900/80 border-brand-primary/50 text-brand-primary"
                                             : isBlocked
-                                                ? "border-transparent text-stone-600"
+                                                ? "border-transparent text-stone-300 dark:text-stone-600"
                                                 : !isOpen
-                                                    ? "border-transparent text-stone-600"
-                                                    : "border-transparent text-stone-400 hover:bg-stone-900/40"
+                                                    ? "border-transparent text-stone-300 dark:text-stone-600"
+                                                    : "border-transparent text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-900/40"
                                     )}
                                 >
-                                    <span className={cn("text-[10px] font-bold uppercase tracking-wider", isSelected ? "text-brand-primary" : "text-stone-500")}>{day.dayName}</span>
-                                    <span className={cn("text-lg font-black leading-none mt-0.5", isSelected ? "text-foreground" : "text-stone-300")}>{day.dayNum}</span>
+                                    <span className={cn("text-[10px] font-bold uppercase tracking-wider", isSelected ? "text-brand-primary" : "text-stone-500 dark:text-stone-400")}>{day.dayName}</span>
+                                    <span className={cn("text-lg font-black leading-none mt-0.5", isSelected ? "text-stone-900 dark:text-foreground" : "text-stone-600 dark:text-stone-300")}>{day.dayNum}</span>
                                     <div className="flex gap-1 mt-1.5">
                                         {isBlocked ? (
                                             <div className="h-1.5 w-1.5 rounded-full bg-red-500/60" />
@@ -1110,7 +1110,7 @@ export default function AgendaPage() {
                                                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                                             </>
                                         ) : (
-                                            <div className={cn("h-1.5 w-1.5 rounded-full", isSelected ? "bg-brand-primary" : "bg-stone-700")} />
+                                            <div className={cn("h-1.5 w-1.5 rounded-full", isSelected ? "bg-brand-primary" : "bg-stone-200 dark:bg-stone-700")} />
                                         )}
                                     </div>
                                     {day.isToday && !isSelected && (
@@ -1123,7 +1123,7 @@ export default function AgendaPage() {
                         {/* Calendar Button to open modal */}
                         <button
                             onClick={() => setIsCalendarModalOpen(true)}
-                            className="flex flex-col items-center justify-center min-w-[54px] h-[72px] rounded-2xl transition-all snap-center cursor-pointer shrink-0 relative border border-white/5 bg-stone-900/40 text-stone-400 hover:text-white"
+                            className="flex flex-col items-center justify-center min-w-[54px] h-[72px] rounded-2xl transition-all snap-center cursor-pointer shrink-0 relative border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/40 text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white shadow-sm dark:shadow-none"
                         >
                             <CalendarIcon className="h-6 w-6" />
                             <span className="text-[9px] font-bold uppercase tracking-tighter mt-1">Calendário</span>
@@ -1132,15 +1132,15 @@ export default function AgendaPage() {
                 </div>
 
                 {/* ─── INSIGHT BAR ─── */}
-                <div className="shrink-0 mx-1 mb-3 p-3 rounded-2xl bg-stone-900/40 border border-white/5 flex items-center gap-4">
+                <div className="shrink-0 mx-1 mb-3 p-3 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 flex items-center gap-4 shadow-sm dark:shadow-none">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1.5">
                             <TrendingUp className="h-3.5 w-3.5 text-brand-primary shrink-0" />
-                            <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest truncate">
+                            <span className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-widest truncate">
                                 {occupancyNumber}% ocupado · {freeSlotCount} {freeSlotCount === 1 ? 'horário livre' : 'horários livres'}
                             </span>
                         </div>
-                        <div className="h-1.5 rounded-full bg-stone-800 overflow-hidden">
+                        <div className="h-1.5 rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
                             <div
                                 className={cn("h-full rounded-full transition-all duration-700", occupancyNumber >= 80 ? "bg-gradient-to-r from-amber-500 to-red-500" : "bg-gradient-to-r from-emerald-500/80 to-brand-primary/80")}
                                 style={{ width: `${Math.min(occupancyNumber, 100)}%` }}
@@ -1148,15 +1148,15 @@ export default function AgendaPage() {
                         </div>
                     </div>
                     <div className="text-right shrink-0">
-                        <p className="text-lg font-bold text-foreground leading-none">{todayAppointmentsCount}</p>
-                        <p className="text-[9px] text-stone-500 font-medium">{tenant?.segmento === 'advocacia' ? 'consultas' : 'agendados'}</p>
+                        <p className="text-lg font-bold text-stone-900 dark:text-foreground leading-none">{todayAppointmentsCount}</p>
+                        <p className="text-[9px] text-stone-500 dark:text-stone-400 font-medium">{tenant?.segmento === 'advocacia' ? 'consultas' : 'agendados'}</p>
                     </div>
                 </div>
 
                 {/* ═══ TIMELINE DO DIA (Core UX) ═══ */}
                 <div className="flex-1 min-h-0 overflow-hidden flex flex-col relative">
                     {/* Timeline vertical line */}
-                    <div className="absolute left-[23px] top-0 bottom-0 w-px bg-brand-primary/20 pointer-events-none z-0" />
+                    <div className="absolute left-[23px] top-0 bottom-0 w-px bg-brand-primary/10 dark:bg-brand-primary/20 pointer-events-none z-0" />
 
                     <TooltipProvider>
                         <div ref={timelineRef} className="flex-1 overflow-y-auto px-1 py-2 space-y-2 custom-scrollbar scroll-smooth relative z-10">
@@ -1179,14 +1179,14 @@ export default function AgendaPage() {
                                         <div className="w-[46px] shrink-0 flex items-center gap-1 pt-3 relative z-10">
                                             <div className={cn("h-2 w-2 rounded-full shrink-0 border-2 transition-all",
                                                 isCurrentSlot ? "bg-brand-primary border-brand-primary shadow-[0_0_8px_rgba(245,204,112,0.4)]" :
-                                                    apt && !isBlocked && !isLiberado ? "bg-stone-600 border-stone-500" :
+                                                    apt && !isBlocked && !isLiberado ? "bg-stone-400 dark:bg-stone-600 border-stone-300 dark:border-stone-500" :
                                                         isBlocked ? "bg-red-500/40 border-red-500/30" :
-                                                            "bg-stone-800 border-stone-700"
+                                                            "bg-stone-200 dark:bg-stone-800 border-stone-300 dark:border-stone-700"
                                             )} />
                                             <span className={cn("text-[11px] font-bold tabular-nums tracking-tight",
                                                 isCurrentSlot ? "text-brand-primary" :
-                                                    apt && !isBlocked && !isLiberado ? "text-foreground" :
-                                                        "text-stone-600"
+                                                    apt && !isBlocked && !isLiberado ? "text-stone-900 dark:text-foreground" :
+                                                        "text-stone-400 dark:text-stone-600"
                                             )}>{time}</span>
                                         </div>
 
@@ -1200,12 +1200,12 @@ export default function AgendaPage() {
                                                         ? "bg-emerald-500/[0.05] border-emerald-500/20"
                                                         : apt.status === 'confirmed'
                                                             ? "bg-gradient-to-r from-emerald-500/[0.08] to-emerald-500/[0.02] border-emerald-500/20"
-                                                    : "bg-gradient-to-r from-amber-500/[0.08] to-amber-500/[0.02] border-amber-500/20 animate-pulse"
+                                                    : "bg-gradient-to-r from-amber-500/[0.08] to-amber-500/[0.02] border-amber-500/20"
                                                 )} onClick={() => { setAppointmentToComplete(apt); setIsDetailsModalOpen(true); }}>
                                                     <div className="flex items-center justify-between gap-2">
                                                         <div className="flex flex-col min-w-0 flex-1">
-                                                            <h4 className="text-sm font-bold text-foreground truncate">{apt.name}</h4>
-                                                            <p className="text-[11px] text-stone-400 truncate">{apt.service} • <span className="font-semibold">{apt.price}</span></p>
+                                                            <h4 className="text-sm font-bold text-stone-900 dark:text-foreground truncate">{apt.name}</h4>
+                                                            <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">{apt.service} • <span className="font-semibold">{apt.price}</span></p>
                                                         </div>
                                                         {/* Quick actions & Avatar */}
                                                         <div className="flex items-center gap-2 shrink-0">
@@ -1215,8 +1215,8 @@ export default function AgendaPage() {
                                                                         "text-amber-500 bg-amber-500/10 border-amber-500/20"
                                                             )}>{apt.status === 'completed' ? 'Concluído' : apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}</div>
 
-                                                            <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 shrink-0">
-                                                                <div className="h-full w-full bg-stone-800 flex items-center justify-center text-[10px] font-bold text-stone-400">
+                                                            <div className="h-8 w-8 rounded-full overflow-hidden border border-stone-200 dark:border-white/10 shrink-0">
+                                                                <div className="h-full w-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-[10px] font-bold text-stone-500 dark:text-stone-400">
                                                                     {apt.name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
                                                                 </div>
                                                             </div>
@@ -1224,11 +1224,11 @@ export default function AgendaPage() {
                                                             <div onClick={(e) => e.stopPropagation()}>
                                                                 <DropdownMenu>
                                                                     <DropdownMenuTrigger asChild>
-                                                                        <button className="h-7 w-7 rounded-full flex items-center justify-center text-stone-400 hover:text-white hover:bg-white/5 transition-all outline-none cursor-pointer">
+                                                                        <button className="h-7 w-7 rounded-full flex items-center justify-center text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5 transition-all outline-none cursor-pointer">
                                                                             <MoreVertical className="h-4 w-4" />
                                                                         </button>
                                                                     </DropdownMenuTrigger>
-                                                                    <DropdownMenuContent align="end" sideOffset={4} className="w-48 bg-stone-950 border border-white/10 rounded-2xl p-1 shadow-2xl">
+                                                                    <DropdownMenuContent align="end" sideOffset={4} className="w-48 bg-white dark:bg-stone-950 border border-stone-200 dark:border-white/10 rounded-2xl p-1 shadow-2xl">
                                                                         {!apt.customerId && (
                                                                             <DropdownMenuItem onClick={() => { setClientToSave(apt); setIsSaveClientModalOpen(true); }} className="rounded-xl focus:bg-stone-900 text-xs gap-2 py-2">
                                                                                 <UserPlus className="h-3.5 w-3.5" /> Salvar Cliente
@@ -1254,8 +1254,8 @@ export default function AgendaPage() {
                                                 <div className={cn(
                                                     "border rounded-xl p-3 transition-all flex items-center justify-between",
                                                     isBlocked ? "bg-gradient-to-r from-red-500/[0.08] to-red-500/[0.02] border-red-500/20"
-                                                        : isUnavailable ? "bg-stone-900/10 border-white/[0.02]"
-                                                            : "bg-stone-900/40 border-white/5 hover:border-brand-primary/30"
+                                                        : isUnavailable ? "bg-stone-100 dark:bg-stone-900/10 border-stone-100 dark:border-white/[0.02]"
+                                                            : "bg-stone-50 dark:bg-stone-900/40 border-stone-100 dark:border-white/5 hover:border-brand-primary/30"
                                                 )}>
                                                     <div className="flex items-center gap-4">
                                                         {isBlocked ? (
@@ -1263,22 +1263,22 @@ export default function AgendaPage() {
                                                                 <Lock className="h-4 w-4 text-red-500" />
                                                             </div>
                                                         ) : isUnavailable ? (
-                                                            <div className="h-8 w-8 rounded-full bg-stone-900/50 border border-white/[0.05] flex items-center justify-center shrink-0">
-                                                                <Clock className="h-4 w-4 text-stone-700" />
+                                                            <div className="h-8 w-8 rounded-full bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-white/[0.05] flex items-center justify-center shrink-0">
+                                                                <Clock className="h-4 w-4 text-stone-400 dark:text-stone-700" />
                                                             </div>
                                                         ) : (
-                                                            <div className="h-8 w-8 rounded-full border border-dashed border-white/20 flex items-center justify-center text-stone-500 transition-all">
+                                                            <div className="h-8 w-8 rounded-full border border-dashed border-stone-300 dark:border-white/20 flex items-center justify-center text-stone-400 dark:text-stone-500 transition-all">
                                                                 <Plus className="h-4 w-4" />
                                                             </div>
                                                         )}
                                                         <div>
                                                             <p className={cn("text-xs font-bold uppercase tracking-wider mb-0.5",
-                                                                isBlocked ? "text-red-500" : isUnavailable ? "text-stone-600" : "text-stone-400"
+                                                                isBlocked ? "text-red-500" : isUnavailable ? "text-stone-400 dark:text-stone-600" : "text-stone-600 dark:text-stone-400"
                                                             )}>
                                                                 {isBlocked ? "Horário Bloqueado" : isUnavailable ? "Fechado" : "Horário Livre"}
                                                             </p>
                                                             <p className={cn("text-[11px]",
-                                                                isBlocked ? "text-red-500/60" : isUnavailable ? "text-stone-600" : "text-stone-500"
+                                                                isBlocked ? "text-red-500/60" : isUnavailable ? "text-stone-400 dark:text-stone-600" : "text-stone-500 dark:text-stone-400"
                                                             )}>
                                                                 {isBlocked ? "Indisponível para clientes" : isUnavailable ? "Fora do horário de func." : tenant?.segmento === 'advocacia' ? "Disponível para consulta" : "Disponível para agendamento"}
                                                             </p>
@@ -1286,11 +1286,11 @@ export default function AgendaPage() {
                                                     </div>
                                                     {!isBlocked && !isUnavailable && (
                                                         <div className="flex items-center gap-2">
-                                                            <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-8 w-8 rounded-full border border-white/10 bg-stone-900 text-stone-500 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer">
+                                                            <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-8 w-8 rounded-full border border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 text-stone-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-200 dark:hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer shadow-sm dark:shadow-none">
                                                                 <CalendarOff className="h-3.5 w-3.5" />
                                                             </button>
-                                                            <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-8 w-8 rounded-full border border-white/10 bg-stone-900 text-stone-400 hover:text-brand-gold hover:border-brand-gold/30 hover:bg-brand-gold/10 flex items-center justify-center transition-all cursor-pointer">
-                                                                <Plus className="h-4 w-4" />
+                                                            <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-8 w-8 rounded-full border border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-400 hover:text-brand-gold hover:border-brand-gold/30 hover:bg-brand-gold/10 flex items-center justify-center transition-all cursor-pointer shadow-sm dark:shadow-none">
+                                                                    <Plus className="h-4 w-4" />
                                                             </button>
                                                         </div>
                                                     )}
@@ -1326,13 +1326,13 @@ export default function AgendaPage() {
             {/* ═══ CALENDAR MODAL (Full Month) ═══ */}
             {isDesktop ? (
                 <Dialog open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
-                    <DialogContent className="bg-stone-950 border-white/5 rounded-3xl max-w-sm p-8 shadow-2xl">
+                    <DialogContent className="bg-white dark:bg-stone-950 border-stone-200 dark:border-white/5 rounded-3xl max-w-sm p-8 shadow-2xl">
                         {calendarContent}
                     </DialogContent>
                 </Dialog>
             ) : (
                 <Drawer open={isCalendarModalOpen} onOpenChange={setIsCalendarModalOpen}>
-                    <DrawerContent className="bg-stone-950 border-white/5 rounded-t-3xl px-8 pt-4 pb-12 shadow-2xl border-t">
+                    <DrawerContent className="bg-white dark:bg-stone-950 border-stone-200 dark:border-white/5 rounded-t-3xl px-8 pt-4 pb-12 shadow-2xl border-t">
                         {calendarContent}
                     </DrawerContent>
                 </Drawer>
@@ -1396,15 +1396,15 @@ export default function AgendaPage() {
 
             {isDesktop ? (
                 <Dialog open={isBlockConfirmOpen} onOpenChange={setIsBlockConfirmOpen}>
-                    <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-sm">
+                    <DialogContent className="bg-white dark:bg-stone-950 border-stone-200 dark:border-white/10 rounded-3xl max-w-sm">
                         <DialogHeader>
-                            <DialogTitle className="text-xl font-black text-white">Bloquear dia inteiro?</DialogTitle>
-                            <DialogDescription className="text-stone-400 text-sm">
+                            <DialogTitle className="text-xl font-black text-stone-900 dark:text-white">Bloquear dia inteiro?</DialogTitle>
+                            <DialogDescription className="text-stone-500 dark:text-stone-400 text-sm">
                                 Isso irá fechar todos os horários disponíveis para o dia {dateToBlock && new Date(dateToBlock + 'T00:00:00').toLocaleDateString('pt-BR')}.
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter className="flex gap-2 mt-4">
-                            <Button variant="ghost" onClick={() => setIsBlockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                            <Button variant="ghost" onClick={() => setIsBlockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5">
                                 Cancelar
                             </Button>
                             <Button onClick={() => dateToBlock && handleBlockDay(dateToBlock)} className="flex-1 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold" disabled={loading}>
@@ -1415,10 +1415,10 @@ export default function AgendaPage() {
                 </Dialog>
             ) : (
                 <Drawer open={isBlockConfirmOpen} onOpenChange={setIsBlockConfirmOpen}>
-                    <DrawerContent className="bg-stone-950 border-white/10 rounded-t-3xl px-6 pt-2 pb-6 shadow-2xl border-t">
+                    <DrawerContent className="bg-white dark:bg-stone-950 border-stone-200 dark:border-white/10 rounded-t-3xl px-6 pt-2 pb-6 shadow-2xl border-t">
                         <DrawerHeader className="text-left p-0">
-                            <DrawerTitle className="text-xl font-black text-white">Bloquear dia inteiro?</DrawerTitle>
-                            <DrawerDescription className="text-stone-400 text-sm">
+                            <DrawerTitle className="text-xl font-black text-stone-900 dark:text-white">Bloquear dia inteiro?</DrawerTitle>
+                            <DrawerDescription className="text-stone-500 dark:text-stone-400 text-sm">
                                 Isso irá fechar todos os horários disponíveis para o dia {dateToBlock && new Date(dateToBlock + 'T00:00:00').toLocaleDateString('pt-BR')}.
                             </DrawerDescription>
                         </DrawerHeader>
@@ -1426,7 +1426,7 @@ export default function AgendaPage() {
                             <Button onClick={() => dateToBlock && handleBlockDay(dateToBlock)} className="w-full h-12 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold" disabled={loading}>
                                 {loading ? "Bloqueando..." : "Bloquear Dia Inteiro"}
                             </Button>
-                            <Button variant="ghost" onClick={() => setIsBlockConfirmOpen(false)} className="w-full h-12 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                            <Button variant="ghost" onClick={() => setIsBlockConfirmOpen(false)} className="w-full h-12 rounded-xl text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5">
                                 Cancelar
                             </Button>
                         </DrawerFooter>
@@ -1436,15 +1436,15 @@ export default function AgendaPage() {
 
             {isDesktop ? (
                 <Dialog open={isUnblockConfirmOpen} onOpenChange={setIsUnblockConfirmOpen}>
-                    <DialogContent className="bg-stone-950 border-white/10 rounded-3xl max-w-sm">
+                    <DialogContent className="bg-white dark:bg-stone-950 border-stone-200 dark:border-white/10 rounded-3xl max-w-sm">
                         <DialogHeader>
-                            <DialogTitle className="text-xl font-black text-white">Liberar dia inteiro?</DialogTitle>
-                            <DialogDescription className="text-stone-400 text-sm">
+                            <DialogTitle className="text-xl font-black text-stone-900 dark:text-white">Liberar dia inteiro?</DialogTitle>
+                            <DialogDescription className="text-stone-500 dark:text-stone-400 text-sm">
                                 Isso irá remover todos os bloqueios manuais para o dia {dateToUnblock && new Date(dateToUnblock + 'T00:00:00').toLocaleDateString('pt-BR')}.
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter className="flex gap-2 mt-4">
-                            <Button variant="ghost" onClick={() => setIsUnblockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                            <Button variant="ghost" onClick={() => setIsUnblockConfirmOpen(false)} className="flex-1 rounded-xl text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5">
                                 Cancelar
                             </Button>
                             <Button onClick={() => dateToUnblock && handleUnblockDay(dateToUnblock)} className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold" disabled={loading}>
@@ -1455,10 +1455,10 @@ export default function AgendaPage() {
                 </Dialog>
             ) : (
                 <Drawer open={isUnblockConfirmOpen} onOpenChange={setIsUnblockConfirmOpen}>
-                    <DrawerContent className="bg-stone-950 border-white/10 rounded-t-3xl px-6 pt-2 pb-6 shadow-2xl border-t">
+                    <DrawerContent className="bg-white dark:bg-stone-950 border-stone-200 dark:border-white/10 rounded-t-3xl px-6 pt-2 pb-6 shadow-2xl border-t">
                         <DrawerHeader className="text-left p-0">
-                            <DrawerTitle className="text-xl font-black text-white">Liberar dia inteiro?</DrawerTitle>
-                            <DrawerDescription className="text-stone-400 text-sm">
+                            <DrawerTitle className="text-xl font-black text-stone-900 dark:text-white">Liberar dia inteiro?</DrawerTitle>
+                            <DrawerDescription className="text-stone-500 dark:text-stone-400 text-sm">
                                 Isso irá remover todos os bloqueios manuais para o dia {dateToUnblock && new Date(dateToUnblock + 'T00:00:00').toLocaleDateString('pt-BR')}.
                             </DrawerDescription>
                         </DrawerHeader>
@@ -1466,7 +1466,7 @@ export default function AgendaPage() {
                             <Button onClick={() => dateToUnblock && handleUnblockDay(dateToUnblock)} className="w-full h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold" disabled={loading}>
                                 {loading ? "Liberando..." : "Liberar Dia Inteiro"}
                             </Button>
-                            <Button variant="ghost" onClick={() => setIsUnblockConfirmOpen(false)} className="w-full h-12 rounded-xl text-stone-400 hover:text-white hover:bg-white/5">
+                            <Button variant="ghost" onClick={() => setIsUnblockConfirmOpen(false)} className="w-full h-12 rounded-xl text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-white/5">
                                 Cancelar
                             </Button>
                         </DrawerFooter>

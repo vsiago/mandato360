@@ -40,7 +40,7 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
     };
 
     return (
-        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+        <div className="rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em]">
                     {segmento === 'advocacia' ? 'Detalhes da Consulta' : 'Detalhes do Agendamento'}
@@ -67,7 +67,7 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                 <div className="flex items-center gap-2">
                     {apt.phone && (
                         <>
-                            <a href={`tel:${apt.phone}`} className="h-8 w-8 rounded-full bg-stone-800 border border-white/5 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-all">
+                            <a href={`tel:${apt.phone}`} className="h-8 w-8 rounded-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-white/5 flex items-center justify-center text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-700 transition-all">
                                 <Phone className="h-3.5 w-3.5" />
                             </a>
                             <a href={`https://wa.me/${apt.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="h-8 w-8 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center text-green-500 hover:bg-green-500/20 transition-all">
@@ -90,10 +90,10 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                 ].map(row => (
                     <div key={row.label} className="flex items-stretch gap-4 group/row min-h-[32px]">
                         <div className="w-[70px] shrink-0 flex items-center justify-end text-right">
-                            <span className="text-[10px] text-stone-500 font-black uppercase tracking-widest leading-none">{row.label}</span>
+                            <span className="text-[10px] text-stone-500 dark:text-stone-400 font-black uppercase tracking-widest leading-none">{row.label}</span>
                         </div>
                         
-                        <div className="w-[2px] bg-stone-800/80 self-stretch rounded-full group-hover/row:bg-brand-primary/40 transition-colors shrink-0" />
+                        <div className="w-[2px] bg-stone-100 dark:bg-stone-800/80 self-stretch rounded-full group-hover/row:bg-brand-primary/40 transition-colors shrink-0" />
                         
                         <div className="flex-1 py-1 flex items-center">
                             {(row.label === "Serviço" || row.label === "Atendimento") && apt.allServices?.length > 1 ? (
@@ -101,14 +101,14 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                                     {apt.allServices.map((s: string, idx: number) => (
                                         <div key={idx} className="flex items-center gap-2">
                                             <div className="h-1 w-1 rounded-full bg-brand-primary shrink-0" />
-                                            <span className="text-xs text-stone-200 font-bold leading-none">{s}</span>
+                                            <span className="text-xs text-stone-700 dark:text-stone-200 font-bold leading-none">{s}</span>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
                                 <span className={cn(
                                     "text-xs font-bold leading-none",
-                                    row.label === "Valor" ? "text-brand-gold" : "text-stone-300"
+                                    row.label === "Valor" ? "text-brand-gold" : "text-stone-600 dark:text-stone-300"
                                 )}>
                                     {row.value}
                                 </span>
@@ -118,16 +118,16 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                 ))}
             </div>
             {/* Actions */}
-            <div className="grid grid-cols-4 gap-2 border-t border-white/5 pt-5">
-                <button onClick={() => onEdit(apt)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-amber-400 transition-colors group cursor-pointer">
+            <div className="grid grid-cols-4 gap-2 border-t border-stone-100 dark:border-white/5 pt-5">
+                <button onClick={() => onEdit(apt)} className="flex flex-col items-center gap-2 text-stone-500 dark:text-stone-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors group cursor-pointer">
                     <div className="h-10 w-10 rounded-xl bg-amber-400/5 border border-amber-400/10 flex items-center justify-center group-hover:bg-amber-400/10 group-hover:border-amber-400/20 transition-all">
                         <Pencil className="h-4 w-4 text-amber-400" />
                     </div>
                     <span className="text-[10px] font-medium">Editar</span>
                 </button>
-                <button onClick={() => onReschedule(apt)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-amber-400 transition-colors group cursor-pointer">
+                <button onClick={() => onReschedule(apt)} className="flex flex-col items-center gap-2 text-stone-500 dark:text-stone-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors group cursor-pointer">
                     <div className="h-10 w-10 rounded-xl bg-amber-400/5 border border-amber-400/10 flex items-center justify-center group-hover:bg-amber-400/10 group-hover:border-amber-400/20 transition-all">
-                        <CalendarIcon className="h-4 w-4 text-amber-400" />
+                        <CalendarIcon className="h-4 w-4 text-amber-500" />
                     </div>
                     <span className="text-[10px] font-medium">Reagendar</span>
                 </button>
@@ -139,7 +139,7 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                     }} 
                     className={cn(
                         "flex flex-col items-center gap-2 transition-colors group cursor-pointer",
-                        apt.status === 'pending' ? "text-stone-400 hover:text-amber-500" : "text-stone-400 hover:text-emerald-500"
+                        apt.status === 'pending' ? "text-stone-500 dark:text-stone-400 hover:text-amber-500" : "text-stone-500 dark:text-stone-400 hover:text-emerald-500"
                     )}
                 >
                     <div className={cn(
@@ -154,7 +154,7 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                         {apt.status === 'pending' ? 'Confirmar' : apt.status === 'confirmed' ? 'Concluir' : 'Detalhes'}
                     </span>
                 </button>
-                <button onClick={() => onDelete(apt.id)} className="flex flex-col items-center gap-2 text-stone-400 hover:text-red-500 transition-colors group cursor-pointer">
+                <button onClick={() => onDelete(apt.id)} className="flex flex-col items-center gap-2 text-stone-500 dark:text-stone-400 hover:text-red-500 transition-colors group cursor-pointer">
                     <div className="h-10 w-10 rounded-xl bg-red-500/5 border border-red-500/10 flex items-center justify-center group-hover:bg-red-500/10 group-hover:border-red-500/20 transition-all">
                         <Trash2 className="h-4 w-4 text-red-500" />
                     </div>
@@ -173,23 +173,23 @@ export function DesktopOccupationCard({ summary, segmento }: { summary: { total:
     const occupationPercent = totalSlots > 0 ? Math.round((summary.total / totalSlots) * 100) : 0;
 
     return (
-        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5 flex">
+        <div className="rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 p-5 flex shadow-sm">
             {/* Left Side */}
-            <div className="flex-1 pr-5 border-r border-white/5">
-                <p className="text-[11px] font-medium text-stone-300 mb-1">Ocupação do dia</p>
-                <div className="text-3xl font-bold text-white mb-2">{occupationPercent}%</div>
-                <div className="h-1.5 w-full bg-stone-800 rounded-full overflow-hidden mb-2">
+            <div className="flex-1 pr-5 border-r border-stone-100 dark:border-white/5">
+                <p className="text-[11px] font-medium text-stone-600 dark:text-stone-300 mb-1">Ocupação do dia</p>
+                <div className="text-3xl font-bold text-stone-900 dark:text-white mb-2">{occupationPercent}%</div>
+                <div className="h-1.5 w-full bg-stone-100 dark:bg-stone-800 rounded-full overflow-hidden mb-2">
                     <div 
                         className="h-full bg-brand-gold rounded-full transition-all duration-1000" 
                         style={{ width: `${occupationPercent}%` }} 
                     />
                 </div>
-                <p className="text-[10px] text-stone-400">{summary.total} / {totalSlots} {segmento === 'advocacia' ? 'consultas' : 'agendamentos'}</p>
+                <p className="text-[10px] text-stone-500 dark:text-stone-400">{summary.total} / {totalSlots} {segmento === 'advocacia' ? 'consultas' : 'agendamentos'}</p>
             </div>
 
             {/* Right Side */}
             <div className="w-[110px] pl-5 relative flex flex-col shrink-0">
-                <p className="text-[11px] font-medium text-stone-300 leading-snug">
+                <p className="text-[11px] font-medium text-stone-600 dark:text-stone-300 leading-snug">
                     {summary.free} horários<br/>livres
                 </p>
                 <div className="absolute bottom-0 right-0 h-8 w-8 rounded-[10px] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
@@ -257,24 +257,24 @@ export function DesktopNextActionsPanel({ appointments, currentTime, onConfirmAl
     }
 
     return (
-        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+        <div className="rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 p-5 shadow-sm">
             <h3 className="text-[11px] font-bold text-brand-primary uppercase tracking-[0.15em] mb-4">
                 Próximas Ações
             </h3>
             
             <div className="space-y-3">
                 {actions.map((act, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-stone-900/20 hover:bg-stone-900/40 border border-white/5 p-3 rounded-[14px] transition-all cursor-pointer group">
+                    <div key={i} className="flex items-center gap-3 bg-stone-50 dark:bg-stone-900/20 hover:bg-stone-100 dark:hover:bg-stone-900/40 border border-stone-100 dark:border-white/5 p-3 rounded-[14px] transition-all cursor-pointer group">
                         <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0 border transition-colors", act.bgClass)}>
                             <act.icon className={cn("h-5 w-5", act.colorClass)} />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-bold text-stone-200 truncate group-hover:text-white transition-colors">{act.title}</h4>
-                            <p className="text-[10px] text-stone-500 truncate mt-0.5">{act.sub}</p>
+                            <h4 className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate group-hover:text-brand-primary dark:group-hover:text-white transition-colors">{act.title}</h4>
+                            <p className="text-[10px] text-stone-500 dark:text-stone-400 truncate mt-0.5">{act.sub}</p>
                         </div>
                         <button 
                             onClick={act.onClick}
-                            className="shrink-0 h-8 px-3 rounded-full border border-stone-800 bg-stone-900/40 flex items-center gap-1.5 text-[10px] font-medium text-brand-gold group-hover:bg-stone-800 group-hover:border-stone-700 transition-all cursor-pointer"
+                            className="shrink-0 h-8 px-3 rounded-full border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 flex items-center gap-1.5 text-[10px] font-medium text-brand-gold hover:bg-stone-50 dark:hover:bg-stone-800 group-hover:border-stone-300 dark:group-hover:border-stone-700 transition-all cursor-pointer"
                         >
                             {act.btnLabel}
                             <ChevronRight className="h-3 w-3" />
@@ -284,9 +284,9 @@ export function DesktopNextActionsPanel({ appointments, currentTime, onConfirmAl
             </div>
 
             <div className="mt-5 pt-4">
-                <button className="w-full flex items-center justify-between text-xs font-bold text-brand-gold hover:text-amber-400 transition-colors cursor-pointer group">
+                <button className="w-full flex items-center justify-between text-xs font-bold text-brand-gold hover:text-amber-500 transition-colors cursor-pointer group">
                     Ver todas as ações
-                    <ChevronRight className="h-4 w-4 text-stone-600 group-hover:text-brand-gold group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="h-4 w-4 text-stone-400 dark:text-stone-600 group-hover:text-brand-gold group-hover:translate-x-1 transition-all" />
                 </button>
             </div>
         </div>
@@ -314,18 +314,18 @@ export function DesktopMiniCalendar({ currentMonth, setCurrentMonth, selectedDat
     }
 
     return (
-        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+        <div className="rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 p-5 shadow-sm">
             <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] mb-4">Visão Mensal</h3>
             <div className="flex items-center justify-between mb-5">
-                <span className="text-sm font-bold text-foreground capitalize">{MONTH_NAMES[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
+                <span className="text-sm font-bold text-stone-900 dark:text-foreground capitalize">{MONTH_NAMES[currentMonth.getMonth()]} {currentMonth.getFullYear()}</span>
                 <div className="flex gap-2">
-                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="h-7 w-7 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
+                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="h-7 w-7 rounded-lg bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-all cursor-pointer">
                         <ChevronLeft className="h-4 w-4" />
                     </button>
-                    <button onClick={() => setCurrentMonth(new Date())} className="h-7 px-3 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-[10px] font-bold text-stone-300 hover:text-white transition-all cursor-pointer uppercase tracking-widest">
+                    <button onClick={() => setCurrentMonth(new Date())} className="h-7 px-3 rounded-lg bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center text-[10px] font-bold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-all cursor-pointer uppercase tracking-widest">
                         Hoje
                     </button>
-                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="h-7 w-7 rounded-lg bg-stone-900 border border-white/5 flex items-center justify-center text-stone-400 hover:text-white transition-all cursor-pointer">
+                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="h-7 w-7 rounded-lg bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white transition-all cursor-pointer">
                         <ChevronRight className="h-4 w-4" />
                     </button>
                 </div>
@@ -348,7 +348,7 @@ export function DesktopMiniCalendar({ currentMonth, setCurrentMonth, selectedDat
                                 "h-8 w-8 mx-auto rounded-full text-xs font-bold transition-all relative flex flex-col items-center justify-center cursor-pointer",
                                 isSelected ? "bg-brand-gold text-white shadow-[0_0_10px_rgba(245,204,112,0.3)]" :
                                     isToday ? "text-brand-primary border border-brand-primary/30" :
-                                        blocked ? "text-stone-600" : "text-stone-300 hover:bg-stone-800 hover:text-white"
+                                        blocked ? "text-stone-300 dark:text-stone-600" : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-900 dark:hover:text-white"
                             )}>
                             <span>{day}</span>
                             <div className="flex gap-0.5 absolute -bottom-2">
@@ -365,10 +365,10 @@ export function DesktopMiniCalendar({ currentMonth, setCurrentMonth, selectedDat
                 })}
             </div>
             {/* Legend */}
-            <div className="flex items-center justify-between gap-2 mt-6 pt-4 border-t border-white/5">
-                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /><span className="text-[9px] text-stone-500 font-medium">Tem agendamentos</span></div>
-                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-red-500" /><span className="text-[9px] text-stone-500 font-medium">Bloqueado</span></div>
-                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-stone-600" /><span className="text-[9px] text-stone-500 font-medium">Sem agendamentos</span></div>
+            <div className="flex items-center justify-between gap-2 mt-6 pt-4 border-t border-stone-100 dark:border-white/5">
+                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-emerald-500" /><span className="text-[9px] text-stone-500 dark:text-stone-400 font-medium">Tem agendamentos</span></div>
+                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-red-500" /><span className="text-[9px] text-stone-500 dark:text-stone-400 font-medium">Bloqueado</span></div>
+                <div className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-stone-300 dark:bg-stone-600" /><span className="text-[9px] text-stone-500 dark:text-stone-400 font-medium">Sem agendamentos</span></div>
             </div>
         </div>
     )
@@ -382,12 +382,12 @@ export function DesktopDaySummary({ summary, segmento }: {
     segmento?: string
 }) {
     return (
-        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+        <div className="rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 p-5 shadow-sm">
             <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] mb-4">Resumo do Dia</h3>
             <div className="grid grid-cols-3 gap-2 mb-2">
-                <div className="col-span-1 rounded-xl bg-stone-900/50 border border-white/5 p-3">
-                    <p className="text-xl font-bold text-stone-300 mb-1">{summary.total + summary.completed}</p>
-                    <p className="text-[9px] text-stone-500 leading-tight">Total de<br />{segmento === 'advocacia' ? 'consultas' : 'agendamentos'}</p>
+                <div className="col-span-1 rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-white/5 p-3">
+                    <p className="text-xl font-bold text-stone-700 dark:text-stone-300 mb-1">{summary.total + summary.completed}</p>
+                    <p className="text-[9px] text-stone-500 dark:text-stone-400 leading-tight">Total de<br />{segmento === 'advocacia' ? 'consultas' : 'agendamentos'}</p>
                 </div>
                 <div className="col-span-1 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10 p-3 relative overflow-hidden">
                     <CheckCircle2 className="absolute -bottom-2 -right-2 h-10 w-10 text-emerald-500/10" />
@@ -405,9 +405,9 @@ export function DesktopDaySummary({ summary, segmento }: {
                     <p className="text-xl font-bold text-red-500 mb-1">{summary.blocked}</p>
                     <p className="text-[9px] text-red-500/70 leading-tight">Bloqueados</p>
                 </div>
-                <div className="col-span-1 rounded-xl bg-stone-900/50 border border-white/5 p-3">
-                    <p className="text-xl font-bold text-stone-300 mb-1">{summary.free}</p>
-                    <p className="text-[9px] text-stone-500 leading-tight"><Clock className="inline h-2.5 w-2.5 mb-0.5 mr-0.5" />Horários livres</p>
+                <div className="col-span-1 rounded-xl bg-stone-50 dark:bg-stone-900/50 border border-stone-100 dark:border-white/5 p-3">
+                    <p className="text-xl font-bold text-stone-700 dark:text-stone-300 mb-1">{summary.free}</p>
+                    <p className="text-[9px] text-stone-500 dark:text-stone-400 leading-tight"><Clock className="inline h-2.5 w-2.5 mb-0.5 mr-0.5" />Horários livres</p>
                 </div>
             </div>
         </div>
@@ -426,28 +426,28 @@ export function DesktopFreeSlots({ slots, onAddAt, maxShow = 6 }: {
     const visible = showAll ? slots : slots.slice(0, maxShow)
 
     return (
-        <div className="rounded-2xl border border-white/5 bg-stone-900/30 p-5">
+        <div className="rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 p-5 shadow-sm">
             <h3 className="text-[10px] font-black text-brand-primary uppercase tracking-[0.15em] mb-4">Próximos Horários Livres</h3>
             {slots.length === 0 ? (
-                <p className="text-xs text-stone-600 text-center py-3">Nenhum horário livre</p>
+                <p className="text-xs text-stone-400 dark:text-stone-600 text-center py-3">Nenhum horário livre</p>
             ) : (
                 <>
                     <div className="grid grid-cols-4 gap-2">
                         {visible.map(time => (
                             <button key={time} onClick={() => onAddAt(time)}
-                                className="h-9 rounded-xl bg-stone-900/60 border border-white/5 text-xs font-semibold text-stone-300 hover:border-brand-primary/30 hover:text-brand-primary hover:bg-brand-primary/5 transition-all cursor-pointer">
+                                className="h-9 rounded-xl bg-stone-50 dark:bg-stone-900/60 border border-stone-200 dark:border-white/5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:border-brand-primary/30 hover:text-brand-primary hover:bg-brand-primary/5 transition-all cursor-pointer">
                                 {time}
                             </button>
                         ))}
                         {slots.length > maxShow && !showAll && (
                             <button onClick={() => setShowAll(true)}
-                                className="h-9 col-span-2 rounded-xl text-[10px] font-bold text-brand-primary border border-white/5 hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-all cursor-pointer">
+                                className="h-9 col-span-2 rounded-xl text-[10px] font-bold text-brand-primary border border-stone-200 dark:border-white/5 hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-all cursor-pointer">
                                 Ver todos
                             </button>
                         )}
                         {showAll && (
                             <button onClick={() => setShowAll(false)}
-                                className="h-9 col-span-4 mt-1 rounded-xl text-[10px] font-bold text-stone-400 border border-white/5 hover:bg-white/5 transition-all cursor-pointer">
+                                className="h-9 col-span-4 mt-1 rounded-xl text-[10px] font-bold text-stone-500 dark:text-stone-400 border border-stone-200 dark:border-white/5 hover:bg-stone-50 dark:hover:bg-white/5 transition-all cursor-pointer">
                                 Mostrar menos
                             </button>
                         )}

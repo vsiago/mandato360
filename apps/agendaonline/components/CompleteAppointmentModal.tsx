@@ -89,14 +89,14 @@ export function CompleteAppointmentModal({
                     <Button 
                         variant="ghost" 
                         onClick={onClose}
-                        className="h-12 px-6 rounded-2xl text-stone-500 hover:text-stone-300 transition-all text-xs font-bold uppercase tracking-widest"
+                        className="h-12 px-6 rounded-2xl text-stone-500 dark:text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-white/5 transition-all text-xs font-bold uppercase tracking-widest"
                     >
                         Cancelar
                     </Button>
                     <Button
                         disabled={!paymentMethod || isSubmitting}
                         onClick={handleConfirm}
-                        className="flex-1 h-12 rounded-2xl bg-brand-gold text-stone-950 font-bold uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-brand-secondary/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+                        className="flex-1 h-12 rounded-2xl bg-brand-gold text-white font-bold uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-brand-secondary/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
                     >
                         {isSubmitting ? (
                             <Loader2 className="h-5 w-5 animate-spin" />
@@ -112,14 +112,14 @@ export function CompleteAppointmentModal({
         >
             <div className="space-y-6">
                 {/* Summary Card */}
-                <div className="bg-stone-950/40 border border-white/5 rounded-2xl p-4 space-y-4 shadow-inner">
+                <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-2xl p-4 space-y-4 shadow-inner">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-stone-900 flex items-center justify-center border border-white/5 text-[10px] font-black text-stone-500">
+                            <div className="h-10 w-10 rounded-full bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center text-[10px] font-black text-stone-600 dark:text-stone-500">
                                 {appointment.name.split(" ").map((n: any) => n[0]).join("").toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                                <h4 className="text-sm font-bold text-foreground truncate">{appointment.name}</h4>
+                                <h4 className="text-sm font-bold text-stone-900 dark:text-foreground truncate">{appointment.name}</h4>
                                 <p className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">{appointment.time} • {appointment.service}</p>
                             </div>
                         </div>
@@ -135,7 +135,7 @@ export function CompleteAppointmentModal({
                         )}
                     </div>
 
-                    <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                    <div className="pt-4 border-t border-stone-100 dark:border-white/5 flex items-center justify-between">
                         <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Total a Pagar</span>
                         <span className="text-xl font-black text-brand-primary">{appointment.price}</span>
                     </div>
@@ -158,7 +158,7 @@ export function CompleteAppointmentModal({
                                     "flex items-center gap-3 p-3 rounded-2xl border transition-all text-left",
                                     paymentMethod === method.id
                                         ? "bg-brand-primary/10 border-brand-primary/40 text-brand-primary shadow-lg shadow-brand-primary/5"
-                                        : "bg-stone-950/40 border-white/5 text-stone-500 hover:border-white/10 hover:bg-stone-800"
+                                        : "bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 text-stone-600 dark:text-stone-500 hover:border-stone-300 dark:hover:border-white/10 hover:bg-stone-50 dark:hover:bg-stone-800 shadow-sm"
                                 )}
                             >
                                 <method.icon className={cn("h-4 w-4", paymentMethod === method.id ? "text-brand-primary" : "text-stone-500")} />
@@ -245,7 +245,7 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                     <Button
                         onClick={onClose}
                         variant="ghost"
-                        className="w-full h-12 rounded-2xl text-stone-400 font-bold uppercase tracking-widest hover:bg-white/5 transition-all"
+                        className="w-full h-12 rounded-2xl text-stone-500 dark:text-stone-400 font-bold uppercase tracking-widest hover:bg-stone-100 dark:hover:bg-white/5 transition-all"
                     >
                         Fechar
                     </Button>
@@ -261,14 +261,14 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                 </div>
 
                 {/* Client & Status */}
-                <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-5 space-y-4">
+                <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-2xl bg-stone-950 border border-white/5 flex items-center justify-center text-sm font-bold text-stone-400">
+                            <div className="h-12 w-12 rounded-2xl bg-stone-100 dark:bg-stone-950 border border-stone-200 dark:border-white/5 flex items-center justify-center text-sm font-bold text-stone-600 dark:text-stone-400">
                                 {appointment.name.charAt(0).toUpperCase()}
                             </div>
                             <div>
-                                <p className="text-sm font-bold text-white">{appointment.name}</p>
+                                <p className="text-sm font-bold text-stone-900 dark:text-white">{appointment.name}</p>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                                     <span className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">{appointment.status === 'confirmed' ? 'Confirmado' : appointment.status}</span>
@@ -299,7 +299,7 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                 </div>
 
                 {/* Main Data (Contextual) */}
-                <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-5 space-y-4">
+                <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
                     <div className="flex items-center gap-2 text-stone-500 mb-2">
                         <Info className="h-4 w-4" />
                         <span className="text-[10px] font-black uppercase tracking-widest">Informações do Processo</span>
@@ -311,7 +311,7 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                                 <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
                                     <Hash className="h-3 w-3" /> Número do Processo
                                 </p>
-                                <p className="text-sm font-bold text-white tracking-wider">{details.processNumber}</p>
+                                <p className="text-sm font-bold text-stone-900 dark:text-white tracking-wider">{details.processNumber}</p>
                             </div>
                         )}
 
@@ -320,7 +320,7 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                                 <p className="text-[9px] font-black text-amber-500/60 uppercase tracking-widest flex items-center gap-1.5">
                                     <Hash className="h-3 w-3" /> NB / Benefício
                                 </p>
-                                <p className="text-sm font-bold text-amber-100 tracking-wider">{details.nbNumber}</p>
+                                <p className="text-sm font-bold text-amber-700 dark:text-amber-100 tracking-wider">{details.nbNumber}</p>
                             </div>
                         )}
 
@@ -329,7 +329,7 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                                 <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
                                     <Info className="h-3 w-3" /> Natureza da Causa / Benefício
                                 </p>
-                                <p className="text-xs font-bold text-stone-300">{details.naturezaCausa}</p>
+                                <p className="text-xs font-bold text-stone-600 dark:text-stone-300">{details.naturezaCausa}</p>
                             </div>
                         )}
 
@@ -337,13 +337,13 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                             {details?.foro && (
                                 <div className="space-y-1">
                                     <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Fórum</p>
-                                    <p className="text-xs font-bold text-stone-200">{details.foro}</p>
+                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.foro}</p>
                                 </div>
                             )}
                             {details?.vara && (
                                 <div className="space-y-1">
                                     <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Vara</p>
-                                    <p className="text-xs font-bold text-stone-200">{details.vara}</p>
+                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.vara}</p>
                                 </div>
                             )}
                         </div>
@@ -353,7 +353,7 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                                 <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
                                     <MapPin className="h-3 w-3" /> {mode === 'reuniao' ? 'Local da Reunião' : 'Localização'}
                                 </p>
-                                <p className="text-xs font-bold text-stone-200">{details.location}</p>
+                                <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.location}</p>
                             </div>
                         )}
 
@@ -372,7 +372,7 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
 
                 {/* Financial Block (blueprint item 3) */}
                 {details?.financeiro && (
-                    <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-5 space-y-4">
+                    <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-stone-500">
                                 <Banknote className="h-4 w-4" />
@@ -386,18 +386,18 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                         <div className="flex items-end justify-between">
                             <div>
                                 <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-1">Valor Total</p>
-                                <p className="text-xl font-black text-white">R$ {details.financeiro.valor || '0,00'}</p>
+                                <p className="text-xl font-black text-stone-900 dark:text-white">R$ {details.financeiro.valor || '0,00'}</p>
                             </div>
                             {details.financeiro.formaPagamento && (
                                 <div className="text-right">
                                     <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-1">Forma</p>
-                                    <p className="text-xs font-bold text-stone-300 uppercase">{details.financeiro.formaPagamento}</p>
+                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-300 uppercase">{details.financeiro.formaPagamento}</p>
                                 </div>
                             )}
                         </div>
 
                         {details.financeiro.parcelas > 1 && (
-                            <div className="pt-3 border-t border-white/5">
+                            <div className="pt-3 border-t border-stone-100 dark:border-white/5">
                                 <p className="text-[9px] font-bold text-stone-500 uppercase tracking-widest">Recorrência: {details.financeiro.parcelas} parcelas mensais</p>
                             </div>
                         )}
@@ -406,19 +406,19 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
 
                 {/* Standard Summary Details */}
                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-4">
+                    <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-4 shadow-sm">
                         <div className="flex items-center gap-2 text-stone-500 mb-2">
                             <Calendar className="h-3.5 w-3.5" />
                             <span className="text-[9px] font-black uppercase tracking-widest">Data</span>
                         </div>
-                        <p className="text-xs font-bold text-white">{appointment.date.split('-').reverse().join('/')}</p>
+                        <p className="text-xs font-bold text-stone-900 dark:text-white">{appointment.date.split('-').reverse().join('/')}</p>
                     </div>
-                    <div className="bg-stone-900/40 border border-white/5 rounded-2xl p-4">
+                    <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-4 shadow-sm">
                         <div className="flex items-center gap-2 text-stone-500 mb-2">
                             <Clock className="h-3.5 w-3.5" />
                             <span className="text-[9px] font-black uppercase tracking-widest">Horário</span>
                         </div>
-                        <p className="text-xs font-bold text-white">{appointment.time}</p>
+                        <p className="text-xs font-bold text-stone-900 dark:text-white">{appointment.time}</p>
                     </div>
                 </div>
 

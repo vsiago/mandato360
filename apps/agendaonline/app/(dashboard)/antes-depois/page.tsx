@@ -118,11 +118,11 @@ export default function AntesDepoisPage() {
 
             {/* ── Grid ── */}
             {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl shadow-2xl">
-                    <div className="h-20 w-20 rounded-[2.5rem] bg-stone-900 border border-white/5 flex items-center justify-center mb-6 shadow-2xl">
-                        {isAdvocacia ? <Briefcase className="h-10 w-10 text-stone-700" /> : <ArrowLeftRight className="h-10 w-10 text-stone-700" />}
+                <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl shadow-2xl">
+                    <div className="h-20 w-20 rounded-[2.5rem] bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-white/5 flex items-center justify-center mb-6 shadow-2xl">
+                        {isAdvocacia ? <Briefcase className="h-10 w-10 text-stone-300 dark:text-stone-700" /> : <ArrowLeftRight className="h-10 w-10 text-stone-300 dark:text-stone-700" />}
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                    <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
                         {isAdvocacia ? "Seu portfólio está vazio" : "Sua galeria está vazia"}
                     </h3>
                     <p className="text-sm text-stone-500 max-w-xs mx-auto mb-8">
@@ -130,27 +130,27 @@ export default function AntesDepoisPage() {
                             ? "Apresente os problemas que você resolveu para construir autoridade e confiança." 
                             : "Mostre o valor do seu serviço através de comparações visuais de resultados reais."}
                     </p>
-                    <Button onClick={handleNew} className="bg-brand-gold text-white rounded-xl px-8 h-12 font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-gold/10">
+                    <Button onClick={handleNew} className="bg-brand-gold text-white rounded-xl px-8 h-12 font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-secondary/20">
                         {isAdvocacia ? "Adicionar Primeiro Caso" : "Adicionar Primeira Foto"}
                     </Button>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
                     {items.map((item) => (
-                        <div key={item.id} className="group bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl overflow-hidden hover:bg-stone-900/60 transition-all shadow-xl flex flex-col">
+                        <div key={item.id} className="group bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden hover:bg-stone-50 dark:hover:bg-stone-900/60 transition-all shadow-xl flex flex-col">
                             {/* Content Comparison */}
-                            <div className="relative aspect-[16/9] lg:aspect-square flex bg-stone-950 overflow-hidden">
+                            <div className="relative aspect-[16/9] lg:aspect-square flex bg-stone-100 dark:bg-stone-950 overflow-hidden">
                                 {/* BEFORE / PROBLEM */}
-                                <div className="flex-1 relative border-r border-white/10 overflow-hidden flex flex-col">
+                                <div className="flex-1 relative border-r border-stone-200 dark:border-white/10 overflow-hidden flex flex-col">
                                     {isImageUrl(item.before) ? (
                                         <img src={item.before} alt="Antes" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                     ) : (
-                                        <div className="w-full h-full p-4 flex flex-col justify-center bg-stone-900 text-[11px] lg:text-xs text-stone-400 italic leading-relaxed text-center overflow-y-auto hide-scrollbar">
+                                        <div className="w-full h-full p-4 flex flex-col justify-center bg-stone-50 dark:bg-stone-900 text-[11px] lg:text-xs text-stone-600 dark:text-stone-400 italic leading-relaxed text-center overflow-y-auto hide-scrollbar">
                                             {isAdvocacia && <AlertCircle className="h-4 w-4 mx-auto mb-2 opacity-20" />}
                                             "{item.before || (isAdvocacia ? "Descreva o problema jurídico..." : "Sem descrição...")}"
                                         </div>
                                     )}
-                                    <div className="absolute top-2 left-2 bg-stone-950/80 backdrop-blur-md text-white text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider border border-white/5 z-10">
+                                    <div className="absolute top-2 left-2 bg-white/80 dark:bg-stone-950/80 backdrop-blur-md text-stone-900 dark:text-white text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider border border-stone-200 dark:border-white/5 z-10">
                                         {isAdvocacia ? "O Problema" : "Antes"}
                                     </div>
                                 </div>
@@ -160,7 +160,7 @@ export default function AntesDepoisPage() {
                                     {isImageUrl(item.after) ? (
                                         <img src={item.after} alt="Depois" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                     ) : (
-                                        <div className="w-full h-full p-4 flex flex-col justify-center bg-brand-primary/5 text-[11px] lg:text-xs text-brand-primary font-bold leading-relaxed text-center overflow-y-auto hide-scrollbar">
+                                        <div className="w-full h-full p-4 flex flex-col justify-center bg-brand-primary/10 dark:bg-brand-primary/5 text-[11px] lg:text-xs text-brand-primary font-bold leading-relaxed text-center overflow-y-auto hide-scrollbar">
                                             {isAdvocacia && <CheckCircle2 className="h-4 w-4 mx-auto mb-2" />}
                                             {item.after || (isAdvocacia ? "Descreva o resultado alcançado..." : "Sem descrição...")}
                                         </div>
@@ -172,10 +172,10 @@ export default function AntesDepoisPage() {
                                 
                                 {/* Overlay Actions */}
                                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0 z-20">
-                                    <button onClick={() => handleEdit(item)} className="h-9 w-9 rounded-xl bg-stone-950/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-brand-primary transition-all">
+                                    <button onClick={() => handleEdit(item)} className="h-9 w-9 rounded-xl bg-white/90 dark:bg-stone-950/80 backdrop-blur-md border border-stone-200 dark:border-white/10 flex items-center justify-center text-stone-900 dark:text-white hover:bg-brand-primary hover:text-white transition-all shadow-lg">
                                         <Pencil className="h-4 w-4" />
                                     </button>
-                                    <button onClick={() => handleDelete(item.id)} className="h-9 w-9 rounded-xl bg-stone-950/80 backdrop-blur-md border border-white/10 flex items-center justify-center text-stone-400 hover:text-red-500 hover:bg-red-500/10 transition-all">
+                                    <button onClick={() => handleDelete(item.id)} className="h-9 w-9 rounded-xl bg-white/90 dark:bg-stone-950/80 backdrop-blur-md border border-stone-200 dark:border-white/10 flex items-center justify-center text-stone-400 hover:text-red-500 hover:bg-red-500/10 transition-all shadow-lg">
                                         <Trash2 className="h-4 w-4" />
                                     </button>
                                 </div>
@@ -183,10 +183,10 @@ export default function AntesDepoisPage() {
 
                             {/* Info */}
                             <div className="p-4 lg:p-5 flex items-center justify-between gap-4">
-                                <h4 className="text-sm lg:text-base font-bold text-white group-hover:text-brand-primary transition-colors truncate">
+                                <h4 className="text-sm lg:text-base font-bold text-stone-900 dark:text-white group-hover:text-brand-primary transition-colors truncate">
                                     {item.title}
                                 </h4>
-                                <div className="h-7 px-2.5 rounded-lg bg-white/[0.03] border border-white/5 flex items-center gap-1.5 text-[9px] font-black text-stone-500 uppercase tracking-widest whitespace-nowrap">
+                                <div className="h-7 px-2.5 rounded-lg bg-stone-50 dark:bg-white/[0.03] border border-stone-100 dark:border-white/5 flex items-center gap-1.5 text-[9px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-widest whitespace-nowrap shadow-sm">
                                     {isAdvocacia ? <Scale className="h-3 w-3 text-brand-gold" /> : <Sparkles className="h-3 w-3 text-brand-gold" />} Ver Caso
                                 </div>
                             </div>
@@ -196,27 +196,27 @@ export default function AntesDepoisPage() {
                     {/* Add New Slot */}
                     <button
                         onClick={handleNew}
-                        className="group min-h-[200px] rounded-2xl border-2 border-dashed border-white/5 bg-stone-900/20 flex flex-col items-center justify-center gap-4 hover:bg-brand-primary/5 hover:border-brand-primary/20 transition-all shadow-inner"
+                        className="group min-h-[200px] rounded-2xl border-2 border-dashed border-stone-200 dark:border-white/5 bg-stone-50 dark:bg-stone-900/20 flex flex-col items-center justify-center gap-4 hover:bg-white dark:hover:bg-brand-primary/5 hover:border-brand-primary/20 transition-all shadow-sm"
                     >
-                        <div className="h-14 w-14 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-stone-500 group-hover:text-brand-primary group-hover:scale-110 transition-all shadow-xl">
+                        <div className="h-14 w-14 rounded-2xl bg-stone-100 dark:bg-white/[0.03] border border-stone-200 dark:border-white/5 flex items-center justify-center text-stone-400 dark:text-stone-500 group-hover:text-brand-primary group-hover:scale-110 transition-all shadow-lg">
                             <Plus className="h-6 w-6" />
                         </div>
                         <div className="text-center">
-                            <p className="text-sm font-bold text-stone-400 group-hover:text-foreground transition-colors uppercase tracking-widest">{isAdvocacia ? "Novo Caso" : "Novo Resultado"}</p>
-                            <p className="text-[10px] text-stone-600 mt-1 max-w-[140px]">{isAdvocacia ? "Documente uma vitória" : "Compare o antes e depois"}</p>
+                            <p className="text-sm font-bold text-stone-500 dark:text-stone-400 group-hover:text-stone-900 dark:group-hover:text-foreground transition-colors uppercase tracking-widest">{isAdvocacia ? "Novo Caso" : "Novo Resultado"}</p>
+                            <p className="text-[10px] text-stone-400 dark:text-stone-600 mt-1 max-w-[140px]">{isAdvocacia ? "Documente uma vitória" : "Compare o antes e depois"}</p>
                         </div>
                     </button>
                 </div>
             )}
 
             {/* ── Tip Card ── */}
-            <div className="bg-stone-900/40 backdrop-blur-md border border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg mt-4 lg:mt-8">
+            <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg mt-4 lg:mt-8">
                 <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
-                    <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 flex items-center justify-center shrink-0">
+                    <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center shrink-0">
                         {isAdvocacia ? <Scale className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" /> : <Sparkles className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />}
                     </div>
                     <div>
-                        <h4 className="text-sm lg:text-base font-bold text-white leading-tight">{isAdvocacia ? "Autoridade Jurídica" : "Dica de Conversão"}</h4>
+                        <h4 className="text-sm lg:text-base font-bold text-stone-900 dark:text-white leading-tight">{isAdvocacia ? "Autoridade Jurídica" : "Dica de Conversão"}</h4>
                         <p className="text-xs text-stone-500 mt-1">
                             {isAdvocacia 
                                 ? "Casos de sucesso demonstram sua competência e atraem clientes qualificados." 
@@ -224,7 +224,7 @@ export default function AntesDepoisPage() {
                         </p>
                     </div>
                 </div>
-                <Button variant="outline" className="w-full sm:w-auto h-11 lg:h-12 px-6 rounded-xl border-white/5 text-stone-400 hover:bg-white/5 font-bold text-[11px] lg:text-xs">
+                <Button variant="outline" className="w-full sm:w-auto h-11 lg:h-12 px-6 rounded-xl border-stone-200 dark:border-white/5 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/5 font-bold text-[11px] lg:text-xs shadow-sm">
                     {isAdvocacia ? "Ver Portfólio no Site" : "Ver Galeria no Site"}
                 </Button>
             </div>
@@ -237,10 +237,10 @@ export default function AntesDepoisPage() {
                 icon={isAdvocacia ? Briefcase : ArrowLeftRight}
                 footer={
                     <div className="flex gap-3 w-full">
-                        <Button variant="outline" onClick={() => setDialogOpen(false)} className="flex-1 h-12 rounded-xl border-white/5 text-stone-500 hover:bg-white/5 font-bold">
+                        <Button variant="outline" onClick={() => setDialogOpen(false)} className="flex-1 h-12 rounded-xl border-stone-200 dark:border-white/5 text-stone-500 hover:bg-stone-50 dark:hover:bg-white/5 font-bold">
                             Cancelar
                         </Button>
-                        <Button onClick={handleSave} disabled={!formTitle || saving} className="bg-brand-gold text-white rounded-xl flex-1 h-12 font-black uppercase tracking-widest text-xs shadow-xl">
+                        <Button onClick={handleSave} disabled={!formTitle || saving} className="bg-brand-gold text-white rounded-xl flex-1 h-12 font-black uppercase tracking-widest text-xs shadow-xl shadow-brand-secondary/20">
                             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                             {editingItem ? "Salvar" : "Adicionar"}
                         </Button>
@@ -251,7 +251,7 @@ export default function AntesDepoisPage() {
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">{isAdvocacia ? "Título do Caso" : "Título do Procedimento"}</Label>
                         <Input value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder={isAdvocacia ? "Ex: Revisão de Aposentadoria" : "Ex: Micropigmentação Labial"} 
-                            className="h-12 bg-stone-950/40 border-white/5 rounded-xl text-sm font-bold" />
+                            className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white shadow-sm" />
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -262,7 +262,7 @@ export default function AntesDepoisPage() {
                                     value={formBefore} 
                                     onChange={e => setFormBefore(e.target.value)} 
                                     placeholder="Descreva a situação inicial ou o desafio enfrentado pelo cliente..."
-                                    className="w-full min-h-[140px] bg-stone-950/40 border border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-brand-primary/20 text-stone-300 outline-none font-medium"
+                                    className="w-full min-h-[140px] bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-brand-primary/20 text-stone-900 dark:text-stone-300 outline-none font-medium shadow-sm"
                                 />
                             ) : (
                                 <ImageUpload value={formBefore} onChange={url => setFormBefore(url)} />
@@ -280,7 +280,7 @@ export default function AntesDepoisPage() {
                                     value={formAfter} 
                                     onChange={e => setFormAfter(e.target.value)} 
                                     placeholder="Descreva como você resolveu o caso e qual foi o resultado final..."
-                                    className="w-full min-h-[140px] bg-stone-950/40 border border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-brand-primary/20 text-stone-300 outline-none font-medium"
+                                    className="w-full min-h-[140px] bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-brand-primary/20 text-stone-900 dark:text-stone-300 outline-none font-medium shadow-sm"
                                 />
                             ) : (
                                 <ImageUpload value={formAfter} onChange={url => setFormAfter(url)} />

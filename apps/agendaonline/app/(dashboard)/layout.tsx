@@ -292,7 +292,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <div 
-            className="min-h-screen bg-[#F6F3ED] dark:bg-stone-950 selection:bg-amber-100 selection:text-amber-900"
+            className="min-h-screen bg-stone-50 dark:bg-stone-950 selection:bg-amber-100 selection:text-amber-900"
             style={{ 
                 '--tenant-primary': accentColor,
                 '--tenant-hover': hoverColor
@@ -320,19 +320,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 DESKTOP SIDEBAR — hidden on mobile
                ══════════════════════════════════════════════ */}
             <aside className={cn(
-                "hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-[#0c0a09] border-r border-stone-800/40 transition-all duration-500 ease-in-out",
+                "hidden lg:flex flex-col fixed inset-y-0 left-0 z-30 bg-white dark:bg-stone-950 border-r border-stone-200 dark:border-stone-800/40 transition-all duration-500 ease-in-out",
                 isCollapsed ? "w-20" : "w-64"
             )}>
                 {/* Collapse Toggle Button */}
                 <button 
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="absolute -right-3 top-10 w-6 h-6 rounded-full bg-stone-900 border border-stone-800 flex items-center justify-center shadow-xl z-50 hover:scale-110 hover:bg-stone-800 transition-all cursor-pointer group/toggle"
+                    className="absolute -right-3 top-10 w-6 h-6 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 flex items-center justify-center shadow-xl z-50 hover:scale-110 hover:bg-stone-50 dark:hover:bg-stone-800 transition-all cursor-pointer group/toggle"
                 >
-                    <ChevronRight className={cn("w-3.5 h-3.5 text-stone-400 group-hover/toggle:text-brand-primary transition-transform duration-500", !isCollapsed && "rotate-180")} />
+                    <ChevronRight className={cn("w-3.5 h-3.5 text-stone-500 dark:text-stone-400 group-hover/toggle:text-brand-primary transition-transform duration-500", !isCollapsed && "rotate-180")} />
                 </button>
 
                 {/* Logo */}
-                <div className={cn("h-20 flex items-center border-b border-stone-800/20 transition-all duration-500", isCollapsed ? "px-0 justify-center" : "px-6")}>
+                <div className={cn("h-20 flex items-center border-b border-stone-100 dark:border-stone-800/20 transition-all duration-500", isCollapsed ? "px-0 justify-center" : "px-6")}>
                     <Link href="/painel" className="flex items-center gap-2.5 overflow-hidden">
                         <img
                             src={(tenant?.logoUrl || cachedBranding?.logo)
@@ -345,7 +345,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             className={cn(
                                 "transition-all duration-500", 
                                 isCollapsed ? "h-10 w-10 object-contain animate-in zoom-in-50" : "h-9 w-auto",
-                                (tenant?.logoUrl || cachedBranding?.logo) && "object-contain"
+                                (tenant?.logoUrl || cachedBranding?.logo) && "object-contain",
+                                !(tenant?.logoUrl || cachedBranding?.logo) && "dark:invert"
                             )}
                         />
                     </Link>
@@ -373,12 +374,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                 isCollapsed ? "justify-center py-3.5 w-full" : "gap-4 px-6 py-3.5",
                                                 isActive
                                                     ? "text-brand-primary bg-gradient-to-r from-brand-primary/10 to-transparent border-l-2 border-brand-primary"
-                                                    : "text-stone-400 hover:text-stone-100 hover:bg-stone-800/20 border-l-2 border-transparent"
+                                                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-800/20 border-l-2 border-transparent"
                                             )}
                                         >
                                             <item.icon className={cn(
                                                 "h-5 w-5 transition-all duration-300 shrink-0",
-                                                isActive ? "text-brand-primary drop-shadow-[0_0_8px_var(--tenant-primary)]" : "text-stone-500 group-hover:text-stone-300"
+                                                isActive ? "text-brand-primary drop-shadow-[0_0_8px_var(--tenant-primary)]" : "text-stone-400 dark:text-stone-500 group-hover:text-stone-600 dark:group-hover:text-stone-300"
                                             )} style={isActive ? { filter: `drop-shadow(0 0 8px ${accentColor}66)` } : {}} />
                                             {!isCollapsed && (
                                                 <span className={cn(
@@ -431,23 +432,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 {/* Footer Help Card */}
                 {!isCollapsed && (
-                    <div className="p-4 mt-auto border-t border-stone-800/20 animate-in fade-in duration-500">
-                        <div className="p-4 rounded-2xl bg-stone-900/40 border border-stone-800/40 flex items-center gap-3 group cursor-pointer hover:bg-stone-900/60 transition-all duration-300">
-                            <div className="h-10 w-10 rounded-xl bg-stone-800/50 flex items-center justify-center shrink-0 border border-stone-700/30">
+                    <div className="p-4 mt-auto border-t border-stone-100 dark:border-stone-800/20 animate-in fade-in duration-500">
+                        <div className="p-4 rounded-2xl bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800/40 flex items-center gap-3 group cursor-pointer hover:bg-stone-100 dark:hover:bg-stone-900/60 transition-all duration-300">
+                            <div className="h-10 w-10 rounded-xl bg-white dark:bg-stone-800/50 flex items-center justify-center shrink-0 border border-stone-200 dark:border-stone-700/30">
                                 <Headset className="h-5 w-5 text-stone-500 group-hover:text-brand-primary transition-colors" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-xs font-semibold text-stone-200 truncate">Precisa de ajuda?</p>
+                                <p className="text-xs font-semibold text-stone-700 dark:text-stone-200 truncate">Precisa de ajuda?</p>
                                 <p className="text-[10px] text-stone-500 truncate">Acesse nossa central</p>
                             </div>
-                            <ChevronRight className="h-4 w-4 text-stone-600 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" />
+                            <ChevronRight className="h-4 w-4 text-stone-400 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all" />
                         </div>
                     </div>
                 )}
                 
                 {isCollapsed && (
-                    <div className="p-4 mt-auto border-t border-stone-800/20 flex justify-center">
-                        <div className="h-10 w-10 rounded-xl bg-stone-800/50 flex items-center justify-center text-stone-500 hover:text-brand-primary hover:bg-stone-800 transition-all cursor-pointer">
+                    <div className="p-4 mt-auto border-t border-stone-100 dark:border-stone-800/20 flex justify-center">
+                        <div className="h-10 w-10 rounded-xl bg-stone-50 dark:bg-stone-800/50 flex items-center justify-center text-stone-500 hover:text-brand-primary hover:bg-stone-100 dark:hover:bg-stone-800 transition-all cursor-pointer border border-stone-200 dark:border-transparent">
                             <Headset className="h-5 w-5" />
                         </div>
                     </div>
@@ -468,7 +469,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                ══════════════════════════════════════════════ */}
             <div className={cn("flex flex-col min-h-screen pb-20 lg:pb-0 transition-all duration-500 ease-in-out", isCollapsed ? "lg:ml-20" : "lg:ml-64")}>
 
-                <header className="sticky top-0 z-20 bg-[#F6F3ED]/80 dark:bg-stone-950/60 backdrop-blur-xl border-b border-stone-200/50 dark:border-stone-800/40 h-16 px-5 flex items-center justify-between transition-colors shadow-sm">
+                <header className="sticky top-0 z-20 bg-white/80 dark:bg-stone-950/60 backdrop-blur-xl border-b border-stone-200/50 dark:border-stone-800/40 h-16 px-5 flex items-center justify-between transition-colors shadow-sm">
                     {/* Mobile logo + Page title */}
                     <div className="flex items-center gap-3">
                         <Link href="/painel" className="lg:hidden flex items-center gap-2">

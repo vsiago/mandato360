@@ -223,7 +223,7 @@ function PainelContent() {
                         </Button>
                     </Link>
                     <Link href={`/${tenant?.slug || ""}`} target="_blank" className="flex-1 lg:flex-none">
-                        <Button variant="ghost" className="w-full bg-stone-900/40 hover:bg-stone-800 text-stone-400 hover:text-white rounded-xl px-4 lg:px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 text-[11px] lg:text-sm border border-white/5">
+                        <Button variant="ghost" className="w-full bg-stone-100 dark:bg-stone-900/40 hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white rounded-xl px-4 lg:px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 text-[11px] lg:text-sm border border-stone-200 dark:border-white/5 transition-all">
                             <ExternalLink className="h-4 w-4 lg:h-5 lg:w-5" /> Site
                         </Button>
                     </Link>
@@ -250,15 +250,15 @@ function PainelContent() {
                         <div 
                             key={i} 
                             onClick={() => item.action ? item.action() : null}
-                            className="group cursor-pointer bg-stone-900/30 hover:bg-stone-900/50 border border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center text-center gap-2 transition-all min-w-[100px] lg:min-w-0 flex-1 snap-start"
+                            className="group cursor-pointer bg-white dark:bg-stone-900/30 hover:bg-stone-50 dark:hover:bg-stone-900/50 border border-stone-200 dark:border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center text-center gap-2 transition-all min-w-[100px] lg:min-w-0 flex-1 snap-start shadow-sm hover:shadow-md"
                         >
                             <div 
-                                className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 border border-white/5 bg-white/[0.03] group-hover:border-brand-primary/30 transition-colors shadow-sm"
+                                className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 border border-stone-100 dark:border-white/5 bg-stone-50 dark:bg-white/[0.03] group-hover:border-brand-primary/30 transition-colors shadow-xs"
                             >
-                                <item.icon className="h-5 w-5 text-stone-400 group-hover:text-brand-primary transition-colors" />
+                                <item.icon className="h-5 w-5 text-stone-500 dark:text-stone-400 group-hover:text-brand-primary transition-colors" />
                             </div>
                             <div className="min-w-0">
-                                <h4 className="text-[10px] lg:text-xs font-bold text-foreground group-hover:text-brand-primary transition-colors leading-tight truncate">{item.title}</h4>
+                                <h4 className="text-[10px] lg:text-xs font-bold text-stone-700 dark:text-foreground group-hover:text-brand-primary transition-colors leading-tight truncate">{item.title}</h4>
                             </div>
                         </div>
                     ))}
@@ -269,8 +269,8 @@ function PainelContent() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 
                 {/* ── Left Column: Agendamentos ── */}
-                <div className="lg:col-span-5 bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl overflow-hidden flex flex-col h-full lg:mx-0 shadow-2xl">
-                    <div className="p-5 lg:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.03] bg-white/[0.01]">
+                <div className="lg:col-span-5 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden flex flex-col h-full lg:mx-0 shadow-xl dark:shadow-2xl transition-colors">
+                    <div className="p-5 lg:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-stone-100 dark:border-white/[0.03] bg-stone-50/30 dark:bg-white/[0.01]">
                         <div className="flex items-center gap-2.5">
                             <div className="h-8 w-8 rounded-xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
                                 <CalendarDays className="h-4 w-4 text-brand-primary" />
@@ -279,15 +279,15 @@ function PainelContent() {
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-stone-900/50 border border-white/5 rounded-xl cursor-pointer hover:bg-stone-800 transition-colors">
-                                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">{agendaFilter}</span>
-                                    <ChevronDown className="h-3 w-3 text-stone-600" />
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-stone-900/50 border border-stone-200 dark:border-white/5 rounded-xl cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs">
+                                    <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">{agendaFilter}</span>
+                                    <ChevronDown className="h-3 w-3 text-stone-400 dark:text-stone-600" />
                                 </div>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40 bg-stone-950 border-white/10 shadow-2xl rounded-xl">
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Hoje")} className="text-xs font-medium cursor-pointer text-stone-300 focus:bg-white/5 rounded-lg">Hoje</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Amanhã")} className="text-xs font-medium cursor-pointer text-stone-300 focus:bg-white/5 rounded-lg">Amanhã</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Próximos 7 dias")} className="text-xs font-medium cursor-pointer text-stone-300 focus:bg-white/5 rounded-lg">Próximos 7 dias</DropdownMenuItem>
+                            <DropdownMenuContent align="end" className="w-40 bg-white dark:bg-stone-950 border-stone-200 dark:border-white/10 shadow-2xl rounded-xl">
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Hoje")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Hoje</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Amanhã")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Amanhã</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setAgendaFilter("Próximos 7 dias")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Próximos 7 dias</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -313,30 +313,30 @@ function PainelContent() {
                             }
 
                             return (
-                                <div key={apt.id} className="flex items-center gap-4 p-4 rounded-[1.25rem] bg-white/[0.02] border border-white/[0.03] hover:bg-white/[0.05] transition-all group relative overflow-hidden">
+                                <div key={apt.id} className="flex items-center gap-4 p-4 rounded-[1.25rem] bg-stone-50/50 dark:bg-white/[0.02] border border-stone-200/50 dark:border-white/[0.03] hover:bg-white/80 dark:hover:bg-white/[0.05] transition-all group relative overflow-hidden shadow-xs hover:shadow-md">
                                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-primary/40" />
                                     <div className="text-center w-10 shrink-0">
-                                        <p className="text-xs font-black text-stone-300 group-hover:text-brand-primary transition-colors">{apt.time}</p>
-                                        <p className="uppercase font-black tracking-widest mt-0.5 text-[8px] text-stone-500">{dateLabel}</p>
+                                        <p className="text-xs font-black text-stone-600 dark:text-stone-300 group-hover:text-brand-primary transition-colors">{apt.time}</p>
+                                        <p className="uppercase font-black tracking-widest mt-0.5 text-[8px] text-stone-400 dark:text-stone-500">{dateLabel}</p>
                                     </div>
                                     <div className="flex-1 flex items-center justify-between min-w-0">
-                                        <p className="font-bold text-foreground truncate text-sm">{customerName}</p>
-                                        <div className="h-8 w-8 rounded-full border border-white/5 flex items-center justify-center text-[10px] font-black shrink-0 transition-colors bg-stone-900 text-stone-500">
+                                        <p className="font-bold text-stone-800 dark:text-foreground truncate text-sm">{customerName}</p>
+                                        <div className="h-8 w-8 rounded-full border border-stone-200 dark:border-white/5 flex items-center justify-center text-[10px] font-black shrink-0 transition-colors bg-white dark:bg-stone-900 text-stone-400 dark:text-stone-500 shadow-xs">
                                             {initials}
                                         </div>
                                     </div>
                                 </div>
                             )
                         }) : (
-                            <div className="text-center p-6 border border-dashed border-white/5 rounded-[1.25rem] bg-white/[0.01]">
-                                <p className="text-xs text-stone-500 font-medium italic">Nenhum agendamento pendente.</p>
+                            <div className="text-center p-6 border border-dashed border-stone-300 dark:border-white/5 rounded-[1.25rem] bg-stone-50/30 dark:bg-white/[0.01]">
+                                <p className="text-xs text-stone-400 dark:text-stone-500 font-medium italic">Nenhum agendamento pendente.</p>
                             </div>
                         )}
                     </div>
 
                     <div className="p-5 lg:p-6 pt-0 mt-auto">
                         <Link href="/agenda">
-                            <Button variant="ghost" className="w-full bg-white/[0.03] hover:bg-white/[0.06] rounded-xl h-11 text-xs font-bold text-brand-primary border border-brand-primary/10">
+                            <Button variant="ghost" className="w-full bg-white dark:bg-white/[0.03] hover:bg-stone-50 dark:hover:bg-white/[0.06] rounded-xl h-11 text-xs font-bold text-brand-primary border border-brand-primary/20 shadow-sm">
                                 Ver agenda completa
                             </Button>
                         </Link>
@@ -352,33 +352,33 @@ function PainelContent() {
                             { title: isAdvocacia ? "Áreas" : "Serviços", value: String(serviceCount), sub: "Catálogo", icon: isAdvocacia ? Scale : Scissors, accent: "bg-amber-500/10 text-amber-500" },
                             { title: "Hoje", value: "0", sub: "Agendados", icon: CalendarDays, accent: "bg-brand-primary/10 text-brand-primary" },
                         ].map((m, i) => (
-                            <div key={i} className="group cursor-pointer bg-stone-900/40 backdrop-blur-md border border-white/[0.03] p-4 lg:p-6 rounded-2xl hover:bg-white/[0.04] transition-all relative overflow-hidden flex flex-col justify-between min-h-[120px] lg:min-h-[170px] shadow-lg">
+                            <div key={i} className="group cursor-pointer bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-4 lg:p-6 rounded-2xl hover:bg-white dark:hover:bg-white/[0.04] transition-all relative overflow-hidden flex flex-col justify-between min-h-[120px] lg:min-h-[170px] shadow-lg hover:shadow-xl transition-all duration-300">
                                 <div className="flex items-start justify-between">
-                                    <div className={cn("h-9 w-9 lg:h-11 lg:w-11 rounded-xl flex items-center justify-center border border-white/5 shadow-inner", m.accent)}>
+                                    <div className={cn("h-9 w-9 lg:h-11 lg:w-11 rounded-xl flex items-center justify-center border border-stone-100 dark:border-white/5 shadow-inner transition-colors", m.accent)}>
                                         <m.icon className="h-4 w-4 lg:h-5 lg:w-5" />
                                     </div>
-                                    <div className="h-6 w-6 rounded-lg bg-white/[0.03] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <ChevronRight className="h-3.5 w-3.5 text-stone-500" />
+                                    <div className="h-6 w-6 rounded-lg bg-stone-100 dark:bg-white/[0.03] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ChevronRight className="h-3.5 w-3.5 text-stone-400 dark:text-stone-500" />
                                     </div>
                                 </div>
                                 
                                 <div className="mt-4">
-                                    <p className="text-[9px] lg:text-[10px] font-black text-stone-500 uppercase tracking-[0.15em]">{m.title}</p>
-                                    <p className="text-lg lg:text-2xl font-black text-foreground tracking-tight mt-0.5">{m.value}</p>
-                                    <p className="text-[9px] text-muted-foreground mt-0.5 font-medium">{m.sub}</p>
+                                    <p className="text-[9px] lg:text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.15em]">{m.title}</p>
+                                    <p className="text-lg lg:text-2xl font-black text-stone-900 dark:text-foreground tracking-tight mt-0.5">{m.value}</p>
+                                    <p className="text-[9px] text-stone-500 dark:text-muted-foreground mt-0.5 font-medium">{m.sub}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    <div className="bg-stone-900/40 backdrop-blur-md border border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg">
+                    <div className="bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg">
                         <div className="flex items-center gap-4">
                             <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 flex items-center justify-center shrink-0">
                                 <Lightbulb className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />
                             </div>
                             <div className="max-w-[360px]">
-                                <h4 className="text-sm font-bold text-foreground mb-1">Insights Premium</h4>
-                                <p className="text-[10px] lg:text-[11px] text-muted-foreground leading-relaxed font-medium">
+                                <h4 className="text-sm font-bold text-stone-900 dark:text-foreground mb-1">Insights Premium</h4>
+                                <p className="text-[10px] lg:text-[11px] text-stone-500 dark:text-muted-foreground leading-relaxed font-medium">
                                     {isAdvocacia 
                                         ? "Destaque suas especialidades para atrair clientes qualificados."
                                         : "Adicione fotos reais do seu trabalho para converter mais visitantes."
@@ -387,27 +387,25 @@ function PainelContent() {
                             </div>
                         </div>
                         <Link href="/configuracoes" className="w-full sm:w-auto">
-                            <Button variant="outline" className="w-full sm:w-auto border-white/5 bg-white/[0.02] hover:bg-white/[0.05] text-stone-300 text-[10px] font-bold h-10 px-6 rounded-xl transition-all">
+                            <Button variant="outline" className="w-full sm:w-auto border-stone-200 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:bg-stone-50 dark:hover:bg-white/[0.05] text-stone-600 dark:text-stone-300 text-[10px] font-bold h-10 px-6 rounded-xl transition-all shadow-sm">
                                 Perfil Completo
                             </Button>
                         </Link>
                     </div>
                 </div>
             </div>
-
-            {/* ── Setup Checklist (Premium Mobile Concept) ── */}
             {showChecklist && (
-                <div className="lg:mx-0 bg-stone-900/40 backdrop-blur-md border border-white/[0.03] rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden shadow-2xl">
+                <div className="lg:mx-0 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden shadow-2xl transition-colors">
                     <div className="absolute top-0 right-0 p-4">
-                        <button onClick={handleDismissChecklist} className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-stone-500 hover:text-white transition-colors">
+                        <button onClick={handleDismissChecklist} className="h-8 w-8 rounded-full bg-stone-100 dark:bg-white/5 flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
                             <X className="h-4 w-4" />
                         </button>
                     </div>
-
+ 
                     <div className="flex items-center gap-6 w-full lg:w-auto">
                         <div className="relative h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center shrink-0">
                             <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-                                <circle cx="18" cy="18" r="16" fill="none" className="stroke-white/[0.03]" strokeWidth="3.5" />
+                                <circle cx="18" cy="18" r="16" fill="none" className="stroke-stone-100 dark:stroke-white/[0.03]" strokeWidth="3.5" />
                                 <circle 
                                     cx="18" cy="18" r="16" fill="none" 
                                     className="stroke-brand-primary transition-all duration-1000 shadow-[0_0_15px_rgba(var(--brand-primary-rgb),0.3)]" 
@@ -416,7 +414,7 @@ function PainelContent() {
                                     strokeLinecap="round" 
                                 />
                             </svg>
-                            <span className="absolute text-sm lg:text-lg font-black text-foreground">{progress}%</span>
+                            <span className="absolute text-sm lg:text-lg font-black text-stone-900 dark:text-foreground">{progress}%</span>
                         </div>
                         <div className="flex-1">
                             <h3 className="text-base lg:text-xl font-black text-foreground tracking-tight">Evolução do Negócio</h3>
@@ -438,13 +436,13 @@ function PainelContent() {
                                                 ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
                                                 : isActive 
                                                     ? "bg-brand-primary border-brand-primary text-white shadow-xl scale-110" 
-                                                    : "bg-white/5 border-white/[0.03] text-stone-600"
+                                                    : "bg-stone-100 dark:bg-white/5 border-stone-200 dark:border-white/[0.03] text-stone-400 dark:text-stone-600"
                                         )}>
                                             {item.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
                                         </div>
                                         <span className={cn(
                                             "text-[8px] lg:text-[9px] text-center font-black leading-tight whitespace-pre-line uppercase tracking-wider",
-                                            item.done ? "text-emerald-500/60" : isActive ? "text-brand-primary" : "text-stone-600"
+                                            item.done ? "text-emerald-500/60" : isActive ? "text-brand-primary" : "text-stone-400 dark:text-stone-600"
                                         )}>
                                             {item.label.split(" ").join("\n")}
                                         </span>
