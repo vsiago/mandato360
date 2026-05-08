@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "@better-fetch/fetch": "^1.1.21",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@mandato360/editor": "workspace:*",
     "@stripe/react-stripe-js": "^5.6.1",
     "@stripe/stripe-js": "^8.9.0",

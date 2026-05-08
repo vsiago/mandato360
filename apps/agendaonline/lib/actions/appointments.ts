@@ -4,7 +4,7 @@ import { revalidatePath, unstable_noStore as noStore } from "next/cache"
 import { db } from "@/db"
 import { appointments } from "@/db/schema"
 import { auth } from "@/lib/auth"
-import { eq, and } from "drizzle-orm"
+import { eq, and, like, ilike } from "drizzle-orm"
 import { headers } from "next/headers"
 
 /**
@@ -148,5 +148,34 @@ export async function getPublicAppointmentsByDateAction(tenantId: string, date: 
     } catch (error) {
         console.error("Error fetching public appointments:", error)
         return { success: false, error: "Erro ao buscar horários." }
+    }
+}
+export async function getPublicProcessStatusAction(processNumber: string) {
+    try {
+        // Case-insensitive search in notes JSON string
+        const list = await db.query.appointments.findMany({
+            where: ilike(appointments.notes, `%${processNumber}%`)
+        })
+        
+        const process = list.find(apt => {
+            try {
+                const notes = JSON.parse(apt.notes || "{}")
+                return notes.processNumber?.toLowerCase() === processNumber.toLowerCase()
+            } catch (e) { return false }
+        })
+
+        if (!process) return { success: false, error: "Processo não encontrado ou código incorreto." }
+
+        return { 
+            success: true, 
+            process: {
+                status: process.status,
+                customerName: process.customerName,
+                date: process.date
+            } 
+        }
+    } catch (error) {
+        console.error("Error fetching public process status:", error)
+        return { success: false, error: "Erro ao buscar status do processo." }
     }
 }

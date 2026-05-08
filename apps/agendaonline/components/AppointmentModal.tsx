@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { User, Phone, Scissors, Loader2, Plus, XCircle, Calendar, Clock as ClockIcon, Briefcase, Scale, Banknote, Users, Receipt, CheckCircle2, ChevronRight, ArrowLeft, Sparkles, Hash, MapPin, CreditCard, Bell, Video, Info } from "lucide-react"
+import { User, Phone, Scissors, Loader2, Plus, XCircle, Calendar, Clock as ClockIcon, Briefcase, Scale, Banknote, Users, Receipt, CheckCircle2, ChevronRight, ArrowLeft, Sparkles, Hash, MapPin, CreditCard, Bell, Video, Info, RotateCw } from "lucide-react"
 import { createAppointmentAction, updateAppointmentAction } from "@/lib/actions/appointments"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { createServiceAction } from "@/lib/actions/services"
 import { Switch } from "@/components/ui/switch"
+import { generateProcessNumber, LEGAL_STATUSES } from "@/lib/utils/process-utils"
 
 interface Service {
     id: string
@@ -93,6 +94,7 @@ export function AppointmentModal({
     const [reuniaoTipo, setReuniaoTipo] = useState("cliente")
     const [internalDate, setInternalDate] = useState(date)
     const [internalTime, setInternalTime] = useState(time)
+    const [appointmentStatus, setAppointmentStatus] = useState<string>("pending")
 
     useEffect(() => {
         setInternalDate(date)
@@ -138,10 +140,16 @@ export function AppointmentModal({
                 setPhone("")
                 setSelectedServices(initialServices[0] ? [initialServices[0].id] : [])
                 setIsAddingNewService(false)
+                
+                // Auto-generate process number for advocacia if empty
+                if (isAdvocacia && !processNumber) {
+                    setProcessNumber(generateProcessNumber())
+                }
+                setAppointmentStatus("triagem")
             }
             setServices(initialServices)
         }
-    }, [isOpen, initialServices, appointment])
+    }, [isOpen, initialServices, appointment, segmento])
 
     const handleAddService = () => {
         setSelectedServices([...selectedServices, ""])
@@ -226,7 +234,7 @@ export function AppointmentModal({
                        `Financeiro: ${financeiroTipo}`,
                 
                 // Fields for all
-                processNumber: (mode === 'audiencia' || mode === 'diligencia' || mode === 'financeiro') ? processNumber : undefined,
+                processNumber: processNumber || undefined,
                 nbNumber: nbNumber || undefined,
                 naturezaCausa: naturezaCausa || undefined,
                 foro: (mode === 'audiencia' || mode === 'diligencia') ? foro : undefined,
@@ -305,7 +313,7 @@ export function AppointmentModal({
                     serviceId: selectedServices[0] || undefined,
                     date: internalDate,
                     time: internalTime,
-                    status: 'confirmed',
+                    status: appointmentStatus || 'confirmed',
                     notes,
                 })
 
@@ -521,6 +529,26 @@ export function AppointmentModal({
                                         </Label>
                                         
                                         <div className="space-y-4">
+                                            {segmento === 'advocacia' && (
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">Status do Processo</Label>
+                                                    <Select value={appointmentStatus} onValueChange={setAppointmentStatus}>
+                                                        <SelectTrigger className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
+                                                            <SelectValue placeholder="Selecione o status" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
+                                                            {LEGAL_STATUSES.map(status => (
+                                                                <SelectItem key={status.id} value={status.id}>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className={cn("h-2 w-2 rounded-full", status.bgColor.replace('/10', ''))} />
+                                                                        {status.label}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                            )}
                                             {(mode === 'audiencia' || mode === 'diligencia') && (
                                                 <div className="space-y-2">
                                                     <Label className="text-[10px] text-stone-500 font-bold ml-1">Tipo de Evento</Label>
@@ -549,13 +577,36 @@ export function AppointmentModal({
                                             )}
 
                                             <div className="grid grid-cols-2 gap-3">
-                                                <div className="relative group">
-                                                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
-                                                    <Input value={processNumber} onChange={e => setProcessNumber(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Processo" />
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">Processo / Protocolo</Label>
+                                                    <div className="relative group flex gap-2">
+                                                        <div className="relative flex-1">
+                                                            <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
+                                                            <Input 
+                                                                value={processNumber} 
+                                                                onChange={e => setProcessNumber(e.target.value.toUpperCase())} 
+                                                                className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" 
+                                                                placeholder="PROC-2026..." 
+                                                            />
+                                                        </div>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() => setProcessNumber(generateProcessNumber())}
+                                                            className="h-12 w-10 rounded-xl border border-stone-200 dark:border-white/5 bg-stone-50/50 dark:bg-stone-950/20 text-stone-400 hover:text-brand-primary hover:bg-brand-primary/5 shrink-0 transition-all"
+                                                            title="Gerar novo código"
+                                                        >
+                                                            <RotateCw className="h-3.5 w-3.5" />
+                                                        </Button>
+                                                    </div>
                                                 </div>
-                                                <div className="relative group">
-                                                    <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500/60" />
-                                                    <Input value={nbNumber} onChange={e => setNbNumber(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="NB / ID" />
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">NB / ID</Label>
+                                                    <div className="relative group">
+                                                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500/60" />
+                                                        <Input value={nbNumber} onChange={e => setNbNumber(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="NB / ID" />
+                                                    </div>
                                                 </div>
                                             </div>
 

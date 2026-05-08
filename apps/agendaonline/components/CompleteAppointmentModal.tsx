@@ -20,7 +20,9 @@ import {
     MapPin,
     Hash,
     Phone,
-    Globe
+    Globe,
+    Bell,
+    Copy
 } from "lucide-react"
 import { SaveClientModal } from "./SaveClientModal"
 import { cn } from "@/lib/utils"
@@ -116,10 +118,10 @@ export function CompleteAppointmentModal({
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center text-[10px] font-black text-stone-600 dark:text-stone-500">
-                                {appointment.name.split(" ").map((n: any) => n[0]).join("").toUpperCase()}
+                                {appointment.customerName ? appointment.customerName.split(" ").map((n: any) => n[0]).join("").toUpperCase() : 'C'}
                             </div>
                             <div className="min-w-0">
-                                <h4 className="text-sm font-bold text-stone-900 dark:text-foreground truncate">{appointment.name}</h4>
+                                <h4 className="text-sm font-bold text-stone-900 dark:text-foreground truncate">{appointment.customerName || "Cliente sem nome"}</h4>
                                 <p className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">{appointment.time} • {appointment.service}</p>
                             </div>
                         </div>
@@ -183,7 +185,7 @@ export function CompleteAppointmentModal({
             <SaveClientModal 
                 isOpen={isSaveClientModalOpen} 
                 onClose={() => setIsSaveClientModalOpen(false)} 
-                initialData={{ name: appointment.name, phone: appointment.phone }}
+                initialData={{ name: appointment.customerName, phone: appointment.customerPhone }}
                 tenantId={tenantId}
             />
         </BaseModal>
@@ -199,6 +201,14 @@ interface DetailsModalProps {
 
 export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComplete }: DetailsModalProps) {
     const [isSaveClientModalOpen, setIsSaveClientModalOpen] = React.useState(false)
+    const [copied, setCopied] = React.useState(false)
+
+    const handleCopyProtocol = (code: string) => {
+        navigator.clipboard.writeText(code)
+        setCopied(true)
+        toast.success("Protocolo copiado para a área de transferência!")
+        setTimeout(() => setCopied(false), 2000)
+    }
 
     const details = React.useMemo(() => {
         if (!appointment?.notes) return null
@@ -231,7 +241,7 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
             title={details?.titulo || "Resumo do Atendimento"}
             description={isLegal ? `Compromisso do tipo ${mode.toUpperCase()}` : "Confira os detalhes e informações do agendamento."}
             icon={mode === 'audiencia' ? Scale : mode === 'diligencia' ? Briefcase : mode === 'reuniao' ? Video : Info}
-            maxWidth="sm:max-w-[500px]"
+            maxWidth="sm:max-w-[800px]"
             footer={
                 <div className="flex flex-col gap-3 w-full">
                     {appointment.status !== 'completed' && onComplete && (
@@ -252,183 +262,195 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                 </div>
             }
         >
-            <div className="space-y-5">
-                {/* Header Badge */}
-                <div className="flex justify-center">
-                    <div className={cn("px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-[0.2em]", getBadgeColor())}>
-                        {mode === 'standard' ? 'Consulta / Atendimento' : mode.toUpperCase()}
-                    </div>
-                </div>
-
-                {/* Client & Status */}
-                <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-2xl bg-stone-100 dark:bg-stone-950 border border-stone-200 dark:border-white/5 flex items-center justify-center text-sm font-bold text-stone-600 dark:text-stone-400">
-                                {appointment.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                                <p className="text-sm font-bold text-stone-900 dark:text-white">{appointment.name}</p>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">{appointment.status === 'confirmed' ? 'Confirmado' : appointment.status}</span>
-                                </div>
-                            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                <div className="space-y-5">
+                    {/* Header Badge */}
+                    <div className="flex justify-start">
+                        <div className={cn("px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-[0.2em]", getBadgeColor())}>
+                            {mode === 'standard' ? 'Consulta / Atendimento' : mode.toUpperCase()}
                         </div>
-                        {appointment.phone && (
-                            <a 
-                                href={`https://wa.me/55${appointment.phone.replace(/\D/g, '')}`} 
-                                target="_blank"
-                                className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/20 transition-all"
-                            >
-                                <Phone className="h-5 w-5" />
-                            </a>
-                        )}
-                    </div>
-                    
-                    {!appointment.customerId && (
-                        <Button 
-                            onClick={() => setIsSaveClientModalOpen(true)}
-                            variant="outline"
-                            className="w-full h-10 rounded-xl border-brand-primary/20 bg-brand-primary/5 text-[10px] font-black text-brand-primary uppercase tracking-widest hover:bg-brand-primary/10 transition-all flex items-center gap-2"
-                        >
-                            <UserPlus className="h-4 w-4" />
-                            Salvar como Cliente Oficial
-                        </Button>
-                    )}
-                </div>
-
-                {/* Main Data (Contextual) */}
-                <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
-                    <div className="flex items-center gap-2 text-stone-500 mb-2">
-                        <Info className="h-4 w-4" />
-                        <span className="text-[10px] font-black uppercase tracking-widest">Informações do Processo</span>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4">
-                        {details?.processNumber && (
-                            <div className="space-y-1">
-                                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
-                                    <Hash className="h-3 w-3" /> Número do Processo
-                                </p>
-                                <p className="text-sm font-bold text-stone-900 dark:text-white tracking-wider">{details.processNumber}</p>
-                            </div>
-                        )}
-
-                        {details?.nbNumber && (
-                            <div className="space-y-1">
-                                <p className="text-[9px] font-black text-amber-500/60 uppercase tracking-widest flex items-center gap-1.5">
-                                    <Hash className="h-3 w-3" /> NB / Benefício
-                                </p>
-                                <p className="text-sm font-bold text-amber-700 dark:text-amber-100 tracking-wider">{details.nbNumber}</p>
-                            </div>
-                        )}
-
-                        {details?.naturezaCausa && (
-                            <div className="space-y-1">
-                                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
-                                    <Info className="h-3 w-3" /> Natureza da Causa / Benefício
-                                </p>
-                                <p className="text-xs font-bold text-stone-600 dark:text-stone-300">{details.naturezaCausa}</p>
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-4">
-                            {details?.foro && (
-                                <div className="space-y-1">
-                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Fórum</p>
-                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.foro}</p>
-                                </div>
-                            )}
-                            {details?.vara && (
-                                <div className="space-y-1">
-                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Vara</p>
-                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.vara}</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {details?.location && (
-                            <div className="space-y-1">
-                                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
-                                    <MapPin className="h-3 w-3" /> {mode === 'reuniao' ? 'Local da Reunião' : 'Localização'}
-                                </p>
-                                <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.location}</p>
-                            </div>
-                        )}
-
-                        {details?.audiencia?.linkOnline && (
-                            <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 space-y-2">
-                                <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
-                                    <Globe className="h-3 w-3" /> Link da Audiência Virtual
-                                </p>
-                                <a href={details.audiencia.linkOnline} target="_blank" className="text-xs font-bold text-blue-300 underline break-all">
-                                    {details.audiencia.linkOnline}
-                                </a>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Financial Block (blueprint item 3) */}
-                {details?.financeiro && (
+                    {/* Client & Status */}
                     <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 text-stone-500">
-                                <Banknote className="h-4 w-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Financeiro</span>
-                            </div>
-                            <div className={cn("px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest", details.financeiro.pago ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500")}>
-                                {details.financeiro.pago ? 'Pago' : 'Pendente'}
-                            </div>
-                        </div>
-
-                        <div className="flex items-end justify-between">
-                            <div>
-                                <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-1">Valor Total</p>
-                                <p className="text-xl font-black text-stone-900 dark:text-white">R$ {details.financeiro.valor || '0,00'}</p>
-                            </div>
-                            {details.financeiro.formaPagamento && (
-                                <div className="text-right">
-                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-1">Forma</p>
-                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-300 uppercase">{details.financeiro.formaPagamento}</p>
+                            <div className="flex items-center gap-4">
+                                <div className="h-12 w-12 rounded-2xl bg-stone-100 dark:bg-stone-950 border border-stone-200 dark:border-white/5 flex items-center justify-center text-sm font-bold text-stone-600 dark:text-stone-400">
+                                    {appointment.customerName ? appointment.customerName.charAt(0).toUpperCase() : 'C'}
                                 </div>
+                                <div>
+                                    <p className="text-sm font-bold text-stone-900 dark:text-white">{appointment.customerName || "Cliente sem nome"}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-[10px] font-bold text-stone-500 uppercase tracking-widest">{appointment.status === 'confirmed' ? 'Confirmado' : appointment.status}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {appointment.customerPhone && (
+                                <a 
+                                    href={`https://wa.me/55${appointment.customerPhone.replace(/\D/g, '')}`} 
+                                    target="_blank"
+                                    className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 hover:bg-emerald-500/20 transition-all"
+                                >
+                                    <Phone className="h-5 w-5" />
+                                </a>
                             )}
                         </div>
-
-                        {details.financeiro.parcelas > 1 && (
-                            <div className="pt-3 border-t border-stone-100 dark:border-white/5">
-                                <p className="text-[9px] font-bold text-stone-500 uppercase tracking-widest">Recorrência: {details.financeiro.parcelas} parcelas mensais</p>
-                            </div>
+                        
+                        {!appointment.customerId && (
+                            <Button 
+                                onClick={() => setIsSaveClientModalOpen(true)}
+                                variant="outline"
+                                className="w-full h-10 rounded-xl border-brand-primary/20 bg-brand-primary/5 text-[10px] font-black text-brand-primary uppercase tracking-widest hover:bg-brand-primary/10 transition-all flex items-center gap-2"
+                            >
+                                <UserPlus className="h-4 w-4" />
+                                Salvar como Cliente Oficial
+                            </Button>
                         )}
                     </div>
-                )}
 
-                {/* Standard Summary Details */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-4 shadow-sm">
-                        <div className="flex items-center gap-2 text-stone-500 mb-2">
-                            <Calendar className="h-3.5 w-3.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Data</span>
+                    {/* Protocol / Code Section */}
+                    {((appointment.processNumber && appointment.processNumber !== '-') || (details?.processNumber)) && (
+                        <div className="flex items-center justify-between p-4 bg-brand-primary/5 border border-brand-primary/10 rounded-2xl">
+                            <div className="flex items-center gap-3">
+                                <div className="h-9 w-9 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary shadow-sm">
+                                    <Hash className="h-4 w-4" />
+                                </div>
+                                <div>
+                                    <p className="text-[9px] font-black text-brand-primary/60 uppercase tracking-widest">Protocolo / Processo</p>
+                                    <p className="text-sm font-black text-stone-900 dark:text-white tracking-tight">
+                                        {appointment.processNumber && appointment.processNumber !== '-' ? appointment.processNumber : details.processNumber}
+                                    </p>
+                                </div>
+                            </div>
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleCopyProtocol(appointment.processNumber && appointment.processNumber !== '-' ? appointment.processNumber : details.processNumber)}
+                                className="h-10 px-4 rounded-xl hover:bg-brand-primary/10 text-brand-primary gap-2"
+                            >
+                                {copied ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                                <span className="text-[10px] font-black uppercase tracking-widest">{copied ? 'Copiado' : 'Copiar'}</span>
+                            </Button>
                         </div>
-                        <p className="text-xs font-bold text-stone-900 dark:text-white">{appointment.date.split('-').reverse().join('/')}</p>
-                    </div>
-                    <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-4 shadow-sm">
-                        <div className="flex items-center gap-2 text-stone-500 mb-2">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span className="text-[9px] font-black uppercase tracking-widest">Horário</span>
+                    )}
+
+                    {/* Standard Summary Details */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-4 shadow-sm">
+                            <div className="flex items-center gap-2 text-stone-500 mb-2">
+                                <Calendar className="h-3.5 w-3.5" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Data</span>
+                            </div>
+                            <p className="text-xs font-bold text-stone-900 dark:text-white">{appointment.date.split('-').reverse().join('/')}</p>
                         </div>
-                        <p className="text-xs font-bold text-stone-900 dark:text-white">{appointment.time}</p>
+                        <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-4 shadow-sm">
+                            <div className="flex items-center gap-2 text-stone-500 mb-2">
+                                <Clock className="h-3.5 w-3.5" />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Horário</span>
+                            </div>
+                            <p className="text-xs font-bold text-stone-900 dark:text-white">{appointment.time}</p>
+                        </div>
                     </div>
                 </div>
 
-                {/* Reminders */}
-                {details?.lembrete?.ativo && (
-                    <div className="px-1 flex items-center gap-2 text-emerald-500/60">
-                        <Bell className="h-3 w-3" />
-                        <span className="text-[9px] font-bold uppercase tracking-[0.15em]">Lembretes automáticos ativos</span>
+                <div className="space-y-5">
+                    {/* Main Data (Contextual) */}
+                    <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
+                        <div className="flex items-center gap-2 text-stone-500 mb-2">
+                            <Info className="h-4 w-4" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Informações do Processo</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4">
+                            {details?.naturezaCausa && (
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
+                                        <Info className="h-3 w-3" /> Natureza da Causa / Benefício
+                                    </p>
+                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-300">{details.naturezaCausa}</p>
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {details?.foro && (
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Fórum</p>
+                                        <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.foro}</p>
+                                    </div>
+                                )}
+                                {details?.vara && (
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Vara</p>
+                                        <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.vara}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {details?.location && (
+                                <div className="space-y-1">
+                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
+                                        <MapPin className="h-3 w-3" /> {mode === 'reuniao' ? 'Local da Reunião' : 'Localização'}
+                                    </p>
+                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.location}</p>
+                                </div>
+                            )}
+
+                            {details?.audiencia?.linkOnline && (
+                                <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 space-y-2">
+                                    <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
+                                        <Globe className="h-3 w-3" /> Link da Audiência Virtual
+                                    </p>
+                                    <a href={details.audiencia.linkOnline} target="_blank" className="text-xs font-bold text-blue-300 underline break-all">
+                                        {details.audiencia.linkOnline}
+                                    </a>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
+
+                    {/* Financial Block */}
+                    {details?.financeiro && (
+                        <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 text-stone-500">
+                                    <Banknote className="h-4 w-4" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Financeiro</span>
+                                </div>
+                                <div className={cn("px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest", details.financeiro.pago ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500")}>
+                                    {details.financeiro.pago ? 'Pago' : 'Pendente'}
+                                </div>
+                            </div>
+
+                            <div className="flex items-end justify-between">
+                                <div>
+                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-1">Valor Total</p>
+                                    <p className="text-xl font-black text-stone-900 dark:text-white">R$ {details.financeiro.valor || '0,00'}</p>
+                                </div>
+                                {details.financeiro.formaPagamento && (
+                                    <div className="text-right">
+                                        <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest mb-1">Forma</p>
+                                        <p className="text-xs font-bold text-stone-600 dark:text-stone-300 uppercase">{details.financeiro.formaPagamento}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {details.financeiro.parcelas > 1 && (
+                                <div className="pt-3 border-t border-stone-100 dark:border-white/5">
+                                    <p className="text-[9px] font-bold text-stone-500 uppercase tracking-widest">Recorrência: {details.financeiro.parcelas} parcelas mensais</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Reminders */}
+                    {details?.lembrete?.ativo && (
+                        <div className="px-1 flex items-center gap-2 text-emerald-500/60">
+                            <Bell className="h-3 w-3" />
+                            <span className="text-[9px] font-bold uppercase tracking-[0.15em]">Lembretes automáticos ativos</span>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <SaveClientModal 

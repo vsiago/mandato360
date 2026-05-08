@@ -12,7 +12,10 @@ import {
     Calendar,
     MessageSquare,
     Info,
-    Users
+    Users,
+    Scale,
+    Hash,
+    Search
 } from "lucide-react"
 
 const PUBLIC_ICON_MAP: Record<string, any> = {
@@ -39,6 +42,12 @@ import type { TenantData } from "@/lib/tenant-types"
 import { resolveSectionBackground, resolveElementStyle, elementStyleToCSS, generateResponsiveElementCSS, buildGoogleFontsUrl, getFontStack, hexToRgba } from "@/lib/style-utils"
 import { getTheme, generateThemeCSS, getHeroImageForNiche } from "@/src/themes"
 import { cn } from "@/lib/utils"
+import { getPublicProcessStatusAction } from "@/lib/actions/appointments"
+import { LEGAL_STATUSES } from "@/lib/utils/process-utils"
+import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Loader2 } from "lucide-react"
 
 // Helper to render simple markdown-like syntax from editor
 function renderEditorText(text: string = "") {
@@ -65,6 +74,12 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
     const [activeCategory, setActiveCategory] = useState("todos")
     const [isBookingOpen, setIsBookingOpen] = useState(false)
     const [activeServiceId, setActiveServiceId] = useState("")
+    const [isConsultingProcess, setIsConsultingProcess] = useState(false)
+    const [processCode, setProcessCode] = useState("")
+    const [consultationResult, setConsultationResult] = useState<any>(null)
+    const [consultationLoading, setConsultationLoading] = useState(false)
+    const [consultationError, setConsultationError] = useState<string | null>(null)
+    const [showInlineConsult, setShowInlineConsult] = useState(false)
 
     // Filter out duplicate "todos" from categories since we render it manually
     const filteredCategories = categories.filter(c => c.id !== 'todos')
@@ -80,6 +95,24 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
     const handleOpenBooking = (serviceId: string = "") => {
         setActiveServiceId(serviceId)
         setIsBookingOpen(true)
+    }
+
+    const handleConsultProcess = async () => {
+        if (!processCode) return
+        setConsultationLoading(true)
+        setConsultationError(null)
+        try {
+            const res = await getPublicProcessStatusAction(processCode)
+            if (res.success) {
+                setConsultationResult(res.process)
+            } else {
+                setConsultationError(res.error || "Código incorreto ou não encontrado.")
+            }
+        } catch (e) {
+            setConsultationError("Erro ao conectar ao servidor.")
+        } finally {
+            setConsultationLoading(false)
+        }
     }
 
 
@@ -780,6 +813,125 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                                 </Link>
                                             )
                                         })()}
+
+                                        {/* Legal Consultation UI */}
+                                        {(data.businessTypeId === 'advocacia' || data.segmento === 'advocacia' || data.name?.toLowerCase().includes('advog') || editorConfig?.plugins?.practiceAreas?.enabled) && (
+                                            <div className="w-full sm:w-auto flex">
+                                                <AnimatePresence mode="wait">
+                                                    {consultationResult ? (
+                                                        <motion.div
+                                                            key="inline-result"
+                                                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                                            className="flex flex-col gap-4 bg-white/10 backdrop-blur-2xl p-5 rounded-[2rem] border border-white/20 shadow-2xl min-w-[280px]"
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[9px] font-black text-tenant-primary uppercase tracking-[0.2em] mb-0.5">Status do Processo</span>
+                                                                    <h4 className="text-white font-black text-base tracking-tight">Olá, {consultationResult.customerName.split(' ')[0]}</h4>
+                                                                </div>
+                                                                <button 
+                                                                    onClick={() => setConsultationResult(null)} 
+                                                                    className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                                                                >
+                                                                    <X size={14}/>
+                                                                </button>
+                                                            </div>
+                                                            
+                                                            <div className="flex items-center gap-4 bg-black/20 p-3 rounded-2xl border border-white/5">
+                                                                <div className="h-10 w-10 rounded-xl bg-tenant-primary flex items-center justify-center text-white shadow-lg shadow-tenant-primary/20 shrink-0">
+                                                                    <Clock size={18} className="animate-pulse" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <p className="text-[11px] text-white font-bold leading-tight">
+                                                                        {LEGAL_STATUSES.find(s => s.id === consultationResult.status)?.label || "Em andamento"}
+                                                                    </p>
+                                                                    <p className="text-[9px] text-white/40 uppercase tracking-widest mt-1 font-black">Ref: {processCode}</p>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <Button 
+                                                                variant="ghost" 
+                                                                size="sm"
+                                                                onClick={() => {
+                                                                    if (window.innerWidth < 768) {
+                                                                        setIsConsultingProcess(true)
+                                                                    } else {
+                                                                        setShowInlineConsult(true)
+                                                                        setConsultationResult(null)
+                                                                    }
+                                                                }}
+                                                                className="h-8 text-[9px] text-white/30 hover:text-white uppercase tracking-widest font-black"
+                                                            >
+                                                                Nova Consulta
+                                                            </Button>
+                                                        </motion.div>
+                                                    ) : !showInlineConsult ? (
+                                                        <motion.div
+                                                            key="button"
+                                                            initial={{ opacity: 0, scale: 0.9 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            exit={{ opacity: 0, scale: 0.9 }}
+                                                            className="w-full"
+                                                        >
+                                                            <Button 
+                                                                onClick={() => {
+                                                                    if (window.innerWidth < 768) {
+                                                                        setIsConsultingProcess(true)
+                                                                        setConsultationResult(null)
+                                                                        setConsultationError(null)
+                                                                    } else {
+                                                                        setShowInlineConsult(true)
+                                                                        setConsultationResult(null)
+                                                                        setConsultationError(null)
+                                                                    }
+                                                                }}
+                                                                className="w-full hero-cta-secondary-res font-bold transition-transform hover:scale-105 active:scale-95 h-14 flex items-center justify-center gap-2 uppercase tracking-widest border-2 border-white/20 bg-white/5 backdrop-blur-md text-white shadow-xl"
+                                                                style={{ borderRadius: 'var(--theme-btn-radius)' }}
+                                                            >
+                                                                <Scale className="w-4 h-4" /> Consultar processo
+                                                            </Button>
+                                                        </motion.div>
+                                                    ) : (
+                                                        <motion.div
+                                                            key="inline-input"
+                                                            initial={{ opacity: 0, x: 20, width: 0 }}
+                                                            animate={{ opacity: 1, x: 0, width: 'auto' }}
+                                                            exit={{ opacity: 0, x: 20, width: 0 }}
+                                                            className="flex items-center gap-2 bg-white/10 backdrop-blur-xl p-1 rounded-2xl border border-white/20 shadow-2xl overflow-hidden"
+                                                            style={{ borderRadius: 'var(--theme-btn-radius)' }}
+                                                        >
+                                                            <div className="relative flex-1 min-w-[180px]">
+                                                                <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                                                                <input 
+                                                                    autoFocus
+                                                                    value={processCode}
+                                                                    onChange={e => setProcessCode(e.target.value.toUpperCase())}
+                                                                    onKeyDown={e => e.key === 'Enter' && handleConsultProcess()}
+                                                                    placeholder="CÓDIGO"
+                                                                    className="w-full bg-transparent border-none text-white text-sm font-bold placeholder:text-white/30 focus:ring-0 pl-9 pr-3 h-12"
+                                                                />
+                                                            </div>
+                                                            <Button 
+                                                                size="sm"
+                                                                onClick={handleConsultProcess}
+                                                                disabled={consultationLoading || !processCode}
+                                                                className="h-10 px-4 bg-white text-stone-900 hover:bg-stone-100 rounded-xl font-bold uppercase tracking-widest text-[10px] shrink-0"
+                                                            >
+                                                                {consultationLoading ? <Loader2 className="animate-spin h-3 w-3" /> : <Search className="h-3 w-3" />}
+                                                            </Button>
+                                                            <button 
+                                                                onClick={() => setShowInlineConsult(false)}
+                                                                className="p-2 text-white/40 hover:text-white transition-colors"
+                                                            >
+                                                                <X size={16} />
+                                                            </button>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            </div>
+                                        )}
                                     </div>
                                 </motion.div>
                             </div>
@@ -1173,6 +1325,128 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                 services={services}
                                 initialServiceId={activeServiceId}
                             />
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            )}
+
+            {/* Legal Process Consultation Drawer (Mobile) */}
+            {isMounted && (
+                <Sheet open={isConsultingProcess} onOpenChange={setIsConsultingProcess}>
+                    <SheetContent side="bottom" className="h-[85vh] rounded-t-[2.5rem] bg-stone-950 border-t border-white/10 p-0 overflow-hidden">
+                        <SheetHeader className="p-6 pb-2">
+                            <div className="h-1 w-12 bg-white/20 rounded-full mx-auto mb-4" />
+                            <SheetTitle className="text-3xl font-black text-white leading-none text-center" style={{ fontFamily: 'var(--theme-font-heading)' }}>
+                                Consultar <span className="text-tenant-primary italic">Processo</span>
+                            </SheetTitle>
+                        </SheetHeader>
+
+                        <div className="px-6 pb-8 overflow-y-auto h-full custom-scrollbar">
+                            {!consultationResult ? (
+                                <div className="space-y-6 mt-2">
+                                    <p className="text-white/60 text-center text-xs leading-relaxed">Insira o código do seu processo para verificar o andamento em tempo real.</p>
+                                    
+                                    <div className="space-y-6">
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] uppercase tracking-[0.2em] font-black text-white/40 ml-1">Código do Processo</Label>
+                                            <div className="relative group">
+                                                <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/20 group-focus-within:text-tenant-primary transition-colors" />
+                                                <Input 
+                                                    value={processCode}
+                                                    onChange={e => setProcessCode(e.target.value.toUpperCase())}
+                                                    placeholder="PROC-2026-XXXX" 
+                                                    className="pl-12 h-16 bg-white/5 border-white/10 rounded-2xl text-white text-lg font-bold placeholder:text-white/10 focus:ring-tenant-primary/20"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {consultationError && (
+                                            <motion.div 
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold text-center"
+                                            >
+                                                {consultationError}
+                                            </motion.div>
+                                        )}
+
+                                        <Button 
+                                            onClick={handleConsultProcess}
+                                            disabled={consultationLoading || !processCode}
+                                            className="w-full h-16 bg-tenant-primary hover:opacity-90 text-white font-black uppercase tracking-[0.2em] text-[11px] rounded-2xl shadow-xl shadow-tenant-primary/20 transition-all active:scale-95 disabled:opacity-50"
+                                        >
+                                            {consultationLoading ? <Loader2 className="animate-spin" /> : 'Verificar Status Agora'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-6 mt-2">
+                                    <div className="flex items-center justify-between bg-white/5 p-4 rounded-3xl border border-white/10">
+                                        <div>
+                                            <p className="text-[9px] font-black text-tenant-primary uppercase tracking-[0.3em] mb-0.5">Busca Concluída</p>
+                                            <h3 className="text-xl font-black text-white" style={{ fontFamily: 'var(--theme-font-heading)' }}>
+                                                Olá, {consultationResult.customerName.split(' ')[0]}
+                                            </h3>
+                                        </div>
+                                        <Badge className="h-7 px-3 bg-white/10 text-white border-none font-black text-[9px] rounded-lg uppercase tracking-widest">
+                                            {processCode}
+                                        </Badge>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        <div className="relative">
+                                            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-white/5" />
+                                            <div className="space-y-4">
+                                                {LEGAL_STATUSES.map((status, index) => {
+                                                    const currentIndex = LEGAL_STATUSES.findIndex(s => s.id === consultationResult.status)
+                                                    const isPast = index < currentIndex
+                                                    const isCurrent = index === currentIndex
+                                                    
+                                                    return (
+                                                        <div key={status.id} className="relative flex items-center gap-4 group">
+                                                            <div className={cn(
+                                                                "h-9 w-9 rounded-xl border-2 flex items-center justify-center z-10 transition-all duration-500",
+                                                                isPast ? "bg-emerald-500 border-emerald-500 text-white" :
+                                                                isCurrent ? "bg-tenant-primary border-tenant-primary text-white scale-110 shadow-lg shadow-tenant-primary/20" :
+                                                                "bg-stone-900 border-white/5 text-white/20"
+                                                            )}>
+                                                                {isPast ? <CheckCircle2 className="h-4 w-4" /> : 
+                                                                 isCurrent ? <Clock className="h-4 w-4 animate-pulse" /> : 
+                                                                 <span className="text-[10px] font-black">{index + 1}</span>}
+                                                            </div>
+                                                            <div>
+                                                                <p className={cn(
+                                                                    "text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
+                                                                    isCurrent ? "text-tenant-primary" : isPast ? "text-emerald-500" : "text-white/20"
+                                                                )}>
+                                                                    {status.label}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/10 flex items-start gap-3">
+                                            <div className="h-8 w-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                                                <Info className="h-4 w-4 text-white/40" />
+                                            </div>
+                                            <p className="text-[10px] text-white/50 leading-relaxed">
+                                                Seu processo está avançando conforme o planejado. Qualquer atualização crítica será notificada via WhatsApp ou e-mail.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <Button 
+                                        onClick={() => setConsultationResult(null)}
+                                        variant="ghost"
+                                        className="w-full text-white/40 hover:text-white font-bold text-[9px] uppercase tracking-widest gap-2 pb-6"
+                                    >
+                                        <ChevronLeft size={14} /> Nova Consulta
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </SheetContent>
                 </Sheet>
