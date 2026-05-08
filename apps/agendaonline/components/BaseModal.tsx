@@ -36,8 +36,8 @@ export function BaseModal({
 
     const headerContent = (isDesktop: boolean) => (
         <div className={cn(
-            "px-8 flex items-center gap-4 relative overflow-hidden bg-stone-50/50 dark:bg-stone-950/20 border-b border-stone-100 dark:border-white/5",
-            isDesktop ? "py-8" : "py-6 mt-2"
+            "px-6 flex items-center gap-3 relative overflow-hidden bg-stone-50/50 dark:bg-stone-950/20 border-b border-stone-100 dark:border-white/5",
+            isDesktop ? "py-4" : "py-4 mt-1"
         )}>
             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 blur-3xl -z-10 rounded-full -translate-y-1/2 translate-x-1/2" />
             
@@ -50,17 +50,17 @@ export function BaseModal({
                 </button>
             )}
             
-            <div className="h-14 w-14 rounded-2xl bg-white dark:bg-stone-900 border border-stone-100 dark:border-white/5 flex items-center justify-center shrink-0 shadow-sm dark:shadow-2xl">
-                <Icon className="h-7 w-7 text-brand-primary" />
+            <div className="h-10 w-10 rounded-xl bg-white dark:bg-stone-900 border border-stone-100 dark:border-white/5 flex items-center justify-center shrink-0 shadow-sm dark:shadow-2xl">
+                <Icon className="h-5 w-5 text-brand-primary" />
             </div>
             
             <div className="flex-1">
                 {isDesktop ? (
-                    <DialogTitle className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+                    <DialogTitle className="text-lg font-bold text-foreground tracking-tight leading-tight">
                         {title}
                     </DialogTitle>
                 ) : (
-                    <DrawerTitle className="text-xl font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
+                    <DrawerTitle className="text-lg font-bold text-foreground tracking-tight leading-tight">
                         {title}
                     </DrawerTitle>
                 )}
@@ -80,7 +80,7 @@ export function BaseModal({
             {showCloseButton && isDesktop && (
                 <button 
                     onClick={onClose}
-                    className="absolute top-6 right-6 h-8 w-8 rounded-full bg-stone-100 dark:bg-stone-900/50 flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-800 transition-all cursor-pointer z-10"
+                    className="absolute top-4 right-4 h-8 w-8 rounded-full bg-stone-100 dark:bg-stone-900/50 flex items-center justify-center text-stone-500 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200 dark:hover:bg-stone-800 transition-all cursor-pointer z-10"
                 >
                     <X className="h-4 w-4" />
                 </button>
@@ -99,11 +99,11 @@ export function BaseModal({
                     )}
                 >
                     {headerContent(true)}
-                    <div className="p-8">
+                    <div className="p-6">
                         {children}
                     </div>
                     {footer && (
-                        <div className="p-8 pt-0">
+                        <div className="p-6 pt-0">
                             {footer}
                         </div>
                     )}

@@ -14,7 +14,7 @@ export async function requireAdmin() {
     }
 
     const role = (session.user as any).role
-    if (role !== "admin" && role !== "superadmin") {
+    if (role !== "admin" && role !== "superadmin" && role !== "root") {
         return { error: NextResponse.json({ error: "Forbidden: admin access required" }, { status: 403 }), user: null }
     }
 

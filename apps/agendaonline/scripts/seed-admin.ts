@@ -1,3 +1,4 @@
+import "./env";
 import { auth } from "../lib/auth";
 import { db } from "../db";
 import { user as userTable } from "../db/schema";
@@ -19,18 +20,18 @@ async function main() {
         if (result) {
             console.log("User created successfully via Better Auth.");
 
-            // Update role to superadmin
+            // Update role to root
             await db.update(userTable)
-                .set({ role: "superadmin", emailVerified: true })
+                .set({ role: "root", emailVerified: true })
                 .where(eq(userTable.email, "admin@agendaonline.app"));
 
-            console.log("User role updated to superadmin.");
+            console.log("User role updated to root.");
         }
     } catch (error: any) {
         if (error.message?.includes("already exists") || error.code === "user_already_exists") {
-            console.log("User already exists, updating role to superadmin...");
+            console.log("User already exists, updating role to root...");
             await db.update(userTable)
-                .set({ role: "superadmin", emailVerified: true })
+                .set({ role: "root", emailVerified: true })
                 .where(eq(userTable.email, "admin@agendaonline.app"));
             console.log("Role updated.");
         } else {

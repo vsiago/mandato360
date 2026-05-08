@@ -32,17 +32,23 @@ import { toast } from "sonner"
 function buildNavGroups(segmento?: string) {
     const isAdvocacia = segmento === "advocacia"
     
+    const items = [
+        { href: "/painel", label: "Painel", icon: BarChart3 },
+        { href: "/agenda", label: "Agenda", icon: Calendar },
+        { href: "/clientes", label: "Clientes", icon: Users },
+        { href: "/financeiro", label: "Financeiro", icon: DollarSign },
+        { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
+    ]
+
+    if (isAdvocacia) {
+        // Insert at index 1 for lawyer segment
+        items.splice(1, 0, { href: "/processos", label: "Processos", icon: FileText })
+    }
+    
     return [
         {
             label: "GESTÃO",
-            items: [
-                { href: "/painel", label: "Painel", icon: BarChart3 },
-                { href: "/processos", label: isAdvocacia ? "Processos" : "Serviços em Aberto", icon: FileText },
-                { href: "/agenda", label: "Agenda", icon: Calendar },
-                { href: "/clientes", label: "Clientes", icon: Users },
-                { href: "/financeiro", label: "Financeiro", icon: DollarSign },
-                { href: "/relatorios", label: "Relatórios", icon: BarChart3 },
-            ]
+            items: items
         },
         {
             label: "CONTEÚDO",
@@ -79,12 +85,18 @@ const CONTENT_ITEMS: { href: string; label: string; icon: any }[] = []
 /* Bottom bar items (mobile) — subset of NAV_ITEMS for thumb-friendly access */
 function buildBottomBarItems(segmento?: string) {
     const isAdvocacia = segmento === "advocacia"
-    return [
+    const items = [
         { href: "/painel", label: "Início", icon: LayoutDashboard },
         { href: "/agenda", label: "Agenda", icon: Calendar },
-        { href: "/processos", label: isAdvocacia ? "Processos" : "Casos", icon: FileText },
         { href: "/servicos", label: isAdvocacia ? "Jurídico" : "Serviços", icon: isAdvocacia ? Scale : Scissors },
     ]
+
+    if (isAdvocacia) {
+        // Insert at index 2 for lawyer segment
+        items.splice(2, 0, { href: "/processos", label: "Processos", icon: FileText })
+    }
+
+    return items
 }
 
 
@@ -356,8 +368,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             className={cn(
                                 "transition-all duration-500", 
                                 isCollapsed ? "h-10 w-10 object-contain animate-in zoom-in-50" : "h-9 w-auto",
-                                (tenant?.logoUrl || cachedBranding?.logo) && "object-contain",
-                                !(tenant?.logoUrl || cachedBranding?.logo) && "dark:invert"
+                                (tenant?.logoUrl || cachedBranding?.logo) && "object-contain"
                             )}
                         />
                     </Link>

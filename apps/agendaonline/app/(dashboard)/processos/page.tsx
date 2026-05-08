@@ -90,11 +90,17 @@ export default function ProcessosPage() {
         })
     )
 
+    const router = useRouter()
+
     useEffect(() => {
         async function loadData() {
             try {
                 const tenantRes = await getMyTenant()
                 if (tenantRes) {
+                    if (tenantRes.segmento !== "advocacia") {
+                        router.push("/painel")
+                        return
+                    }
                     setTenant(tenantRes)
                     const [aptRes, srvRes] = await Promise.all([
                         getAppointmentsByTenantAction(tenantRes.id),
@@ -111,7 +117,7 @@ export default function ProcessosPage() {
             }
         }
         loadData()
-    }, [])
+    }, [router])
 
     const processedData = useMemo(() => {
         return [...appointments]
@@ -252,17 +258,19 @@ export default function ProcessosPage() {
         <div className="flex-1 flex flex-col bg-transparent">
             {/* Header Area */}
             <div className="py-5 sm:py-6 lg:py-5 border-b border-stone-200 dark:border-white/5 space-y-4 bg-white/80 dark:bg-stone-950/50 backdrop-blur-xl sticky top-0 z-20">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-                    <div>
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20 shrink-0">
-                                <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-brand-primary" />
+                <div className="flex flex-col md:flex-row gap-3 items-center justify-between mb-6">
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-3 mb-1">
+                            <div className="h-8 w-8 rounded-lg bg-brand-primary/10 flex items-center justify-center">
+                                <Scale className="h-4 w-4 text-brand-primary" />
                             </div>
-                            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 dark:text-white" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            <h1 className="text-2xl font-black tracking-tight text-stone-900 dark:text-white">
                                 Gestão de Processos
                             </h1>
                         </div>
-                        <p className="text-stone-500 dark:text-stone-400 text-xs sm:text-sm font-medium">Visualize e gerencie toda a sua carteira jurídica em um só lugar.</p>
+                        <p className="text-[11px] text-stone-500 font-medium max-w-md">
+                            Visualize e gerencie toda a sua carteira jurídica em um só lugar.
+                        </p>
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto">
@@ -271,30 +279,30 @@ export default function ProcessosPage() {
                                 variant={viewMode === 'table' ? 'secondary' : 'ghost'}
                                 size="sm"
                                 onClick={() => setViewMode('table')}
-                                className={cn("h-10 rounded-xl px-4 gap-2", viewMode === 'table' ? "bg-white dark:bg-stone-800 shadow-sm" : "text-stone-500")}
+                                className={cn("h-8 rounded-lg px-3 gap-2", viewMode === 'table' ? "bg-white dark:bg-stone-800 shadow-sm" : "text-stone-500")}
                             >
-                                <List className="h-4 w-4" /> <span className="hidden sm:inline font-bold text-xs uppercase tracking-widest">Lista</span>
+                                <List className="h-3.5 w-3.5" /> <span className="hidden sm:inline font-bold text-[10px] uppercase tracking-widest">Lista</span>
                             </Button>
                             <Button
                                 variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
                                 size="sm"
                                 onClick={() => setViewMode('kanban')}
-                                className={cn("h-10 rounded-xl px-4 gap-2", viewMode === 'kanban' ? "bg-white dark:bg-stone-800 shadow-sm" : "text-stone-500")}
+                                className={cn("h-8 rounded-lg px-3 gap-2", viewMode === 'kanban' ? "bg-white dark:bg-stone-800 shadow-sm" : "text-stone-500")}
                             >
-                                <LayoutGrid className="h-4 w-4" /> <span className="hidden sm:inline font-bold text-xs uppercase tracking-widest">Quadro</span>
+                                <LayoutGrid className="h-3.5 w-3.5" /> <span className="hidden sm:inline font-bold text-[10px] uppercase tracking-widest">Quadro</span>
                             </Button>
                         </div>
                         <Button 
                             onClick={() => setIsAddModalOpen(true)}
-                            className="flex-1 md:flex-none h-11 sm:h-12 px-4 sm:px-6 rounded-2xl bg-brand-primary text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest hover:scale-[1.02] transition-all shadow-xl shadow-brand-primary/20 gap-2"
+                            className="flex-1 md:flex-none h-9 px-4 rounded-lg bg-brand-primary text-white font-bold text-[10px] uppercase tracking-widest hover:scale-[1.02] transition-all shadow-lg shadow-brand-primary/20 gap-2"
                         >
-                            <Plus className="h-4 w-4" /> <span className="sm:inline">Novo Processo</span><span className="sm:hidden">Novo</span>
+                            <Plus className="h-3.5 w-3.5" /> <span className="sm:inline">Novo Processo</span><span className="sm:hidden">Novo</span>
                         </Button>
                         <Button 
                             variant="outline" 
-                            className="flex-1 md:flex-none h-11 sm:h-12 px-4 sm:px-6 rounded-2xl border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/50 text-stone-600 dark:text-white font-bold text-[10px] sm:text-xs uppercase tracking-widest hover:bg-stone-50 dark:hover:bg-stone-800 transition-all gap-2"
+                            className="flex-1 md:flex-none h-9 px-4 rounded-lg border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/50 text-stone-600 dark:text-white font-bold text-[10px] uppercase tracking-widest hover:bg-stone-50 dark:hover:bg-stone-800 transition-all gap-2"
                         >
-                            <Download className="h-4 w-4" /> <span className="hidden sm:inline">Exportar Planilha</span><span className="sm:hidden">Exportar</span>
+                            <Download className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Exportar Planilha</span><span className="sm:hidden">Exportar</span>
                         </Button>
                     </div>
                 </div>
@@ -547,7 +555,7 @@ function KanbanBoard({ data, sensors, handleDragStart, handleDragEnd, activeId, 
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <div className="flex h-full gap-4 overflow-x-auto pb-4 scrollbar-hide px-1 pt-1">
+            <div className="flex h-full gap-3 overflow-x-auto pb-4 scrollbar-hide px-1 pt-1">
                 {LEGAL_STATUSES.map((status) => (
                     <KanbanColumn
                         key={status.id}
@@ -562,7 +570,7 @@ function KanbanBoard({ data, sensors, handleDragStart, handleDragEnd, activeId, 
                             items={data.filter((item: any) => item.legalStatus === status.id).map((i: any) => i.id)}
                             strategy={verticalListSortingStrategy}
                         >
-                            <div className="space-y-3 min-h-[150px]">
+                            <div className="space-y-2 min-h-[150px]">
                                 {data
                                     .filter((item: any) => item.legalStatus === status.id)
                                     .map((item: any) => (
@@ -593,9 +601,9 @@ function KanbanColumn({ id, title, count, children, color, bgColor, borderColor 
     return (
         <div 
             ref={setNodeRef}
-            className="flex-none w-72 sm:w-80 flex flex-col h-full bg-stone-100/50 dark:bg-stone-900/30 border border-stone-200 dark:border-white/5 rounded-3xl overflow-hidden"
+            className="flex-none w-64 sm:w-72 flex flex-col h-full bg-stone-100/50 dark:bg-stone-900/30 border border-stone-200 dark:border-white/5 rounded-2xl overflow-hidden"
         >
-            <div className="p-4 border-b border-stone-200 dark:border-white/5 flex items-center justify-between bg-white/40 dark:bg-stone-900/40 backdrop-blur-sm">
+            <div className="p-3 border-b border-stone-200 dark:border-white/5 flex items-center justify-between bg-white/40 dark:bg-stone-900/40 backdrop-blur-sm">
                 <div className="flex items-center gap-2">
                     <div className={cn("h-2 w-2 rounded-full", color.replace('text-', 'bg-'))} />
                     <h3 className="text-[10px] font-black uppercase tracking-widest text-stone-900 dark:text-white">{title}</h3>
@@ -651,7 +659,7 @@ function KanbanCard({ item, isOverlay }: any) {
 
     return (
         <div className={cn(
-            "relative bg-white dark:bg-stone-900 border border-stone-200 dark:border-white/10 rounded-2xl p-4 shadow-sm space-y-3 cursor-grab active:cursor-grabbing hover:border-brand-primary/40 transition-all overflow-hidden",
+            "relative bg-white dark:bg-stone-900 border border-stone-200 dark:border-white/10 rounded-xl p-3 shadow-sm space-y-2.5 cursor-grab active:cursor-grabbing hover:border-brand-primary/40 transition-all overflow-hidden",
             isOverlay && "shadow-2xl border-brand-primary ring-2 ring-brand-primary/20 rotate-2 scale-105"
         )}>
             {/* Status LED Bar */}

@@ -105,7 +105,14 @@ export function AppointmentModal({
         if (isOpen) {
             setMode(initialMode)
             const isAdvocacia = segmento === 'advocacia'
-            setStep(appointment ? 2 : (isAdvocacia ? 1 : (initialMode !== 'standard' ? 2 : 1)))
+            if (appointment) {
+                setStep(2)
+            } else if (isAdvocacia) {
+                setStep(1)
+            } else {
+                setMode('standard')
+                setStep(2)
+            }
             if (appointment) {
                 setName(appointment.name || "")
                 setPhone(appointment.phone || "")
@@ -337,73 +344,73 @@ export function AppointmentModal({
         <BaseModal
             isOpen={isOpen}
             onClose={onClose}
-            title={step === 1 ? 'Novo Registro' : step === 3 ? 'Concluído' : (mode === 'standard' ? 'Novo Cliente' : mode.toUpperCase())}
+            title={step === 1 ? 'Novo Registro' : step === 3 ? 'Concluído' : (mode === 'standard' ? (segmento === 'advocacia' ? 'Novo Cliente' : 'Novo Agendamento') : mode.toUpperCase())}
             description={step === 2 ? `Preencha os dados para o horário de ${time} no dia ${date.split('-').reverse().join('/')}.` : undefined}
             icon={Calendar}
             onBack={step === 2 && !appointment ? () => setStep(1) : undefined}
-            maxWidth="sm:max-w-[900px]"
+            maxWidth="sm:max-w-[800px]"
             footer={step !== 3 && (
-                <div className="flex gap-3 pt-6 border-t border-stone-100 dark:border-white/5">
-                    <Button onClick={handleSubmit} disabled={loading} className="flex-1 h-14 rounded-2xl bg-brand-gold !text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-xl shadow-brand-gold/20">
+                <div className="flex gap-3 pt-4 border-t border-stone-100 dark:border-white/5">
+                    <Button onClick={handleSubmit} disabled={loading} className="flex-1 h-11 rounded-xl bg-brand-gold !text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-xl shadow-brand-gold/20">
                         {loading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Confirmar Registro'}
                     </Button>
                 </div>
             )}
         >
-            <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar pb-2">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar pb-2">
                 {step === 1 && (
                     <div className="grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <button onClick={() => { setMode('standard'); setStep(2); }} className="p-5 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all group flex items-center gap-4 text-left shadow-sm">
-                            <div className="h-12 w-12 rounded-xl bg-brand-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Users className="h-6 w-6 text-brand-primary" />
+                        <button onClick={() => { setMode('standard'); setStep(2); }} className="p-3.5 rounded-xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-all group flex items-center gap-3 text-left shadow-sm">
+                            <div className="h-9 w-9 rounded-lg bg-brand-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Users className="h-5 w-5 text-brand-primary" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Novo Cliente / Consulta</h4>
-                                <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Ficha completa + Pagamento</p>
+                                <h4 className="text-[13px] font-bold text-stone-900 dark:text-white">Novo Cliente / Consulta</h4>
+                                <p className="text-[9px] text-stone-500 uppercase tracking-widest mt-0.5">Ficha completa + Pagamento</p>
                             </div>
                             <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-700" />
                         </button>
                         
-                        <button onClick={() => { setMode('diligencia'); setStep(2); }} className="p-5 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all group flex items-center gap-4 text-left shadow-sm">
-                            <div className="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Briefcase className="h-6 w-6 text-amber-500" />
+                        <button onClick={() => { setMode('diligencia'); setStep(2); }} className="p-3.5 rounded-xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-amber-500/40 hover:bg-amber-500/5 transition-all group flex items-center gap-3 text-left shadow-sm">
+                            <div className="h-9 w-9 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Briefcase className="h-5 w-5 text-amber-500" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Diligência</h4>
-                                <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Fórum ou Compromisso Externo</p>
+                                <h4 className="text-[13px] font-bold text-stone-900 dark:text-white">Diligência</h4>
+                                <p className="text-[9px] text-stone-500 uppercase tracking-widest mt-0.5">Fórum ou Compromisso Externo</p>
                             </div>
                             <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-700" />
                         </button>
 
-                        <button onClick={() => { setMode('audiencia'); setStep(2); }} className="p-5 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all group flex items-center gap-4 text-left shadow-sm">
-                            <div className="h-12 w-12 rounded-xl bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Scale className="h-6 w-6 text-blue-400" />
+                        <button onClick={() => { setMode('audiencia'); setStep(2); }} className="p-3.5 rounded-xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-blue-500/40 hover:bg-blue-500/5 transition-all group flex items-center gap-3 text-left shadow-sm">
+                            <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Scale className="h-5 w-5 text-blue-400" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Audiência</h4>
-                                <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Conciliação, Instrução ou Julgamento</p>
+                                <h4 className="text-[13px] font-bold text-stone-900 dark:text-white">Audiência</h4>
+                                <p className="text-[9px] text-stone-500 uppercase tracking-widest mt-0.5">Conciliação, Instrução ou Julgamento</p>
                             </div>
                             <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-700" />
                         </button>
 
-                        <button onClick={() => { setMode('reuniao'); setStep(2); }} className="p-5 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all group flex items-center gap-4 text-left shadow-sm">
-                            <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Video className="h-6 w-6 text-emerald-400" />
+                        <button onClick={() => { setMode('reuniao'); setStep(2); }} className="p-3.5 rounded-xl bg-white dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all group flex items-center gap-3 text-left shadow-sm">
+                            <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Video className="h-5 w-5 text-emerald-400" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Reunião</h4>
-                                <p className="text-[10px] text-stone-500 uppercase tracking-widest mt-0.5">Pauta com Cliente ou Parceiros</p>
+                                <h4 className="text-[13px] font-bold text-stone-900 dark:text-white">Reunião</h4>
+                                <p className="text-[9px] text-stone-500 uppercase tracking-widest mt-0.5">Pauta com Cliente ou Parceiros</p>
                             </div>
                             <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-700" />
                         </button>
 
-                        <button onClick={() => { setMode('financeiro'); setStep(2); }} className="p-5 rounded-2xl bg-brand-gold/5 border border-brand-gold/10 hover:border-brand-gold/40 hover:bg-brand-gold/10 transition-all group flex items-center gap-4 text-left">
-                            <div className="h-12 w-12 rounded-xl bg-brand-gold/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <Banknote className="h-6 w-6 text-brand-gold" />
+                        <button onClick={() => { setMode('financeiro'); setStep(2); }} className="p-3.5 rounded-xl bg-brand-gold/5 border border-brand-gold/10 hover:border-brand-gold/40 hover:bg-brand-gold/10 transition-all group flex items-center gap-3 text-left">
+                            <div className="h-9 w-9 rounded-lg bg-brand-gold/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <Banknote className="h-5 w-5 text-brand-gold" />
                             </div>
                             <div className="flex-1">
-                                <h4 className="text-sm font-bold text-brand-gold">Financeiro</h4>
-                                <p className="text-[10px] text-brand-gold/60 uppercase tracking-widest mt-0.5">Gerar parcelas e cobranças</p>
+                                <h4 className="text-[13px] font-bold text-brand-gold">Financeiro</h4>
+                                <p className="text-[9px] text-brand-gold/60 uppercase tracking-widest mt-0.5">Gerar parcelas e cobranças</p>
                             </div>
                             <ChevronRight className="h-4 w-4 text-brand-gold/40" />
                         </button>
@@ -411,149 +418,106 @@ export function AppointmentModal({
                 )}
 
                 {step === 2 && (
-                    <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
-                        {/* Mode Indicator - Top Banner */}
-                        <div className="flex items-center gap-4 p-4 rounded-[24px] bg-white dark:bg-stone-950/60 border border-stone-200 dark:border-white/5 shadow-sm dark:shadow-2xl">
-                            <div className={cn(
-                                "h-12 w-12 rounded-xl flex items-center justify-center transition-transform hover:scale-105 duration-300",
-                                mode === 'standard' ? "bg-brand-primary/10 text-brand-primary" :
-                                mode === 'diligencia' ? "bg-amber-500/10 text-amber-500" :
-                                mode === 'audiencia' ? "bg-blue-500/10 text-blue-400" :
-                                mode === 'reuniao' ? "bg-emerald-500/10 text-emerald-400" :
-                                "bg-brand-gold/10 text-brand-gold"
-                            )}>
-                                {mode === 'standard' ? <Users className="h-6 w-6" /> :
-                                 mode === 'diligencia' ? <Briefcase className="h-6 w-6" /> :
-                                 mode === 'audiencia' ? <Scale className="h-6 w-6" /> :
-                                 mode === 'reuniao' ? <Video className="h-6 w-6" /> :
-                                 <Banknote className="h-6 w-6" />}
-                            </div>
-                            <div className="flex-1">
-                                <p className="text-[10px] uppercase tracking-[0.3em] font-black text-stone-500 mb-0.5 leading-none">Categoria Profissional</p>
-                                <h4 className="text-lg font-black text-stone-900 dark:text-white leading-tight">
-                                    {mode === 'standard' ? 'Novo Cliente / Consulta' :
-                                     mode === 'diligencia' ? 'Diligência Externa' :
-                                     mode === 'audiencia' ? 'Audiência Judicial' :
-                                     mode === 'reuniao' ? 'Reunião Pautada' :
-                                     'Lembrete Financeiro'}
-                                </h4>
-                            </div>
-                        </div>
+                    <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
+                        {/* Two Column Layout Container */}
 
                         {/* Two Column Layout Container */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                             {/* LEFT COLUMN: Core Registration */}
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 {/* Date and Time Section */}
-                                <div className="p-5 rounded-[24px] bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-4 shadow-sm">
-                                    <Label className="text-[10px] uppercase tracking-widest font-black text-brand-primary flex items-center gap-2">
-                                        <Calendar className="h-3.5 w-3.5" /> Agenda do Compromisso
-                                    </Label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="relative group">
-                                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                            <Input type="date" value={internalDate} onChange={e => setInternalDate(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white focus:border-brand-primary/50 transition-all" />
-                                        </div>
-                                        <div className="relative group">
-                                            <ClockIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                            <Input type="time" value={internalTime} onChange={e => setInternalTime(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white focus:border-brand-primary/50 transition-all" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Identification Section */}
-                                <div className="p-5 rounded-[24px] bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-4 shadow-sm">
-                                    <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 dark:text-stone-500 flex items-center gap-2">
-                                        <User className="h-3.5 w-3.5" /> Dados do Cliente
-                                    </Label>
-                                    <div className="space-y-3">
-                                        <div className="relative group">
-                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                            <Input value={name} onChange={e => setName(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Nome Completo" />
-                                        </div>
-                                        <div className="relative group">
-                                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
-                                            <Input value={phone} onChange={e => setPhone(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="WhatsApp (DDD + Número)" />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Mode Specific: Finance Section for ALL if has value or mode is financeiro */}
-                                {(mode === 'standard' || mode === 'financeiro') && (
-                                    <div className={cn("p-5 rounded-[24px] border space-y-4 shadow-sm", mode === 'financeiro' ? "bg-brand-gold/5 border-brand-gold/20" : "bg-stone-50/50 dark:bg-stone-900/40 border-stone-100 dark:border-white/5")}>
-                                        <Label className="text-[10px] uppercase tracking-widest font-black text-emerald-500 flex items-center gap-2">
-                                            <Banknote className="h-3.5 w-3.5" /> Informações Financeiras
+                                {!(segmento !== 'advocacia' && time && !appointment) && (
+                                    <div className="p-3.5 rounded-xl bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-3 shadow-sm">
+                                        <Label className="text-[10px] uppercase tracking-widest font-black text-brand-primary flex items-center gap-2">
+                                            <Calendar className="h-3.5 w-3.5" /> Agenda do Compromisso
                                         </Label>
-                                        
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">Valor Total</Label>
-                                                <div className="relative group">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-400 dark:text-stone-600">R$</span>
-                                                    <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold" placeholder="0,00" />
-                                                </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="relative group">
+                                                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                                <Input type="date" value={internalDate} onChange={e => setInternalDate(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white focus:border-brand-primary/50 transition-all" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">Parcelas</Label>
-                                                <Input type="number" value={installments} onChange={e => setInstallments(parseInt(e.target.value))} className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold" min={1} />
+                                            <div className="relative group">
+                                                <ClockIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                                <Input type="time" value={internalTime} onChange={e => setInternalTime(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white focus:border-brand-primary/50 transition-all" />
                                             </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-3 pt-2">
-                                            <div className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 shadow-sm">
-                                                <span className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Pago?</span>
-                                                <Switch checked={pago} onCheckedChange={setPago} />
-                                            </div>
-                                            <Select value={formaPagamento || ""} onValueChange={setFormaPagamento}>
-                                                <SelectTrigger className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-stone-900 dark:text-white">
-                                                    <SelectValue placeholder="Pagamento" />
-                                                </SelectTrigger>
-                                                <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
-                                                    <SelectItem value="pix">PIX</SelectItem>
-                                                    <SelectItem value="cartao">Cartão</SelectItem>
-                                                    <SelectItem value="dinheiro">Dinheiro</SelectItem>
-                                                </SelectContent>
-                                            </Select>
                                         </div>
                                     </div>
                                 )}
-                            </div>
+
+                                {/* Identification Section */}
+                                <div className="p-3.5 rounded-xl bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-3 shadow-sm">
+                                    <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 dark:text-stone-500 flex items-center gap-2">
+                                        <User className="h-3.5 w-3.5" /> Dados do Cliente
+                                    </Label>
+                                    <div className="space-y-2">
+                                        <div className="relative group">
+                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                            <Input value={name} onChange={e => setName(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Nome Completo" />
+                                        </div>
+                                        <div className="relative group">
+                                            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600 group-focus-within:text-brand-primary transition-colors" />
+                                            <Input value={phone} onChange={e => setPhone(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="WhatsApp (DDD + Número)" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Service Selection Section */}
+                                <div className="p-3.5 rounded-xl bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-3 shadow-sm">
+                                    <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 flex items-center gap-2">
+                                        <Scissors className="h-3.5 w-3.5" /> {segmento === 'advocacia' ? 'Serviço Principal' : 'Serviço'}
+                                    </Label>
+                                    <Select 
+                                        value={selectedServices[0] || ""} 
+                                        onValueChange={(val) => setSelectedServices([val])}
+                                    >
+                                        <SelectTrigger className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
+                                            <SelectValue placeholder="Selecione o serviço" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
+                                            {services.map(s => (
+                                                <SelectItem key={s.id} value={s.id}>
+                                                    {s.name} {s.price ? ` - R$ ${Number(s.price).toFixed(0)}` : ''}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                </div>
 
                             {/* RIGHT COLUMN: Specialized Data */}
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                                 {/* Specialized Fields based on Mode */}
-                                {(mode === 'audiencia' || mode === 'diligencia' || mode === 'standard') && (
-                                    <div className="p-5 rounded-[24px] bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-4 shadow-sm">
+                                {segmento === 'advocacia' && (mode === 'audiencia' || mode === 'diligencia' || mode === 'standard') && (
+                                    <div className="p-3.5 rounded-xl bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-3 shadow-sm">
                                         <Label className="text-[10px] uppercase tracking-widest font-black text-blue-400 flex items-center gap-2">
                                             <Scale className="h-3.5 w-3.5" /> Contexto Jurídico
                                         </Label>
                                         
                                         <div className="space-y-4">
-                                            {segmento === 'advocacia' && (
-                                                <div className="space-y-2">
-                                                    <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">Status do Processo</Label>
-                                                    <Select value={appointmentStatus} onValueChange={setAppointmentStatus}>
-                                                        <SelectTrigger className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
-                                                            <SelectValue placeholder="Selecione o status" />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
-                                                            {LEGAL_STATUSES.map(status => (
-                                                                <SelectItem key={status.id} value={status.id}>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div className={cn("h-2 w-2 rounded-full", status.bgColor.replace('/10', ''))} />
-                                                                        {status.label}
-                                                                    </div>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                            )}
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[9px] text-stone-500 font-bold ml-1 uppercase">Status do Processo</Label>
+                                                <Select value={appointmentStatus} onValueChange={setAppointmentStatus}>
+                                                    <SelectTrigger className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
+                                                        <SelectValue placeholder="Selecione o status" />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
+                                                        {LEGAL_STATUSES.map(status => (
+                                                            <SelectItem key={status.id} value={status.id}>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className={cn("h-2 w-2 rounded-full", status.bgColor.replace('/10', ''))} />
+                                                                    {status.label}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
                                             {(mode === 'audiencia' || mode === 'diligencia') && (
-                                                <div className="space-y-2">
-                                                    <Label className="text-[10px] text-stone-500 font-bold ml-1">Tipo de Evento</Label>
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-[9px] text-stone-500 font-bold ml-1">Tipo de Evento</Label>
                                                     <Select value={mode === 'audiencia' ? audienciaTipo : diligenciaTipo} onValueChange={val => mode === 'audiencia' ? setAudienciaTipo(val) : setDiligenciaTipo(val)}>
-                                                        <SelectTrigger className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
+                                                        <SelectTrigger className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
                                                             <SelectValue placeholder="Selecione o tipo" />
                                                         </SelectTrigger>
                                                         <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
@@ -577,15 +541,15 @@ export function AppointmentModal({
                                             )}
 
                                             <div className="grid grid-cols-2 gap-3">
-                                                <div className="space-y-2">
-                                                    <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">Processo / Protocolo</Label>
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-[9px] text-stone-500 font-bold ml-1 uppercase">Processo / Protocolo</Label>
                                                     <div className="relative group flex gap-2">
                                                         <div className="relative flex-1">
                                                             <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
                                                             <Input 
                                                                 value={processNumber} 
                                                                 onChange={e => setProcessNumber(e.target.value.toUpperCase())} 
-                                                                className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" 
+                                                                className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" 
                                                                 placeholder="PROC-2026..." 
                                                             />
                                                         </div>
@@ -594,18 +558,18 @@ export function AppointmentModal({
                                                             variant="ghost"
                                                             size="icon"
                                                             onClick={() => setProcessNumber(generateProcessNumber())}
-                                                            className="h-12 w-10 rounded-xl border border-stone-200 dark:border-white/5 bg-stone-50/50 dark:bg-stone-950/20 text-stone-400 hover:text-brand-primary hover:bg-brand-primary/5 shrink-0 transition-all"
+                                                            className="h-9 w-9 rounded-xl border border-stone-200 dark:border-white/5 bg-stone-50/50 dark:bg-stone-950/20 text-stone-400 hover:text-brand-primary hover:bg-brand-primary/5 shrink-0 transition-all"
                                                             title="Gerar novo código"
                                                         >
                                                             <RotateCw className="h-3.5 w-3.5" />
                                                         </Button>
                                                     </div>
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <Label className="text-[10px] text-stone-500 font-bold ml-1 uppercase">NB / ID</Label>
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-[9px] text-stone-500 font-bold ml-1 uppercase">NB / ID</Label>
                                                     <div className="relative group">
                                                         <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500/60" />
-                                                        <Input value={nbNumber} onChange={e => setNbNumber(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="NB / ID" />
+                                                        <Input value={nbNumber} onChange={e => setNbNumber(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="NB / ID" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -613,11 +577,11 @@ export function AppointmentModal({
                                             <div className="grid grid-cols-2 gap-3">
                                                 <div className="relative group">
                                                     <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
-                                                    <Input value={foro} onChange={e => setForo(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Fórum" />
+                                                    <Input value={foro} onChange={e => setForo(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Fórum" />
                                                 </div>
                                                 <div className="relative group">
                                                     <Scale className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
-                                                    <Input value={vara} onChange={e => setVara(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Vara" />
+                                                    <Input value={vara} onChange={e => setVara(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Vara" />
                                                 </div>
                                             </div>
 
@@ -633,7 +597,7 @@ export function AppointmentModal({
                                                     {meetingChannel === 'virtual' && (
                                                         <div className="relative group animate-in slide-in-from-top-2">
                                                             <Video className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-400" />
-                                                            <Input value={linkOnline} onChange={e => setLinkOnline(e.target.value)} className="pl-11 h-12 bg-blue-50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20 rounded-xl text-[10px] font-black text-blue-900 dark:text-blue-100" placeholder="Link da Videochamada" />
+                                                            <Input value={linkOnline} onChange={e => setLinkOnline(e.target.value)} className="pl-11 h-9 bg-blue-50 dark:bg-blue-500/5 border-blue-200 dark:border-blue-500/20 rounded-xl text-[10px] font-black text-blue-900 dark:text-blue-100" placeholder="Link da Videochamada" />
                                                         </div>
                                                     )}
                                                 </div>
@@ -641,21 +605,61 @@ export function AppointmentModal({
 
                                             <div className="relative group">
                                                 <Info className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 dark:text-stone-600" />
-                                                <Input value={naturezaCausa} onChange={e => setNaturezaCausa(e.target.value)} className="pl-11 h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Natureza da Causa (ex: LOAS, Auxílio...)" />
+                                                <Input value={naturezaCausa} onChange={e => setNaturezaCausa(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" placeholder="Natureza da Causa (ex: LOAS, Auxílio...)" />
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
+                                {/* Mode Specific: Finance Section (Moved to Right Column) */}
+                                {(mode === 'standard' || mode === 'financeiro') && (
+                                    <div className={cn("p-3.5 rounded-xl border space-y-3 shadow-sm", mode === 'financeiro' ? "bg-brand-gold/5 border-brand-gold/20" : "bg-stone-50/50 dark:bg-stone-900/40 border-stone-100 dark:border-white/5")}>
+                                        <Label className="text-[10px] uppercase tracking-widest font-black text-emerald-500 flex items-center gap-2">
+                                            <Banknote className="h-3.5 w-3.5" /> Informações Financeiras
+                                        </Label>
+                                        
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[9px] text-stone-500 font-bold ml-1 uppercase">Valor Total</Label>
+                                                <div className="relative group">
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-400 dark:text-stone-600">R$</span>
+                                                    <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold" placeholder="0,00" />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[9px] text-stone-500 font-bold ml-1 uppercase">Parcelas</Label>
+                                                <Input type="number" value={installments} onChange={e => setInstallments(parseInt(e.target.value))} className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold" min={1} />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3 pt-1">
+                                            <div className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 shadow-sm">
+                                                <span className="text-[9px] font-black text-stone-500 uppercase tracking-widest">Pago?</span>
+                                                <Switch checked={pago} onCheckedChange={setPago} />
+                                            </div>
+                                            <Select value={formaPagamento || ""} onValueChange={setFormaPagamento}>
+                                                <SelectTrigger className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-[10px] font-black uppercase tracking-widest text-stone-900 dark:text-white">
+                                                    <SelectValue placeholder="Pagamento" />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
+                                                    <SelectItem value="pix">PIX</SelectItem>
+                                                    <SelectItem value="cartao">Cartão</SelectItem>
+                                                    <SelectItem value="dinheiro">Dinheiro</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Notes and Extra Details */}
-                                <div className="p-5 rounded-[24px] bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-4 shadow-sm">
+                                <div className="p-3.5 rounded-xl bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-3 shadow-sm">
                                     <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 flex items-center gap-2">
                                         <Info className="h-3.5 w-3.5" /> Observações Gerais
                                     </Label>
                                     <textarea 
                                         value={description} 
                                         onChange={e => setDescription(e.target.value)}
-                                        className="w-full h-32 bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl p-4 text-sm font-bold text-stone-900 dark:text-white placeholder:text-stone-300 dark:placeholder:text-stone-700 focus:border-brand-primary/50 transition-all outline-none resize-none shadow-sm"
+                                        className="w-full h-20 bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl p-3 text-sm font-bold text-stone-900 dark:text-white placeholder:text-stone-300 dark:placeholder:text-stone-700 focus:border-brand-primary/50 transition-all outline-none resize-none shadow-sm"
                                         placeholder="Descreva detalhes importantes deste processo ou compromisso..."
                                     />
                                 </div>
