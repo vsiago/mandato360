@@ -55,7 +55,6 @@ function buildNavGroups(segmento?: string) {
             items: [
                 { href: "/servicos", label: isAdvocacia ? "Áreas Jurídicas" : "Serviços", icon: isAdvocacia ? Scale : Scissors },
                 { href: "/antes-depois", label: isAdvocacia ? "Portfólio de Casos" : "Fotos", icon: isAdvocacia ? Briefcase : ImageIcon },
-                { href: "/depoimentos", label: "Depoimentos", icon: Star },
                 { href: "/faq", label: "Perguntas (FAQ)", icon: HelpCircle },
             ]
         },
