@@ -39,6 +39,18 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
         return `${d} de ${MONTH_NAMES[m - 1].toLowerCase()} de ${y}`;
     };
 
+    // Parse notes if they are JSON
+    const getDisplayNotes = (notes: string) => {
+        if (!notes) return "";
+        try {
+            if (notes.startsWith('{')) {
+                const parsed = JSON.parse(notes);
+                return parsed.description || parsed.notes || notes;
+            }
+        } catch (e) {}
+        return notes;
+    };
+
     return (
         <div className="rounded-2xl border border-stone-200 dark:border-white/5 bg-white dark:bg-stone-900/30 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
@@ -86,7 +98,7 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                     { label: "Horário", value: apt.time },
                     { label: "Duração", value: "50 min" }, 
                     ...(apt.customFields ? Object.entries(apt.customFields).map(([k, v]) => ({ label: k, value: String(v) })) : []),
-                    ...(apt.notes ? [{ label: "Obs", value: apt.notes }] : [])
+                    ...(apt.notes ? [{ label: "Obs", value: getDisplayNotes(apt.notes) }] : [])
                 ].map(row => (
                     <div key={row.label} className="flex items-stretch gap-4 group/row min-h-[32px]">
                         <div className="w-[70px] shrink-0 flex items-center justify-end text-right">
@@ -107,8 +119,9 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                                 </div>
                             ) : (
                                 <span className={cn(
-                                    "text-xs font-bold leading-none",
-                                    row.label === "Valor" ? "text-brand-gold" : "text-stone-600 dark:text-stone-300"
+                                    "text-xs font-bold",
+                                    row.label === "Valor" ? "text-brand-gold" : "text-stone-600 dark:text-stone-300",
+                                    row.label !== "Obs" && "leading-none"
                                 )}>
                                     {row.value}
                                 </span>
@@ -138,22 +151,21 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                         else onDetails(apt);
                     }} 
                     className={cn(
-                        "flex flex-col items-center gap-2 transition-colors group cursor-pointer",
-                        apt.status === 'pending' ? "text-stone-500 dark:text-stone-400 hover:text-amber-500" : "text-stone-500 dark:text-stone-400 hover:text-emerald-500"
+                        "flex flex-col items-center gap-2 transition-all group cursor-pointer",
+                        apt.status === 'pending' ? "text-emerald-500 hover:scale-105" : "text-stone-500 dark:text-stone-400 hover:text-emerald-500"
                     )}
                 >
                     <div className={cn(
                         "h-10 w-10 rounded-xl flex items-center justify-center transition-all",
                         apt.status === 'pending' 
-                            ? "bg-amber-500/5 border border-amber-500/10 group-hover:bg-amber-500/10 group-hover:border-amber-500/20" 
+                            ? "bg-emerald-500/10 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.2)] animate-pulse" 
                             : "bg-emerald-500/5 border border-emerald-500/10 group-hover:bg-emerald-500/10 group-hover:border-emerald-500/20"
                     )}>
-                        {apt.status === 'pending' ? <ShieldCheck className="h-4 w-4 text-amber-500" /> : <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
+                        {apt.status === 'pending' ? <ShieldCheck className="h-4 w-4 text-emerald-500" /> : <CheckCircle2 className="h-4 w-4 text-emerald-500" />}
                     </div>
-                    <span className="text-[10px] font-medium">
-                        {apt.status === 'pending' ? 'Confirmar' : apt.status === 'confirmed' ? 'Concluir' : 'Detalhes'}
-                    </span>
+                    <span className="text-[10px] font-bold tracking-tight">{apt.status === 'pending' ? 'Confirmar' : 'Concluir'}</span>
                 </button>
+
                 <button onClick={() => onDelete(apt.id)} className="flex flex-col items-center gap-2 text-stone-500 dark:text-stone-400 hover:text-red-500 transition-colors group cursor-pointer">
                     <div className="h-10 w-10 rounded-xl bg-red-500/5 border border-red-500/10 flex items-center justify-center group-hover:bg-red-500/10 group-hover:border-red-500/20 transition-all">
                         <Trash2 className="h-4 w-4 text-red-500" />

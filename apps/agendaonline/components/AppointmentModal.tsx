@@ -94,7 +94,7 @@ export function AppointmentModal({
     const [reuniaoTipo, setReuniaoTipo] = useState("cliente")
     const [internalDate, setInternalDate] = useState(date)
     const [internalTime, setInternalTime] = useState(time)
-    const [appointmentStatus, setAppointmentStatus] = useState<string>("pending")
+    const [appointmentStatus, setAppointmentStatus] = useState<string>(appointment?.status || "confirmed")
 
     useEffect(() => {
         setInternalDate(date)
@@ -113,6 +113,7 @@ export function AppointmentModal({
                 setMode('standard')
                 setStep(2)
             }
+            setAppointmentStatus(appointment?.status || "confirmed")
             if (appointment) {
                 setName(appointment.name || "")
                 setPhone(appointment.phone || "")
@@ -152,7 +153,7 @@ export function AppointmentModal({
                 if (isAdvocacia && !processNumber) {
                     setProcessNumber(generateProcessNumber())
                 }
-                setAppointmentStatus("triagem")
+                setAppointmentStatus("confirmed")
             }
             setServices(initialServices)
         }
@@ -304,7 +305,7 @@ export function AppointmentModal({
                         customerPhone: phone,
                         date: formattedDate,
                         time: internalTime,
-                        status: 'pending',
+                        status: 'confirmed',
                         notes: `[Financeiro] Parcela ${i + 1}/${installments} - ${notes}`
                     })
                 }

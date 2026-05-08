@@ -595,6 +595,11 @@ export default function AgendaPage() {
                     ...prev,
                     [selectedDate]: prev[selectedDate].map(apt => apt.time === time ? { ...apt, status: "confirmed" as const } : apt)
                 }));
+                
+                // Update selectedAppointment to reflect change immediately in the details panel
+                setSelectedAppointment(prev => prev && (prev.id === (apt as any).id || prev.time === time) ? { ...prev, status: "confirmed" } : prev);
+                
+                toast.success("Agendamento confirmado!");
             }
         }
     };
