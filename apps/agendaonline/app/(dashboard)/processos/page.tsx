@@ -58,6 +58,7 @@ import { AppointmentModal } from "@/components/AppointmentModal"
 import { getServicesAction } from "@/lib/actions/services"
 import { format, parseISO } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import { useRouter } from "next/navigation"
 
 export default function ProcessosPage() {
     const [appointments, setAppointments] = useState<any[]>([])

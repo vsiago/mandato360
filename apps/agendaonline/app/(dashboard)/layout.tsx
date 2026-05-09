@@ -500,15 +500,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 className="h-10 w-auto object-contain" 
                             />
                         </Link>
-                        <h1 className="hidden lg:block text-sm font-semibold text-foreground">{pageTitle}</h1>
+                        <div id="header-title-portal" className="hidden lg:block" />
+                        {!mounted ? (
+                            <h1 className="hidden lg:block text-sm font-semibold text-foreground">{pageTitle}</h1>
+                        ) : (
+                            <div id="header-default-title" className="hidden lg:block">
+                                <h1 className="text-sm font-semibold text-foreground">{pageTitle}</h1>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-4">
+                        <div id="header-actions-portal" className="hidden lg:flex items-center gap-2" />
                         {mounted && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <button className="flex items-center gap-3 px-3 py-1.5 outline-hidden group hover:bg-stone-200/40 dark:hover:bg-stone-800/30 rounded-lg transition-all cursor-pointer">
-                                        <div className="hidden sm:flex flex-col items-end">
+                                        <div id="header-user-info" className="hidden sm:flex flex-col items-end">
                                             <p className="text-xs font-medium text-stone-600 dark:text-stone-300 leading-none truncate max-w-30">{session?.user?.name || "Usuário"}</p>
                                             <p className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 leading-none truncate max-w-30">{session?.user?.email}</p>
                                         </div>

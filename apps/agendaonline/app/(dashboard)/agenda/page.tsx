@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
@@ -87,8 +88,10 @@ export default function AgendaPage() {
     const [currentMonth, setCurrentMonth] = useState(new Date())
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
     const [currentTime, setCurrentTime] = useState(new Date())
+    const [isClientMounted, setIsClientMounted] = useState(false)
 
     useEffect(() => {
+        setIsClientMounted(true)
         const timer = setInterval(() => setCurrentTime(new Date()), 60000)
         return () => clearInterval(timer)
     }, [])
@@ -907,39 +910,69 @@ export default function AgendaPage() {
         return filteredTimeSlots.filter(time => !dayAppointments.some(a => a.time === time))
     }, [filteredTimeSlots, dayAppointments])
 
+    // Effect to customize layout header and padding for this page
+    useEffect(() => {
+        if (!isClientMounted) return;
+        
+        // Hide default title
+        const defaultTitle = document.getElementById('header-default-title');
+        if (defaultTitle) defaultTitle.style.display = 'none';
+        
+        // Hide user info for a simpler header
+        const userInfo = document.getElementById('header-user-info');
+        if (userInfo) userInfo.style.display = 'none';
+        
+        // Reduce main container padding
+        const main = document.querySelector('main');
+        if (main) {
+            main.style.paddingTop = '16px';
+            main.style.paddingLeft = '16px';
+            main.style.paddingRight = '16px';
+        }
+
+        return () => {
+            if (defaultTitle) defaultTitle.style.display = 'block';
+            if (userInfo) userInfo.style.display = 'flex';
+            if (main) main.style.paddingTop = '';
+        }
+    }, [isClientMounted]);
+
+    if (!isClientMounted) return null;
+
+    const headerTitlePortal = createPortal(
+        <div className="flex items-center gap-3 min-w-0 animate-in fade-in slide-in-from-left-4 duration-500">
+            <h2 className="text-xl font-bold text-foreground tracking-tight">Agenda</h2>
+        </div>,
+        document.getElementById('header-title-portal')!
+    );
+
+    const headerActionsPortal = createPortal(
+        <div className="flex items-center gap-2 shrink-0 animate-in fade-in slide-in-from-right-4 duration-500">
+            <button onClick={() => setIsBusinessHoursModalOpen(true)} className="h-8 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                <Clock className="h-3.5 w-3.5" /> Funcionamento
+            </button>
+            <button onClick={() => setIsCalendarModalOpen(true)} className="h-8 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-[10px] font-bold cursor-pointer">
+                <Filter className="h-3.5 w-3.5" /> Filtrar
+            </button>
+            <button 
+                onClick={() => { setAppointmentMode("standard"); setIsAddModalOpen(true); }}
+                className="h-8 px-3 rounded-xl font-black shadow-lg shadow-brand-secondary/20 bg-brand-gold text-white transition-all hover:scale-[1.02] text-[10px] flex items-center gap-2 cursor-pointer"
+            >
+                <Plus className="h-3.5 w-3.5" /> Novo Registro
+            </button>
+        </div>,
+        document.getElementById('header-actions-portal')!
+    );
+
     return (
-        <div className="h-[calc(100vh-100px)] flex flex-col animate-in fade-in duration-700 overflow-hidden bg-transparent">
+        <div className="h-[calc(100vh-80px)] flex flex-col animate-in fade-in duration-700 overflow-hidden bg-transparent">
+            {headerTitlePortal}
+            {headerActionsPortal}
 
             {/* ═══════════════════════════════════════════════════════
                 DESKTOP LAYOUT (≥ md) — 2 or 3 column grid
                ═══════════════════════════════════════════════════════ */}
             <div className="hidden md:flex flex-col h-full overflow-hidden">
-                {/* Desktop Header */}
-                <div className="shrink-0 flex items-center justify-between px-1 pt-1 pb-3 gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-9 w-9 rounded-xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-white/5 flex items-center justify-center shrink-0">
-                            <CalendarDays className="h-4 w-4 text-brand-primary" />
-                        </div>
-                        <div className="min-w-0">
-                            <h2 className="text-lg font-bold text-foreground leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>{tenant?.segmento === 'advocacia' ? 'Sua Agenda Jurídica' : 'Sua Agenda'}</h2>
-                            <p className="text-[10px] text-stone-500 dark:text-stone-400 font-medium">{tenant?.segmento === 'advocacia' ? 'Gerencie suas consultas e audiências.' : 'Gerencie seus horários e atendimentos com eficiência.'}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                        <button onClick={() => setIsBusinessHoursModalOpen(true)} className="h-8 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-[11px] font-semibold cursor-pointer">
-                            <Clock className="h-3.5 w-3.5" /> Funcionamento
-                        </button>
-                        <button onClick={() => setIsCalendarModalOpen(true)} className="h-8 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900/40 text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-800 transition-all flex items-center gap-2 text-[11px] font-semibold cursor-pointer">
-                            <Filter className="h-3.5 w-3.5" /> Filtrar
-                        </button>
-                        <button 
-                            onClick={() => { setAppointmentMode("standard"); setIsAddModalOpen(true); }}
-                            className="h-8 px-3 rounded-xl font-bold shadow-lg shadow-brand-secondary/20 bg-brand-gold text-white transition-all hover:scale-[1.02] text-[11px] flex items-center gap-2 cursor-pointer"
-                        >
-                            <Plus className="h-3.5 w-3.5" /> Novo Registro
-                        </button>
-                    </div>
-                </div>
 
                 {/* Desktop 2 or 3-column body */}
                 <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] xl:grid-cols-[minmax(300px,360px)_minmax(0,1fr)_minmax(300px,360px)] gap-4 px-1 pb-2">
@@ -1212,28 +1245,6 @@ export default function AgendaPage() {
                     </div>
                 </div>
 
-                {/* ─── INSIGHT BAR ─── */}
-                <div className="shrink-0 mx-1 mb-3 p-3 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 flex items-center gap-4 shadow-sm dark:shadow-none">
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1.5">
-                            <TrendingUp className="h-3.5 w-3.5 text-brand-primary shrink-0" />
-                            <span className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-widest truncate">
-                                {occupancyNumber}% ocupado · {freeSlotCount} {freeSlotCount === 1 ? 'horário livre' : 'horários livres'}
-                            </span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
-                            <div
-                                className={cn("h-full rounded-full transition-all duration-700", occupancyNumber >= 80 ? "bg-gradient-to-r from-amber-500 to-red-500" : "bg-gradient-to-r from-emerald-500/80 to-brand-primary/80")}
-                                style={{ width: `${Math.min(occupancyNumber, 100)}%` }}
-                            />
-                        </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                        <p className="text-lg font-bold text-stone-900 dark:text-foreground leading-none">{todayAppointmentsCount}</p>
-                        <p className="text-[9px] text-stone-500 dark:text-stone-400 font-medium">{tenant?.segmento === 'advocacia' ? 'consultas' : 'agendados'}</p>
-                    </div>
-                </div>
-
                 {/* ═══ TIMELINE DO DIA (Core UX) ═══ */}
                 <div className="flex-1 min-h-0 overflow-hidden flex flex-col relative">
                     {/* Timeline vertical line */}
@@ -1388,6 +1399,28 @@ export default function AgendaPage() {
                             })}
                         </div>
                     </TooltipProvider>
+                </div>
+
+                {/* ─── INSIGHT BAR (Moved to bottom) ─── */}
+                <div className="shrink-0 mx-1 mt-2 mb-4 p-3 rounded-2xl bg-white dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 flex items-center gap-4 shadow-sm dark:shadow-none">
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1.5">
+                            <TrendingUp className="h-3.5 w-3.5 text-brand-primary shrink-0" />
+                            <span className="text-[10px] font-black text-stone-500 dark:text-stone-400 uppercase tracking-widest truncate">
+                                {occupancyNumber}% ocupado · {freeSlotCount} {freeSlotCount === 1 ? 'horário livre' : 'horários livres'}
+                            </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
+                            <div
+                                className={cn("h-full rounded-full transition-all duration-700", occupancyNumber >= 80 ? "bg-gradient-to-r from-amber-500 to-red-500" : "bg-gradient-to-r from-emerald-500/80 to-brand-primary/80")}
+                                style={{ width: `${Math.min(occupancyNumber, 100)}%` }}
+                            />
+                        </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                        <p className="text-lg font-bold text-stone-900 dark:text-foreground leading-none">{todayAppointmentsCount}</p>
+                        <p className="text-[9px] text-stone-500 dark:text-stone-400 font-medium">{tenant?.segmento === 'advocacia' ? 'consultas' : 'agendados'}</p>
+                    </div>
                 </div>
 
             </div>{/* end mobile wrapper */}
