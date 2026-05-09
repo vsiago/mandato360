@@ -1,13 +1,13 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Bold, Italic, Type, Settings, ChevronRight } from 'lucide-react'
+import { Bold, Italic, Type, Settings, ChevronRight, Pencil } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 interface InlineToolbarProps {
   targetRect: DOMRect | null
   isVisible: boolean
-  onAction: (action: 'bold' | 'italic' | 'size-sm' | 'size-md' | 'size-lg' | 'advanced') => void
+  onAction: (action: 'bold' | 'italic' | 'size-sm' | 'size-md' | 'size-lg' | 'advanced' | 'edit') => void
   activeFormats?: {
     bold?: boolean
     italic?: boolean
@@ -16,6 +16,7 @@ interface InlineToolbarProps {
 }
 
 export function InlineToolbar({ targetRect, isVisible, onAction, activeFormats }: InlineToolbarProps) {
+// ... (omitting position logic for brevity in replace_file_content if possible, but I'll include it to be safe)
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const toolbarRef = useRef<HTMLDivElement>(null)
 
@@ -63,6 +64,17 @@ export function InlineToolbar({ targetRect, isVisible, onAction, activeFormats }
       }}
     >
       <ToolbarButton 
+        onClick={() => onAction('edit')} 
+        className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 hover:text-emerald-300 w-auto px-3 gap-1.5 mr-1"
+        tooltip="Editar Texto"
+      >
+        <Pencil className="h-3.5 w-3.5" />
+        <span className="text-[10px] font-bold uppercase tracking-tight">Editar</span>
+      </ToolbarButton>
+
+      <div className="mx-0.5 h-4 w-px bg-white/10" />
+
+      <ToolbarButton 
         onClick={() => onAction('bold')} 
         active={activeFormats?.bold}
         tooltip="Negrito (Ctrl+B)"
@@ -108,12 +120,14 @@ function ToolbarButton({
   children, 
   onClick, 
   active, 
-  tooltip 
+  tooltip,
+  className
 }: { 
   children: React.ReactNode, 
   onClick: () => void, 
   active?: boolean,
-  tooltip?: string
+  tooltip?: string,
+  className?: string
 }) {
   return (
     <button
@@ -127,7 +141,8 @@ function ToolbarButton({
         "relative flex h-8 w-8 items-center justify-center rounded-full transition-all",
         active 
           ? "bg-white text-zinc-900 shadow-sm" 
-          : "text-white/70 hover:bg-white/10 hover:text-white"
+          : "text-white/70 hover:bg-white/10 hover:text-white",
+        className
       )}
     >
       {children}

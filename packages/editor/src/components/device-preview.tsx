@@ -39,6 +39,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/t
 import { resolveHero } from "../hooks/use-resolved-config"
 import { InlineToolbar } from "./inline-toolbar"
 import { renderMarkdown } from "../lib/markdown-renderer"
+import { SectionToolbar } from "./section-toolbar"
 
 interface DevicePreviewProps {
   config: EditorConfig
@@ -49,6 +50,9 @@ interface DevicePreviewProps {
   accentColor?: string
   onConfigChange?: (config: any) => void
   onAccordionToggle?: (id: string) => void
+  onSectionReorder?: (newOrder: string[]) => void
+  onSectionDelete?: (id: string) => void
+  onSectionSelect?: (id: string) => void
   placeholders?: {
     title?: string
     description?: string
@@ -73,12 +77,26 @@ const borderRadiusMap: Record<string, string> = {
   full: "rounded-full",
 }
 
-export function DevicePreview({ config, device, activeSection, sectionOrder, plugins, accentColor = "#10b981", onConfigChange, onAccordionToggle, placeholders }: DevicePreviewProps) {
+export function DevicePreview({ 
+  config, 
+  device, 
+  activeSection, 
+  sectionOrder, 
+  plugins, 
+  accentColor = "#10b981", 
+  onConfigChange, 
+  onAccordionToggle, 
+  onSectionReorder,
+  onSectionDelete,
+  onSectionSelect,
+  placeholders 
+}: DevicePreviewProps) {
   const [zoom, setZoom] = useState(100)
   const [isScrolled, setIsScrolled] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
   const [isTyping, setIsTyping] = useState(false)
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
+  const [sectionRect, setSectionRect] = useState<DOMRect | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   
@@ -110,9 +128,16 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  const skipAutoScrollRef = useRef(false)
+
   // Auto-scroll to active section
   useEffect(() => {
     if (!activeSection || !scrollContainerRef.current) return
+
+    if (skipAutoScrollRef.current) {
+      skipAutoScrollRef.current = false
+      return
+    }
 
     // Small timeout to allow the DOM to update if needed
     const timeoutId = setTimeout(() => {
@@ -150,8 +175,80 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
     }
   }, [config.headerPreviewView])
 
+  const handleSectionClick = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    skipAutoScrollRef.current = true
+    onSectionSelect?.(id)
+    setSectionRect(e.currentTarget.getBoundingClientRect())
+    // Close inline text editing if clicking a new section
+    if (activeSection !== id) {
+        setEditingField(null)
+        setTargetRect(null)
+    }
+  }
+
+  const handleMoveUp = (id: string) => {
+    const idx = sectionOrder.indexOf(id)
+    // Don't move header or move something above header
+    if (idx > 1) { 
+      const newOrder = [...sectionOrder]
+      const temp = newOrder[idx]
+      newOrder[idx] = newOrder[idx - 1]
+      newOrder[idx - 1] = temp
+      onSectionReorder?.(newOrder)
+    }
+  }
+
+  const handleMoveDown = (id: string) => {
+    const idx = sectionOrder.indexOf(id)
+    // Don't move footer or move something below footer
+    if (idx > 0 && idx < sectionOrder.length - 2) {
+      const newOrder = [...sectionOrder]
+      const temp = newOrder[idx]
+      newOrder[idx] = newOrder[idx + 1]
+      newOrder[idx + 1] = temp
+      onSectionReorder?.(newOrder)
+    }
+  }
+
+  // Update sectionRect automatically when layout or scroll changes
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    
+    const updateRect = () => {
+      if (activeSection) {
+        const el = containerRef.current?.querySelector(`[data-section-id="${activeSection}"]`)
+        if (el) {
+          setSectionRect(el.getBoundingClientRect())
+        }
+      } else {
+        setSectionRect(null)
+      }
+    }
+
+    updateRect()
+    
+    if (container) {
+      container.addEventListener("scroll", updateRect, { passive: true })
+      return () => container.removeEventListener("scroll", updateRect)
+    }
+  }, [activeSection, sectionOrder, device, zoom])
+
+  // Sync editing field with active section
+  useEffect(() => {
+    if (activeSection === "") {
+      setEditingField(null)
+      setTargetRect(null)
+    }
+  }, [activeSection])
+
   const handleToolbarAction = (action: string) => {
     if (!editingField || !onConfigChange) return
+
+    if (action === "edit") {
+        setIsTyping(true)
+        return
+    }
 
     const fieldKey = editingField.split(".")[1] as keyof typeof hero
     let currentValue = ((hero as any)[fieldKey] || "") as string
@@ -391,10 +488,12 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
               style={themeVariables}
             >
               {/* Full Page Preview */}
-              <div className={cn(
-                "relative flex flex-col h-full",
-                config.hero.autoHeight !== false ? "min-h-full" : "min-h-full"
-              )}>
+              <div 
+                className={cn(
+                  "relative flex flex-col h-full",
+                  config.hero.autoHeight !== false ? "min-h-full" : "min-h-full"
+                )}
+              >
                 {/* === HEADER === */}
                 <header
                   data-section-id="header"
@@ -407,7 +506,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   )}
                   style={{
                     height: currentHeaderHeight,
-                    ...(activeSection === "header" ? { ringColor: accentColor, boxShadow: `inset 0 0 0 2px ${accentColor}` } : {}),
+                    ...(activeSection === "header" ? { ringColor: accentColor } : {}),
                   }}
                 >
                   {/* Background Layer */}
@@ -485,18 +584,18 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   }}
                 >
                   {/* === HERO === */}
-                  <div
-                    data-section-id="hero"
-                    className={cn(
-                      "relative flex flex-col justify-center min-h-0",
-                      resolvedHero.autoHeight !== false ? "flex-1" : "shrink-0"
-                    )}
-                    style={{
-                      backgroundColor: theme.colors.background,
-                      height: resolvedHero.autoHeight !== false ? undefined : `${resolvedHero.height || 600}px`,
-                      ...(activeSection === "hero" ? { boxShadow: `inset 0 0 0 2px ${accentColor}` } : {}),
-                    }}
-                  >
+                    <div
+                      data-section-id="hero"
+                      onClick={(e) => handleSectionClick(e, 'hero')}
+                      className={cn(
+                        "relative flex flex-col justify-center min-h-0 cursor-pointer",
+                        resolvedHero.autoHeight !== false ? "flex-1" : "shrink-0"
+                      )}
+                      style={{
+                        backgroundColor: theme.colors.background,
+                        height: resolvedHero.autoHeight !== false ? undefined : `${resolvedHero.height || 600}px`
+                      }}
+                    >
                     {currentImage && (
                       <div
                         className="absolute inset-0 overflow-hidden"
@@ -730,8 +829,8 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                   {middleSections[0] && (
                     <div
                       data-section-id={middleSections[0]}
-                      className="relative shrink-0"
-                      style={activeSection === middleSections[0] ? { boxShadow: `inset 0 0 0 2px ${accentColor}` } : undefined}
+                      onClick={(e) => handleSectionClick(e, middleSections[0])}
+                      className="relative shrink-0 cursor-pointer"
                     >
                       {(() => {
                         const plugin = pluginMap.get(middleSections[0])
@@ -754,8 +853,8 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                     <div
                       key={sectionId}
                       data-section-id={sectionId}
-                      className={cn("relative")}
-                      style={activeSection === sectionId ? { boxShadow: `inset 0 0 0 2px ${accentColor}` } : undefined}
+                      onClick={(e) => handleSectionClick(e, sectionId)}
+                      className={cn("relative cursor-pointer")}
                     >
                       <PluginPreview config={pluginConfig} device={device} themeColors={theme.colors} />
                     </div>
@@ -771,8 +870,7 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
                     device === "tablet" && "py-4",
                   )}
                   style={{
-                    backgroundColor: theme.colors.secondary,
-                    ...(activeSection === "footer" ? { boxShadow: `inset 0 0 0 2px ${accentColor}` } : {}),
+                    backgroundColor: theme.colors.secondary
                   }}
                 >
                   {footer.style === "simple" && (
@@ -877,6 +975,36 @@ export function DevicePreview({ config, device, activeSection, sectionOrder, plu
         </div>
       </div>
 
+      {/* Global Section Selection Indicator */}
+      {activeSection && sectionRect && !editingField && (
+        <div 
+          className="pointer-events-none fixed z-[140] border-[3px] border-blue-500 rounded-sm shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-150"
+          style={{
+            top: sectionRect.top + window.scrollY,
+            left: sectionRect.left + window.scrollX,
+            width: sectionRect.width,
+            height: sectionRect.height,
+          }}
+        />
+      )}
+
+      <SectionToolbar
+        sectionId={activeSection}
+        label={(() => {
+            if (activeSection === 'hero') return 'Capa (Hero)'
+            if (activeSection === 'header') return 'Cabeçalho'
+            if (activeSection === 'footer') return 'Rodapé'
+            return pluginMap.get(activeSection)?.label || 'Seção'
+        })()}
+        targetRect={sectionRect}
+        isVisible={!!activeSection && !!sectionRect && !editingField}
+        onMoveUp={handleMoveUp}
+        onMoveDown={handleMoveDown}
+        onDelete={onSectionDelete || (() => {})}
+        isFirst={sectionOrder.indexOf(activeSection) <= 1}
+        isLast={sectionOrder.indexOf(activeSection) >= sectionOrder.length - 2}
+      />
+
       <InlineToolbar
         isVisible={!!editingField && !!targetRect}
         targetRect={targetRect}
@@ -951,7 +1079,7 @@ function EditableText({
       )}
       style={{ 
         ...style,
-        ...(isEditing && !isTyping ? { outline: `2px solid ${accentColor}`, outlineOffset: '4px' } : {})
+        ...(isEditing && !isTyping ? { outline: `2px solid #3b82f6`, outlineOffset: '4px' } : {})
       }}
     >
       {isTyping ? (

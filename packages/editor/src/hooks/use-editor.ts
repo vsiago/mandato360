@@ -20,6 +20,7 @@ type EditorAction =
   | { type: 'RESET_HERO_OVERRIDE', targetDevice: DeviceType, prop: keyof HeroOverridableProps }
   | { type: 'UPDATE_PLUGIN_CONFIG', pluginId: string, updates: any }
   | { type: 'REORDER_SECTIONS', newOrder: string[] }
+  | { type: 'DELETE_SECTION', sectionId: string }
   | { type: 'UNDO' }
   | { type: 'REDO' }
   | { type: 'SET_SAVING', isSaving: boolean }
@@ -112,6 +113,13 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
 
     case 'REORDER_SECTIONS':
       return pushHistory({ ...currentConfig, sectionOrder: action.newOrder })
+    
+    case 'DELETE_SECTION': {
+      const newOrder = (currentConfig.sectionOrder || []).filter(id => id !== action.sectionId)
+      const newPlugins = { ...(currentConfig.plugins || {}) }
+      delete newPlugins[action.sectionId]
+      return pushHistory({ ...currentConfig, sectionOrder: newOrder, plugins: newPlugins })
+    }
 
     case 'UNDO':
       return state.index > 0 ? { ...state, index: state.index - 1, savedSuccessfully: false } : state
@@ -151,6 +159,7 @@ export function useEditor({ initialConfig, onSave, autoSave = false, autoSaveDel
   const resetHeroOverride = (targetDevice: DeviceType, prop: keyof HeroOverridableProps) => dispatch({ type: 'RESET_HERO_OVERRIDE', targetDevice, prop })
   const updatePluginConfig = (pluginId: string, updates: any) => dispatch({ type: 'UPDATE_PLUGIN_CONFIG', pluginId, updates })
   const reorderSections = (newOrder: string[]) => dispatch({ type: 'REORDER_SECTIONS', newOrder })
+  const deleteSection = (sectionId: string) => dispatch({ type: 'DELETE_SECTION', sectionId })
   const undo = () => dispatch({ type: 'UNDO' })
   const redo = () => dispatch({ type: 'REDO' })
 
@@ -203,6 +212,7 @@ export function useEditor({ initialConfig, onSave, autoSave = false, autoSaveDel
     resetHeroOverride,
     updatePluginConfig,
     reorderSections,
+    deleteSection,
     undo,
     redo,
     save,

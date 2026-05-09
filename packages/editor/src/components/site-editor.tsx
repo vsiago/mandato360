@@ -10,8 +10,10 @@ import { EditorSidebar } from "./editor-sidebar"
 import { SectionLibrary } from "./section-library"
 import type { SiteEditorProps } from "../types"
 import { useState } from "react"
-import { Sheet, SheetContent, SheetTitle } from "./ui/sheet"
-import { Settings, Layers } from "lucide-react"
+import { MobileBottomNav } from "./mobile-bottom-nav"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader, SheetDescription } from "./ui/sheet"
+import { GlobalThemeSettings } from "./global-theme-settings"
+import { Settings, Layers, Palette } from "lucide-react"
 import { Button } from "./ui/button"
 import type { AccordionType } from "../types"
 
@@ -40,6 +42,7 @@ export function SiteEditor({
   const [isLibraryOpen, setIsLibraryOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileConfigOpen, setMobileConfigOpen] = useState(false)
+  const [isThemeOpen, setIsThemeOpen] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<AccordionType | null>(null)
 
   // Sync openAccordion when activeSection changes
@@ -100,6 +103,28 @@ export function SiteEditor({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [editor])
 
+  // Global click-outside to deselect
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      
+      // Elements that should NOT trigger deselection:
+      const isSection = !!target.closest('[data-section-id]')
+      const isToolbar = !!target.closest('#inline-toolbar') || !!target.closest('#section-toolbar')
+      const isSidebar = !!target.closest('#editor-sidebar') || !!target.closest('[role="dialog"]') || !!target.closest('[data-radix-collection-item]')
+      const isAction = !!target.closest('button') || !!target.closest('a')
+      const isInput = !!target.closest('input') || !!target.closest('textarea') || !!target.closest('select')
+      const isLibrary = !!target.closest('#section-library')
+      
+      if (!isSection && !isToolbar && !isSidebar && !isAction && !isInput && !isLibrary) {
+        editor.setActiveSection('')
+      }
+    }
+    
+    document.addEventListener('mousedown', handleClickOutside, true)
+    return () => document.removeEventListener('mousedown', handleClickOutside, true)
+  }, [editor.setActiveSection])
+
   return (
     <div className={cn("flex h-screen flex-col overflow-hidden bg-background", className)}>
       <EditorHeader
@@ -115,6 +140,7 @@ export function SiteEditor({
         savedSuccessfully={editor.savedSuccessfully}
         config={editor.config}
         onConfigChange={editor.updateConfig}
+        onThemeClick={() => setIsThemeOpen(true)}
         previewUrl={previewUrl}
         tenantName={tenantName}
         accentColor={accentColor}
@@ -161,6 +187,9 @@ export function SiteEditor({
             accentColor={accentColor}
             onConfigChange={editor.updateConfig}
             onAccordionToggle={(id) => setOpenAccordion(id as AccordionType)}
+            onSectionReorder={editor.reorderSections}
+            onSectionDelete={editor.deleteSection}
+            onSectionSelect={editor.setActiveSection}
             placeholders={placeholders}
           />
         </div>
@@ -207,16 +236,31 @@ export function SiteEditor({
           </SheetContent>
         </Sheet>
 
-        {/* Mobile Floating Action Toolbar */}
-        <div className="lg:hidden absolute bottom-24 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-background/95 backdrop-blur-md p-1.5 rounded-full border border-border/60 shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-[200]">
-          <Button variant="ghost" size="sm" className="rounded-full gap-2 px-6 h-12 hover:bg-muted active:scale-[0.98]" onClick={() => setMobileMenuOpen(true)}>
-            <Layers className="h-4 w-4" /> <span className="text-xs font-semibold tracking-tight">Seções</span>
-          </Button>
-          <div className="w-px h-6 bg-border/80" />
-          <Button variant="ghost" size="sm" className="rounded-full gap-2 px-5 h-11 hover:bg-muted active:scale-[0.98]" onClick={() => setMobileConfigOpen(true)}>
-            <Settings className="h-4 w-4" /> <span className="text-xs font-semibold tracking-tight">Configurar</span>
-          </Button>
-        </div>
+        {/* Mobile Bottom Navigation */}
+        <MobileBottomNav
+          activeSection={editor.activeSection}
+          device={editor.device}
+          accentColor={accentColor}
+          onAddClick={() => setIsLibraryOpen(true)}
+          onSectionsClick={() => setMobileMenuOpen(true)}
+          onThemeClick={() => setIsThemeOpen(true)}
+          onConfigClick={() => setMobileConfigOpen(true)}
+        />
+
+        {/* Global Theme Sheet (Shared) */}
+        <Sheet open={isThemeOpen} onOpenChange={setIsThemeOpen}>
+          <SheetContent className="flex w-full flex-col border-l border-border bg-background p-0 sm:w-[540px]">
+            <SheetHeader className="p-6 pb-0">
+              <SheetTitle className="text-foreground">Tema Global</SheetTitle>
+              <SheetDescription className="text-muted-foreground">
+                Configure as cores, gradientes e tipografia globais do site de forma centralizada.
+              </SheetDescription>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              <GlobalThemeSettings config={editor.config} onConfigChange={editor.updateConfig} accentColor={accentColor} />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* Section Library (Menu) */}
