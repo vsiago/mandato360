@@ -40,14 +40,12 @@ export function SiteEditor({
   const [isLibraryOpen, setIsLibraryOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mobileConfigOpen, setMobileConfigOpen] = useState(false)
-  const [openAccordion, setOpenAccordion] = useState<AccordionType | null>("theme")
+  const [openAccordion, setOpenAccordion] = useState<AccordionType | null>(null)
 
   // Sync openAccordion when activeSection changes
   useEffect(() => {
-    if (editor.activeSection === "header") setOpenAccordion("header-content")
-    else if (editor.activeSection === "hero") setOpenAccordion("content")
-    else if (editor.activeSection === "footer") setOpenAccordion("content")
-    else setOpenAccordion(null)
+    // We want accordions to start closed by default as per user request
+    setOpenAccordion(null)
   }, [editor.activeSection])
 
   // ... (rest of the component)

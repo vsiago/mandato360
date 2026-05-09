@@ -31,7 +31,7 @@ function SchedulingPreview({ config, device, themeColors }: PluginSectionProps) 
    SIDEBAR — Edição da seção
    ═══════════════════════════════════════════ */
 function SchedulingSidebar({ config, onChange, accentColor = "#10b981" }: PluginSidebarProps) {
-    const [isCabecalhoOpen, setIsCabecalhoOpen] = useState(true)
+    const [isCabecalhoOpen, setIsCabecalhoOpen] = useState(false)
 
     return (
         <div className="flex-1">

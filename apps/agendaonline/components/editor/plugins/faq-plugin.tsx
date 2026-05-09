@@ -57,7 +57,7 @@ function FAQPreview({ config, themeColors }: PluginSectionProps) {
 function FAQSidebar({ config, onChange, accentColor = "#10b981" }: PluginSidebarProps) {
   const items = config.items || []
   const [isCabecalhoOpen, setIsCabecalhoOpen] = useState(false)
-  const [isConteudoOpen, setIsConteudoOpen] = useState(true)
+  const [isConteudoOpen, setIsConteudoOpen] = useState(false)
   
   return (
     <div className="space-y-1">

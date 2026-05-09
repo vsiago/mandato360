@@ -1,7 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import { EditorPlugin, PluginSectionProps, PluginSidebarProps } from "@mandato360/editor"
-import { MapPin, Phone, MessageCircle, Instagram } from "lucide-react"
+import { MapPin, Phone, MessageCircle, Instagram, ChevronDown, Type } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 function ContactPreview({ config, device, themeColors }: PluginSectionProps) {
   const info = config.info || {}
@@ -50,37 +54,68 @@ function ContactPreview({ config, device, themeColors }: PluginSectionProps) {
   )
 }
 
-function ContactSidebar({ config, onChange }: PluginSidebarProps) {
+function ContactSidebar({ config, onChange, accentColor = "#10b981" }: PluginSidebarProps) {
   const info = config.info || {}
+  const [isConteudoOpen, setIsConteudoOpen] = useState(false)
+
   return (
-    <div className="p-4 space-y-4">
-      <h3 className="text-sm font-bold text-white">Contato</h3>
-      <div className="space-y-3">
-        <div className="space-y-1">
-          <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Endereço</label>
-          <textarea 
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-[10px] outline-none resize-none"
-            rows={3}
-            value={info.address}
-            onChange={(e) => onChange({ ...config, info: { ...info, address: e.target.value } })}
+    <div className="flex-1">
+      {/* Conteúdo Accordion */}
+      <div className="border-b border-border">
+        <button
+          onClick={() => setIsConteudoOpen(!isConteudoOpen)}
+          className={cn(
+            "group flex w-full items-center justify-between p-4 text-left transition-all duration-200 hover:bg-muted",
+            isConteudoOpen && "bg-muted/50"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <Type className={cn(
+              "h-4 w-4 transition-colors duration-200",
+              isConteudoOpen ? "text-current" : "text-muted-foreground/50 group-hover:text-foreground"
+            )} style={isConteudoOpen ? { color: accentColor } : undefined} />
+            <span className={cn(
+              "text-sm font-medium transition-colors duration-200",
+              isConteudoOpen ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+            )}>Conteúdo</span>
+          </div>
+          <ChevronDown
+            className={cn(
+              "h-3.5 w-3.5 text-muted-foreground/50 transition-transform duration-300",
+              isConteudoOpen && "rotate-180 text-muted-foreground"
+            )}
           />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest">WhatsApp</label>
-          <input 
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-[10px] outline-none"
-            value={info.whatsapp}
-            onChange={(e) => onChange({ ...config, info: { ...info, whatsapp: e.target.value } })}
-          />
-        </div>
-        <div className="space-y-1">
-          <label className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Instagram (handle)</label>
-          <input 
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-[10px] outline-none"
-            value={info.instagram}
-            onChange={(e) => onChange({ ...config, info: { ...info, instagram: e.target.value } })}
-          />
-        </div>
+        </button>
+        {isConteudoOpen && (
+          <div className="space-y-4 px-4 pb-4 pt-2">
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-[11px] font-medium text-foreground/70">Endereço</Label>
+                <textarea 
+                  className="w-full bg-background border border-border/50 rounded-lg px-3 py-2 text-[11px] text-foreground outline-none resize-none min-h-[80px]"
+                  value={info.address}
+                  onChange={(e) => onChange({ ...config, info: { ...info, address: e.target.value } })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] font-medium text-foreground/70">WhatsApp</Label>
+                <Input 
+                  className="h-8 text-[11px] border-border/50 bg-background"
+                  value={info.whatsapp}
+                  onChange={(e) => onChange({ ...config, info: { ...info, whatsapp: e.target.value } })}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] font-medium text-foreground/70">Instagram (handle)</Label>
+                <Input 
+                  className="h-8 text-[11px] border-border/50 bg-background"
+                  value={info.instagram}
+                  onChange={(e) => onChange({ ...config, info: { ...info, instagram: e.target.value } })}
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -94,5 +129,3 @@ export const contactPlugin: EditorPlugin = {
   sidebarComponent: ContactSidebar,
   defaultConfig: { info: {} }
 }
-
-import { cn } from "@/lib/utils"

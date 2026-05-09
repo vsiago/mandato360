@@ -64,7 +64,7 @@ function BeforeAfterPreview({ config, device, themeColors }: PluginSectionProps)
 function BeforeAfterSidebar({ config, onChange, accentColor = "#10b981", onImageUpload }: PluginSidebarProps) {
   const items = config.items || []
   const [isCabecalhoOpen, setIsCabecalhoOpen] = useState(false)
-  const [isConteudoOpen, setIsConteudoOpen] = useState(true)
+  const [isConteudoOpen, setIsConteudoOpen] = useState(false)
   const [isUploading, setIsUploading] = useState<{index: number, type: 'before'|'after'} | null>(null)
 
   // Welcome Screen if disabled and empty
