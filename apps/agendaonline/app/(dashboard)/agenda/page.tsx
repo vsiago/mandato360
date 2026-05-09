@@ -1110,7 +1110,6 @@ export default function AgendaPage() {
                                                         ) : isBlocked ? (
                                                             <div className="rounded-[14px] p-4 bg-gradient-to-r from-red-500/10 to-transparent border-y border-r border-white/[0.04] border-l-4 border-l-red-500 flex items-center justify-between gap-4 group/blocked">
                                                                 <div className="flex items-center gap-4">
-                                                                    <div className="h-10 w-10 rounded-[10px] border border-red-500/20 flex items-center justify-center shrink-0 bg-red-500/5"><Lock className="h-4 w-4 text-red-500" /></div>
                                                                     <div>
                                                                         <p className="text-[13px] font-bold text-red-500 uppercase tracking-wider mb-0.5">Horário Bloqueado</p>
                                                                         <p className="text-[12px] text-red-500/60">Indisponível para clientes</p>
@@ -1123,9 +1122,6 @@ export default function AgendaPage() {
                                                         ) : (
                                                             <div className="rounded-[14px] p-3 pl-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 hover:border-stone-200 dark:hover:border-white/10 flex items-center justify-between group/empty transition-all shadow-sm dark:shadow-none">
                                                                 <div className="flex items-center gap-4">
-                                                                    <div className="h-10 w-10 rounded-[10px] border border-dashed border-stone-200 dark:border-white/10 flex items-center justify-center text-stone-400 dark:text-stone-500">
-                                                                        <LayoutGrid className="h-4 w-4 opacity-50" />
-                                                                    </div>
                                                                     <div>
                                                                         <p className="text-[13px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-0.5">Horário Livre</p>
                                                                         <p className="text-[12px] text-stone-500">{tenant?.segmento === 'advocacia' ? 'Disponível para consulta' : 'Disponível para agendamento'}</p>
@@ -1350,19 +1346,6 @@ export default function AgendaPage() {
                                                             : "bg-stone-50 dark:bg-stone-900/40 border-stone-100 dark:border-white/5 hover:border-brand-primary/30"
                                                 )}>
                                                     <div className="flex items-center gap-4">
-                                                        {isBlocked ? (
-                                                            <div className="h-8 w-8 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
-                                                                <Lock className="h-4 w-4 text-red-500" />
-                                                            </div>
-                                                        ) : isUnavailable ? (
-                                                            <div className="h-8 w-8 rounded-full bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-white/[0.05] flex items-center justify-center shrink-0">
-                                                                <Clock className="h-4 w-4 text-stone-400 dark:text-stone-700" />
-                                                            </div>
-                                                        ) : (
-                                                            <div className="h-8 w-8 rounded-full border border-dashed border-stone-300 dark:border-white/20 flex items-center justify-center text-stone-400 dark:text-stone-500 transition-all">
-                                                                <Plus className="h-4 w-4" />
-                                                            </div>
-                                                        )}
                                                         <div>
                                                             <p className={cn("text-xs font-bold uppercase tracking-wider mb-0.5",
                                                                 isBlocked ? "text-red-500" : isUnavailable ? "text-stone-400 dark:text-stone-600" : "text-stone-600 dark:text-stone-400"

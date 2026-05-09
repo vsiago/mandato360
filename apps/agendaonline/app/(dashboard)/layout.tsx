@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
-import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, ShieldCheck, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, ChevronDown, Plug, Layout, Puzzle, Scale, Briefcase, FileText } from "lucide-react"
+import { LayoutDashboard, Calendar, Scissors, Settings, LogOut, CreditCard, ImageIcon, HelpCircle, Globe, Sun, Moon, ShieldCheck, Users, DollarSign, BarChart3, Star, Headset, ChevronRight, ChevronDown, Plug, Layout, Puzzle, Scale, Briefcase, FileText, Pencil } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
@@ -75,6 +75,7 @@ function buildNavGroups(segmento?: string) {
 }
 
 const USER_DROPDOWN_ITEMS = [
+    { href: "/editar-site", label: "Editar Site", icon: Pencil },
     { href: "/assinatura", label: "Assinatura", icon: CreditCard },
     { href: "/configuracoes", label: "Configurações", icon: Settings },
 ]

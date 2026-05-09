@@ -203,67 +203,99 @@ function PainelContent() {
             )}
 
             {/* ── Header ── */}
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-1 lg:mb-2 lg:px-0">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-4 lg:mb-6 lg:px-0">
                 <div className="flex-1">
                     <h2 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
                         {greeting()}, <span className="text-brand-primary">{displayName}!</span> 👋
                     </h2>
-                    <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1">
+                    <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1 font-medium">
                         Aqui está o que acontece no seu negócio hoje.
                     </p>
                 </div>
                 
                 <div className="flex flex-row w-full lg:w-auto items-center gap-2 lg:gap-3 mt-1 lg:mt-0">
-                    <Link href="/agenda" className="flex-1 lg:flex-none">
-                        <Button 
-                            variant="outline"
-                            className="w-full text-brand-primary border-brand-primary/20 bg-brand-primary/5 hover:bg-brand-primary/10 rounded-xl px-4 lg:px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all text-[11px] lg:text-sm"
-                        >
-                            <CalendarDays className="h-4 w-4 lg:h-5 lg:w-5" /> Agenda
-                        </Button>
-                    </Link>
-                    <Link href={`/${tenant?.slug || ""}`} target="_blank" className="flex-1 lg:flex-none">
-                        <Button variant="ghost" className="w-full bg-stone-100 dark:bg-stone-900/40 hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white rounded-xl px-4 lg:px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 text-[11px] lg:text-sm border border-stone-200 dark:border-white/5 transition-all">
-                            <ExternalLink className="h-4 w-4 lg:h-5 lg:w-5" /> Site
-                        </Button>
-                    </Link>
+                    <Button 
+                        onClick={() => {
+                            if (tenant?.slug) {
+                                navigator.clipboard.writeText(`${window.location.origin}/${tenant.slug}`);
+                                toast.success("Link copiado! Envie para seus clientes.");
+                            }
+                        }}
+                        variant="outline"
+                        className="flex-1 lg:flex-none text-brand-primary border-brand-primary/20 bg-brand-primary/5 hover:bg-brand-primary/10 rounded-xl px-4 lg:px-8 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all text-[11px] lg:text-sm shadow-sm"
+                    >
+                        <Share2 className="h-4 w-4 lg:h-5 lg:w-5" /> Link de Agendamento
+                    </Button>
                 </div>
             </div>
 
-            {/* ── Quick Actions ── */}
-            <div className="space-y-3 lg:px-0">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-black text-stone-500 uppercase tracking-[0.2em]">AÇÕES RÁPIDAS</h3>
-                </div>
-                <div className="flex lg:grid lg:grid-cols-4 gap-3 overflow-x-auto lg:overflow-visible hide-scrollbar snap-x">
-                    {[
-                        { href: "/agenda?action=new", icon: isAdvocacia ? Scale : CalendarDays, title: isAdvocacia ? "Consulta" : "Agendar", desc: isAdvocacia ? "Agendar consulta" : "Novo horário" },
-                        { href: "/servicos", icon: isAdvocacia ? Briefcase : Scissors, title: isAdvocacia ? "Áreas" : "Serviços", desc: isAdvocacia ? "Gerencie áreas" : "Editar serviços" },
-                        { href: "/editar-site", icon: Pencil, title: "Editar Site", desc: "Personalizar" },
-                        { href: "#", icon: Share2, title: "Compartilhar", desc: "Copiar link", action: () => {
-                            if (tenant?.slug) {
-                                navigator.clipboard.writeText(`${window.location.origin}/${tenant.slug}`);
-                                toast.success("Link copiado!");
-                            }
-                        }},
-                    ].map((item, i) => (
-                        <div 
-                            key={i} 
-                            onClick={() => item.action ? item.action() : null}
-                            className="group cursor-pointer bg-white dark:bg-stone-900/30 hover:bg-stone-50 dark:hover:bg-stone-900/50 border border-stone-200 dark:border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center text-center gap-2 transition-all min-w-[100px] lg:min-w-0 flex-1 snap-start shadow-sm hover:shadow-md"
-                        >
-                            <div 
-                                className="h-10 w-10 rounded-xl flex items-center justify-center shrink-0 border border-stone-100 dark:border-white/5 bg-stone-50 dark:bg-white/[0.03] group-hover:border-brand-primary/30 transition-colors shadow-xs"
-                            >
-                                <item.icon className="h-5 w-5 text-stone-500 dark:text-stone-400 group-hover:text-brand-primary transition-colors" />
-                            </div>
-                            <div className="min-w-0">
-                                <h4 className="text-[10px] lg:text-xs font-bold text-stone-700 dark:text-foreground group-hover:text-brand-primary transition-colors leading-tight truncate">{item.title}</h4>
-                            </div>
+            {/* ── Onboarding / Evolution (Moved Up) ── */}
+            {showChecklist && !allDone && (
+                <div className="lg:mx-0 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden shadow-xl transition-colors mb-6 lg:mb-8">
+                    <div className="absolute top-0 right-0 p-4">
+                        <button onClick={handleDismissChecklist} className="h-8 w-8 rounded-full bg-stone-100 dark:bg-white/5 flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+ 
+                    <div className="flex items-center gap-6 w-full lg:w-auto">
+                        <div className="relative h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center shrink-0">
+                            <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
+                                <circle cx="18" cy="18" r="16" fill="none" className="stroke-stone-100 dark:stroke-white/[0.03]" strokeWidth="3.5" />
+                                <circle 
+                                    cx="18" cy="18" r="16" fill="none" 
+                                    className="stroke-brand-primary transition-all duration-1000 shadow-[0_0_15px_rgba(var(--brand-primary-rgb),0.3)]" 
+                                    strokeWidth="3.5" 
+                                    strokeDasharray={`${progress}, 100`} 
+                                    strokeLinecap="round" 
+                                />
+                            </svg>
+                            <span className="absolute text-sm lg:text-lg font-black text-stone-900 dark:text-foreground">{progress}%</span>
                         </div>
-                    ))}
+                        <div className="flex-1">
+                            <h3 className="text-base lg:text-xl font-black text-foreground tracking-tight">Evolução do Negócio</h3>
+                            <p className="text-[11px] lg:text-[13px] text-muted-foreground font-medium mt-0.5">
+                                {completedCount} de {checklistItems.length} etapas concluídas
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex-1 w-full overflow-x-auto hide-scrollbar lg:mx-0 lg:px-0 snap-x scroll-pl-6">
+                        <div className="flex justify-between items-start gap-8 lg:gap-4 w-max lg:w-full pb-2">
+                            {checklistItems.map((item, i) => {
+                                const isActive = !item.done && (i === 0 || checklistItems[i-1].done)
+                                return (
+                                    <div key={i} className="flex flex-col items-center gap-3 w-16 lg:w-20 shrink-0 snap-start">
+                                        <div className={cn(
+                                            "h-7 w-7 lg:h-8 lg:w-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all border-2",
+                                            item.done 
+                                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
+                                                : isActive 
+                                                    ? "bg-brand-primary border-brand-primary text-white shadow-xl scale-110" 
+                                                    : "bg-stone-100 dark:bg-white/5 border-stone-200 dark:border-white/[0.03] text-stone-400 dark:text-stone-600"
+                                        )}>
+                                            {item.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
+                                        </div>
+                                        <span className={cn(
+                                            "text-[8px] lg:text-[9px] text-center font-black leading-tight whitespace-pre-line uppercase tracking-wider",
+                                            item.done ? "text-emerald-500/60" : isActive ? "text-brand-primary" : "text-stone-400 dark:text-stone-600"
+                                        )}>
+                                            {item.label.split(" ").join("\n")}
+                                        </span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </div>
+
+                    <Link href="/configuracoes" className="w-full lg:w-auto">
+                        <Button className="w-full lg:w-auto text-white rounded-2xl px-8 h-12 lg:h-14 text-xs font-black uppercase tracking-widest shadow-xl bg-brand-gold hover:scale-[1.02] transition-transform">
+                            Avançar
+                        </Button>
+                    </Link>
                 </div>
-            </div>
+            )}
+
 
             {/* ── Main Content Grid ── */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
@@ -348,9 +380,14 @@ function PainelContent() {
                     <div className="grid grid-cols-2 gap-3 lg:gap-4">
                         {[
                             { title: "Faturamento", value: "R$ 0,00", sub: "Este mês", icon: DollarSign, accent: "bg-emerald-500/10 text-emerald-500" },
-                            { title: "Clientes", value: "0", sub: "Ativos", icon: Users, accent: "bg-blue-500/10 text-blue-500" },
+                            { title: "Clientes", value: String(new Set(appointments.map(a => a.customerName)).size), sub: "Total", icon: Users, accent: "bg-blue-500/10 text-blue-500" },
                             { title: isAdvocacia ? "Áreas" : "Serviços", value: String(serviceCount), sub: "Catálogo", icon: isAdvocacia ? Scale : Scissors, accent: "bg-amber-500/10 text-amber-500" },
-                            { title: "Hoje", value: "0", sub: "Agendados", icon: CalendarDays, accent: "bg-brand-primary/10 text-brand-primary" },
+                            { title: "Hoje", value: String(appointments.filter(a => {
+                                const today = new Date();
+                                const pad = (n: number) => n.toString().padStart(2, '0');
+                                const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+                                return a.date === todayStr;
+                            }).length), sub: "Agendados", icon: CalendarDays, accent: "bg-brand-primary/10 text-brand-primary" },
                         ].map((m, i) => (
                             <div key={i} className="group cursor-pointer bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-4 lg:p-6 rounded-2xl hover:bg-white dark:hover:bg-white/[0.04] transition-all relative overflow-hidden flex flex-col justify-between min-h-[120px] lg:min-h-[170px] shadow-lg hover:shadow-xl transition-all duration-300">
                                 <div className="flex items-start justify-between">
@@ -394,71 +431,6 @@ function PainelContent() {
                     </div>
                 </div>
             </div>
-            {showChecklist && (
-                <div className="lg:mx-0 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden shadow-2xl transition-colors">
-                    <div className="absolute top-0 right-0 p-4">
-                        <button onClick={handleDismissChecklist} className="h-8 w-8 rounded-full bg-stone-100 dark:bg-white/5 flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
-                            <X className="h-4 w-4" />
-                        </button>
-                    </div>
- 
-                    <div className="flex items-center gap-6 w-full lg:w-auto">
-                        <div className="relative h-16 w-16 lg:h-20 lg:w-20 flex items-center justify-center shrink-0">
-                            <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-                                <circle cx="18" cy="18" r="16" fill="none" className="stroke-stone-100 dark:stroke-white/[0.03]" strokeWidth="3.5" />
-                                <circle 
-                                    cx="18" cy="18" r="16" fill="none" 
-                                    className="stroke-brand-primary transition-all duration-1000 shadow-[0_0_15px_rgba(var(--brand-primary-rgb),0.3)]" 
-                                    strokeWidth="3.5" 
-                                    strokeDasharray={`${progress}, 100`} 
-                                    strokeLinecap="round" 
-                                />
-                            </svg>
-                            <span className="absolute text-sm lg:text-lg font-black text-stone-900 dark:text-foreground">{progress}%</span>
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-base lg:text-xl font-black text-foreground tracking-tight">Evolução do Negócio</h3>
-                            <p className="text-[11px] lg:text-[13px] text-muted-foreground font-medium mt-0.5">
-                                {completedCount} de {checklistItems.length} etapas concluídas
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex-1 w-full overflow-x-auto hide-scrollbar lg:mx-0 lg:px-0 snap-x scroll-pl-6">
-                        <div className="flex justify-between items-start gap-8 lg:gap-4 w-max lg:w-full pb-2">
-                            {checklistItems.map((item, i) => {
-                                const isActive = !item.done && (i === 0 || checklistItems[i-1].done)
-                                return (
-                                    <div key={i} className="flex flex-col items-center gap-3 w-16 lg:w-20 shrink-0 snap-start">
-                                        <div className={cn(
-                                            "h-7 w-7 lg:h-8 lg:w-8 rounded-full flex items-center justify-center text-[10px] font-black transition-all border-2",
-                                            item.done 
-                                                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" 
-                                                : isActive 
-                                                    ? "bg-brand-primary border-brand-primary text-white shadow-xl scale-110" 
-                                                    : "bg-stone-100 dark:bg-white/5 border-stone-200 dark:border-white/[0.03] text-stone-400 dark:text-stone-600"
-                                        )}>
-                                            {item.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : i + 1}
-                                        </div>
-                                        <span className={cn(
-                                            "text-[8px] lg:text-[9px] text-center font-black leading-tight whitespace-pre-line uppercase tracking-wider",
-                                            item.done ? "text-emerald-500/60" : isActive ? "text-brand-primary" : "text-stone-400 dark:text-stone-600"
-                                        )}>
-                                            {item.label.split(" ").join("\n")}
-                                        </span>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </div>
-
-                    <Link href="/configuracoes" className="w-full lg:w-auto">
-                        <Button className="w-full lg:w-auto text-white rounded-2xl px-8 h-12 lg:h-14 text-xs font-black uppercase tracking-widest shadow-xl bg-brand-gold hover:scale-[1.02] transition-transform">
-                            Avançar
-                        </Button>
-                    </Link>
-                </div>
-            )}
 
             {/* Footer */}
             <div className="pt-4 text-center pb-8 opacity-40">
@@ -466,6 +438,17 @@ function PainelContent() {
                     © 2024 AgendaOnline • Inteligência em Gestão
                 </p>
             </div>
+
+            {/* ── Floating Action Button (FAB) ── */}
+            <Link href="/agenda?action=new">
+                <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="fixed bottom-24 lg:bottom-8 right-6 lg:right-8 h-14 w-14 lg:h-16 lg:w-16 rounded-full bg-brand-primary text-white shadow-2xl flex items-center justify-center z-50 hover:bg-brand-gold transition-colors"
+                >
+                    <Plus className="h-8 w-8" />
+                </motion.button>
+            </Link>
         </div>
     )
 }
