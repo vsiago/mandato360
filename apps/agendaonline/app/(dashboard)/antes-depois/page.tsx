@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { BaseModal } from "@/components/BaseModal"
-import { getMyTenant, saveTenant } from "@/lib/tenant-api"
+import { saveTenant, getMyTenant } from "@/lib/tenant-api"
 import type { TenantBeforeAfter } from "@/lib/tenant-types"
 import { toast } from "sonner"
 import { ImageUpload } from "@/components/ui/image-upload"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function AntesDepoisPage() {
     const [items, setItems] = useState<TenantBeforeAfter[]>([])
@@ -85,39 +86,69 @@ export default function AntesDepoisPage() {
 
     const isImageUrl = (url: string) => url?.startsWith('http') || url?.startsWith('/') || url?.startsWith('data:image')
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-[60vh]">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    // Skeleton Components
+    const HeaderSkeleton = () => (
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-1 lg:mb-2 lg:px-0">
+            <div className="flex-1 space-y-2">
+                <Skeleton className="h-10 w-64 rounded-xl" />
+                <Skeleton className="h-4 w-48 rounded-lg" />
             </div>
-        )
-    }
+            <Skeleton className="w-full lg:w-40 h-10 lg:h-12 rounded-xl" />
+        </div>
+    )
+
+    const GridSkeleton = () => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+            {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden shadow-xl flex flex-col">
+                    <Skeleton className="aspect-[16/9] lg:aspect-square w-full" />
+                    <div className="p-4 lg:p-5 flex items-center justify-between gap-4">
+                        <Skeleton className="h-4 w-32 rounded" />
+                        <Skeleton className="h-7 w-20 rounded-lg" />
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
+
+    const TipSkeleton = () => (
+        <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex items-center gap-4 shadow-lg">
+            <Skeleton className="h-14 w-14 rounded-2xl shrink-0" />
+            <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-32 rounded" />
+                <Skeleton className="h-3 w-64 rounded" />
+            </div>
+            <Skeleton className="h-10 w-24 rounded-xl" />
+        </div>
+    )
 
     return (
         <div className="flex-1 flex flex-col space-y-4 lg:space-y-6 animate-in fade-in duration-500 pb-10">
             {/* ── Header ── */}
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-1 lg:mb-2 lg:px-0">
-                <div className="flex-1">
-                    <h2 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
-                        {isAdvocacia ? "Casos de Sucesso" : "Antes & Depois"}
-                    </h2>
-                    <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1">
-                        {isAdvocacia 
-                            ? "Destaque vitórias jurídicas e soluções entregues aos seus clientes." 
-                            : "Exiba os resultados e transformações do seu trabalho."}
-                    </p>
+            {loading ? <HeaderSkeleton /> : (
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-1 lg:mb-2 lg:px-0">
+                    <div className="flex-1">
+                        <h2 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            {isAdvocacia ? "Casos de Sucesso" : "Antes & Depois"}
+                        </h2>
+                        <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1">
+                            {isAdvocacia 
+                                ? "Destaque vitórias jurídicas e soluções entregues aos seus clientes." 
+                                : "Exiba os resultados e transformações do seu trabalho."}
+                        </p>
+                    </div>
+                    
+                    <Button 
+                        onClick={handleNew}
+                        className="w-full lg:w-auto text-white rounded-xl px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all bg-brand-gold text-[11px] lg:text-sm shadow-lg shadow-brand-gold/10"
+                    >
+                        <Plus className="h-4 w-4 lg:h-5 lg:w-5" /> {isAdvocacia ? "Novo Caso" : "Novo Resultado"}
+                    </Button>
                 </div>
-                
-                <Button 
-                    onClick={handleNew}
-                    className="w-full lg:w-auto text-white rounded-xl px-6 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all bg-brand-gold text-[11px] lg:text-sm shadow-lg shadow-brand-gold/10"
-                >
-                    <Plus className="h-4 w-4 lg:h-5 lg:w-5" /> {isAdvocacia ? "Novo Caso" : "Novo Resultado"}
-                </Button>
-            </div>
+            )}
 
             {/* ── Grid ── */}
-            {items.length === 0 ? (
+            {loading ? <GridSkeleton /> : (items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 px-6 text-center bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl shadow-2xl">
                     <div className="h-20 w-20 rounded-[2.5rem] bg-stone-50 dark:bg-stone-900 border border-stone-100 dark:border-white/5 flex items-center justify-center mb-6 shadow-2xl">
                         {isAdvocacia ? <Briefcase className="h-10 w-10 text-stone-300 dark:text-stone-700" /> : <ArrowLeftRight className="h-10 w-10 text-stone-300 dark:text-stone-700" />}
@@ -207,27 +238,29 @@ export default function AntesDepoisPage() {
                         </div>
                     </button>
                 </div>
-            )}
+            ))}
 
             {/* ── Tip Card ── */}
-            <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg mt-4 lg:mt-8">
-                <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
-                    <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center shrink-0">
-                        {isAdvocacia ? <Scale className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" /> : <Sparkles className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />}
+            {loading ? <TipSkeleton /> : (
+                <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg mt-4 lg:mt-8">
+                    <div className="flex items-center gap-4 text-center sm:text-left flex-col sm:flex-row">
+                        <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center shrink-0">
+                            {isAdvocacia ? <Scale className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" /> : <Sparkles className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />}
+                        </div>
+                        <div>
+                            <h4 className="text-sm lg:text-base font-bold text-stone-900 dark:text-white leading-tight">{isAdvocacia ? "Autoridade Jurídica" : "Dica de Conversão"}</h4>
+                            <p className="text-xs text-stone-500 mt-1">
+                                {isAdvocacia 
+                                    ? "Casos de sucesso demonstram sua competência e atraem clientes qualificados." 
+                                    : "Fotos reais de resultados aumentam a confiança dos clientes em até 3x."}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <h4 className="text-sm lg:text-base font-bold text-stone-900 dark:text-white leading-tight">{isAdvocacia ? "Autoridade Jurídica" : "Dica de Conversão"}</h4>
-                        <p className="text-xs text-stone-500 mt-1">
-                            {isAdvocacia 
-                                ? "Casos de sucesso demonstram sua competência e atraem clientes qualificados." 
-                                : "Fotos reais de resultados aumentam a confiança dos clientes em até 3x."}
-                        </p>
-                    </div>
+                    <Button variant="outline" className="w-full sm:w-auto h-11 lg:h-12 px-6 rounded-xl border-stone-200 dark:border-white/5 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/5 font-bold text-[11px] lg:text-xs shadow-sm">
+                        {isAdvocacia ? "Ver Portfólio no Site" : "Ver Galeria no Site"}
+                    </Button>
                 </div>
-                <Button variant="outline" className="w-full sm:w-auto h-11 lg:h-12 px-6 rounded-xl border-stone-200 dark:border-white/5 text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-white/5 font-bold text-[11px] lg:text-xs shadow-sm">
-                    {isAdvocacia ? "Ver Portfólio no Site" : "Ver Galeria no Site"}
-                </Button>
-            </div>
+            )}
 
             {/* ── Modal ── */}
             <BaseModal

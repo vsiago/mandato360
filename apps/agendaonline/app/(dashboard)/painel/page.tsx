@@ -11,6 +11,7 @@ import {
     Loader2, Share2, Info, ChevronRight, Pencil, Plus, MoreVertical,
     Lightbulb, ChevronDown, Scale, Briefcase
 } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -134,13 +135,91 @@ function PainelContent() {
         setShowChecklist(false)
     }
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-[50vh]">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    // Skeleton Components
+    const HeaderSkeleton = () => (
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-4 lg:mb-6 lg:px-0">
+            <div className="flex-1 space-y-2">
+                <Skeleton className="h-10 w-64 rounded-xl" />
+                <Skeleton className="h-4 w-48 rounded-lg" />
             </div>
-        )
-    }
+            <Skeleton className="w-full lg:w-48 h-12 rounded-xl" />
+        </div>
+    )
+
+    const ChecklistSkeleton = () => (
+        <div className="lg:mx-0 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 mb-6 lg:mb-8 shadow-xl">
+            <div className="flex items-center gap-6 w-full lg:w-auto">
+                <Skeleton className="h-16 w-16 lg:h-20 lg:w-20 rounded-full shrink-0" />
+                <div className="flex-1 space-y-2">
+                    <Skeleton className="h-6 w-32 rounded-lg" />
+                    <Skeleton className="h-4 w-48 rounded-lg" />
+                </div>
+            </div>
+            <div className="flex-1 w-full flex gap-4 lg:gap-8 overflow-hidden">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="flex flex-col items-center gap-3 shrink-0">
+                        <Skeleton className="h-8 w-8 rounded-full" />
+                        <Skeleton className="h-2 w-12 rounded-lg" />
+                    </div>
+                ))}
+            </div>
+            <Skeleton className="w-full lg:w-32 h-12 lg:h-14 rounded-2xl" />
+        </div>
+    )
+
+    const AgendaSkeleton = () => (
+        <div className="lg:col-span-5 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden flex flex-col h-full shadow-xl">
+            <div className="p-5 lg:p-6 flex items-center justify-between border-b border-stone-100 dark:border-white/[0.03]">
+                <div className="flex items-center gap-2.5">
+                    <Skeleton className="h-8 w-8 rounded-xl" />
+                    <Skeleton className="h-5 w-24 rounded-lg" />
+                </div>
+                <Skeleton className="h-8 w-24 rounded-xl" />
+            </div>
+            <div className="p-5 lg:p-6 space-y-3">
+                {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="flex items-center gap-4 p-4 rounded-[1.25rem] border border-stone-200/50 dark:border-white/[0.03]">
+                        <div className="space-y-1 w-10">
+                            <Skeleton className="h-4 w-full rounded" />
+                            <Skeleton className="h-2 w-full rounded" />
+                        </div>
+                        <div className="flex-1 flex items-center justify-between">
+                            <Skeleton className="h-4 w-32 rounded" />
+                            <Skeleton className="h-8 w-8 rounded-full" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="p-5 lg:p-6 pt-0 mt-auto">
+                <Skeleton className="w-full h-11 rounded-xl" />
+            </div>
+        </div>
+    )
+
+    const MetricsSkeleton = () => (
+        <div className="lg:col-span-7 space-y-4 lg:space-y-6">
+            <div className="grid grid-cols-2 gap-3 lg:gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-4 lg:p-6 rounded-2xl h-[120px] lg:h-[170px] flex flex-col justify-between shadow-lg">
+                        <Skeleton className="h-11 w-11 rounded-xl" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-2 w-12 rounded" />
+                            <Skeleton className="h-6 w-24 rounded" />
+                            <Skeleton className="h-2 w-16 rounded" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+            <div className="bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex items-center gap-4 shadow-lg">
+                <Skeleton className="h-14 w-14 rounded-2xl shrink-0" />
+                <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32 rounded" />
+                    <Skeleton className="h-3 w-64 rounded" />
+                </div>
+                <Skeleton className="h-10 w-32 rounded-xl" />
+            </div>
+        </div>
+    )
 
     return (
         <div className="flex-1 flex flex-col space-y-4 lg:space-y-6 animate-in fade-in duration-500 relative">
@@ -203,34 +282,36 @@ function PainelContent() {
             )}
 
             {/* ── Header ── */}
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-4 lg:mb-6 lg:px-0">
-                <div className="flex-1">
-                    <h2 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
-                        {greeting()}, <span className="text-brand-primary">{displayName}!</span> 👋
-                    </h2>
-                    <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1 font-medium">
-                        Aqui está o que acontece no seu negócio hoje.
-                    </p>
+            {loading ? <HeaderSkeleton /> : (
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 lg:gap-6 mb-4 lg:mb-6 lg:px-0">
+                    <div className="flex-1">
+                        <h2 className="text-2xl lg:text-3xl font-bold text-foreground tracking-tight flex items-center gap-2" style={{ fontFamily: 'var(--font-playfair)' }}>
+                            {greeting()}, <span className="text-brand-primary">{displayName}!</span> 👋
+                        </h2>
+                        <p className="text-xs lg:text-sm text-muted-foreground mt-0.5 lg:mt-1 font-medium">
+                            Aqui está o que acontece no seu negócio hoje.
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-row w-full lg:w-auto items-center gap-2 lg:gap-3 mt-1 lg:mt-0">
+                        <Button 
+                            onClick={() => {
+                                if (tenant?.slug) {
+                                    navigator.clipboard.writeText(`${window.location.origin}/${tenant.slug}`);
+                                    toast.success("Link copiado! Envie para seus clientes.");
+                                }
+                            }}
+                            variant="outline"
+                            className="flex-1 lg:flex-none text-brand-primary border-brand-primary/20 bg-brand-primary/5 hover:bg-brand-primary/10 rounded-xl px-4 lg:px-8 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all text-[11px] lg:text-sm shadow-sm"
+                        >
+                            <Share2 className="h-4 w-4 lg:h-5 lg:w-5" /> Link de Agendamento
+                        </Button>
+                    </div>
                 </div>
-                
-                <div className="flex flex-row w-full lg:w-auto items-center gap-2 lg:gap-3 mt-1 lg:mt-0">
-                    <Button 
-                        onClick={() => {
-                            if (tenant?.slug) {
-                                navigator.clipboard.writeText(`${window.location.origin}/${tenant.slug}`);
-                                toast.success("Link copiado! Envie para seus clientes.");
-                            }
-                        }}
-                        variant="outline"
-                        className="flex-1 lg:flex-none text-brand-primary border-brand-primary/20 bg-brand-primary/5 hover:bg-brand-primary/10 rounded-xl px-4 lg:px-8 h-10 lg:h-12 font-bold flex items-center justify-center gap-2 transition-all text-[11px] lg:text-sm shadow-sm"
-                    >
-                        <Share2 className="h-4 w-4 lg:h-5 lg:w-5" /> Link de Agendamento
-                    </Button>
-                </div>
-            </div>
+            )}
 
             {/* ── Onboarding / Evolution (Moved Up) ── */}
-            {showChecklist && !allDone && (
+            {loading ? <ChecklistSkeleton /> : showChecklist && !allDone && (
                 <div className="lg:mx-0 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl p-6 lg:p-8 flex flex-col lg:flex-row items-center gap-6 lg:gap-12 relative overflow-hidden shadow-xl transition-colors mb-6 lg:mb-8">
                     <div className="absolute top-0 right-0 p-4">
                         <button onClick={handleDismissChecklist} className="h-8 w-8 rounded-full bg-stone-100 dark:bg-white/5 flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-stone-900 dark:hover:text-white transition-colors">
@@ -301,135 +382,139 @@ function PainelContent() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 
                 {/* ── Left Column: Agendamentos ── */}
-                <div className="lg:col-span-5 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden flex flex-col h-full lg:mx-0 shadow-xl dark:shadow-2xl transition-colors">
-                    <div className="p-5 lg:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-stone-100 dark:border-white/[0.03] bg-stone-50/30 dark:bg-white/[0.01]">
-                        <div className="flex items-center gap-2.5">
-                            <div className="h-8 w-8 rounded-xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
-                                <CalendarDays className="h-4 w-4 text-brand-primary" />
-                            </div>
-                            <h3 className="text-sm lg:text-base font-bold text-foreground tracking-tight">Agenda</h3>
-                        </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-stone-900/50 border border-stone-200 dark:border-white/5 rounded-xl cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs">
-                                    <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">{agendaFilter}</span>
-                                    <ChevronDown className="h-3 w-3 text-stone-400 dark:text-stone-600" />
+                {loading ? <AgendaSkeleton /> : (
+                    <div className="lg:col-span-5 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden flex flex-col h-full lg:mx-0 shadow-xl dark:shadow-2xl transition-colors">
+                        <div className="p-5 lg:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-stone-100 dark:border-white/[0.03] bg-stone-50/30 dark:bg-white/[0.01]">
+                            <div className="flex items-center gap-2.5">
+                                <div className="h-8 w-8 rounded-xl bg-brand-primary/10 flex items-center justify-center border border-brand-primary/20">
+                                    <CalendarDays className="h-4 w-4 text-brand-primary" />
                                 </div>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40 bg-white dark:bg-stone-950 border-stone-200 dark:border-white/10 shadow-2xl rounded-xl">
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Hoje")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Hoje</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Amanhã")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Amanhã</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setAgendaFilter("Próximos 7 dias")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Próximos 7 dias</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-
-                    <div className="p-5 lg:p-6 space-y-3">
-                        {filteredAppointments.length > 0 ? filteredAppointments.map((apt, i) => {
-                            const customerName = apt.customerName || "Cliente";
-                            const initials = customerName.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase();
-
-                            let dateLabel = "Hoje";
-                            const pad = (n: number) => n.toString().padStart(2, '0');
-                            const today = new Date();
-                            const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
-                            const tomorrow = new Date();
-                            tomorrow.setDate(tomorrow.getDate() + 1);
-                            const tomorrowStr = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`;
-
-                            if (apt.date === todayStr) dateLabel = "Hoje";
-                            else if (apt.date === tomorrowStr) dateLabel = "Amanhã";
-                            else {
-                                const [y, m, d] = apt.date.split("-");
-                                dateLabel = `${d}/${m}`;
-                            }
-
-                            return (
-                                <div key={apt.id} className="flex items-center gap-4 p-4 rounded-[1.25rem] bg-stone-50/50 dark:bg-white/[0.02] border border-stone-200/50 dark:border-white/[0.03] hover:bg-white/80 dark:hover:bg-white/[0.05] transition-all group relative overflow-hidden shadow-xs hover:shadow-md">
-                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-primary/40" />
-                                    <div className="text-center w-10 shrink-0">
-                                        <p className="text-xs font-black text-stone-600 dark:text-stone-300 group-hover:text-brand-primary transition-colors">{apt.time}</p>
-                                        <p className="uppercase font-black tracking-widest mt-0.5 text-[8px] text-stone-400 dark:text-stone-500">{dateLabel}</p>
+                                <h3 className="text-sm lg:text-base font-bold text-foreground tracking-tight">Agenda</h3>
+                            </div>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-stone-900/50 border border-stone-200 dark:border-white/5 rounded-xl cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-xs">
+                                        <span className="text-[10px] font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">{agendaFilter}</span>
+                                        <ChevronDown className="h-3 w-3 text-stone-400 dark:text-stone-600" />
                                     </div>
-                                    <div className="flex-1 flex items-center justify-between min-w-0">
-                                        <p className="font-bold text-stone-800 dark:text-foreground truncate text-sm">{customerName}</p>
-                                        <div className="h-8 w-8 rounded-full border border-stone-200 dark:border-white/5 flex items-center justify-center text-[10px] font-black shrink-0 transition-colors bg-white dark:bg-stone-900 text-stone-400 dark:text-stone-500 shadow-xs">
-                                            {initials}
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-40 bg-white dark:bg-stone-950 border-stone-200 dark:border-white/10 shadow-2xl rounded-xl">
+                                    <DropdownMenuItem onClick={() => setAgendaFilter("Hoje")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Hoje</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setAgendaFilter("Amanhã")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Amanhã</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setAgendaFilter("Próximos 7 dias")} className="text-xs font-medium cursor-pointer text-stone-600 dark:text-stone-300 focus:bg-stone-100 dark:focus:bg-white/5 rounded-lg">Próximos 7 dias</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+
+                        <div className="p-5 lg:p-6 space-y-3">
+                            {filteredAppointments.length > 0 ? filteredAppointments.map((apt, i) => {
+                                const customerName = apt.customerName || "Cliente";
+                                const initials = customerName.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase();
+
+                                let dateLabel = "Hoje";
+                                const pad = (n: number) => n.toString().padStart(2, '0');
+                                const today = new Date();
+                                const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+                                const tomorrow = new Date();
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                const tomorrowStr = `${tomorrow.getFullYear()}-${pad(tomorrow.getMonth() + 1)}-${pad(tomorrow.getDate())}`;
+
+                                if (apt.date === todayStr) dateLabel = "Hoje";
+                                else if (apt.date === tomorrowStr) dateLabel = "Amanhã";
+                                else {
+                                    const [y, m, d] = apt.date.split("-");
+                                    dateLabel = `${d}/${m}`;
+                                }
+
+                                return (
+                                    <div key={apt.id} className="flex items-center gap-4 p-4 rounded-[1.25rem] bg-stone-50/50 dark:bg-white/[0.02] border border-stone-200/50 dark:border-white/[0.03] hover:bg-white/80 dark:hover:bg-white/[0.05] transition-all group relative overflow-hidden shadow-xs hover:shadow-md">
+                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-primary/40" />
+                                        <div className="text-center w-10 shrink-0">
+                                            <p className="text-xs font-black text-stone-600 dark:text-stone-300 group-hover:text-brand-primary transition-colors">{apt.time}</p>
+                                            <p className="uppercase font-black tracking-widest mt-0.5 text-[8px] text-stone-400 dark:text-stone-500">{dateLabel}</p>
+                                        </div>
+                                        <div className="flex-1 flex items-center justify-between min-w-0">
+                                            <p className="font-bold text-stone-800 dark:text-foreground truncate text-sm">{customerName}</p>
+                                            <div className="h-8 w-8 rounded-full border border-stone-200 dark:border-white/5 flex items-center justify-center text-[10px] font-black shrink-0 transition-colors bg-white dark:bg-stone-900 text-stone-400 dark:text-stone-500 shadow-xs">
+                                                {initials}
+                                            </div>
                                         </div>
                                     </div>
+                                )
+                            }) : (
+                                <div className="text-center p-6 border border-dashed border-stone-300 dark:border-white/5 rounded-[1.25rem] bg-stone-50/30 dark:bg-white/[0.01]">
+                                    <p className="text-xs text-stone-400 dark:text-stone-500 font-medium italic">Nenhum agendamento pendente.</p>
                                 </div>
-                            )
-                        }) : (
-                            <div className="text-center p-6 border border-dashed border-stone-300 dark:border-white/5 rounded-[1.25rem] bg-stone-50/30 dark:bg-white/[0.01]">
-                                <p className="text-xs text-stone-400 dark:text-stone-500 font-medium italic">Nenhum agendamento pendente.</p>
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
 
-                    <div className="p-5 lg:p-6 pt-0 mt-auto">
-                        <Link href="/agenda">
-                            <Button variant="ghost" className="w-full bg-white dark:bg-white/[0.03] hover:bg-stone-50 dark:hover:bg-white/[0.06] rounded-xl h-11 text-xs font-bold text-brand-primary border border-brand-primary/20 shadow-sm">
-                                Ver agenda completa
-                            </Button>
-                        </Link>
+                        <div className="p-5 lg:p-6 pt-0 mt-auto">
+                            <Link href="/agenda">
+                                <Button variant="ghost" className="w-full bg-white dark:bg-white/[0.03] hover:bg-stone-50 dark:hover:bg-white/[0.06] rounded-xl h-11 text-xs font-bold text-brand-primary border border-brand-primary/20 shadow-sm">
+                                    Ver agenda completa
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* ── Right Column: Metrics Grid & Tip Card ── */}
-                <div className="lg:col-span-7 space-y-4 lg:space-y-6 lg:px-0">
-                    <div className="grid grid-cols-2 gap-3 lg:gap-4">
-                        {[
-                            { title: "Faturamento", value: "R$ 0,00", sub: "Este mês", icon: DollarSign, accent: "bg-emerald-500/10 text-emerald-500" },
-                            { title: "Clientes", value: String(new Set(appointments.map(a => a.customerName)).size), sub: "Total", icon: Users, accent: "bg-blue-500/10 text-blue-500" },
-                            { title: isAdvocacia ? "Áreas" : "Serviços", value: String(serviceCount), sub: "Catálogo", icon: isAdvocacia ? Scale : Scissors, accent: "bg-amber-500/10 text-amber-500" },
-                            { title: "Hoje", value: String(appointments.filter(a => {
-                                const today = new Date();
-                                const pad = (n: number) => n.toString().padStart(2, '0');
-                                const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
-                                return a.date === todayStr;
-                            }).length), sub: "Agendados", icon: CalendarDays, accent: "bg-brand-primary/10 text-brand-primary" },
-                        ].map((m, i) => (
-                            <div key={i} className="group cursor-pointer bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-4 lg:p-6 rounded-2xl hover:bg-white dark:hover:bg-white/[0.04] transition-all relative overflow-hidden flex flex-col justify-between min-h-[120px] lg:min-h-[170px] shadow-lg hover:shadow-xl transition-all duration-300">
-                                <div className="flex items-start justify-between">
-                                    <div className={cn("h-9 w-9 lg:h-11 lg:w-11 rounded-xl flex items-center justify-center border border-stone-100 dark:border-white/5 shadow-inner transition-colors", m.accent)}>
-                                        <m.icon className="h-4 w-4 lg:h-5 lg:w-5" />
+                {loading ? <MetricsSkeleton /> : (
+                    <div className="lg:col-span-7 space-y-4 lg:space-y-6 lg:px-0">
+                        <div className="grid grid-cols-2 gap-3 lg:gap-4">
+                            {[
+                                { title: "Faturamento", value: "R$ 0,00", sub: "Este mês", icon: DollarSign, accent: "bg-emerald-500/10 text-emerald-500" },
+                                { title: "Clientes", value: String(new Set(appointments.map(a => a.customerName)).size), sub: "Total", icon: Users, accent: "bg-blue-500/10 text-blue-500" },
+                                { title: isAdvocacia ? "Áreas" : "Serviços", value: String(serviceCount), sub: "Catálogo", icon: isAdvocacia ? Scale : Scissors, accent: "bg-amber-500/10 text-amber-500" },
+                                { title: "Hoje", value: String(appointments.filter(a => {
+                                    const today = new Date();
+                                    const pad = (n: number) => n.toString().padStart(2, '0');
+                                    const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+                                    return a.date === todayStr;
+                                }).length), sub: "Agendados", icon: CalendarDays, accent: "bg-brand-primary/10 text-brand-primary" },
+                            ].map((m, i) => (
+                                <div key={i} className="group cursor-pointer bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-4 lg:p-6 rounded-2xl hover:bg-white dark:hover:bg-white/[0.04] transition-all relative overflow-hidden flex flex-col justify-between min-h-[120px] lg:min-h-[170px] shadow-lg hover:shadow-xl transition-all duration-300">
+                                    <div className="flex items-start justify-between">
+                                        <div className={cn("h-9 w-9 lg:h-11 lg:w-11 rounded-xl flex items-center justify-center border border-stone-100 dark:border-white/5 shadow-inner transition-colors", m.accent)}>
+                                            <m.icon className="h-4 w-4 lg:h-5 lg:w-5" />
+                                        </div>
+                                        <div className="h-6 w-6 rounded-lg bg-stone-100 dark:bg-white/[0.03] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <ChevronRight className="h-3.5 w-3.5 text-stone-400 dark:text-stone-500" />
+                                        </div>
                                     </div>
-                                    <div className="h-6 w-6 rounded-lg bg-stone-100 dark:bg-white/[0.03] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <ChevronRight className="h-3.5 w-3.5 text-stone-400 dark:text-stone-500" />
+                                    
+                                    <div className="mt-4">
+                                        <p className="text-[9px] lg:text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.15em]">{m.title}</p>
+                                        <p className="text-lg lg:text-2xl font-black text-stone-900 dark:text-foreground tracking-tight mt-0.5">{m.value}</p>
+                                        <p className="text-[9px] text-stone-500 dark:text-muted-foreground mt-0.5 font-medium">{m.sub}</p>
                                     </div>
                                 </div>
-                                
-                                <div className="mt-4">
-                                    <p className="text-[9px] lg:text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-[0.15em]">{m.title}</p>
-                                    <p className="text-lg lg:text-2xl font-black text-stone-900 dark:text-foreground tracking-tight mt-0.5">{m.value}</p>
-                                    <p className="text-[9px] text-stone-500 dark:text-muted-foreground mt-0.5 font-medium">{m.sub}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg">
-                        <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 flex items-center justify-center shrink-0">
-                                <Lightbulb className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />
-                            </div>
-                            <div className="max-w-[360px]">
-                                <h4 className="text-sm font-bold text-stone-900 dark:text-foreground mb-1">Insights Premium</h4>
-                                <p className="text-[10px] lg:text-[11px] text-stone-500 dark:text-muted-foreground leading-relaxed font-medium">
-                                    {isAdvocacia 
-                                        ? "Destaque suas especialidades para atrair clientes qualificados."
-                                        : "Adicione fotos reais do seu trabalho para converter mais visitantes."
-                                    }
-                                </p>
-                            </div>
+                            ))}
                         </div>
-                        <Link href="/configuracoes" className="w-full sm:w-auto">
-                            <Button variant="outline" className="w-full sm:w-auto border-stone-200 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:bg-stone-50 dark:hover:bg-white/[0.05] text-stone-600 dark:text-stone-300 text-[10px] font-bold h-10 px-6 rounded-xl transition-all shadow-sm">
-                                Perfil Completo
-                            </Button>
-                        </Link>
+
+                        <div className="bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] p-5 lg:p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-5 shadow-lg">
+                            <div className="flex items-center gap-4">
+                                <div className="h-12 w-12 lg:h-14 lg:w-14 rounded-2xl bg-brand-primary/5 border border-brand-primary/10 flex items-center justify-center shrink-0">
+                                    <Lightbulb className="h-6 w-6 lg:h-7 lg:w-7 text-brand-primary" />
+                                </div>
+                                <div className="max-w-[360px]">
+                                    <h4 className="text-sm font-bold text-stone-900 dark:text-foreground mb-1">Insights Premium</h4>
+                                    <p className="text-[10px] lg:text-[11px] text-stone-500 dark:text-muted-foreground leading-relaxed font-medium">
+                                        {isAdvocacia 
+                                            ? "Destaque suas especialidades para atrair clientes qualificados."
+                                            : "Adicione fotos reais do seu trabalho para converter mais visitantes."
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <Link href="/configuracoes" className="w-full sm:w-auto">
+                                <Button variant="outline" className="w-full sm:w-auto border-stone-200 dark:border-white/5 bg-white dark:bg-white/[0.02] hover:bg-stone-50 dark:hover:bg-white/[0.05] text-stone-600 dark:text-stone-300 text-[10px] font-bold h-10 px-6 rounded-xl transition-all shadow-sm">
+                                    Perfil Completo
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* Footer */}
