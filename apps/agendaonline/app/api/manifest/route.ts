@@ -32,9 +32,9 @@ export async function GET(request: Request) {
     short_name: config.branding.name?.split(' ')[0] || fallback.short_name,
     theme_color: config.branding.headerBgColor || fallback.theme_color,
     primary_color: config.branding.primaryColor || fallback.primary_color,
-    // Use logoUrl or avatarUrl as icons
-    icon_url: config.branding.logoUrl || config.branding.avatarUrl || fallback.icon_url,
-    icon_url_large: config.branding.logoUrl || config.branding.avatarUrl || fallback.icon_url_large,
+    // Dynamic asset URLs
+    icon_url: `/api/pwa/${slug}/asset?size=192`,
+    icon_url_large: `/api/pwa/${slug}/asset?size=512`,
   };
 
   return NextResponse.json(generateManifest(tenant, slug));
@@ -54,13 +54,13 @@ function generateManifest(tenant: any, slug: string) {
         src: tenant.icon_url,
         sizes: "192x192",
         type: "image/png",
-        purpose: "any maskable"
+        purpose: "any"
       },
       {
         src: tenant.icon_url_large,
         sizes: "512x512",
         type: "image/png",
-        purpose: "any maskable"
+        purpose: "any"
       }
     ]
   };

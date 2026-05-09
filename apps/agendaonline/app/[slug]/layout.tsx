@@ -63,15 +63,37 @@ export async function generateMetadata({ params }: LayoutProps): Promise<Metadat
         robots: {
             index: true,
             follow: true,
-        }
+        },
+        appleWebApp: {
+            capable: true,
+            statusBarStyle: 'default',
+            title: title,
+            startupImage: [
+                `/api/pwa/${slug}/asset?type=splash`,
+            ],
+        },
+        icons: {
+            apple: [
+                { url: `/api/pwa/${slug}/asset?size=180`, sizes: '180x180', type: 'image/png' },
+            ],
+        },
     }
 }
 
-export default async function Layout({ children }: LayoutProps) {
+export default async function Layout({ children, params }: LayoutProps) {
+    const { slug } = await params
+    const tenantDb = await db.query.tenants.findFirst({
+        where: eq(tenants.slug, slug)
+    })
+
     return (
         <>
             {children}
-            <InstallPWA />
+            <InstallPWA 
+                slug={slug} 
+                iconUrl={`/api/pwa/${slug}/asset?size=192`} 
+                primaryColor={tenantDb?.primaryColor || undefined} 
+            />
         </>
     )
 }

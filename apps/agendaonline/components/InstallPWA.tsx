@@ -5,7 +5,7 @@ import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export function InstallPWA() {
+export function InstallPWA({ slug, iconUrl, primaryColor }: { slug: string, iconUrl: string, primaryColor?: string }) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -66,8 +66,8 @@ export function InstallPWA() {
         className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-3rem)] max-w-sm"
       >
         <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl border border-stone-200/50 dark:border-white/10 rounded-2xl p-4 shadow-2xl shadow-black/5 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-xl bg-brand-primary/10 flex items-center justify-center shrink-0">
-            <Download className="h-5 w-5 text-brand-primary" />
+          <div className="h-12 w-12 rounded-xl overflow-hidden shadow-lg border border-white/20 shrink-0 relative">
+            <img src={iconUrl} alt="App Icon" className="w-full h-full object-cover" />
           </div>
           
           <div className="flex-1 min-w-0">
@@ -83,7 +83,8 @@ export function InstallPWA() {
             <Button 
               size="sm" 
               onClick={handleInstall}
-              className="rounded-lg bg-stone-900 dark:bg-stone-50 text-white dark:text-stone-900 font-bold text-[10px] uppercase tracking-wider h-8 px-4"
+              className="rounded-lg font-bold text-[10px] uppercase tracking-wider h-8 px-4"
+              style={{ backgroundColor: primaryColor || '#000', color: '#fff' }}
             >
               Instalar
             </Button>
