@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { createPortal } from "react-dom"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import {
     CalendarDays, Clock, CheckCircle2, XCircle, AlertCircle, Plus, ChevronLeft, ChevronRight,
@@ -1062,7 +1063,11 @@ export default function AgendaPage() {
                                                     </div>
                                                     <div className="flex-1 min-w-0 pb-2">
                                                         {apt && !isBlocked && !isLiberado ? (
-                                                            <div onClick={(e) => { 
+                                                            <motion.div 
+                                                                whileHover={{ backgroundColor: "rgba(var(--brand-primary-rgb), 0.03)" }}
+                                                                whileTap={{ scale: 0.995 }}
+                                                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                                                onClick={(e) => { 
                                                                 e.stopPropagation(); 
                                                                 setSelectedAppointment(apt); 
                                                                 if (!isXL) {
@@ -1106,7 +1111,7 @@ export default function AgendaPage() {
                                                                         </DropdownMenu>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </motion.div>
                                                         ) : isBlocked ? (
                                                             <div className="rounded-[14px] p-4 bg-gradient-to-r from-red-500/10 to-transparent border-y border-r border-white/[0.04] border-l-4 border-l-red-500 flex items-center justify-between gap-4 group/blocked">
                                                                 <div className="flex items-center gap-4">
@@ -1120,7 +1125,13 @@ export default function AgendaPage() {
                                                                 </button>
                                                             </div>
                                                         ) : (
-                                                            <div className="rounded-[14px] p-3 pl-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 hover:border-stone-200 dark:hover:border-white/10 flex items-center justify-between group/empty transition-all shadow-sm dark:shadow-none">
+                                                            <motion.div 
+                                                                whileHover={{ borderColor: "rgba(var(--brand-primary-rgb), 0.2)" }}
+                                                                whileTap={{ scale: 0.995 }}
+                                                                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                                                                onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }}
+                                                                className="rounded-[14px] p-3 pl-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 flex items-center justify-between group/empty transition-all shadow-sm dark:shadow-none cursor-pointer"
+                                                            >
                                                                 <div className="flex items-center gap-4">
                                                                     <div>
                                                                         <p className="text-[13px] font-bold text-stone-600 dark:text-stone-400 uppercase tracking-wider mb-0.5">Horário Livre</p>
@@ -1131,11 +1142,11 @@ export default function AgendaPage() {
                                                                     <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-10 w-10 rounded-xl border border-stone-200 dark:border-white/5 bg-white dark:bg-white/[0.02] text-stone-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-200 dark:hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer opacity-0 group-hover/empty:opacity-100 shadow-sm dark:shadow-none" title="Bloquear Horário">
                                                                         <CalendarOff className="h-4 w-4" />
                                                                     </button>
-                                                                    <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-stone-200 dark:border-white/5 bg-white dark:bg-white/[0.02] text-stone-700 dark:text-stone-300 hover:text-brand-primary dark:hover:text-white hover:bg-stone-50 dark:hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer shadow-sm dark:shadow-none" title={tenant?.segmento === 'advocacia' ? 'Nova Consulta' : 'Novo Agendamento'}>
+                                                                    <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-10 w-10 rounded-xl border border-stone-200 dark:border-white/5 bg-white dark:bg-white/[0.02] text-stone-700 dark:text-stone-300 hover:text-brand-primary dark:hover:text-white hover:bg-stone-50 dark:hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer shadow-sm dark:shadow-none" title={tenant?.segmento === "advocacia" ? "Nova Consulta" : "Novo Agendamento"}>
                                                                         <Plus className="h-5 w-5" />
                                                                     </button>
                                                                 </div>
-                                                            </div>
+                                                            </motion.div>
                                                         )}
                                                     </div>
                                                 </div>
@@ -1282,8 +1293,11 @@ export default function AgendaPage() {
                                         <div className="flex-1 min-w-0">
                                             {apt && !isBlocked && !isLiberado ? (
                                                 /* ── Appointment Card ── */
-                                                <div className={cn(
-                                                    "border rounded-xl p-3 transition-all relative overflow-hidden group/card cursor-pointer active:scale-[0.98]",
+                                                <motion.div 
+                                                    whileHover={{ scale: 1.01 }}
+                                                    whileTap={{ scale: 0.97 }}
+                                                    className={cn(
+                                                    "border rounded-xl p-3 transition-all relative overflow-hidden group/card cursor-pointer",
                                                     apt.status === 'completed'
                                                         ? "bg-emerald-500/[0.05] border-emerald-500/20"
                                                         : apt.status === 'confirmed'
@@ -1336,14 +1350,18 @@ export default function AgendaPage() {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </motion.div>
                                             ) : (
                                                 /* ── Empty / Blocked / Unavailable slot ── */
-                                                <div className={cn(
-                                                    "border rounded-xl p-3 transition-all flex items-center justify-between",
+                                                <motion.div 
+                                                    whileHover={{ scale: 1.01 }}
+                                                    whileTap={{ scale: 0.97 }}
+                                                    onClick={() => { if (!isBlocked && !isUnavailable) { setActiveTime(time); setIsAddModalOpen(true); } }}
+                                                    className={cn(
+                                                    "border rounded-xl p-3 transition-all flex items-center justify-between cursor-pointer",
                                                     isBlocked ? "bg-gradient-to-r from-red-500/[0.08] to-red-500/[0.02] border-red-500/20"
-                                                        : isUnavailable ? "bg-stone-100 dark:bg-stone-900/10 border-stone-100 dark:border-white/[0.02]"
-                                                            : "bg-stone-50 dark:bg-stone-900/40 border-stone-100 dark:border-white/5 hover:border-brand-primary/30"
+                                                        : isUnavailable ? "bg-stone-100 dark:bg-stone-900/10 border-stone-100 dark:border-white/[0.02] opacity-50"
+                                                            : "bg-stone-50 dark:bg-stone-900/40 border-stone-100 dark:border-white/5 active:scale-[0.98] hover:border-brand-primary/30"
                                                 )}>
                                                     <div className="flex items-center gap-4">
                                                         <div>
@@ -1361,11 +1379,11 @@ export default function AgendaPage() {
                                                     </div>
                                                     {!isBlocked && !isUnavailable && (
                                                         <div className="flex items-center gap-2">
-                                                            <button onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} className="h-8 w-8 rounded-full border border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 text-stone-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-200 dark:hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer shadow-sm dark:shadow-none">
-                                                                <CalendarOff className="h-3.5 w-3.5" />
-                                                            </button>
-                                                            <button onClick={() => { setActiveTime(time); setIsAddModalOpen(true); }} className="h-8 w-8 rounded-full border border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-400 hover:text-brand-gold hover:border-brand-gold/30 hover:bg-brand-gold/10 flex items-center justify-center transition-all cursor-pointer shadow-sm dark:shadow-none">
-                                                                    <Plus className="h-4 w-4" />
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); toggleSlot(time); }} 
+                                                                className="h-9 w-9 rounded-full border border-stone-200 dark:border-white/10 bg-white dark:bg-stone-900 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-200 dark:hover:border-red-500/20 flex items-center justify-center transition-all cursor-pointer shadow-sm active:scale-90"
+                                                            >
+                                                                <CalendarOff className="h-4 w-4" />
                                                             </button>
                                                         </div>
                                                     )}
@@ -1374,7 +1392,7 @@ export default function AgendaPage() {
                                                             <Unlock className="h-3.5 w-3.5" />
                                                         </button>
                                                     )}
-                                                </div>
+                                                </motion.div>
                                             )}
                                         </div>
                                     </div>
