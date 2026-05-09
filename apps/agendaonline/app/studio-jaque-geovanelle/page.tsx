@@ -22,7 +22,8 @@ import {
     ChevronLeft,
     ChevronRight,
     Clock,
-    Instagram
+    Instagram,
+    User
 } from "lucide-react"
 import {
     Accordion,
@@ -435,6 +436,17 @@ export default function MasterServiceBlueprintPage() {
                                 {item}
                             </Link>
                         ))}
+                        
+                        <Link href="/login" className="transition-all hover:opacity-80">
+                            <Button 
+                                variant="ghost" 
+                                className="font-bold text-[11px] uppercase tracking-widest h-10 px-4 rounded-xl text-white hover:bg-white/10"
+                            >
+                                <User className="w-4 h-4 mr-2" />
+                                Login
+                            </Button>
+                        </Link>
+
                         <Link href={`https://wa.me/${DATA.contact.whatsapp}?text=Ol%C3%A1%20${DATA.name}%2C%20vi%20seu%20site%20e%20gostaria%20de%20agendar%20um%20hor%C3%A1rio.`} target="_blank">
                              <Button className="h-[50px] px-8 bg-white text-tenant-primary hover:bg-slate-50 font-bold rounded-lg shadow-sm text-[15px] transition-all">
                                  Agendar Agora
@@ -476,6 +488,19 @@ export default function MasterServiceBlueprintPage() {
                                             </Link>
                                         </SheetClose>
                                     ))}
+                                    
+                                    <div className="h-px bg-slate-100 my-2 mx-4" />
+                                    
+                                    <SheetClose asChild>
+                                        <Link href="/login"
+                                            className="group flex items-center justify-between text-[17px] font-bold text-slate-900 hover:text-tenant-primary hover:bg-white hover:shadow-sm px-5 py-4 rounded-2xl transition-all duration-300">
+                                            <div className="flex items-center gap-3">
+                                                <User className="h-5 w-5 text-slate-400 group-hover:text-tenant-primary transition-colors" />
+                                                Login
+                                            </div>
+                                            <ArrowRight className="h-4 w-4 opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-tenant-primary" />
+                                        </Link>
+                                    </SheetClose>
                                 </div>
                                 <div className="mt-auto p-6 bg-white border-t border-slate-100">
                                     <Link href={`https://wa.me/${DATA.contact.whatsapp}`}>
