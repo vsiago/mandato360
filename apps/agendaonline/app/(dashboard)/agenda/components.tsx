@@ -45,7 +45,8 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
         try {
             if (notes.startsWith('{')) {
                 const parsed = JSON.parse(notes);
-                return parsed.description || parsed.notes || notes;
+                // Return observations (from new modal) or description/notes (from old data)
+                return parsed.observations || parsed.description || parsed.notes || notes;
             }
         } catch (e) {}
         return notes;
@@ -108,20 +109,23 @@ export function DesktopDetailsPanel({ apt, segmento, onEdit, onReschedule, onCom
                         <div className="w-[2px] bg-stone-100 dark:bg-stone-800/80 self-stretch rounded-full group-hover/row:bg-brand-primary/40 transition-colors shrink-0" />
                         
                         <div className="flex-1 py-1 flex items-center">
-                            {(row.label === "Serviço" || row.label === "Atendimento") && apt.allServices?.length > 1 ? (
-                                <div className="flex flex-col gap-1.5 py-1">
-                                    {apt.allServices.map((s: string, idx: number) => (
-                                        <div key={idx} className="flex items-center gap-2">
-                                            <div className="h-1 w-1 rounded-full bg-brand-primary shrink-0" />
-                                            <span className="text-xs text-stone-700 dark:text-stone-200 font-bold leading-none">{s}</span>
+                            {(row.label === "Serviço" || row.label === "Atendimento") && apt.allServicesData?.length > 0 ? (
+                                <div className="flex flex-col w-full">
+                                    {apt.allServicesData.map((s: any, idx: number) => (
+                                        <div key={idx} className="flex items-center justify-between gap-4 py-2 border-b border-stone-100/50 dark:border-white/5 last:border-0 pr-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="h-1 w-1 rounded-full bg-brand-primary shrink-0" />
+                                                <span className="text-xs text-stone-700 dark:text-stone-200 font-bold">{s.name}</span>
+                                            </div>
+                                            <span className="text-[13px] font-black text-brand-gold shrink-0">R$ {Number(s.price || 0).toFixed(0)}</span>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
                                 <span className={cn(
                                     "text-xs font-bold",
-                                    row.label === "Valor" ? "text-brand-gold" : "text-stone-600 dark:text-stone-300",
-                                    row.label !== "Obs" && "leading-none"
+                                    row.label === "Valor" ? "text-[15px] text-emerald-600 dark:text-emerald-400" : "text-stone-600 dark:text-stone-300",
+                                    row.label === "Obs" ? "whitespace-pre-wrap leading-relaxed" : "leading-none"
                                 )}>
                                     {row.value}
                                 </span>

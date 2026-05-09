@@ -161,33 +161,54 @@ export default function AgendaPage() {
                 if (!serverGrouped[dateKey]) serverGrouped[dateKey] = []
 
                 // Parse multiple services if they exist in notes as JSON
-                const isJsonNotes = apt.notes?.startsWith('{"serviceIds"');
+                const isJsonNotes = apt.notes?.startsWith('{');
                 let serviceIds = [apt.serviceId].filter(Boolean);
                 let displayNotes = apt.notes;
+                let parsedServices: any[] = [];
 
                 if (isJsonNotes) {
                     try {
                         const data = JSON.parse(apt.notes);
                         serviceIds = data.serviceIds || serviceIds;
-                        displayNotes = data.displayText || "";
+                        displayNotes = data.observations || data.displayText || "";
+                        if (data.services && Array.isArray(data.services)) {
+                            parsedServices = data.services;
+                        }
                     } catch (e) { }
                 }
 
-                const selectedServices = serviceIds.map(id => {
+                const selectedServicesData = parsedServices.length > 0 ? parsedServices.map(s => ({
+                    id: s.id,
+                    name: s.name,
+                    price: s.price ? Number(s.price) : 0
+                })) : serviceIds.map(id => {
                     const fromState = services.find(s => s.id === id);
-                    if (fromState) return fromState;
-                    // Fallback to joined service from DB if it matches the ID
+                    if (fromState) return { id: fromState.id, name: fromState.name, price: Number(fromState.price) || 0 };
+                    
+                    // Fallback to joined service from DB
                     if (apt.service && apt.service.id === id) {
                         return {
-                            ...apt.service,
+                            id: apt.service.id,
+                            name: apt.service.name,
                             price: apt.service.price ? Number(apt.service.price) : 0
                         };
                     }
                     return null;
                 }).filter(Boolean);
                 
-                const totalPrice = selectedServices.reduce((acc, s) => acc + (Number(s.price) || 0), 0);
-                const allServiceNames = selectedServices.map(s => s.name);
+                const totalPrice = selectedServicesData.reduce((acc, s) => acc + (s?.price || 0), 0);
+                const allServiceNames = selectedServicesData.map(s => s?.name);
+                
+                // Prioritize the total value saved in the financial block
+                let displayPrice = totalPrice > 0 ? `R$ ${totalPrice.toFixed(0)}` : (apt.status === "blocked" ? "-" : "R$ 0");
+                if (isJsonNotes) {
+                    try {
+                        const data = JSON.parse(apt.notes);
+                        if (data.financeiro?.valor) {
+                            displayPrice = `R$ ${Number(data.financeiro.valor).toFixed(0)}`;
+                        }
+                    } catch (e) {}
+                }
 
                 serverGrouped[dateKey].push({
                     id: apt.id,
@@ -199,8 +220,9 @@ export default function AgendaPage() {
                     serviceIds: serviceIds,
                     service: allServiceNames[0] || (apt.status === "blocked" ? "-" : "Serviço"),
                     allServices: allServiceNames,
+                    allServicesData: selectedServicesData,
                     status: apt.status as any,
-                    price: totalPrice > 0 ? `R$ ${totalPrice.toFixed(0)}` : (apt.status === "blocked" ? "-" : "R$ 0"),
+                    price: displayPrice,
                     notes: displayNotes,
                     rawNotes: apt.notes,
                     customFields: apt.customFields
@@ -629,19 +651,63 @@ export default function AgendaPage() {
 
         if (!tenantId) return;
 
-        // Force optimistic update with proper formatting and flag
+        // Parse multiple services if they exist in notes as JSON
+        const isJsonNotes = newApt.notes?.startsWith('{');
+        let serviceIds = [newApt.serviceId].filter(Boolean);
+        let displayNotes = newApt.notes;
+
+        let parsedServices: any[] = [];
+
+        if (isJsonNotes) {
+            try {
+                const data = JSON.parse(newApt.notes);
+                serviceIds = data.serviceIds || serviceIds;
+                displayNotes = data.observations || data.displayText || "";
+                if (data.services && Array.isArray(data.services)) {
+                    parsedServices = data.services;
+                }
+            } catch (e) { }
+        }
+
+        const selectedServicesData = parsedServices.length > 0 ? parsedServices.map(s => ({
+            id: s.id,
+            name: s.name,
+            price: s.price ? Number(s.price) : 0
+        })) : serviceIds.map(id => {
+            const srv = services.find(s => s.id === id);
+            return srv ? { id: srv.id, name: srv.name, price: Number(srv.price) || 0 } : null;
+        }).filter(Boolean);
+
+        const totalPrice = selectedServicesData.reduce((acc, s) => acc + (s?.price || 0), 0);
+        const allServiceNames = selectedServicesData.map(s => s?.name);
+
+        // Prioritize the total value saved in the financial block
+        let displayPrice = totalPrice > 0 ? `R$ ${totalPrice.toFixed(0)}` : (newApt.status === "blocked" ? "-" : "R$ 0");
+        if (isJsonNotes) {
+            try {
+                const data = JSON.parse(newApt.notes);
+                if (data.financeiro?.valor) {
+                    displayPrice = `R$ ${Number(data.financeiro.valor).toFixed(0)}`;
+                }
+            } catch (e) { }
+        }
+
         const formattedApt = {
             id: newApt.id,
-            time: newApt.time,
+            time: newApt.time.split(':').slice(0, 2).join(':'),
             name: newApt.customerName || "Cliente",
             phone: newApt.customerPhone || "",
-            service: services.find(s => s.id === newApt.serviceId)?.name || (newApt.status === "blocked" ? "-" : "Serviço"),
+            date: newApt.date,
+            serviceId: newApt.serviceId,
+            serviceIds: serviceIds,
+            service: allServiceNames[0] || (newApt.status === "blocked" ? "-" : "Serviço"),
+            allServices: allServiceNames,
+            allServicesData: selectedServicesData,
             status: newApt.status as any,
             isOptimistic: true,
-            price: services.find(s => s.id === newApt.serviceId)?.price
-                ? `R$ ${parseFloat(services.find(s => s.id === newApt.serviceId).price).toFixed(0)}`
-                : (newApt.status === "blocked" ? "-" : "R$ 0"),
-            notes: newApt.notes || ""
+            price: displayPrice,
+            notes: displayNotes,
+            rawNotes: newApt.notes
         };
 
         const day = newApt.date;
@@ -655,10 +721,13 @@ export default function AgendaPage() {
             };
         });
 
+        // Update selectedAppointment to reflect change immediately in the details panel
+        setSelectedAppointment(formattedApt);
+
         // Delay background sync slightly more to ensure DB propagation
         setTimeout(() => {
             fetchAppointments(tenantId, day);
-        }, 1200);
+        }, 1500);
 
         toast.success("Agendamento processado!");
     };

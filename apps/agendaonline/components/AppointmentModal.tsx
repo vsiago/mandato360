@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { User, Phone, Scissors, Loader2, Plus, XCircle, Calendar, Clock as ClockIcon, Briefcase, Scale, Banknote, Users, Receipt, CheckCircle2, ChevronRight, ArrowLeft, Sparkles, Hash, MapPin, CreditCard, Bell, Video, Info, RotateCw } from "lucide-react"
+import { User, Phone, Scissors, Loader2, Plus, XCircle, Calendar, Clock as ClockIcon, Briefcase, Scale, Banknote, Users, Receipt, CheckCircle2, ChevronRight, ArrowLeft, Sparkles, Hash, MapPin, CreditCard, Bell, Video, Info, RotateCw, Zap } from "lucide-react"
 import { createAppointmentAction, updateAppointmentAction } from "@/lib/actions/appointments"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -58,6 +58,7 @@ export function AppointmentModal({
 }: AppointmentModalProps) {
     const [step, setStep] = useState(appointment ? 2 : 1)
     const [loading, setLoading] = useState(false)
+    const [quickLoading, setQuickLoading] = useState(false)
     const [mode, setMode] = useState(initialMode)
     const [name, setName] = useState("")
     const [phone, setPhone] = useState("")
@@ -101,6 +102,20 @@ export function AppointmentModal({
         setInternalTime(time)
     }, [date, time])
 
+    // Auto-calculate total value based on selected services
+    useEffect(() => {
+        if (!services || services.length === 0) return
+        
+        const total = selectedServices.reduce((acc, id) => {
+            const service = services.find(s => s.id === id)
+            return acc + (service ? Number(service.price) || 0 : 0)
+        }, 0)
+        
+        if (total > 0) {
+            setTotalValue(total.toString())
+        }
+    }, [selectedServices, services])
+
     useEffect(() => {
         if (isOpen) {
             setMode(initialMode)
@@ -122,24 +137,20 @@ export function AppointmentModal({
                 let ids = [appointment.serviceId].filter(Boolean)
                 if (appointment.serviceIds && Array.isArray(appointment.serviceIds) && appointment.serviceIds.length > 0) {
                     ids = appointment.serviceIds
-                } else if (appointment.rawNotes?.startsWith('{"serviceIds"')) {
+                } else if (appointment.rawNotes?.startsWith('{')) {
                     try {
                         const data = JSON.parse(appointment.rawNotes)
                         if (Array.isArray(data.serviceIds)) {
                             ids = data.serviceIds
                         }
-                    } catch (e) {
-                        console.error("Failed to parse services from rawNotes", e)
-                    }
-                } else if (appointment.notes?.startsWith('{"serviceIds"')) {
+                    } catch (e) { }
+                } else if (appointment.notes?.startsWith('{')) {
                     try {
                         const data = JSON.parse(appointment.notes)
                         if (Array.isArray(data.serviceIds)) {
                             ids = data.serviceIds
                         }
-                    } catch (e) {
-                        console.error("Failed to parse services from notes", e)
-                    }
+                    } catch (e) { }
                 }
                 
                 setSelectedServices(ids.length > 0 ? ids : (initialServices[0] ? [initialServices[0].id] : []))
@@ -178,7 +189,7 @@ export function AppointmentModal({
     const handleQuickCreateService = async () => {
         if (!newServiceName) return
         
-        setLoading(true)
+        setQuickLoading(true)
         try {
             const result = await createServiceAction(tenantId, {
                 name: newServiceName,
@@ -211,7 +222,7 @@ export function AppointmentModal({
         } catch (error) {
             toast.error("Erro ao criar serviço.")
         } finally {
-            setLoading(false)
+            setQuickLoading(false)
         }
     }
 
@@ -248,7 +259,7 @@ export function AppointmentModal({
                 foro: (mode === 'audiencia' || mode === 'diligencia') ? foro : undefined,
                 vara: (mode === 'audiencia' || mode === 'diligencia') ? vara : undefined,
                 location: (mode === 'diligencia' || mode === 'audiencia' || mode === 'reuniao') ? location : undefined,
-                description: description || undefined,
+                observations: description || undefined,
                 
                 // Specific fields
                 consulta: mode === 'standard' ? { origem, assunto } : undefined,
@@ -275,7 +286,12 @@ export function AppointmentModal({
                     recorrente: installments > 1
                 },
 
-                serviceIds: selectedServices.filter(Boolean)
+                serviceIds: selectedServices.filter(Boolean),
+                // Detailed services for UI breakdown
+                services: selectedServices.filter(Boolean).map(id => {
+                    const s = services.find(srv => srv.id === id);
+                    return s ? { id: s.id, name: s.name, price: s.price } : null;
+                }).filter(Boolean)
             }
 
             const notes = JSON.stringify(legalData)
@@ -421,8 +437,6 @@ export function AppointmentModal({
                 {step === 2 && (
                     <div className="space-y-4 animate-in fade-in zoom-in-95 duration-300">
                         {/* Two Column Layout Container */}
-
-                        {/* Two Column Layout Container */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                             {/* LEFT COLUMN: Core Registration */}
                             <div className="space-y-4">
@@ -464,27 +478,93 @@ export function AppointmentModal({
 
                                 {/* Service Selection Section */}
                                 <div className="p-3.5 rounded-xl bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 space-y-3 shadow-sm">
-                                    <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 flex items-center gap-2">
-                                        <Scissors className="h-3.5 w-3.5" /> {segmento === 'advocacia' ? 'Serviço Principal' : 'Serviço'}
-                                    </Label>
-                                    <Select 
-                                        value={selectedServices[0] || ""} 
-                                        onValueChange={(val) => setSelectedServices([val])}
-                                    >
-                                        <SelectTrigger className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
-                                            <SelectValue placeholder="Selecione o serviço" />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
-                                            {services.map(s => (
-                                                <SelectItem key={s.id} value={s.id}>
-                                                    {s.name} {s.price ? ` - R$ ${Number(s.price).toFixed(0)}` : ''}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-[10px] uppercase tracking-widest font-black text-stone-500 flex items-center gap-2">
+                                            <Scissors className="h-3.5 w-3.5" /> {segmento === 'advocacia' ? 'Serviços' : 'Serviços'}
+                                        </Label>
+                                        <Button 
+                                            type="button" 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            onClick={handleAddService}
+                                            className="h-6 px-2 text-[9px] font-bold uppercase tracking-wider text-brand-primary hover:bg-brand-primary/10"
+                                        >
+                                            <Plus className="h-3 w-3 mr-1" /> Add outro
+                                        </Button>
+                                    </div>
+                                    
+                                    <div className="space-y-2">
+                                        {selectedServices.map((serviceId, index) => (
+                                            <div key={index} className="flex gap-2 items-center group">
+                                                <div className="flex-1">
+                                                    <Select 
+                                                        value={serviceId || ""} 
+                                                        onValueChange={(val) => handleUpdateService(index, val)}
+                                                    >
+                                                        <SelectTrigger className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold">
+                                                            <SelectValue placeholder="Selecione o serviço" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="bg-white dark:bg-stone-900 border-stone-200 dark:border-white/10 text-stone-900 dark:text-white">
+                                                            {services.map(s => (
+                                                                <SelectItem key={s.id} value={s.id}>
+                                                                    {s.name} {s.price ? ` - R$ ${Number(s.price).toFixed(0)}` : ''}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                {selectedServices.length > 1 && (
+                                                    <Button 
+                                                        type="button" 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        onClick={() => handleRemoveService(index)}
+                                                        className="h-9 w-9 rounded-xl text-stone-400 hover:text-red-500 hover:bg-red-500/10 shrink-0"
+                                                    >
+                                                        <XCircle className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    
+                                    {/* Quick Add Button */}
+                                    {!isAddingNewService ? (
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setIsAddingNewService(true)}
+                                            className="w-full h-8 border border-dashed border-stone-200 dark:border-white/10 rounded-xl text-[9px] font-bold uppercase tracking-widest text-stone-400 hover:text-brand-primary hover:border-brand-primary/50 transition-all flex items-center justify-center gap-2 mt-2"
+                                        >
+                                            <Zap className="h-3 w-3" /> Criar novo serviço rápido
+                                        </button>
+                                    ) : (
+                                        <div className="p-3 rounded-xl bg-stone-100/50 dark:bg-stone-900/40 border border-stone-200 dark:border-white/5 space-y-3 animate-in zoom-in-95 duration-200">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-[9px] font-black uppercase text-stone-500">Novo Serviço</span>
+                                                <button type="button" onClick={() => setIsAddingNewService(false)} className="text-stone-400 hover:text-stone-900"><XCircle className="h-3.5 w-3.5" /></button>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Input 
+                                                    value={newServiceName} 
+                                                    onChange={e => setNewServiceName(e.target.value)} 
+                                                    placeholder="Nome" 
+                                                    className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" 
+                                                />
+                                                <Input 
+                                                    value={newServicePrice} 
+                                                    onChange={e => setNewServicePrice(e.target.value)} 
+                                                    placeholder="Preço" 
+                                                    type="number" 
+                                                    className="h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold placeholder:text-stone-300 dark:placeholder:text-stone-700" 
+                                                />
+                                            </div>
+                                            <Button onClick={handleQuickCreateService} disabled={quickLoading} type="button" size="sm" className="w-full h-8 bg-brand-primary text-white font-bold text-xs">
+                                                {quickLoading ? <Loader2 className="animate-spin h-3 w-3" /> : 'Salvar e Usar'}
+                                            </Button>
+                                        </div>
+                                    )}
                                 </div>
-
-                                </div>
+                            </div>
 
                             {/* RIGHT COLUMN: Specialized Data */}
                             <div className="space-y-4">
@@ -612,7 +692,7 @@ export function AppointmentModal({
                                     </div>
                                 )}
 
-                                {/* Mode Specific: Finance Section (Moved to Right Column) */}
+                                {/* Mode Specific: Finance Section */}
                                 {(mode === 'standard' || mode === 'financeiro') && (
                                     <div className={cn("p-3.5 rounded-xl border space-y-3 shadow-sm", mode === 'financeiro' ? "bg-brand-gold/5 border-brand-gold/20" : "bg-stone-50/50 dark:bg-stone-900/40 border-stone-100 dark:border-white/5")}>
                                         <Label className="text-[10px] uppercase tracking-widest font-black text-emerald-500 flex items-center gap-2">
@@ -623,8 +703,8 @@ export function AppointmentModal({
                                             <div className="space-y-1.5">
                                                 <Label className="text-[9px] text-stone-500 font-bold ml-1 uppercase">Valor Total</Label>
                                                 <div className="relative group">
-                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-stone-400 dark:text-stone-600">R$</span>
-                                                    <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-stone-900 dark:text-white text-sm font-bold" placeholder="0,00" />
+                                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-emerald-600 dark:text-emerald-400">R$</span>
+                                                    <Input value={totalValue} onChange={e => setTotalValue(e.target.value)} className="pl-11 h-9 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-emerald-600 dark:text-emerald-400 text-sm font-black" placeholder="0,00" />
                                                 </div>
                                             </div>
                                             <div className="space-y-1.5">

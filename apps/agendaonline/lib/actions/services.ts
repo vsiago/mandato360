@@ -32,10 +32,18 @@ export async function createServiceAction(tenantId: string, data: {
         // We assume categoryId corresponds to the label for now if categories aren't strictly relational yet
         // In a full implementation, we'd verify tenant ownership here.
 
+        const slug = data.name.toLowerCase().trim()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^\w\s-]/g, "")
+            .replace(/[\s_-]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+
         const newService = await db.insert(services).values({
             tenantId,
             categoryId: data.categoryId, // For MVP, we might just store the string label here or link to categories table
             name: data.name,
+            slug,
             description: data.description,
             price: data.price ? String(data.price) : null,
             duration: data.duration,

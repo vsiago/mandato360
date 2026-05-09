@@ -22,7 +22,8 @@ import {
     Phone,
     Globe,
     Bell,
-    Copy
+    Copy,
+    FileText
 } from "lucide-react"
 import { SaveClientModal } from "./SaveClientModal"
 import { cn } from "@/lib/utils"
@@ -122,7 +123,7 @@ export function CompleteAppointmentModal({
                             </div>
                             <div className="min-w-0">
                                 <h4 className="text-sm font-bold text-stone-900 dark:text-foreground truncate">{appointment.customerName || "Cliente sem nome"}</h4>
-                                <p className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">{appointment.time} • {appointment.service}</p>
+                                <p className="text-[10px] text-stone-500 font-medium uppercase tracking-wider">{appointment.time} • {appointment.date.split('-').reverse().join('/')}</p>
                             </div>
                         </div>
                         
@@ -137,9 +138,33 @@ export function CompleteAppointmentModal({
                         )}
                     </div>
 
-                    <div className="pt-4 border-t border-stone-100 dark:border-white/5 flex items-center justify-between">
-                        <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Total a Pagar</span>
-                        <span className="text-xl font-black text-brand-primary">{appointment.price}</span>
+                    <div className="pt-4 border-t border-stone-100 dark:border-white/5 space-y-3">
+                        <div className="flex flex-col gap-2">
+                            {appointment.allServicesData && appointment.allServicesData.length > 0 ? (
+                                appointment.allServicesData.map((s: any, idx: number) => (
+                                    <div key={idx} className="flex items-center justify-between text-[11px] font-medium">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-1 w-1 rounded-full bg-brand-primary/40 shrink-0" />
+                                            <span className="text-stone-500">{s.name}</span>
+                                        </div>
+                                        <span className="text-[13px] font-bold text-brand-gold">R$ {Number(s.price || 0).toFixed(0)}</span>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="flex items-center justify-between text-[13px] font-bold">
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-1 w-1 rounded-full bg-brand-primary/40 shrink-0" />
+                                        <span className="text-stone-500">{appointment.service}</span>
+                                    </div>
+                                    <span className="text-brand-gold">{appointment.price}</span>
+                                </div>
+                            )}
+                        </div>
+                        
+                        <div className="pt-3 border-t border-stone-100 dark:border-white/5 flex items-center justify-between">
+                            <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Total a Pagar</span>
+                            <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">{appointment.price}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -357,12 +382,49 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                 <div className="space-y-5">
                     {/* Main Data (Contextual) */}
                     <div className="bg-stone-50/50 dark:bg-stone-900/40 border border-stone-100 dark:border-white/5 rounded-2xl p-5 space-y-4 shadow-sm">
-                        <div className="flex items-center gap-2 text-stone-500 mb-2">
-                            <Info className="h-4 w-4" />
-                            <span className="text-[10px] font-black uppercase tracking-widest">Informações do Processo</span>
+                        <div className="flex items-center gap-2 text-stone-500 mb-2 border-b border-stone-100 dark:border-white/5 pb-2">
+                            <Scissors className="h-4 w-4 text-brand-primary" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">Serviços & Procedimentos</span>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-4">
+                        <div className="grid grid-cols-1 gap-1">
+                            <div className="space-y-1">
+                                {appointment.allServicesData && appointment.allServicesData.length > 0 ? (
+                                    appointment.allServicesData.map((s: any, idx: number) => (
+                                        <div key={idx} className="flex items-center justify-between py-2.5 px-1 border-b border-stone-100/50 dark:border-white/5 last:border-0">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-1.5 w-1.5 rounded-full bg-brand-primary shrink-0" />
+                                                <span className="text-sm font-bold text-stone-700 dark:text-stone-200">{s.name}</span>
+                                            </div>
+                                            <span className="text-[13px] font-black text-brand-gold">R$ {Number(s.price || 0).toFixed(0)}</span>
+                                        </div>
+                                    ))
+                                ) : details?.services && Array.isArray(details.services) && details.services.length > 0 ? (
+                                    details.services.map((s: any, idx: number) => (
+                                        <div key={idx} className="flex items-center justify-between py-2.5 px-1 border-b border-stone-100/50 dark:border-white/5 last:border-0">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-1.5 w-1.5 rounded-full bg-brand-primary shrink-0" />
+                                                <span className="text-sm font-bold text-stone-700 dark:text-stone-200">{s.name}</span>
+                                            </div>
+                                            <span className="text-[13px] font-black text-brand-gold">R$ {Number(s.price || 0).toFixed(0)}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="flex items-center justify-between py-2.5 px-1">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-brand-primary shrink-0" />
+                                            <span className="text-sm font-bold text-stone-700 dark:text-stone-200">{appointment.service}</span>
+                                        </div>
+                                        <span className="text-[13px] font-black text-brand-gold">{appointment.price}</span>
+                                    </div>
+                                )}
+
+                                <div className="mt-2 pt-3 border-t border-stone-100 dark:border-white/5 flex items-center justify-between px-1">
+                                    <span className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Valor Total</span>
+                                    <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">{appointment.price}</span>
+                                </div>
+                            </div>
+
                             {details?.naturezaCausa && (
                                 <div className="space-y-1">
                                     <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5">
@@ -393,6 +455,15 @@ export function AppointmentDetailsModal({ isOpen, onClose, appointment, onComple
                                         <MapPin className="h-3 w-3" /> {mode === 'reuniao' ? 'Local da Reunião' : 'Localização'}
                                     </p>
                                     <p className="text-xs font-bold text-stone-600 dark:text-stone-200">{details.location}</p>
+                                </div>
+                            )}
+
+                            {details?.observations && (
+                                <div className="space-y-1 pt-2 border-t border-stone-100 dark:border-white/5">
+                                    <p className="text-[9px] font-black text-stone-500 uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                                        <FileText className="h-3 w-3" /> Observações
+                                    </p>
+                                    <p className="text-xs font-bold text-stone-600 dark:text-stone-300 whitespace-pre-wrap leading-relaxed">{details.observations}</p>
                                 </div>
                             )}
 
