@@ -905,8 +905,9 @@ export function EditorSidebar({
       hero: {
         ...config.hero,
         imagePosition: {
-          ...config.hero.imagePosition,
-          [imageDevice]: { ...config.hero.imagePosition[imageDevice], [axis]: value },
+          mobile: { ...config.hero.imagePosition.mobile, [axis]: value },
+          tablet: { ...config.hero.imagePosition.tablet, [axis]: value },
+          desktop: { ...config.hero.imagePosition.desktop, [axis]: value },
         },
       },
     })
@@ -963,13 +964,12 @@ export function EditorSidebar({
         setIsUploading(true)
         const url = await onImageUpload(file)
         
-        const newImages = { ...config.hero.images, [imageDevice]: url };
-        
-        // PROPAGATION LOGIC: If uploading to desktop, fill others if they are null
-        if (imageDevice === 'desktop') {
-          if (!newImages.tablet) newImages.tablet = url;
-          if (!newImages.mobile) newImages.mobile = url;
-        }
+        // Sync the image across all viewports for a seamless responsive experience
+        const newImages = { 
+          mobile: url,
+          tablet: url,
+          desktop: url
+        };
 
         onConfigChange({
           hero: {

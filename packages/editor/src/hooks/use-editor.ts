@@ -59,32 +59,37 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
     }
 
     case 'UPDATE_HERO_DEVICE': {
-      const { targetDevice, updates } = action
+      const { updates } = action
       let newHero = { ...currentConfig.hero }
 
-      if (targetDevice === "mobile") {
-        for (const [key, value] of Object.entries(updates)) {
-          if ((key === "overlay" || key === "vignette" || key === "gradient") && value) {
-            (newHero as any)[key] = { ...(newHero as any)[key], ...value }
-          } else {
-            (newHero as any)[key] = value
-          }
+      // Update base (Mobile is treated as the source of truth for the config root)
+      for (const [key, value] of Object.entries(updates)) {
+        if ((key === "overlay" || key === "vignette" || key === "gradient") && value) {
+          (newHero as any)[key] = { ...(newHero as any)[key], ...value }
+        } else {
+          (newHero as any)[key] = value
         }
-      } else {
-        const layer = targetDevice === "tablet" ? "tablet" : "desktop"
-        const overrides = { ...(newHero.overrides || {}) }
-        const layerData = { ...(overrides[layer] || {}) }
-
-        for (const [key, value] of Object.entries(updates)) {
-          if ((key === "overlay" || key === "vignette" || key === "gradient") && value) {
-            (layerData as any)[key] = { ...(layerData as any)[key], ...value }
-          } else {
-            (layerData as any)[key] = value
-          }
-        }
-        overrides[layer] = layerData
-        newHero.overrides = overrides
       }
+
+      // Propagate to overrides to ensure perfect sync across viewports
+      const overrides = { ...(newHero.overrides || {}) }
+      const tabletData = { ...(overrides.tablet || {}) }
+      const desktopData = { ...(overrides.desktop || {}) }
+
+      for (const [key, value] of Object.entries(updates)) {
+        if ((key === "overlay" || key === "vignette" || key === "gradient") && value) {
+          (tabletData as any)[key] = { ...(tabletData as any)[key], ...value };
+          (desktopData as any)[key] = { ...(desktopData as any)[key], ...value };
+        } else {
+          (tabletData as any)[key] = value
+          (desktopData as any)[key] = value
+        }
+      }
+
+      overrides.tablet = tabletData
+      overrides.desktop = desktopData
+      newHero.overrides = overrides
+
       return pushHistory({ ...currentConfig, hero: newHero })
     }
 
@@ -139,7 +144,7 @@ export function useEditor({ initialConfig, onSave, autoSave = false, autoSaveDel
   const config = state.history[state.index]
   const lastSavedConfigRef = useRef(initialConfig)
 
-  const setDevice = (device: DeviceType) => dispatch({ type: 'SET_DEVICE', device })
+  const setDevice = useCallback((device: DeviceType) => dispatch({ type: 'SET_DEVICE', device }), [])
   const setActiveSection = (section: string) => dispatch({ type: 'SET_ACTIVE_SECTION', section })
   const updateConfig = (updates: Partial<EditorConfig>) => dispatch({ type: 'UPDATE_CONFIG', updates })
   const updateHeroForDevice = (targetDevice: DeviceType, updates: Partial<HeroOverridableProps>) => dispatch({ type: 'UPDATE_HERO_DEVICE', targetDevice, updates })
@@ -148,6 +153,16 @@ export function useEditor({ initialConfig, onSave, autoSave = false, autoSaveDel
   const reorderSections = (newOrder: string[]) => dispatch({ type: 'REORDER_SECTIONS', newOrder })
   const undo = () => dispatch({ type: 'UNDO' })
   const redo = () => dispatch({ type: 'REDO' })
+
+  // Auto-detect device on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const width = window.innerWidth
+      if (width < 768) setDevice("mobile")
+      else if (width < 1024) setDevice("tablet")
+      else setDevice("desktop")
+    }
+  }, [setDevice])
 
   const hasUnsavedChanges = JSON.stringify(config) !== JSON.stringify(lastSavedConfigRef.current)
 
