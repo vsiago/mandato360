@@ -176,35 +176,7 @@ export function EditorHeader({
         </div>
       </div>
 
-      {/* Mode Toggle (Desktop) */}
-      <div className="hidden md:flex items-center">
-        <div className="flex items-center gap-0.5 rounded-lg bg-muted p-0.5">
-          <button
-            onClick={() => onModeChange?.("basic")}
-            className={cn(
-              "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all duration-200",
-              editorMode === "basic"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-background/50 hover:text-foreground"
-            )}
-          >
-            <Sparkles className="h-3 w-3" />
-            <span>Básico</span>
-          </button>
-          <button
-            onClick={() => onModeChange?.("advanced")}
-            className={cn(
-              "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all duration-200",
-              editorMode === "advanced"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-background/50 hover:text-foreground"
-            )}
-          >
-            <SlidersHorizontal className="h-3 w-3" />
-            <span>Avançado</span>
-          </button>
-        </div>
-      </div>
+
 
       {/* Right Side - Actions */}
       <div className="flex items-center gap-1 sm:gap-3">

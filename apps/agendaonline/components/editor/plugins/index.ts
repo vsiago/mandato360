@@ -11,7 +11,6 @@ import { teamPlugin } from "./team-plugin"
 export const AGENDA_PLUGINS = [
   trustPlugin,
   servicesPlugin,
-  practiceAreasPlugin,
   aboutPlugin,
   teamPlugin,
   beforeAfterPlugin,

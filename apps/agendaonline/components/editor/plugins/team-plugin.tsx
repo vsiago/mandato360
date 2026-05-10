@@ -10,7 +10,7 @@ import { useState } from "react"
 function TeamPreview({ config, device, themeColors }: PluginSectionProps) {
     const items = config.items || []
     const title = config.title || "Nossa *Equipe*"
-    const subtitle = config.subtitle || "Profissionais altamente qualificados e dedicados à defesa dos seus direitos."
+    const subtitle = config.subtitle || "Profissionais altamente qualificadas e dedicadas a realçar sua beleza."
 
     return (
         <div className="py-20 px-6 bg-white">
@@ -94,7 +94,7 @@ function TeamSidebar({ config, onChange, accentColor = "#10b981", onImageUpload 
         const newItem = {
             id: crypto.randomUUID(),
             name: "Nome do Profissional",
-            role: "Sócio / Especialidade (OAB)",
+            role: "Especialidade",
             bio: "Breve resumo profissional...",
             image: "",
         }
@@ -227,7 +227,7 @@ function TeamSidebar({ config, onChange, accentColor = "#10b981", onImageUpload 
                                                 </div>
 
                                                 <div className="space-y-1">
-                                                    <Label className="text-[11px] font-medium text-foreground/70">Cargo / OAB</Label>
+                                                    <Label className="text-[11px] font-medium text-foreground/70">Cargo / Especialidade</Label>
                                                     <Input
                                                         value={item.role}
                                                         onChange={(e) => updateItem(i, { role: e.target.value })}
@@ -330,16 +330,16 @@ function TeamSidebar({ config, onChange, accentColor = "#10b981", onImageUpload 
 
 export const teamPlugin: EditorPlugin = {
     id: "team",
-    label: "Equipe Jurídica",
+    label: "Nossa Equipe",
     icon: Users,
     previewComponent: TeamPreview,
     sidebarComponent: TeamSidebar,
     defaultConfig: {
         title: "Nossa *Equipe*",
-        subtitle: "Profissionais altamente qualificados e dedicados à defesa dos seus direitos.",
+        subtitle: "Profissionais altamente qualificadas e dedicadas a realçar sua beleza.",
         items: [
-            { id: "1", name: "Dr. Carlos Mendes", role: "Sócio Fundador (OAB/SP 12345)", bio: "Especialista em Direito Empresarial com mais de 20 anos de experiência." },
-            { id: "2", name: "Dra. Ana Silva", role: "Sócia (OAB/SP 54321)", bio: "Foco em Direito de Família e Sucessões, com mestrado pela USP." },
+            { id: "1", name: "Carlos Mendes", role: "Cabeleireiro Sênior", bio: "Especialista em colorimetria e cortes modernos com mais de 10 anos de experiência." },
+            { id: "2", name: "Ana Silva", role: "Nail Designer", bio: "Especialista em unhas em gel, fibra de vidro e nail art detalhada." },
         ],
     }
 }

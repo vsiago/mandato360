@@ -70,14 +70,14 @@ const ICON_OPTIONS = [
 
 const SECTION_LABELS: Record<string, string> = {
   'trust': 'Destaques',
-  'services': 'ServiÃ§os',
+  'services': 'Serviços',
   'about': 'Sobre',
   'beforeAfter': 'Resultados',
   'faq': 'FAQ',
   'contact': 'Contato',
   'agendamento': 'Agendar',
   'antes_depois': 'Resultados',
-  'practiceAreas': 'Ãreas de AtuaÃ§Ã£o',
+  'practiceAreas': 'Áreas de Atuação',
   'team': 'Equipe'
 }
 
@@ -107,7 +107,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
 
       <div className="space-y-3">
         <div className="space-y-1.5">
-          <Label className="text-[11px] font-medium text-foreground/70">Texto do BotÃ£o</Label>
+          <Label className="text-[11px] font-medium text-foreground/70">Texto do Botão</Label>
           <Input
             value={config.text || defaultConfig.text || ""}
             onChange={(e) => onChange({ text: e.target.value })}
@@ -117,7 +117,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-[11px] font-medium text-foreground/70">Link ou Ã‚ncora (#)</Label>
+          <Label className="text-[11px] font-medium text-foreground/70">Link ou Âncora (#)</Label>
           <Input
             value={config.link || defaultConfig.link || ""}
             onChange={(e) => onChange({ link: e.target.value })}
@@ -267,7 +267,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label className="text-[10px] text-muted-foreground">Tam. Ãcone</Label>
+                  <Label className="text-[10px] text-muted-foreground">Tam. Ícone</Label>
                   <span className="text-[10px] font-mono">{config.iconSize ?? 16}px</span>
                 </div>
                 <Slider
@@ -281,7 +281,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
             </div>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <Label className="text-[10px] text-muted-foreground">Peso Ãcone (Stroke)</Label>
+                <Label className="text-[10px] text-muted-foreground">Peso Ícone (Stroke)</Label>
                 <span className="text-[10px] font-mono">{config.iconWeight ?? 2}px</span>
               </div>
               <Slider
@@ -346,7 +346,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
               </div>
 
               <div className="flex items-center justify-between">
-                <Label className="text-[10px] text-muted-foreground">Ãcones</Label>
+                <Label className="text-[10px] text-muted-foreground">Ícones</Label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -364,7 +364,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
 
               <div className="pt-2 border-t border-border/30">
                 <GradientControls
-                  title="Gradiente do BotÃ£o"
+                  title="Gradiente do Botão"
                   gradient={config.gradient || { enabled: false, angle: 90, opacity: 100, stops: [{ color: config.backgroundColor || accentColor, position: 0 }, { color: '#000000', position: 100 }] }}
                   onUpdate={(updates) => onChange({ gradient: { ...(config.gradient || { enabled: false, angle: 90, opacity: 100, stops: [{ color: config.backgroundColor || accentColor, position: 0 }, { color: '#000000', position: 100 }] }), ...updates } })}
                   onApplyPreset={(updates) => onChange({ ...updates })}
@@ -621,7 +621,7 @@ const GradientControls = ({
         <>
           {/* Visual Angle Control */}
           <div className="flex flex-col items-center gap-2">
-            <Label className="text-xs text-muted-foreground">Ajuste de Ã‚ngulo Visual</Label>
+            <Label className="text-xs text-muted-foreground">Ajuste de Ângulo Visual</Label>
             <div
               ref={angleRef}
               className={cn(
@@ -726,7 +726,7 @@ const GradientControls = ({
                   
                   <div className="flex flex-1 flex-col gap-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">PosiÃ§Ã£o</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Posição</span>
                       <span className="text-[10px] font-mono font-bold text-muted-foreground">{stop.position}%</span>
                     </div>
                     <Slider
@@ -785,9 +785,9 @@ const GradientControls = ({
 }
 
 const sectionTitle: Record<string, { title: string; desc: string }> = {
-  header: { title: "Header", desc: "Menu de navegaÃ§Ã£o" },
-  hero: { title: "Hero (Banner Principal)", desc: "Edite o fundo e conteÃºdo" },
-  footer: { title: "Footer", desc: "RodapÃ© do site" },
+  header: { title: "Header", desc: "Menu de navegação" },
+  hero: { title: "Hero (Banner Principal)", desc: "Edite o fundo e conteúdo" },
+  footer: { title: "Footer", desc: "Rodapé do site" },
 }
 
 export function EditorSidebar({
@@ -877,7 +877,7 @@ export function EditorSidebar({
             </div>
             
             <p className="text-[10px] text-muted-foreground/60 font-medium tracking-tight">
-              Personalize esta seÃ§Ã£o e seus componentes
+              Personalize esta seção e seus componentes
             </p>
           </div>
           <div className="w-full">
@@ -894,7 +894,7 @@ export function EditorSidebar({
           <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3">
             <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: accentColor }} />
             <p className="text-[10px] leading-relaxed text-muted-foreground/70">
-              Use cores e estilos com o empÃ­rico de 60/30/10: 60% base, 30% acentuaÃ§Ã£o, <strong className="text-muted-foreground">10% destaque</strong>.
+              Use cores e estilos com o empírico de 60/30/10: 60% base, 30% acentuação, <strong className="text-muted-foreground">10% destaque</strong>.
             </p>
           </div>
         </div>
@@ -1103,7 +1103,7 @@ export function EditorSidebar({
     onToggleAccordion(openAccordion === id ? null : id)
   }
 
-  const info = sectionTitle[activeSection] || { title: activeSection, desc: "Editar seÃ§Ã£o" }
+  const info = sectionTitle[activeSection] || { title: activeSection, desc: "Editar seção" }
 
   return (
     <aside className={cn("flex h-full w-72 shrink-0 flex-col bg-background lg:w-80", className)}>
@@ -1158,7 +1158,7 @@ export function EditorSidebar({
             style={sectionToolTab === "content" ? { borderColor: accentColor, color: accentColor } : undefined}
           >
             <Type className="h-3.5 w-3.5" />
-            ConteÃºdo
+            Conteúdo
           </button>
           <button
             onClick={() => onSectionToolTabChange?.("appearance")}
@@ -1171,7 +1171,7 @@ export function EditorSidebar({
             style={sectionToolTab === "appearance" ? { borderColor: accentColor, color: accentColor } : undefined}
           >
             <Paintbrush className="h-3.5 w-3.5" />
-            AparÃªncia
+            Aparência
           </button>
         </div>
         {/* â•â•â• CONTENT TAB â•â•â• */}
@@ -1182,7 +1182,7 @@ export function EditorSidebar({
           <AccordionItem
             id="header-content"
             icon={Palette}
-            label="ConteÃºdo"
+            label="Conteúdo"
             isOpen={openAccordion === "header-content"}
             accentColor={accentColor}
             onToggle={toggleAccordion}
@@ -1246,7 +1246,7 @@ export function EditorSidebar({
                 <div className="pt-4 border-t border-border/50">
                   <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                     Logo Miniatura
-                    <span className="text-[9px] font-normal lowercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground/60">Painel ContraÃ­do</span>
+                    <span className="text-[9px] font-normal lowercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground/60">Painel Contraído</span>
                   </Label>
                   {config.header.logoMini ? (
                     <div className="relative group w-20">
@@ -1293,7 +1293,7 @@ export function EditorSidebar({
           <AccordionItem
             id="header-nav"
             icon={AlignLeft}
-            label="Menu de NavegaÃ§Ã£o"
+            label="Menu de Navegação"
             isOpen={openAccordion === "header-nav"}
             accentColor={accentColor}
             onToggle={toggleAccordion}
@@ -1325,7 +1325,7 @@ export function EditorSidebar({
                     .filter(id => id !== 'header' && id !== 'hero' && id !== 'footer' && id !== 'trust')
                     .map((id) => {
                       const item = (config.header.menuItems || []).find((m: any) => m.id === id)
-                      const label = item?.label || (id === 'team' && config.header.logoText?.includes('Adv') ? 'Equipe JurÃ­dica' : SECTION_LABELS[id] || id)
+                      const label = item?.label || (id === 'team' && config.header.logoText?.includes('Adv') ? 'Equipe Jurídica' : SECTION_LABELS[id] || id)
                       const href = item?.href || `#${id}`
 
                       return (
@@ -1433,7 +1433,7 @@ export function EditorSidebar({
 
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <Label className="text-xs text-muted-foreground">EspaÃ§amento entre Itens</Label>
+                    <Label className="text-xs text-muted-foreground">Espaçamento entre Itens</Label>
                     <span className="text-xs font-mono text-muted-foreground">{config.header.menuSpacing || 32}px</span>
                   </div>
                   <Slider
@@ -1449,198 +1449,23 @@ export function EditorSidebar({
           </AccordionItem>
         )}
 
-        {/* Content \u2014 Section-specific (Moved to top) */}
+        {/* Content — Hero/Footer text only */}
+        {activeSection !== "header" && (
         <AccordionItem
           id="content"
-          icon={activeSection === "header" ? Wand2 : Type}
-          label={activeSection === "header" ? "Personalizar" : "ConteÃºdo"}
+          icon={Type}
+          label="Conteúdo"
           isOpen={openAccordion === "content"}
           accentColor={accentColor}
           onToggle={toggleAccordion}
         >
           <div className="space-y-4">
-            {activeSection === "header" && (
-              <>
-                <div className="flex items-center justify-between border-t border-border pt-4 mb-4">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Modo de EdiÃ§Ã£o</Label>
-                  <div className="grid grid-cols-2 gap-1.5 rounded-lg bg-muted p-1">
-                    {(["fixed", "static"] as const).map((behavior) => (
-                      <button
-                        key={behavior}
-                        onClick={() => {
-                          updateHeader({ 
-                            behavior,
-                            menuStyle: behavior === "fixed" ? "gradient" : "solid"
-                          })
-                          if (behavior === "static") onConfigChange({ headerPreviewView: "top" })
-                        }}
-                        className={cn(
-                          "rounded-md px-3 py-1.5 text-[9px] font-bold transition-all uppercase tracking-wider",
-                          config.header.behavior === behavior
-                            ? "bg-white/10 text-foreground shadow-sm"
-                            : "text-muted-foreground/70 hover:text-muted-foreground"
-                        )}
-                      >
-                        {behavior === "fixed" ? "Fixo" : "EstÃ¡tico"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {config.header.behavior === "fixed" && (
-                  <div className="space-y-3 mb-4 bg-muted/30 p-3 rounded-lg border border-border/50">
-                    <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 block">Comportamento</Label>
-                    <div className="grid grid-cols-2 bg-muted p-0.5 rounded-md border border-border/50">
-                      <button
-                        onClick={() => onConfigChange({ headerPreviewView: "top" })}
-                        className={cn(
-                          "px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded transition-all",
-                          (config.headerPreviewView || "top") === "top" ? "bg-white/10 text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        Topo
-                      </button>
-                      <button
-                        onClick={() => {
-                          onConfigChange({ headerPreviewView: "scrolled" })
-                          if (!config.header.scrolled.enabled) updateHeaderScrolled({ enabled: true })
-                        }}
-                        className={cn(
-                          "px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded transition-all",
-                          config.headerPreviewView === "scrolled" ? "bg-white/10 text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        Scroll
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                { (config.headerPreviewView || "top") === "top" ? (
-                  <div className="space-y-4">
-                    <div className="border-t border-border pt-4">
-                      <div className="mb-2 flex items-center justify-between">
-                        <Label className="text-xs text-muted-foreground">Altura do Header</Label>
-                        <span className="text-xs font-mono text-muted-foreground">{config.header.height}px</span>
-                      </div>
-                      <Slider
-                        value={[config.header.height]}
-                        onValueChange={([height]) => updateHeader({ height })}
-                        min={48}
-                        max={160}
-                        step={1}
-                        className="touch-none"
-                      />
-                    </div>
-
-                    {config.header.menuStyle === "solid" && (
-                      <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
-                        <Label className="text-xs text-muted-foreground">Cor de Fundo (PadrÃ£o)</Label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="color"
-                            value={config.header.backgroundColor}
-                            onChange={(e) => updateHeader({ backgroundColor: e.target.value })}
-                            className="h-8 w-8 cursor-pointer rounded border-0 bg-transparent"
-                          />
-                          <Input
-                            value={config.header.backgroundColor || "#000000"}
-                            onChange={(e) => updateHeader({ backgroundColor: e.target.value })}
-                            className="h-8 w-20 border-border/50 bg-input font-mono text-[10px] text-foreground/60"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {config.header.menuStyle === "gradient" && (
-                      <GradientControls
-                        gradient={config.header.gradient}
-                        onUpdate={updateHeaderGradient}
-                        title="Gradiente (PadrÃ£o)"
-                        showEnabled={false}
-                        accentColor={accentColor}
-                      />
-                    )}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="space-y-4 border-t border-border pt-4">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-xs text-muted-foreground">Efeito de Scroll</Label>
-                        <Switch
-                          checked={config.header.scrolled.enabled}
-                          onCheckedChange={(enabled) => updateHeaderScrolled({ enabled })}
-                        />
-                      </div>
-
-                      {config.header.scrolled.enabled && (
-                        <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-3">
-                          <div>
-                            <div className="mb-2 flex items-center justify-between">
-                              <Label className="text-[10px] text-muted-foreground">Altura no Scroll</Label>
-                              <span className="text-[10px] font-mono text-muted-foreground">{config.header.scrolled.height}px</span>
-                            </div>
-                            <Slider
-                              value={[config.header.scrolled.height]}
-                              onValueChange={([height]) => updateHeaderScrolled({ height })}
-                              min={40}
-                              max={120}
-                              step={1}
-                              className="touch-none"
-                            />
-                          </div>
-
-                          <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-3">
-                            <Label className="text-[10px] text-muted-foreground">Fundo no Scroll</Label>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                value={config.header.scrolled.backgroundColor}
-                                onChange={(e) => updateHeaderScrolled({ backgroundColor: e.target.value })}
-                                className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
-                              />
-                              <Input
-                                value={config.header.scrolled.backgroundColor}
-                                onChange={(e) => updateHeaderScrolled({ backgroundColor: e.target.value })}
-                                className="h-7 w-16 border-border/50 bg-input font-mono text-[9px] text-foreground/60"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-2 border-t border-border/50 pt-3">
-                             <Label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">Cores dos Elementos</Label>
-                             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                                {[
-                                  { key: 'logo', label: 'Logo' },
-                                  { key: 'menu', label: 'Menu' },
-                                  { key: 'cta', label: 'BotÃ£o CTA' },
-                                  { key: 'hamburger', label: 'Hamburger' }
-                                ].map(({ key, label }) => (
-                                  <div key={key} className="flex items-center justify-between gap-2">
-                                    <span className="text-[9px] text-muted-foreground">{label}</span>
-                                    <input
-                                      type="color"
-                                      value={(config.header.scrolled.colors as any)[key]}
-                                      onChange={(e) => updateHeaderScrolledColors({ [key]: e.target.value })}
-                                      className="h-5 w-5 cursor-pointer rounded border-0 bg-transparent"
-                                    />
-                                  </div>
-                                ))}
-                             </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
 
             {activeSection === "hero" && (
               <>
                 <div className="pt-0">
                   <div className="flex items-center mb-3">
-                    <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">OrientaÃ§Ã£o</Label>
+                    <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Orientação</Label>
                     <OverrideIndicator active={isOverridden('orientation')} onReset={() => resetOverride('orientation')} accentColor={accentColor} />
                   </div>
                   <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
@@ -1686,25 +1511,25 @@ export function EditorSidebar({
                 </div>
                 <div>
                   <div className="flex items-center mb-1.5">
-                    <Label className="text-xs text-muted-foreground">TÃ­tulo</Label>
+                    <Label className="text-xs text-muted-foreground">Título</Label>
                     <OverrideIndicator active={isOverridden('title')} onReset={() => resetOverride('title')} accentColor={accentColor} />
                   </div>
                   <Input
                     value={resolvedHero.title}
                     onChange={(e) => updateHero({ title: e.target.value })}
-                    placeholder={placeholders?.title || "TÃ­tulo principal"}
+                    placeholder={placeholders?.title || "Título principal"}
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
                 </div>
                 <div>
                   <div className="flex items-center mb-1.5">
-                    <Label className="text-xs text-muted-foreground">DescriÃ§Ã£o</Label>
+                    <Label className="text-xs text-muted-foreground">Descrição</Label>
                     <OverrideIndicator active={isOverridden('description')} onReset={() => resetOverride('description')} accentColor={accentColor} />
                   </div>
                   <Input
                     value={resolvedHero.description}
                     onChange={(e) => updateHero({ description: e.target.value })}
-                    placeholder={placeholders?.description || "DescriÃ§Ã£o"}
+                    placeholder={placeholders?.description || "Descrição"}
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
                 </div>
@@ -1714,7 +1539,7 @@ export function EditorSidebar({
             {activeSection === "hero" && (
               <div className="space-y-4">
                 <p className="text-[10px] font-medium text-muted-foreground/60 italic border-t border-border/30 pt-4">
-                  Dica: Para configuraÃ§Ãµes avanÃ§adas, use os acordeÃµes de botÃµes abaixo.
+                  Dica: Para configurações avançadas, use os acordeões de botões abaixo.
                 </p>
               </div>
             )}
@@ -1748,6 +1573,253 @@ export function EditorSidebar({
             )}
           </div>
         </AccordionItem>
+        )}
+
+        {/* Primary Button - Only for Hero */}
+        {activeSection === "hero" && (
+          <AccordionItem
+            id="button-primary"
+            icon={MousePointer2}
+            label="Botão Primário"
+            isOpen={openAccordion === "button-primary"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <ButtonEditor
+              label="Botão Primário"
+              config={resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
+              defaultConfig={{ text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
+              accentColor={accentColor}
+              onChange={(updates) => updateHero({ 
+                buttonPrimary: { 
+                  ...(resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }), 
+                  ...updates 
+                } 
+              })}
+              onReset={() => resetOverride('buttonPrimary')}
+            />
+          </AccordionItem>
+        )}
+
+        {/* Secondary Button - Only for Hero */}
+        {activeSection === "hero" && (
+          <AccordionItem
+            id="button-secondary"
+            icon={MousePointer2}
+            label="Botão Secundário"
+            isOpen={openAccordion === "button-secondary"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <ButtonEditor
+              label="Botão Secundário"
+              config={resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }}
+              defaultConfig={{ text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }}
+              accentColor={accentColor}
+              onChange={(updates) => updateHero({ 
+                buttonSecondary: { 
+                  ...(resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }), 
+                  ...updates 
+                } 
+              })}
+              onReset={() => resetOverride('buttonSecondary')}
+            />
+          </AccordionItem>
+        )}
+          </>
+        )}
+
+        {/* â•â•â• APPEARANCE TAB â•â•â• */}
+        {sectionToolTab === "appearance" && (
+          <>
+        {/* Layout & Behavior - Header */}
+        {activeSection === "header" && (
+          <AccordionItem
+            id="header-layout"
+            icon={Wand2}
+            label="Layout e Comportamento"
+            isOpen={openAccordion === "header-layout"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-border/30 pb-3 mb-3">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Modo de Edição</Label>
+                <div className="grid grid-cols-2 gap-1.5 rounded-lg bg-muted p-1">
+                  {(["fixed", "static"] as const).map((behavior) => (
+                    <button
+                      key={behavior}
+                      onClick={() => {
+                        updateHeader({ 
+                          behavior,
+                          menuStyle: behavior === "fixed" ? "gradient" : "solid"
+                        })
+                        if (behavior === "static") onConfigChange({ headerPreviewView: "top" })
+                      }}
+                      className={cn(
+                        "rounded-md px-3 py-1.5 text-[9px] font-bold transition-all uppercase tracking-wider",
+                        config.header.behavior === behavior
+                          ? "bg-white/10 text-foreground shadow-sm"
+                          : "text-muted-foreground/70 hover:text-muted-foreground"
+                      )}
+                    >
+                      {behavior === "fixed" ? "Fixo" : "Estático"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {config.header.behavior === "fixed" && (
+                <div className="space-y-3 mb-4 bg-muted/30 p-3 rounded-lg border border-border/50">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 block">Comportamento</Label>
+                  <div className="grid grid-cols-2 bg-muted p-0.5 rounded-md border border-border/50">
+                    <button
+                      onClick={() => onConfigChange({ headerPreviewView: "top" })}
+                      className={cn(
+                        "px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded transition-all",
+                        (config.headerPreviewView || "top") === "top" ? "bg-white/10 text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      Topo
+                    </button>
+                    <button
+                      onClick={() => {
+                        onConfigChange({ headerPreviewView: "scrolled" })
+                        if (!config.header.scrolled.enabled) updateHeaderScrolled({ enabled: true })
+                      }}
+                      className={cn(
+                        "px-3 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded transition-all",
+                        config.headerPreviewView === "scrolled" ? "bg-white/10 text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      Scroll
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              { (config.headerPreviewView || "top") === "top" ? (
+                <div className="space-y-4">
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Altura do Header</Label>
+                      <span className="text-xs font-mono text-muted-foreground">{config.header.height}px</span>
+                    </div>
+                    <Slider
+                      value={[config.header.height]}
+                      onValueChange={([height]) => updateHeader({ height })}
+                      min={48}
+                      max={160}
+                      step={1}
+                      className="touch-none"
+                    />
+                  </div>
+
+                  {config.header.menuStyle === "solid" && (
+                    <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
+                      <Label className="text-xs text-muted-foreground">Cor de Fundo (Padrão)</Label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={config.header.backgroundColor}
+                          onChange={(e) => updateHeader({ backgroundColor: e.target.value })}
+                          className="h-8 w-8 cursor-pointer rounded border-0 bg-transparent"
+                        />
+                        <Input
+                          value={config.header.backgroundColor || "#000000"}
+                          onChange={(e) => updateHeader({ backgroundColor: e.target.value })}
+                          className="h-8 w-20 border-border/50 bg-input font-mono text-[10px] text-foreground/60"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {config.header.menuStyle === "gradient" && (
+                    <div className="border-t border-border pt-4">
+                      <GradientControls
+                        gradient={config.header.gradient}
+                        onUpdate={updateHeaderGradient}
+                        title="Gradiente (Padrão)"
+                        showEnabled={false}
+                        accentColor={accentColor}
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Efeito de Scroll</Label>
+                      <Switch
+                        checked={config.header.scrolled.enabled}
+                        onCheckedChange={(enabled) => updateHeaderScrolled({ enabled })}
+                      />
+                    </div>
+
+                    {config.header.scrolled.enabled && (
+                      <div className="space-y-4 rounded-lg border border-border/50 bg-muted/30 p-3">
+                        <div>
+                          <div className="mb-2 flex items-center justify-between">
+                            <Label className="text-[10px] text-muted-foreground">Altura no Scroll</Label>
+                            <span className="text-[10px] font-mono text-muted-foreground">{config.header.scrolled.height}px</span>
+                          </div>
+                          <Slider
+                            value={[config.header.scrolled.height]}
+                            onValueChange={([height]) => updateHeaderScrolled({ height })}
+                            min={40}
+                            max={120}
+                            step={1}
+                            className="touch-none"
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 border-t border-border/50 pt-3">
+                          <Label className="text-[10px] text-muted-foreground">Fundo no Scroll</Label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={config.header.scrolled.backgroundColor}
+                              onChange={(e) => updateHeaderScrolled({ backgroundColor: e.target.value })}
+                              className="h-6 w-6 cursor-pointer rounded border-0 bg-transparent"
+                            />
+                            <Input
+                              value={config.header.scrolled.backgroundColor}
+                              onChange={(e) => updateHeaderScrolled({ backgroundColor: e.target.value })}
+                              className="h-7 w-16 border-border/50 bg-input font-mono text-[9px] text-foreground/60"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 border-t border-border/50 pt-3">
+                           <Label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">Cores dos Elementos</Label>
+                           <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                              {[
+                                { key: 'logo', label: 'Logo' },
+                                { key: 'menu', label: 'Menu' },
+                                { key: 'cta', label: 'Botão CTA' },
+                                { key: 'hamburger', label: 'Hamburger' }
+                              ].map(({ key, label }) => (
+                                <div key={key} className="flex items-center justify-between gap-2">
+                                  <span className="text-[9px] text-muted-foreground">{label}</span>
+                                  <input
+                                    type="color"
+                                    value={(config.header.scrolled.colors as any)[key]}
+                                    onChange={(e) => updateHeaderScrolledColors({ [key]: e.target.value })}
+                                    className="h-5 w-5 cursor-pointer rounded border-0 bg-transparent"
+                                  />
+                                </div>
+                              ))}
+                           </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </AccordionItem>
+        )}
 
         {/* Hero Image upload */}
         {activeSection === "hero" && (
@@ -1807,198 +1879,13 @@ export function EditorSidebar({
                   <span className="text-sm font-medium" style={{ color: accentColor }}>
                     {isUploading ? "Enviando arquivo..." : "Clique para upload"}
                   </span>
-                  <span className="text-xs text-muted-foreground">PNG, JPG atÃ© 10MB</span>
+                  <span className="text-xs text-muted-foreground">PNG, JPG até 10MB</span>
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={isUploading} />
                 </label>
               )}
             </div>
           </AccordionItem>
         )}
-
-        {/* Colors & Gradient - Only for Hero (NOW DEVICE-AWARE) */}
-        {activeSection === "hero" && (
-          <AccordionItem
-            id="colors"
-            icon={Droplets}
-            label="Cores e Gradiente"
-            isOpen={openAccordion === "colors"}
-            accentColor={accentColor}
-            onToggle={toggleAccordion}
-          >
-            <div className="space-y-3">
-              <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Cores</Label>
-              {Object.entries(config.theme.colors).map(([key, value]) => (
-                <div key={key} className="flex items-center justify-between gap-3">
-                  <Label className="text-xs capitalize text-muted-foreground">
-                    {key === "primary" ? "PrimÃ¡ria" : key === "secondary" ? "SecundÃ¡ria" : key === "accent" ? "Destaque" : key === "background" ? "Fundo" : "Texto"}
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={value || ""}
-                      onChange={(e) => updateColors(key as keyof EditorConfig["theme"]["colors"], e.target.value)}
-                      className="h-8 w-8 cursor-pointer rounded border-0 bg-transparent"
-                    />
-                    <Input
-                      value={value || ""}
-                      onChange={(e) => updateColors(key as keyof EditorConfig["theme"]["colors"], e.target.value)}
-                      className="h-8 w-20 border-border/50 bg-input font-mono text-[10px] text-foreground/60"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* Gradient \u2014 device-aware via Hero overrides */}
-            <GradientControls
-              gradient={resolvedHero.gradient?.enabled ? resolvedHero.gradient : config.theme.gradient}
-              onUpdate={(updates) => {
-                // Determine the full current gradient for this device
-                // If hero has its own gradient, use that. Otherwise seed from theme.gradient
-                const currentGradient = resolvedHero.gradient?.enabled
-                  ? resolvedHero.gradient
-                  : config.theme.gradient
-
-                // Build complete gradient with stops deep-copied
-                const fullGradient = {
-                  ...currentGradient,
-                  ...updates,
-                  // If updates include stops, use them. Otherwise keep current
-                  stops: updates.stops
-                    ? updates.stops.map(s => ({ ...s }))
-                    : currentGradient.stops.map(s => ({ ...s })),
-                }
-
-                // ONLY write through hero override system \u2014 never touch theme.gradient
-                updateHero({ gradient: fullGradient })
-              }}
-              accentColor={accentColor}
-            />
-          </AccordionItem>
-        )}
-
-        {/* Image - Only for Hero */}
-        {activeSection === "hero" && (
-          <AccordionItem
-            id="image"
-            icon={Image}
-            label="Imagem de Fundo"
-            isOpen={openAccordion === "image"}
-            accentColor={accentColor}
-            onToggle={toggleAccordion}
-          >
-            <div>
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Dispositivo</span>
-                <div className="flex gap-1 rounded-lg bg-muted p-1">
-                  {(["mobile", "tablet", "desktop"] as DeviceType[]).map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setImageDevice(d)}
-                      className={cn(
-                        "flex-1 rounded-md px-2 py-1.5 text-[10px] font-bold transition-all uppercase tracking-wider",
-                        imageDevice === d
-                          ? "bg-white/10 text-foreground shadow-sm"
-                          : "text-muted-foreground/70 hover:text-muted-foreground"
-                      )}
-                    >
-                      {d === "mobile" ? "Mob." : d === "tablet" ? "Tab." : "Desk."}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {config.hero.images[imageDevice] ? (
-                <div className="relative">
-                  <img
-                    src={config.hero.images[imageDevice]!}
-                    alt="Preview"
-                    className="h-32 w-full rounded-lg border border-border object-cover"
-                  />
-                  <button
-                    onClick={removeImage}
-                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-foreground transition-transform hover:scale-110"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              ) : (
-                <label className={cn(
-                  "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 transition-colors hover:bg-muted",
-                  isUploading && "pointer-events-none opacity-50"
-                )} style={{ borderColor: `${accentColor}50` }}>
-                  {isUploading ? (
-                    <Loader2 className="h-8 w-8 animate-spin" style={{ color: accentColor }} />
-                  ) : (
-                    <Upload className="h-8 w-8" style={{ color: accentColor }} />
-                  )}
-                  <span className="text-sm font-medium" style={{ color: accentColor }}>
-                    {isUploading ? "Enviando arquivo..." : "Clique para upload"}
-                  </span>
-                  <span className="text-xs text-muted-foreground">PNG, JPG atÃ© 10MB</span>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={isUploading} />
-                </label>
-              )}
-            </div>
-          </AccordionItem>
-        )}
-
-        {/* Primary Button - Only for Hero */}
-        {activeSection === "hero" && (
-          <AccordionItem
-            id="button-primary"
-            icon={MousePointer2}
-            label="BotÃ£o PrimÃ¡rio"
-            isOpen={openAccordion === "button-primary"}
-            accentColor={accentColor}
-            onToggle={toggleAccordion}
-          >
-            <ButtonEditor
-              label="BotÃ£o PrimÃ¡rio"
-              config={resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
-              defaultConfig={{ text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
-              accentColor={accentColor}
-              onChange={(updates) => updateHero({ 
-                buttonPrimary: { 
-                  ...(resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }), 
-                  ...updates 
-                } 
-              })}
-              onReset={() => resetOverride('buttonPrimary')}
-            />
-          </AccordionItem>
-        )}
-
-        {/* Secondary Button - Only for Hero */}
-        {activeSection === "hero" && (
-          <AccordionItem
-            id="button-secondary"
-            icon={MousePointer2}
-            label="BotÃ£o SecundÃ¡rio"
-            isOpen={openAccordion === "button-secondary"}
-            accentColor={accentColor}
-            onToggle={toggleAccordion}
-          >
-            <ButtonEditor
-              label="BotÃ£o SecundÃ¡rio"
-              config={resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver ServiÃ§os", link: "#services", outline: true }}
-              defaultConfig={{ text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver ServiÃ§os", link: "#services", outline: true }}
-              accentColor={accentColor}
-              onChange={(updates) => updateHero({ 
-                buttonSecondary: { 
-                  ...(resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver ServiÃ§os", link: "#services", outline: true }), 
-                  ...updates 
-                } 
-              })}
-              onReset={() => resetOverride('buttonSecondary')}
-            />
-          </AccordionItem>
-        )}
-          </>
-        )}
-
-        {/* â•â•â• APPEARANCE TAB â•â•â• */}
-        {sectionToolTab === "appearance" && (
-          <>
         {/* Layout & Dimensions - Only for Hero */}
         {activeSection === "hero" && (
           <AccordionItem
@@ -2061,7 +1948,7 @@ export function EditorSidebar({
               {Object.entries(config.theme.colors).map(([key, value]) => (
                 <div key={key} className="flex items-center justify-between gap-3">
                   <Label className="text-xs capitalize text-muted-foreground">
-                    {key === "primary" ? "PrimÃ¡ria" : key === "secondary" ? "SecundÃ¡ria" : key === "accent" ? "Destaque" : key === "background" ? "Fundo" : "Texto"}
+                    {key === "primary" ? "Primária" : key === "secondary" ? "Secundária" : key === "accent" ? "Destaque" : key === "background" ? "Fundo" : "Texto"}
                   </Label>
                   <div className="flex items-center gap-2">
                     <input
@@ -2112,14 +1999,14 @@ export function EditorSidebar({
             <div className="space-y-4">
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <Label className="text-xs text-muted-foreground">PosiÃ§Ã£o X</Label>
+                  <Label className="text-xs text-muted-foreground">Posição X</Label>
                   <span className="text-xs font-mono text-muted-foreground">{config.hero.imagePosition[imageDevice].x}%</span>
                 </div>
                 <Slider value={[config.hero.imagePosition[imageDevice].x]} onValueChange={([v]) => updateHeroPosition("x", v)} max={100} step={1} className="touch-none" />
               </div>
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <Label className="text-xs text-muted-foreground">PosiÃ§Ã£o Y</Label>
+                  <Label className="text-xs text-muted-foreground">Posição Y</Label>
                   <span className="text-xs font-mono text-muted-foreground">{config.hero.imagePosition[imageDevice].y}%</span>
                 </div>
                 <Slider value={[config.hero.imagePosition[imageDevice].y]} onValueChange={([v]) => updateHeroPosition("y", v)} max={100} step={1} className="touch-none" />
