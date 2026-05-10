@@ -57,59 +57,64 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
       return { ...state, savedSuccessfully: action.success }
 
     case 'UPDATE_CONFIG': {
-      const updates = action.updates
-      const newConfig = { ...currentConfig, ...updates }
+      const updates = action.updates;
+      const newConfig = { ...currentConfig, ...updates };
       
       // Deep merge major sub-objects
       if (updates.theme) {
+        const themeUpdates = updates.theme;
         newConfig.theme = { 
           ...currentConfig.theme, 
-          ...updates.theme,
-          colors: updates.theme.colors ? { ...currentConfig.theme.colors, ...updates.theme.colors } : currentConfig.theme.colors,
-          designSystem: updates.theme.designSystem ? { ...currentConfig.theme.designSystem, ...updates.theme.designSystem } : currentConfig.theme.designSystem,
-          gradient: updates.theme.gradient ? { ...currentConfig.theme.gradient, ...updates.theme.gradient } : currentConfig.theme.gradient,
-        }
+          ...themeUpdates,
+          colors: themeUpdates.colors ? { ...currentConfig.theme.colors, ...themeUpdates.colors } : currentConfig.theme.colors,
+          designSystem: themeUpdates.designSystem ? { ...currentConfig.theme.designSystem, ...themeUpdates.designSystem } : currentConfig.theme.designSystem,
+          gradient: themeUpdates.gradient ? { ...currentConfig.theme.gradient, ...themeUpdates.gradient } : currentConfig.theme.gradient,
+        };
       }
-      if (updates.header) newConfig.header = { ...currentConfig.header, ...updates.header }
-      if (updates.hero) newConfig.hero = { ...currentConfig.hero, ...updates.hero }
-      if (updates.footer) newConfig.footer = { ...currentConfig.footer, ...updates.footer }
+      if (updates.header) newConfig.header = { ...currentConfig.header, ...updates.header };
+      if (updates.hero) newConfig.hero = { ...currentConfig.hero, ...updates.hero };
+      if (updates.footer) newConfig.footer = { ...currentConfig.footer, ...updates.footer };
       
-      return pushHistory(newConfig)
+      return pushHistory(newConfig);
     }
 
     case 'UPDATE_HERO_DEVICE': {
-      const { updates } = action
-      let newHero = { ...currentConfig.hero }
+      const { updates } = action;
+      const newHero = { ...currentConfig.hero };
 
-      // Update base (Mobile is treated as the source of truth for the config root)
-      for (const [key, value] of Object.entries(updates)) {
-        if ((key === "overlay" || key === "vignette" || key === "gradient") && value) {
-          (newHero as any)[key] = { ...(newHero as any)[key], ...value }
+      // Update base (Mobile)
+      const updateKeys = Object.keys(updates);
+      for (let i = 0; i < updateKeys.length; i++) {
+        const k = updateKeys[i];
+        const v = (updates as any)[k];
+        if ((k === "overlay" || k === "vignette" || k === "gradient") && v && typeof v === 'object') {
+          (newHero as any)[k] = { ...((newHero as any)[k] || {}), ...v };
         } else {
-          (newHero as any)[key] = value
+          (newHero as any)[k] = v;
         }
       }
 
-      // Propagate to overrides to ensure perfect sync across viewports
-      const overrides = { ...(newHero.overrides || {}) }
-      const tabletData = { ...(overrides.tablet || {}) }
-      const desktopData = { ...(overrides.desktop || {}) }
-
-      for (const [key, value] of Object.entries(updates)) {
-        if ((key === "overlay" || key === "vignette" || key === "gradient") && value) {
-          (tabletData as any)[key] = { ...(tabletData as any)[key], ...value };
-          (desktopData as any)[key] = { ...(desktopData as any)[key], ...value };
-        } else {
-          (tabletData as any)[key] = value
-          (desktopData as any)[key] = value
+      // Sync Overrides (Tablet & Desktop)
+      const overrides = { ...(newHero.overrides || {}) };
+      const targetDevices = ['tablet', 'desktop'] as const;
+      
+      for (let j = 0; j < targetDevices.length; j++) {
+        const device = targetDevices[j];
+        const data = { ...(overrides[device] || {}) };
+        for (let i = 0; i < updateKeys.length; i++) {
+          const k = updateKeys[i];
+          const v = (updates as any)[k];
+          if ((k === "overlay" || k === "vignette" || k === "gradient") && v && typeof v === 'object') {
+            (data as any)[k] = { ...((data as any)[k] || {}), ...v };
+          } else {
+            (data as any)[k] = v;
+          }
         }
+        overrides[device] = data;
       }
 
-      overrides.tablet = tabletData
-      overrides.desktop = desktopData
-      newHero.overrides = overrides
-
-      return pushHistory({ ...currentConfig, hero: newHero })
+      newHero.overrides = overrides;
+      return pushHistory({ ...currentConfig, hero: newHero });
     }
 
     case 'RESET_HERO_OVERRIDE': {

@@ -365,14 +365,17 @@ export function DevicePreview({
     sm: "4px",
     md: "8px",
     lg: "12px",
+    xl: "24px",
     full: "20px", // Cards shouldn't be circles even when buttons are pills
   }
 
   const themeVariables = {
     "--theme-card-radius": borderRadiusValues[designSystem.borderRadius || "lg"],
     "--theme-btn-radius": designSystem.borderRadius === 'full' ? '9999px' : 
-                          designSystem.borderRadius === 'none' ? '0px' : 
-                          designSystem.borderRadius === 'soft' ? '4px' : '12px',
+                          designSystem.borderRadius === 'xl' ? '24px' :
+                          designSystem.borderRadius === 'lg' ? '12px' :
+                          designSystem.borderRadius === 'md' ? '8px' :
+                          designSystem.borderRadius === 'sm' ? '4px' : '0px',
     "--theme-color-primary": theme.colors.primary,
     "--theme-color-secondary": theme.colors.secondary,
     "--theme-color-background": theme.colors.background,

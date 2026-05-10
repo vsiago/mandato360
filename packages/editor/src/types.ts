@@ -40,7 +40,7 @@ export interface DesignSystemConfig {
     primary: FontFamily
     secondary: FontFamily
   }
-  borderRadius: "none" | "sm" | "md" | "lg" | "full"
+  borderRadius: "none" | "sm" | "md" | "lg" | "xl" | "full"
   shadows: "none" | "subtle" | "medium" | "dramatic"
   animations: boolean
 }
@@ -97,8 +97,8 @@ export interface HeaderConfig {
 
 // ─── Button Config ───
 export interface ButtonConfig {
-  text: string
-  link: string
+  text?: string
+  link?: string
   iconLeft?: string
   iconRight?: string
   paddingX?: number

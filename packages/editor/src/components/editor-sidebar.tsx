@@ -587,7 +587,8 @@ const GradientControls = ({
                     gradient: { 
                       enabled: true, 
                       stops: preset.stops,
-                      angle: preset.angle 
+                      angle: preset.angle,
+                      opacity: 100 
                     },
                     textColor: preset.textColor,
                     iconColor: preset.iconColor
