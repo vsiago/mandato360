@@ -15,7 +15,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader, SheetDescri
 import { GlobalThemeSettings } from "./global-theme-settings"
 import { Settings, Layers, Palette } from "lucide-react"
 import { Button } from "./ui/button"
-import type { AccordionType } from "../types"
+import type { AccordionType, SectionToolTab } from "../types"
 
 export function SiteEditor({
   initialConfig,
@@ -44,11 +44,13 @@ export function SiteEditor({
   const [mobileConfigOpen, setMobileConfigOpen] = useState(false)
   const [isThemeOpen, setIsThemeOpen] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<AccordionType | null>(null)
+  const [sectionToolTab, setSectionToolTab] = useState<SectionToolTab>("content")
 
   // Sync openAccordion when activeSection changes
   useEffect(() => {
     // We want accordions to start closed by default as per user request
     setOpenAccordion(null)
+    setSectionToolTab("content") // Reset to content tab when section changes
   }, [editor.activeSection])
 
   // ... (rest of the component)
@@ -144,6 +146,8 @@ export function SiteEditor({
         previewUrl={previewUrl}
         tenantName={tenantName}
         accentColor={accentColor}
+        editorMode={editor.editorMode}
+        onModeChange={editor.setEditorMode}
         onExit={onExit}
       />
       <div className="flex flex-1 overflow-hidden relative">
@@ -202,6 +206,9 @@ export function SiteEditor({
             activeSection={editor.activeSection}
             plugins={plugins}
             accentColor={accentColor}
+            editorMode={editor.editorMode}
+            sectionToolTab={sectionToolTab}
+            onSectionToolTabChange={setSectionToolTab}
             onConfigChange={editor.updateConfig}
             onHeroChange={editor.updateHeroForDevice}
             onHeroReset={editor.resetHeroOverride}
@@ -223,6 +230,9 @@ export function SiteEditor({
               activeSection={editor.activeSection}
               plugins={plugins}
               accentColor={accentColor}
+              editorMode={editor.editorMode}
+              sectionToolTab={sectionToolTab}
+              onSectionToolTabChange={setSectionToolTab}
               onConfigChange={editor.updateConfig}
               onHeroChange={editor.updateHeroForDevice}
               onHeroReset={editor.resetHeroOverride}
@@ -240,11 +250,16 @@ export function SiteEditor({
         <MobileBottomNav
           activeSection={editor.activeSection}
           device={editor.device}
+          editorMode={editor.editorMode}
           accentColor={accentColor}
           onAddClick={() => setIsLibraryOpen(true)}
           onSectionsClick={() => setMobileMenuOpen(true)}
           onThemeClick={() => setIsThemeOpen(true)}
-          onConfigClick={() => setMobileConfigOpen(true)}
+          onContentClick={() => { setSectionToolTab("content"); setMobileConfigOpen(true) }}
+          onAppearanceClick={() => { setSectionToolTab("appearance"); setMobileConfigOpen(true) }}
+          onAdvancedClick={() => { setSectionToolTab("appearance"); setMobileConfigOpen(true) }}
+          onModeToggle={() => editor.setEditorMode(editor.editorMode === "basic" ? "advanced" : "basic")}
+          onDeselectSection={() => editor.setActiveSection("")}
         />
 
         {/* Global Theme Sheet (Shared) */}

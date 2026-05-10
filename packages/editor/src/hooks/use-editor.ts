@@ -1,13 +1,14 @@
 "use client"
 
 import { useState, useCallback, useEffect, useReducer, useRef } from "react"
-import type { EditorConfig, DeviceType, HeroOverridableProps } from "../types"
+import type { EditorConfig, DeviceType, HeroOverridableProps, EditorMode } from "../types"
 
 interface EditorState {
   history: EditorConfig[]
   index: number
   device: DeviceType
   activeSection: string
+  editorMode: EditorMode
   isSaving: boolean
   savedSuccessfully: boolean
 }
@@ -15,6 +16,7 @@ interface EditorState {
 type EditorAction =
   | { type: 'SET_DEVICE', device: DeviceType }
   | { type: 'SET_ACTIVE_SECTION', section: string }
+  | { type: 'SET_EDITOR_MODE', mode: EditorMode }
   | { type: 'UPDATE_CONFIG', updates: Partial<EditorConfig> }
   | { type: 'UPDATE_HERO_DEVICE', targetDevice: DeviceType, updates: Partial<HeroOverridableProps> }
   | { type: 'RESET_HERO_OVERRIDE', targetDevice: DeviceType, prop: keyof HeroOverridableProps }
@@ -44,18 +46,34 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
       return { ...state, device: action.device }
     case 'SET_ACTIVE_SECTION':
       return { ...state, activeSection: action.section }
+    case 'SET_EDITOR_MODE':
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem('editor-mode', action.mode) } catch {}
+      }
+      return { ...state, editorMode: action.mode }
     case 'SET_SAVING':
       return { ...state, isSaving: action.isSaving }
     case 'SET_SAVED_SUCCESS':
       return { ...state, savedSuccessfully: action.success }
 
     case 'UPDATE_CONFIG': {
-      const newConfig = { ...currentConfig, ...action.updates }
       const updates = action.updates
-      if (updates.theme) newConfig.theme = { ...currentConfig.theme, ...updates.theme }
+      const newConfig = { ...currentConfig, ...updates }
+      
+      // Deep merge major sub-objects
+      if (updates.theme) {
+        newConfig.theme = { 
+          ...currentConfig.theme, 
+          ...updates.theme,
+          colors: updates.theme.colors ? { ...currentConfig.theme.colors, ...updates.theme.colors } : currentConfig.theme.colors,
+          designSystem: updates.theme.designSystem ? { ...currentConfig.theme.designSystem, ...updates.theme.designSystem } : currentConfig.theme.designSystem,
+          gradient: updates.theme.gradient ? { ...currentConfig.theme.gradient, ...updates.theme.gradient } : currentConfig.theme.gradient,
+        }
+      }
       if (updates.header) newConfig.header = { ...currentConfig.header, ...updates.header }
       if (updates.hero) newConfig.hero = { ...currentConfig.hero, ...updates.hero }
       if (updates.footer) newConfig.footer = { ...currentConfig.footer, ...updates.footer }
+      
       return pushHistory(newConfig)
     }
 
@@ -140,11 +158,23 @@ interface UseEditorProps {
 }
 
 export function useEditor({ initialConfig, onSave, autoSave = false, autoSaveDelay = 2000 }: UseEditorProps) {
+  // Read persisted editor mode from localStorage
+  const initialEditorMode: EditorMode = (() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('editor-mode')
+        if (stored === 'basic' || stored === 'advanced') return stored
+      } catch {}
+    }
+    return 'basic'
+  })()
+
   const [state, dispatch] = useReducer(editorReducer, {
     history: [initialConfig],
     index: 0,
     device: "desktop",
     activeSection: "hero",
+    editorMode: initialEditorMode,
     isSaving: false,
     savedSuccessfully: false
   })
@@ -154,6 +184,7 @@ export function useEditor({ initialConfig, onSave, autoSave = false, autoSaveDel
 
   const setDevice = useCallback((device: DeviceType) => dispatch({ type: 'SET_DEVICE', device }), [])
   const setActiveSection = (section: string) => dispatch({ type: 'SET_ACTIVE_SECTION', section })
+  const setEditorMode = useCallback((mode: EditorMode) => dispatch({ type: 'SET_EDITOR_MODE', mode }), [])
   const updateConfig = (updates: Partial<EditorConfig>) => dispatch({ type: 'UPDATE_CONFIG', updates })
   const updateHeroForDevice = (targetDevice: DeviceType, updates: Partial<HeroOverridableProps>) => dispatch({ type: 'UPDATE_HERO_DEVICE', targetDevice, updates })
   const resetHeroOverride = (targetDevice: DeviceType, prop: keyof HeroOverridableProps) => dispatch({ type: 'RESET_HERO_OVERRIDE', targetDevice, prop })
@@ -201,12 +232,14 @@ export function useEditor({ initialConfig, onSave, autoSave = false, autoSaveDel
     config,
     device: state.device,
     activeSection: state.activeSection,
+    editorMode: state.editorMode,
     sectionOrder: config.sectionOrder || ["header", "hero", "trust", "services", "about", "contact", "footer"],
     isSaving: state.isSaving,
     savedSuccessfully: state.savedSuccessfully,
     hasUnsavedChanges,
     setDevice,
     setActiveSection,
+    setEditorMode,
     updateConfig,
     updateHeroForDevice,
     resetHeroOverride,

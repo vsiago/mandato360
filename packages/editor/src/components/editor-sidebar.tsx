@@ -32,6 +32,7 @@ import {
   Zap,
   Trash2,
   GripVertical,
+  Paintbrush,
 } from "lucide-react"
 
 // ... (existing imports and helpers)
@@ -51,6 +52,8 @@ import type {
   HeroOverridableProps,
   ImagePosition,
   ButtonConfig,
+  EditorMode,
+  SectionToolTab,
 } from "../types"
 import { resolveHero, hasOverride } from "../hooks/use-resolved-config"
 
@@ -67,14 +70,14 @@ const ICON_OPTIONS = [
 
 const SECTION_LABELS: Record<string, string> = {
   'trust': 'Destaques',
-  'services': 'Serviços',
+  'services': 'ServiÃ§os',
   'about': 'Sobre',
   'beforeAfter': 'Resultados',
   'faq': 'FAQ',
   'contact': 'Contato',
   'agendamento': 'Agendar',
   'antes_depois': 'Resultados',
-  'practiceAreas': 'Áreas de Atuação',
+  'practiceAreas': 'Ãreas de AtuaÃ§Ã£o',
   'team': 'Equipe'
 }
 
@@ -104,7 +107,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
 
       <div className="space-y-3">
         <div className="space-y-1.5">
-          <Label className="text-[11px] font-medium text-foreground/70">Texto do Botão</Label>
+          <Label className="text-[11px] font-medium text-foreground/70">Texto do BotÃ£o</Label>
           <Input
             value={config.text || defaultConfig.text || ""}
             onChange={(e) => onChange({ text: e.target.value })}
@@ -114,7 +117,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-[11px] font-medium text-foreground/70">Link ou Âncora (#)</Label>
+          <Label className="text-[11px] font-medium text-foreground/70">Link ou Ã‚ncora (#)</Label>
           <Input
             value={config.link || defaultConfig.link || ""}
             onChange={(e) => onChange({ link: e.target.value })}
@@ -264,7 +267,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label className="text-[10px] text-muted-foreground">Tam. Ícone</Label>
+                  <Label className="text-[10px] text-muted-foreground">Tam. Ãcone</Label>
                   <span className="text-[10px] font-mono">{config.iconSize ?? 16}px</span>
                 </div>
                 <Slider
@@ -278,7 +281,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
             </div>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <Label className="text-[10px] text-muted-foreground">Peso Ícone (Stroke)</Label>
+                <Label className="text-[10px] text-muted-foreground">Peso Ãcone (Stroke)</Label>
                 <span className="text-[10px] font-mono">{config.iconWeight ?? 2}px</span>
               </div>
               <Slider
@@ -343,7 +346,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
               </div>
 
               <div className="flex items-center justify-between">
-                <Label className="text-[10px] text-muted-foreground">Ícones</Label>
+                <Label className="text-[10px] text-muted-foreground">Ãcones</Label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -361,7 +364,7 @@ const ButtonEditor = ({ label, config, defaultConfig, accentColor, onChange, onR
 
               <div className="pt-2 border-t border-border/30">
                 <GradientControls
-                  title="Gradiente do Botão"
+                  title="Gradiente do BotÃ£o"
                   gradient={config.gradient || { enabled: false, angle: 90, opacity: 100, stops: [{ color: config.backgroundColor || accentColor, position: 0 }, { color: '#000000', position: 100 }] }}
                   onUpdate={(updates) => onChange({ gradient: { ...(config.gradient || { enabled: false, angle: 90, opacity: 100, stops: [{ color: config.backgroundColor || accentColor, position: 0 }, { color: '#000000', position: 100 }] }), ...updates } })}
                   onApplyPreset={(updates) => onChange({ ...updates })}
@@ -382,6 +385,9 @@ interface EditorSidebarProps {
   activeSection: string
   plugins: EditorPlugin[]
   accentColor?: string
+  editorMode?: EditorMode
+  sectionToolTab?: SectionToolTab
+  onSectionToolTabChange?: (tab: SectionToolTab) => void
   onConfigChange: (updates: Partial<EditorConfig>) => void
   onHeroChange?: (device: DeviceType, updates: Partial<HeroOverridableProps>) => void
   onHeroReset?: (device: DeviceType, prop: keyof HeroOverridableProps) => void
@@ -405,11 +411,11 @@ function OverrideIndicator({ active, onReset, accentColor }: { active: boolean; 
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onReset?.() }}
-      title="Override ativo — clique para resetar"
+      title="Override ativo â€” clique para resetar"
       className="ml-1 inline-flex h-3 w-3 items-center justify-center rounded-full transition-all hover:scale-125"
       style={{ backgroundColor: accentColor }}
     >
-      <span className="text-[6px] font-bold text-white">✕</span>
+      <span className="text-[6px] font-bold text-white">âœ•</span>
     </button>
   )
 }
@@ -614,7 +620,7 @@ const GradientControls = ({
         <>
           {/* Visual Angle Control */}
           <div className="flex flex-col items-center gap-2">
-            <Label className="text-xs text-muted-foreground">Ajuste de Ângulo Visual</Label>
+            <Label className="text-xs text-muted-foreground">Ajuste de Ã‚ngulo Visual</Label>
             <div
               ref={angleRef}
               className={cn(
@@ -664,7 +670,7 @@ const GradientControls = ({
               />
               <div className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 bg-background" style={{ borderColor: accentColor }} />
             </div>
-            <span className="text-sm font-mono" style={{ color: accentColor }}>{gradient.angle}°</span>
+            <span className="text-sm font-mono" style={{ color: accentColor }}>{gradient.angle}Â°</span>
           </div>
 
           <div>
@@ -719,7 +725,7 @@ const GradientControls = ({
                   
                   <div className="flex flex-1 flex-col gap-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">Posição</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">PosiÃ§Ã£o</span>
                       <span className="text-[10px] font-mono font-bold text-muted-foreground">{stop.position}%</span>
                     </div>
                     <Slider
@@ -778,9 +784,9 @@ const GradientControls = ({
 }
 
 const sectionTitle: Record<string, { title: string; desc: string }> = {
-  header: { title: "Header", desc: "Menu de navegação" },
-  hero: { title: "Hero (Banner Principal)", desc: "Edite o fundo e conteúdo" },
-  footer: { title: "Footer", desc: "Rodapé do site" },
+  header: { title: "Header", desc: "Menu de navegaÃ§Ã£o" },
+  hero: { title: "Hero (Banner Principal)", desc: "Edite o fundo e conteÃºdo" },
+  footer: { title: "Footer", desc: "RodapÃ© do site" },
 }
 
 export function EditorSidebar({
@@ -789,6 +795,9 @@ export function EditorSidebar({
   activeSection,
   plugins,
   accentColor = "#10b981",
+  editorMode = "basic",
+  sectionToolTab = "content",
+  onSectionToolTabChange,
   onConfigChange,
   onHeroChange,
   onHeroReset,
@@ -819,6 +828,29 @@ export function EditorSidebar({
   // Check if active section is a plugin
   const activePlugin = plugins.find((p) => p.id === activeSection)
 
+  // Fallback UI: If no section is selected, show a clean, minimal message
+  if (!activeSection || activeSection === "") {
+    return (
+      <aside className={cn("flex h-full w-72 shrink-0 flex-col bg-background lg:w-80 border-r border-border", className)}>
+        <div className="flex flex-col items-center justify-center h-full p-10 text-center space-y-6 transition-all duration-700">
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-full bg-primary/5 blur-xl animate-pulse" style={{ backgroundColor: `${accentColor}15` }} />
+            <div className="relative p-5 rounded-full bg-muted/20 border border-border/40 shadow-sm">
+              <MousePointer2 className="h-8 w-8 text-muted-foreground/60" />
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="text-[11px] font-black uppercase tracking-[0.25em] text-foreground/70">Edição Visual</h3>
+            <p className="text-[10px] text-muted-foreground/60 leading-relaxed max-w-[180px] mx-auto font-medium">
+              Clique em uma área do site para <br /> começar a editar
+            </p>
+          </div>
+        </div>
+      </aside>
+    )
+  }
+
   // If it's a plugin section, render the plugin's sidebar
   if (activePlugin) {
     const PluginSidebar = activePlugin.sidebarComponent
@@ -844,7 +876,7 @@ export function EditorSidebar({
             </div>
             
             <p className="text-[10px] text-muted-foreground/60 font-medium tracking-tight">
-              Personalize esta seção e seus componentes
+              Personalize esta seÃ§Ã£o e seus componentes
             </p>
           </div>
           <div className="w-full">
@@ -861,7 +893,7 @@ export function EditorSidebar({
           <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3">
             <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0" style={{ color: accentColor }} />
             <p className="text-[10px] leading-relaxed text-muted-foreground/70">
-              Use cores e estilos com o empírico de 60/30/10: 60% base, 30% acentuação, <strong className="text-muted-foreground">10% destaque</strong>.
+              Use cores e estilos com o empÃ­rico de 60/30/10: 60% base, 30% acentuaÃ§Ã£o, <strong className="text-muted-foreground">10% destaque</strong>.
             </p>
           </div>
         </div>
@@ -1070,7 +1102,7 @@ export function EditorSidebar({
     onToggleAccordion(openAccordion === id ? null : id)
   }
 
-  const info = sectionTitle[activeSection] || { title: activeSection, desc: "Editar seção" }
+  const info = sectionTitle[activeSection] || { title: activeSection, desc: "Editar seÃ§Ã£o" }
 
   return (
     <aside className={cn("flex h-full w-72 shrink-0 flex-col bg-background lg:w-80", className)}>
@@ -1107,17 +1139,49 @@ export function EditorSidebar({
           <p className="text-[10px] text-muted-foreground/60 font-medium tracking-tight">
             {info.desc}
             {activeSection === "hero" && device !== "mobile" && (
-              <span className="ml-1 opacity-50 italic">— modo override {device}</span>
+              <span className="ml-1 opacity-50 italic">â€” modo override {device}</span>
             )}
           </p>
         </div>
 
+        {/* â•â•â• Section Tool Tabs â•â•â• */}
+        <div className="flex border-b border-border bg-muted/30">
+          <button
+            onClick={() => onSectionToolTabChange?.("content")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all border-b-2",
+              sectionToolTab === "content"
+                ? "text-foreground border-current"
+                : "text-muted-foreground/60 border-transparent hover:text-foreground hover:bg-muted/50"
+            )}
+            style={sectionToolTab === "content" ? { borderColor: accentColor, color: accentColor } : undefined}
+          >
+            <Type className="h-3.5 w-3.5" />
+            ConteÃºdo
+          </button>
+          <button
+            onClick={() => onSectionToolTabChange?.("appearance")}
+            className={cn(
+              "flex-1 flex items-center justify-center gap-2 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all border-b-2",
+              sectionToolTab === "appearance"
+                ? "text-foreground border-current"
+                : "text-muted-foreground/60 border-transparent hover:text-foreground hover:bg-muted/50"
+            )}
+            style={sectionToolTab === "appearance" ? { borderColor: accentColor, color: accentColor } : undefined}
+          >
+            <Paintbrush className="h-3.5 w-3.5" />
+            AparÃªncia
+          </button>
+        </div>
+        {/* â•â•â• CONTENT TAB â•â•â• */}
+        {sectionToolTab === "content" && (
+          <>
         {/* Header Content */}
         {activeSection === "header" && (
           <AccordionItem
             id="header-content"
             icon={Palette}
-            label="Conteúdo"
+            label="ConteÃºdo"
             isOpen={openAccordion === "header-content"}
             accentColor={accentColor}
             onToggle={toggleAccordion}
@@ -1181,7 +1245,7 @@ export function EditorSidebar({
                 <div className="pt-4 border-t border-border/50">
                   <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                     Logo Miniatura
-                    <span className="text-[9px] font-normal lowercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground/60">Painel Contraído</span>
+                    <span className="text-[9px] font-normal lowercase bg-muted px-1.5 py-0.5 rounded text-muted-foreground/60">Painel ContraÃ­do</span>
                   </Label>
                   {config.header.logoMini ? (
                     <div className="relative group w-20">
@@ -1228,7 +1292,7 @@ export function EditorSidebar({
           <AccordionItem
             id="header-nav"
             icon={AlignLeft}
-            label="Menu de Navegação"
+            label="Menu de NavegaÃ§Ã£o"
             isOpen={openAccordion === "header-nav"}
             accentColor={accentColor}
             onToggle={toggleAccordion}
@@ -1260,7 +1324,7 @@ export function EditorSidebar({
                     .filter(id => id !== 'header' && id !== 'hero' && id !== 'footer' && id !== 'trust')
                     .map((id) => {
                       const item = (config.header.menuItems || []).find((m: any) => m.id === id)
-                      const label = item?.label || (id === 'team' && config.header.logoText?.includes('Adv') ? 'Equipe Jurídica' : SECTION_LABELS[id] || id)
+                      const label = item?.label || (id === 'team' && config.header.logoText?.includes('Adv') ? 'Equipe JurÃ­dica' : SECTION_LABELS[id] || id)
                       const href = item?.href || `#${id}`
 
                       return (
@@ -1368,7 +1432,7 @@ export function EditorSidebar({
 
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <Label className="text-xs text-muted-foreground">Espaçamento entre Itens</Label>
+                    <Label className="text-xs text-muted-foreground">EspaÃ§amento entre Itens</Label>
                     <span className="text-xs font-mono text-muted-foreground">{config.header.menuSpacing || 32}px</span>
                   </div>
                   <Slider
@@ -1388,7 +1452,7 @@ export function EditorSidebar({
         <AccordionItem
           id="content"
           icon={activeSection === "header" ? Wand2 : Type}
-          label={activeSection === "header" ? "Personalizar" : "Conteúdo"}
+          label={activeSection === "header" ? "Personalizar" : "ConteÃºdo"}
           isOpen={openAccordion === "content"}
           accentColor={accentColor}
           onToggle={toggleAccordion}
@@ -1397,7 +1461,7 @@ export function EditorSidebar({
             {activeSection === "header" && (
               <>
                 <div className="flex items-center justify-between border-t border-border pt-4 mb-4">
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Modo de Edição</Label>
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Modo de EdiÃ§Ã£o</Label>
                   <div className="grid grid-cols-2 gap-1.5 rounded-lg bg-muted p-1">
                     {(["fixed", "static"] as const).map((behavior) => (
                       <button
@@ -1416,7 +1480,7 @@ export function EditorSidebar({
                             : "text-muted-foreground/70 hover:text-muted-foreground"
                         )}
                       >
-                        {behavior === "fixed" ? "Fixo" : "Estático"}
+                        {behavior === "fixed" ? "Fixo" : "EstÃ¡tico"}
                       </button>
                     ))}
                   </div>
@@ -1470,7 +1534,7 @@ export function EditorSidebar({
 
                     {config.header.menuStyle === "solid" && (
                       <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
-                        <Label className="text-xs text-muted-foreground">Cor de Fundo (Padrão)</Label>
+                        <Label className="text-xs text-muted-foreground">Cor de Fundo (PadrÃ£o)</Label>
                         <div className="flex items-center gap-2">
                           <input
                             type="color"
@@ -1491,7 +1555,7 @@ export function EditorSidebar({
                       <GradientControls
                         gradient={config.header.gradient}
                         onUpdate={updateHeaderGradient}
-                        title="Gradiente (Padrão)"
+                        title="Gradiente (PadrÃ£o)"
                         showEnabled={false}
                         accentColor={accentColor}
                       />
@@ -1548,7 +1612,7 @@ export function EditorSidebar({
                                 {[
                                   { key: 'logo', label: 'Logo' },
                                   { key: 'menu', label: 'Menu' },
-                                  { key: 'cta', label: 'Botão CTA' },
+                                  { key: 'cta', label: 'BotÃ£o CTA' },
                                   { key: 'hamburger', label: 'Hamburger' }
                                 ].map(({ key, label }) => (
                                   <div key={key} className="flex items-center justify-between gap-2">
@@ -1575,7 +1639,7 @@ export function EditorSidebar({
               <>
                 <div className="pt-0">
                   <div className="flex items-center mb-3">
-                    <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Orientação</Label>
+                    <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">OrientaÃ§Ã£o</Label>
                     <OverrideIndicator active={isOverridden('orientation')} onReset={() => resetOverride('orientation')} accentColor={accentColor} />
                   </div>
                   <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
@@ -1607,7 +1671,7 @@ export function EditorSidebar({
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
                   <div className="flex items-center gap-1 mt-2">
-                    {["✨", "🔥", "💎", "⭐", "🚀", "❤️", "📍"].map((emoji) => (
+                    {["âœ¨", "ðŸ”¥", "ðŸ’Ž", "â­", "ðŸš€", "â¤ï¸", "ðŸ“"].map((emoji) => (
                       <button
                         key={emoji}
                         onClick={() => updateHero({ badge: `${emoji} ${resolvedHero.badge || ''}`.trim() })}
@@ -1621,25 +1685,25 @@ export function EditorSidebar({
                 </div>
                 <div>
                   <div className="flex items-center mb-1.5">
-                    <Label className="text-xs text-muted-foreground">Título</Label>
+                    <Label className="text-xs text-muted-foreground">TÃ­tulo</Label>
                     <OverrideIndicator active={isOverridden('title')} onReset={() => resetOverride('title')} accentColor={accentColor} />
                   </div>
                   <Input
                     value={resolvedHero.title}
                     onChange={(e) => updateHero({ title: e.target.value })}
-                    placeholder={placeholders?.title || "Título principal"}
+                    placeholder={placeholders?.title || "TÃ­tulo principal"}
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
                 </div>
                 <div>
                   <div className="flex items-center mb-1.5">
-                    <Label className="text-xs text-muted-foreground">Descrição</Label>
+                    <Label className="text-xs text-muted-foreground">DescriÃ§Ã£o</Label>
                     <OverrideIndicator active={isOverridden('description')} onReset={() => resetOverride('description')} accentColor={accentColor} />
                   </div>
                   <Input
                     value={resolvedHero.description}
                     onChange={(e) => updateHero({ description: e.target.value })}
-                    placeholder={placeholders?.description || "Descrição"}
+                    placeholder={placeholders?.description || "DescriÃ§Ã£o"}
                     className="h-9 border-border/50 bg-input text-foreground/80 placeholder:text-muted-foreground/50 text-xs"
                   />
                 </div>
@@ -1649,7 +1713,7 @@ export function EditorSidebar({
             {activeSection === "hero" && (
               <div className="space-y-4">
                 <p className="text-[10px] font-medium text-muted-foreground/60 italic border-t border-border/30 pt-4">
-                  Dica: Para configurações avançadas, use os acordeões de botões abaixo.
+                  Dica: Para configuraÃ§Ãµes avanÃ§adas, use os acordeÃµes de botÃµes abaixo.
                 </p>
               </div>
             )}
@@ -1684,48 +1748,67 @@ export function EditorSidebar({
           </div>
         </AccordionItem>
 
-        {/* Layout & Dimensions - Only for Hero */}
+        {/* Hero Image upload */}
         {activeSection === "hero" && (
           <AccordionItem
-            id="layout"
-            icon={Wand2}
-            label="Personalizar"
-            isOpen={openAccordion === "layout"}
+            id="image"
+            icon={Image}
+            label="Imagem de Fundo"
+            isOpen={openAccordion === "image"}
             accentColor={accentColor}
             onToggle={toggleAccordion}
           >
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <div className="flex items-center">
-                    <Label className="text-[11px] font-bold uppercase tracking-wider text-foreground/80">Auto Preencher</Label>
-                    <OverrideIndicator active={isOverridden('autoHeight')} onReset={() => resetOverride('autoHeight')} accentColor={accentColor} />
-                  </div>
-                  <p className="text-[9px] text-muted-foreground">Ocupar 100% da tela (100vh)</p>
+            <div>
+              <div className="mb-3 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Dispositivo</span>
+                <div className="flex gap-1 rounded-lg bg-muted p-1">
+                  {(["mobile", "tablet", "desktop"] as DeviceType[]).map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setImageDevice(d)}
+                      className={cn(
+                        "flex-1 rounded-md px-2 py-1.5 text-[10px] font-bold transition-all uppercase tracking-wider",
+                        imageDevice === d
+                          ? "bg-white/10 text-foreground shadow-sm"
+                          : "text-muted-foreground/70 hover:text-muted-foreground"
+                      )}
+                    >
+                      {d === "mobile" ? "Mob." : d === "tablet" ? "Tab." : "Desk."}
+                    </button>
+                  ))}
                 </div>
-                <Switch
-                  checked={resolvedHero.autoHeight !== false}
-                  onCheckedChange={(checked) => updateHero({ autoHeight: checked })}
-                />
               </div>
-              {!resolvedHero.autoHeight && (
-                <div className="space-y-3 pt-3 border-t border-border/30">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Label className="text-[11px] font-medium text-muted-foreground">Altura Manual</Label>
-                      <OverrideIndicator active={isOverridden('height')} onReset={() => resetOverride('height')} accentColor={accentColor} />
-                    </div>
-                    <span className="text-[10px] font-mono font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">{resolvedHero.height || 600}px</span>
-                  </div>
-                  <Slider
-                    value={[resolvedHero.height || 600]}
-                    onValueChange={([val]) => updateHero({ height: val })}
-                    min={300}
-                    max={1000}
-                    step={10}
-                    className="touch-none"
+
+              {config.hero.images[imageDevice] ? (
+                <div className="relative">
+                  <img
+                    src={config.hero.images[imageDevice]!}
+                    alt="Preview"
+                    className="h-32 w-full rounded-lg border border-border object-cover"
                   />
+                  <button
+                    onClick={removeImage}
+                    className="absolute right-2 top-2 rounded-full bg-red-500 p-1 text-foreground transition-transform hover:scale-110"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
+              ) : (
+                <label className={cn(
+                  "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-8 transition-colors hover:bg-muted",
+                  isUploading && "pointer-events-none opacity-50"
+                )} style={{ borderColor: `${accentColor}50` }}>
+                  {isUploading ? (
+                    <Loader2 className="h-8 w-8 animate-spin" style={{ color: accentColor }} />
+                  ) : (
+                    <Upload className="h-8 w-8" style={{ color: accentColor }} />
+                  )}
+                  <span className="text-sm font-medium" style={{ color: accentColor }}>
+                    {isUploading ? "Enviando arquivo..." : "Clique para upload"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">PNG, JPG atÃ© 10MB</span>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={isUploading} />
+                </label>
               )}
             </div>
           </AccordionItem>
@@ -1746,7 +1829,7 @@ export function EditorSidebar({
               {Object.entries(config.theme.colors).map(([key, value]) => (
                 <div key={key} className="flex items-center justify-between gap-3">
                   <Label className="text-xs capitalize text-muted-foreground">
-                    {key === "primary" ? "Primária" : key === "secondary" ? "Secundária" : key === "accent" ? "Destaque" : key === "background" ? "Fundo" : "Texto"}
+                    {key === "primary" ? "PrimÃ¡ria" : key === "secondary" ? "SecundÃ¡ria" : key === "accent" ? "Destaque" : key === "background" ? "Fundo" : "Texto"}
                   </Label>
                   <div className="flex items-center gap-2">
                     <input
@@ -1791,7 +1874,6 @@ export function EditorSidebar({
             />
           </AccordionItem>
         )}
-
 
         {/* Image - Only for Hero */}
         {activeSection === "hero" && (
@@ -1851,7 +1933,7 @@ export function EditorSidebar({
                   <span className="text-sm font-medium" style={{ color: accentColor }}>
                     {isUploading ? "Enviando arquivo..." : "Clique para upload"}
                   </span>
-                  <span className="text-xs text-muted-foreground">PNG, JPG até 10MB</span>
+                  <span className="text-xs text-muted-foreground">PNG, JPG atÃ© 10MB</span>
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={isUploading} />
                 </label>
               )}
@@ -1859,7 +1941,164 @@ export function EditorSidebar({
           </AccordionItem>
         )}
 
-        {/* Position - Only for Hero with image (or desktop fallback) */}
+        {/* Primary Button - Only for Hero */}
+        {activeSection === "hero" && (
+          <AccordionItem
+            id="button-primary"
+            icon={MousePointer2}
+            label="BotÃ£o PrimÃ¡rio"
+            isOpen={openAccordion === "button-primary"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <ButtonEditor
+              label="BotÃ£o PrimÃ¡rio"
+              config={resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
+              defaultConfig={{ text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
+              accentColor={accentColor}
+              onChange={(updates) => updateHero({ 
+                buttonPrimary: { 
+                  ...(resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }), 
+                  ...updates 
+                } 
+              })}
+              onReset={() => resetOverride('buttonPrimary')}
+            />
+          </AccordionItem>
+        )}
+
+        {/* Secondary Button - Only for Hero */}
+        {activeSection === "hero" && (
+          <AccordionItem
+            id="button-secondary"
+            icon={MousePointer2}
+            label="BotÃ£o SecundÃ¡rio"
+            isOpen={openAccordion === "button-secondary"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <ButtonEditor
+              label="BotÃ£o SecundÃ¡rio"
+              config={resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver ServiÃ§os", link: "#services", outline: true }}
+              defaultConfig={{ text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver ServiÃ§os", link: "#services", outline: true }}
+              accentColor={accentColor}
+              onChange={(updates) => updateHero({ 
+                buttonSecondary: { 
+                  ...(resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver ServiÃ§os", link: "#services", outline: true }), 
+                  ...updates 
+                } 
+              })}
+              onReset={() => resetOverride('buttonSecondary')}
+            />
+          </AccordionItem>
+        )}
+          </>
+        )}
+
+        {/* â•â•â• APPEARANCE TAB â•â•â• */}
+        {sectionToolTab === "appearance" && (
+          <>
+        {/* Layout & Dimensions - Only for Hero */}
+        {activeSection === "hero" && (
+          <AccordionItem
+            id="layout"
+            icon={Wand2}
+            label="Personalizar"
+            isOpen={openAccordion === "layout"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="flex items-center">
+                    <Label className="text-[11px] font-bold uppercase tracking-wider text-foreground/80">Auto Preencher</Label>
+                    <OverrideIndicator active={isOverridden('autoHeight')} onReset={() => resetOverride('autoHeight')} accentColor={accentColor} />
+                  </div>
+                  <p className="text-[9px] text-muted-foreground">Ocupar 100% da tela (100vh)</p>
+                </div>
+                <Switch
+                  checked={resolvedHero.autoHeight !== false}
+                  onCheckedChange={(checked) => updateHero({ autoHeight: checked })}
+                />
+              </div>
+              {!resolvedHero.autoHeight && (
+                <div className="space-y-3 pt-3 border-t border-border/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Label className="text-[11px] font-medium text-muted-foreground">Altura Manual</Label>
+                      <OverrideIndicator active={isOverridden('height')} onReset={() => resetOverride('height')} accentColor={accentColor} />
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">{resolvedHero.height || 600}px</span>
+                  </div>
+                  <Slider
+                    value={[resolvedHero.height || 600]}
+                    onValueChange={([val]) => updateHero({ height: val })}
+                    min={300}
+                    max={1000}
+                    step={10}
+                    className="touch-none"
+                  />
+                </div>
+              )}
+            </div>
+          </AccordionItem>
+        )}
+
+        {/* Colors & Gradient - Only for Hero (DEVICE-AWARE) */}
+        {activeSection === "hero" && (
+          <AccordionItem
+            id="colors"
+            icon={Droplets}
+            label="Cores e Gradiente"
+            isOpen={openAccordion === "colors"}
+            accentColor={accentColor}
+            onToggle={toggleAccordion}
+          >
+            <div className="space-y-3">
+              <Label className="block text-xs font-medium uppercase tracking-wider text-muted-foreground">Cores</Label>
+              {Object.entries(config.theme.colors).map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between gap-3">
+                  <Label className="text-xs capitalize text-muted-foreground">
+                    {key === "primary" ? "PrimÃ¡ria" : key === "secondary" ? "SecundÃ¡ria" : key === "accent" ? "Destaque" : key === "background" ? "Fundo" : "Texto"}
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={value || ""}
+                      onChange={(e) => updateColors(key as keyof EditorConfig["theme"]["colors"], e.target.value)}
+                      className="h-8 w-8 cursor-pointer rounded border-0 bg-transparent"
+                    />
+                    <Input
+                      value={value || ""}
+                      onChange={(e) => updateColors(key as keyof EditorConfig["theme"]["colors"], e.target.value)}
+                      className="h-8 w-20 border-border/50 bg-input font-mono text-[10px] text-foreground/60"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <GradientControls
+              gradient={resolvedHero.gradient?.enabled ? resolvedHero.gradient : config.theme.gradient}
+              onUpdate={(updates) => {
+                const currentGradient = resolvedHero.gradient?.enabled
+                  ? resolvedHero.gradient
+                  : config.theme.gradient
+                const fullGradient = {
+                  ...currentGradient,
+                  ...updates,
+                  stops: updates.stops
+                    ? updates.stops.map(s => ({ ...s }))
+                    : currentGradient.stops.map(s => ({ ...s })),
+                }
+                updateHero({ gradient: fullGradient })
+              }}
+              accentColor={accentColor}
+            />
+          </AccordionItem>
+        )}
+
+        {/* Position - Only for Hero with image */}
         {activeSection === "hero" && (config.hero.images[imageDevice] || config.hero.images.desktop) && (
           <AccordionItem
             id="position"
@@ -1872,14 +2111,14 @@ export function EditorSidebar({
             <div className="space-y-4">
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <Label className="text-xs text-muted-foreground">Posição X</Label>
+                  <Label className="text-xs text-muted-foreground">PosiÃ§Ã£o X</Label>
                   <span className="text-xs font-mono text-muted-foreground">{config.hero.imagePosition[imageDevice].x}%</span>
                 </div>
                 <Slider value={[config.hero.imagePosition[imageDevice].x]} onValueChange={([v]) => updateHeroPosition("x", v)} max={100} step={1} className="touch-none" />
               </div>
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <Label className="text-xs text-muted-foreground">Posição Y</Label>
+                  <Label className="text-xs text-muted-foreground">PosiÃ§Ã£o Y</Label>
                   <span className="text-xs font-mono text-muted-foreground">{config.hero.imagePosition[imageDevice].y}%</span>
                 </div>
                 <Slider value={[config.hero.imagePosition[imageDevice].y]} onValueChange={([v]) => updateHeroPosition("y", v)} max={100} step={1} className="touch-none" />
@@ -1954,57 +2193,7 @@ export function EditorSidebar({
             </div>
           </AccordionItem>
         )}
-
-        {/* Primary Button - Only for Hero */}
-        {activeSection === "hero" && (
-          <AccordionItem
-            id="button-primary"
-            icon={MousePointer2}
-            label="Botão Primário"
-            isOpen={openAccordion === "button-primary"}
-            accentColor={accentColor}
-            onToggle={toggleAccordion}
-          >
-            <ButtonEditor
-              label="Botão Primário"
-              config={resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
-              defaultConfig={{ text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }}
-              accentColor={accentColor}
-              onChange={(updates) => updateHero({ 
-                buttonPrimary: { 
-                  ...(resolvedHero.buttonPrimary || { text: resolvedHero.ctaPrimary || placeholders?.ctaPrimary || "Agendar", link: "#agendamento" }), 
-                  ...updates 
-                } 
-              })}
-              onReset={() => resetOverride('buttonPrimary')}
-            />
-          </AccordionItem>
-        )}
-
-        {/* Secondary Button - Only for Hero */}
-        {activeSection === "hero" && (
-          <AccordionItem
-            id="button-secondary"
-            icon={MousePointer2}
-            label="Botão Secundário"
-            isOpen={openAccordion === "button-secondary"}
-            accentColor={accentColor}
-            onToggle={toggleAccordion}
-          >
-            <ButtonEditor
-              label="Botão Secundário"
-              config={resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }}
-              defaultConfig={{ text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }}
-              accentColor={accentColor}
-              onChange={(updates) => updateHero({ 
-                buttonSecondary: { 
-                  ...(resolvedHero.buttonSecondary || { text: resolvedHero.ctaSecondary || placeholders?.ctaSecondary || "Ver Serviços", link: "#services", outline: true }), 
-                  ...updates 
-                } 
-              })}
-              onReset={() => resetOverride('buttonSecondary')}
-            />
-          </AccordionItem>
+          </>
         )}
       </div>
 
@@ -2020,3 +2209,4 @@ export function EditorSidebar({
     </aside>
   )
 }
+

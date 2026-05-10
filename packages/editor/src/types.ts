@@ -6,9 +6,11 @@ import type { ComponentType } from "react"
 export type DeviceType = "mobile" | "tablet" | "desktop"
 export type SectionType = "header" | "hero" | "footer"
 export type AccordionType = "theme" | "colors" | "image" | "position" | "effects" | "content" | "header-content" | "header-nav" | "layout" | "button-primary" | "button-secondary"
-export type ThemePresetType = "neutral" | "classic" | "hightech" | "emerald" | "custom"
+export type ThemePresetType = "neutral" | "classic" | "ruby" | "emerald" | "midnight" | "sunset" | "sunflower" | "custom"
 export type OrientationType = "left" | "center" | "right"
 export type FontFamily = "sans" | "serif" | "mono" | "display"
+export type EditorMode = "basic" | "advanced"
+export type SectionToolTab = "content" | "appearance"
 
 // ─── Gradient ───
 export interface GradientStop {
@@ -52,6 +54,8 @@ export interface ThemeConfig {
     accent: string
     background: string
     text: string
+    surface: string
+    muted: string
   }
   gradient: GradientConfig
 }
@@ -279,7 +283,6 @@ export interface SiteEditorProps {
   /** Additional className for the root container */
   className?: string
   /** Accent color inherited from host app (used for active states, indicators) */
-  /** Accent color inherited from host app (used for active states, indicators) */
   accentColor?: string
   /** Default text placeholders for hero content (business type specific) */
   placeholders?: {
@@ -291,4 +294,6 @@ export interface SiteEditorProps {
   }
   /** Callback for exit/back button */
   onExit?: () => void
+  /** Initial editor mode (basic/advanced). Defaults to 'basic'. */
+  defaultEditorMode?: EditorMode
 }

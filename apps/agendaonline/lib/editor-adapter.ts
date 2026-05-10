@@ -36,6 +36,8 @@ export function tenantToEditorConfig(tenant: TenantData): EditorConfig {
         accent: tenant.colors.primary,
         background: "#0f172a",
         text: "#ffffff",
+        surface: "#1e293b",
+        muted: "#334155",
       },
       gradient: {
         enabled: true,

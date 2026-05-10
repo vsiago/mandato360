@@ -26,10 +26,12 @@ export type {
   FontFamily,
   ThemePreset,
   AccordionType,
+  EditorMode,
+  SectionToolTab,
 } from "./types"
 
 // Hooks (for advanced usage)
-export { useEditor, type UseEditorOptions, type UseEditorReturn } from "./hooks/use-editor"
+export { useEditor } from "./hooks/use-editor"
 export { resolveHero, hasOverride, useResolvedHero, type ResolvedHero } from "./hooks/use-resolved-config"
 
 // Utilities
