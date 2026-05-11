@@ -493,20 +493,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <header className="sticky top-0 z-20 bg-white/80 dark:bg-stone-950/60 backdrop-blur-xl border-b border-stone-200/50 dark:border-stone-800/40 h-16 px-5 flex items-center justify-between transition-colors shadow-sm">
                     {/* Mobile logo + Page title */}
-                    <div className="flex items-center gap-3">
-                        <Link href="/painel" className="lg:hidden flex items-center gap-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <Link href="/painel" className="lg:hidden flex items-center gap-2 shrink-0">
                             <img 
-                                src={tenant?.logoMiniUrl || tenant?.logoUrl || cachedBranding?.mini || cachedBranding?.logo || "/logo-agenda-online.svg"} 
+                                src={(tenant?.logoUrl || cachedBranding?.logo)
+                                    ? (tenant?.logoMiniUrl || tenant?.avatarUrl || cachedBranding?.mini || tenant?.logoUrl || cachedBranding?.logo) 
+                                    : "/logo-agenda-online-icon.svg"}
                                 alt={tenant?.title || cachedBranding?.title || "Agenda Online"} 
-                                className="h-10 w-auto object-contain" 
+                                className="h-8 w-auto object-contain" 
                             />
                         </Link>
-                        <div id="header-title-portal" className="hidden lg:block" />
+                        <div id="header-title-portal" />
                         {!mounted ? (
-                            <h1 className="hidden lg:block text-sm font-semibold text-foreground">{pageTitle}</h1>
+                            <h1 className="text-sm font-semibold text-foreground truncate">{pageTitle}</h1>
                         ) : (
-                            <div id="header-default-title" className="hidden lg:block">
-                                <h1 className="text-sm font-semibold text-foreground">{pageTitle}</h1>
+                            <div id="header-default-title" className="min-w-0">
+                                <h1 className="text-sm font-semibold text-foreground truncate">{pageTitle}</h1>
                             </div>
                         )}
                     </div>

@@ -35,6 +35,7 @@ import { getMyTenant } from "@/lib/tenant-api"
 import { PixConfigModal } from "@/components/PixConfigModal"
 import { SaveClientModal } from "@/components/SaveClientModal"
 import { BusinessHoursModal } from "@/components/BusinessHoursModal"
+import { PendingConfirmModal } from "@/components/PendingConfirmModal"
 import {
     Dialog,
     DialogContent,
@@ -121,6 +122,8 @@ export default function AgendaPage() {
     const [isSaveClientModalOpen, setIsSaveClientModalOpen] = useState(false)
     const [appointmentToComplete, setAppointmentToComplete] = useState<any>(null)
     const [clientToSave, setClientToSave] = useState<any>(null)
+    const [appointmentToConfirm, setAppointmentToConfirm] = useState<any>(null)
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
     const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month')
     const isDesktop = useMediaQuery("(min-width: 768px)")
     const isXL = useMediaQuery("(min-width: 1280px)")
@@ -246,9 +249,13 @@ export default function AgendaPage() {
             // Notification Logic for new pending appointments
             if (initialLoadDone.current) {
                 let hasNewPending = false;
+                let firstNewApt: any = null;
                 res.appointments.forEach((apt: any) => {
                     if (apt.status === 'pending' && !lastKnownPendingIds.current.has(apt.id)) {
                         hasNewPending = true;
+                        if (!firstNewApt) {
+                            firstNewApt = serverGrouped[apt.date.trim()]?.find(a => a.id === apt.id);
+                        }
                         toast.success("Novo agendamento!", {
                             description: `${apt.customerName} solicitou para ${apt.date} às ${apt.time}`,
                             action: {
@@ -262,6 +269,10 @@ export default function AgendaPage() {
                     }
                 });
                 if (hasNewPending) playNotificationSound();
+                if (firstNewApt && !isConfirmModalOpen) {
+                    setAppointmentToConfirm(firstNewApt);
+                    setIsConfirmModalOpen(true);
+                }
             } else {
                 initialLoadDone.current = true;
             }
@@ -612,19 +623,22 @@ export default function AgendaPage() {
             fetchAppointments(tenantId, selectedDate);
         }
     };
-    const confirmAppointment = async (time: string) => {
-        const apt = dayAppointments.find(a => a.time === time);
+    const confirmAppointment = async (timeOrId: string, specificDateKey?: string) => {
+        const dKey = specificDateKey || selectedDate;
+        const targetList = appointments[dKey] || [];
+        const apt = targetList.find(a => a.time === timeOrId || a.id === timeOrId);
         if (apt && (apt as any).id && tenantId) {
             const result = await updateAppointmentStatusAction((apt as any).id, tenantId, "confirmed");
             if (result.success) {
                 setAppointments(prev => ({
                     ...prev,
-                    [selectedDate]: prev[selectedDate].map(apt => apt.time === time ? { ...apt, status: "confirmed" as const } : apt)
+                    [dKey]: (prev[dKey] || []).map(a => a.id === (apt as any).id ? { ...a, status: "confirmed" as const } : a)
                 }));
                 
                 // Update selectedAppointment to reflect change immediately in the details panel
-                setSelectedAppointment(prev => prev && (prev.id === (apt as any).id || prev.time === time) ? { ...prev, status: "confirmed" } : prev);
+                setSelectedAppointment((prev: any) => prev && (prev.id === (apt as any).id) ? { ...prev, status: "confirmed" } : prev);
                 
+                setIsConfirmModalOpen(false);
                 toast.success("Agendamento confirmado!");
             }
         }
@@ -1303,7 +1317,15 @@ export default function AgendaPage() {
                                                         : apt.status === 'confirmed'
                                                             ? "bg-gradient-to-r from-emerald-500/[0.08] to-emerald-500/[0.02] border-emerald-500/20"
                                                     : "bg-gradient-to-r from-amber-500/[0.08] to-amber-500/[0.02] border-amber-500/20"
-                                                )} onClick={() => { setAppointmentToComplete(apt); setIsDetailsModalOpen(true); }}>
+                                                )} onClick={() => { 
+                                                    if (apt.status === 'pending') {
+                                                        setAppointmentToConfirm(apt);
+                                                        setIsConfirmModalOpen(true);
+                                                    } else {
+                                                        setAppointmentToComplete(apt); 
+                                                        setIsDetailsModalOpen(true); 
+                                                    }
+                                                }}>
                                                     <div className="flex items-center justify-between gap-2">
                                                         <div className="flex flex-col min-w-0 flex-1">
                                                             <h4 className="text-sm font-bold text-stone-900 dark:text-foreground truncate">{apt.name}</h4>
@@ -1498,6 +1520,13 @@ export default function AgendaPage() {
                     phone: clientToSave?.phone,
                     appointmentId: clientToSave?.id
                 }}
+            />
+
+            <PendingConfirmModal
+                isOpen={isConfirmModalOpen}
+                onClose={() => setIsConfirmModalOpen(false)}
+                appointment={appointmentToConfirm}
+                onConfirm={confirmAppointment}
             />
 
             <RescheduleModal
