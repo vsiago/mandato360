@@ -28,13 +28,21 @@ import { getAppointmentsByTenantAction } from "@/lib/actions/appointments"
 import { getServicesAction } from "@/lib/actions/services"
 import type { TenantData } from "@/lib/tenant-types"
 
+let globalCache = {
+    tenant: null as TenantData | null,
+    services: [] as any[],
+    appointments: [] as any[],
+    isLoaded: false
+};
+
 function PainelContent() {
-    const [tenant, setTenant] = useState<TenantData | null>(null)
-    const [loading, setLoading] = useState(true)
+    const [tenant, setTenant] = useState<TenantData | null>(globalCache.tenant)
+    const [loading, setLoading] = useState(!globalCache.isLoaded)
+    const [loadingAgenda, setLoadingAgenda] = useState(true)
     const [showChecklist, setShowChecklist] = useState(true)
     const [agendaFilter, setAgendaFilter] = useState("Hoje")
-    const [appointments, setAppointments] = useState<any[]>([])
-    const [services, setServices] = useState<any[]>([])
+    const [appointments, setAppointments] = useState<any[]>(globalCache.appointments)
+    const [services, setServices] = useState<any[]>(globalCache.services)
     const searchParams = useSearchParams()
 
     useEffect(() => {
@@ -49,25 +57,52 @@ function PainelContent() {
     }, [searchParams])
 
     useEffect(() => {
+        let isMounted = true;
+        
         getMyTenant().then(async data => {
+            if (!isMounted) return;
             setTenant(data)
-            if (data?.id) {
-                // Fetch services
-                const svcRes = await getServicesAction(data.id)
-                if (svcRes.success && svcRes.services) {
-                    setServices(svcRes.services)
-                }
-                
-                // Fetch appointments
-                const aptRes = await getAppointmentsByTenantAction(data.id)
-                if (aptRes.success && aptRes.appointments) {
-                    setAppointments(aptRes.appointments)
-                }
-            }
-            setLoading(false)
+            globalCache.tenant = data
+            
             const dismissed = localStorage.getItem("agenda_checklist_dismissed_v2")
             if (dismissed === "true") setShowChecklist(false)
-        }).catch(() => setLoading(false))
+            
+            if (data?.id) {
+                // Fetch services in background
+                getServicesAction(data.id).then(svcRes => {
+                    if (isMounted && svcRes.success && svcRes.services) {
+                        setServices(svcRes.services)
+                        globalCache.services = svcRes.services
+                    }
+                })
+                
+                // Stop overall loading immediately since we have tenant info
+                setLoading(false)
+                globalCache.isLoaded = true
+                
+                // Fetch appointments
+                getAppointmentsByTenantAction(data.id).then(aptRes => {
+                    if (isMounted && aptRes.success && aptRes.appointments) {
+                        setAppointments(aptRes.appointments)
+                        globalCache.appointments = aptRes.appointments
+                    }
+                    if (isMounted) setLoadingAgenda(false)
+                }).catch(() => {
+                    if (isMounted) setLoadingAgenda(false)
+                })
+            } else {
+                setLoading(false)
+                setLoadingAgenda(false)
+                globalCache.isLoaded = true
+            }
+        }).catch(() => {
+            if (isMounted) {
+                setLoading(false)
+                setLoadingAgenda(false)
+            }
+        })
+        
+        return () => { isMounted = false; }
     }, [])
 
     const filteredAppointments = useMemo(() => {
@@ -116,6 +151,31 @@ function PainelContent() {
 
     const serviceCount = tenant?.services?.length || 0
     const isAdvocacia = tenant?.segmento === "advocacia"
+
+    const faturamentoHoje = useMemo(() => {
+        const today = new Date();
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+        
+        let total = 0;
+        appointments.forEach(apt => {
+            if (apt.date === todayStr && (apt.status === 'completed' || apt.status === 'confirmed')) {
+                let price = 0;
+                if (apt.notes?.startsWith('{')) {
+                    try {
+                        const data = JSON.parse(apt.notes);
+                        if (data.financeiro?.valor) price = Number(data.financeiro.valor);
+                    } catch(e) {}
+                }
+                if (price === 0 && apt.serviceId) {
+                    const srv = services.find(s => s.id === apt.serviceId);
+                    if (srv && srv.price) price = Number(srv.price);
+                }
+                total += price;
+            }
+        });
+        return total;
+    }, [appointments, services]);
 
     const checklistItems = [
         { label: "Site publicado", done: !!tenant?.slug, href: `/${tenant?.slug}` },
@@ -382,7 +442,7 @@ function PainelContent() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 
                 {/* ── Left Column: Agendamentos ── */}
-                {loading ? <AgendaSkeleton /> : (
+                {loadingAgenda ? <AgendaSkeleton /> : (
                     <div className="lg:col-span-5 bg-white/60 dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl overflow-hidden flex flex-col h-full lg:mx-0 shadow-xl dark:shadow-2xl transition-colors">
                         <div className="p-5 lg:p-6 flex flex-wrap items-center justify-between gap-4 border-b border-stone-100 dark:border-white/[0.03] bg-stone-50/30 dark:bg-white/[0.01]">
                             <div className="flex items-center gap-2.5">
@@ -463,7 +523,7 @@ function PainelContent() {
                     <div className="lg:col-span-7 space-y-4 lg:space-y-6 lg:px-0">
                         <div className="grid grid-cols-2 gap-3 lg:gap-4">
                             {[
-                                { title: "Faturamento", value: "R$ 0,00", sub: "Este mês", icon: DollarSign, accent: "bg-emerald-500/10 text-emerald-500" },
+                                { title: "Faturamento", value: `R$ ${faturamentoHoje.toFixed(2).replace('.', ',')}`, sub: "Hoje", icon: DollarSign, accent: "bg-emerald-500/10 text-emerald-500" },
                                 { title: "Clientes", value: String(new Set(appointments.map(a => a.customerName)).size), sub: "Total", icon: Users, accent: "bg-blue-500/10 text-blue-500" },
                                 { title: isAdvocacia ? "Áreas" : "Serviços", value: String(serviceCount), sub: "Catálogo", icon: isAdvocacia ? Scale : Scissors, accent: "bg-amber-500/10 text-amber-500" },
                                 { title: "Hoje", value: String(appointments.filter(a => {
