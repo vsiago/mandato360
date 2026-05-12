@@ -524,7 +524,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                             </Link>
                         ))}
                         
-                        <Link href="/login" className="transition-all hover:opacity-80">
+                        <Link href={`/${data.slug}/login`} className="transition-all hover:opacity-80">
                             <Button 
                                 variant="ghost" 
                                 className="font-bold text-[11px] uppercase tracking-widest h-10 px-4 rounded-xl"
@@ -574,7 +574,7 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
                                     <div className="h-px bg-slate-100 my-2 mx-4" />
                                     
                                     <SheetClose asChild>
-                                        <Link href="/login"
+                                        <Link href={`/${data.slug}/login`}
                                             className="group flex items-center justify-between text-[17px] font-bold text-slate-900 hover:text-tenant-primary hover:bg-white hover:shadow-sm px-5 py-4 rounded-2xl transition-all duration-300">
                                             <div className="flex items-center gap-3">
                                                 <User className="h-5 w-5 text-slate-400 group-hover:text-tenant-primary transition-colors" />
