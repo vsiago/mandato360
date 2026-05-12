@@ -10,10 +10,9 @@ interface ImageUploadProps {
     onChange: (url: string) => void;
     disabled?: boolean;
     className?: string;
-    objectFit?: "cover" | "contain";
 }
 
-export function ImageUpload({ value, onChange, disabled, className, objectFit = "cover" }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, disabled, className }: ImageUploadProps) {
     const [isUploading, setIsUploading] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -41,17 +40,10 @@ export function ImageUpload({ value, onChange, disabled, className, objectFit = 
                 body: formData,
             })
 
-            const contentType = res.headers.get("content-type")
-            let data: any
-            if (contentType && contentType.includes("application/json")) {
-                data = await res.json()
-            } else {
-                const text = await res.text()
-                throw new Error(text || "Erro desconhecido no servidor")
-            }
+            const data = await res.json()
             
             if (!res.ok) {
-                throw new Error(data?.message || data?.error || "Erro no upload")
+                throw new Error(data.message || data.error || "Erro no upload")
             }
 
             if (!data.url) {
@@ -74,18 +66,15 @@ export function ImageUpload({ value, onChange, disabled, className, objectFit = 
         <div className={cn("relative group w-full h-32 rounded-xl border-2 border-dashed border-amber-200/50 dark:border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-all flex flex-col items-center justify-center overflow-hidden", className)}>
             {value ? (
                 <>
-                    <img 
-                        src={value} 
-                        alt="Upload preview" 
-                        className={cn(
-                            "w-full h-full",
-                            objectFit === "cover" ? "object-cover" : "object-contain p-2"
-                        )} 
-                    />
+                    <img src={value} alt="Upload preview" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                         <button
                             type="button"
-                            onClick={(e) => { e.stopPropagation(); onChange(""); }}
+                            onClick={(e) => { 
+                                e.stopPropagation(); 
+                                onChange(""); 
+                                toast.info("Imagem removida. Clique em 'Salvar Alterações' para confirmar.");
+                            }}
                             className="p-2 bg-red-500/90 text-white rounded-full hover:bg-red-600 transition-colors"
                             disabled={disabled || isUploading}
                         >

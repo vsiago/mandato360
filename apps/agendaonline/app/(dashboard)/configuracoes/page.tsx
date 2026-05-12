@@ -224,14 +224,24 @@ function ConfiguracoesContent() {
                                 </div>
                             </div>
 
+                            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+                                <div className="relative group shrink-0">
+                                    <Avatar className="h-24 w-24 lg:h-32 lg:w-32 rounded-2xl border-2 border-stone-200 dark:border-white/10 shadow-2xl overflow-hidden">
+                                        {(data.founder.imageUrl || data.avatarUrl) && (
+                                            <img src={data.founder.imageUrl || data.avatarUrl} alt={data.founder.name} className="w-full h-full object-cover" />
+                                        )}
+                                        <AvatarFallback className="bg-stone-100 dark:bg-stone-900 text-stone-400 dark:text-stone-500 text-xl font-bold">
+                                            {(data.founder.name || data.name || "A").slice(0, 2).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="absolute inset-0 bg-stone-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl cursor-pointer">
+                                        <ImagePlus className="h-6 w-6 text-white" />
+                                    </div>
+                                </div>
                                 <div className="flex-1 space-y-4 w-full">
                                     <div className="space-y-2">
                                         <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Foto de Perfil Profissional</Label>
-                                        <ImageUpload 
-                                            value={data.founder.imageUrl || ""} 
-                                            onChange={url => setFounder('imageUrl', url)} 
-                                            className="h-32 lg:h-40"
-                                        />
+                                        <ImageUpload value={data.founder.imageUrl || ""} onChange={url => setFounder('imageUrl', url)} />
                                     </div>
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                                         <div className="space-y-2">
@@ -244,6 +254,7 @@ function ConfiguracoesContent() {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
                             <div className="space-y-2">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Mini Bio (Quem Somos)</Label>
@@ -279,12 +290,18 @@ function ConfiguracoesContent() {
                                         <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Logotipo Principal</Label>
                                         <span className="text-[9px] text-stone-600 dark:text-stone-600 italic">Horizontal</span>
                                     </div>
-                                    <ImageUpload 
-                                        value={data.logoUrl || ""} 
-                                        onChange={url => setField('logoUrl', url)} 
-                                        objectFit="contain"
-                                        className="h-40 bg-stone-50 dark:bg-stone-950/40 border-stone-100 dark:border-white/5"
-                                    />
+                                    <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-100 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 min-h-[160px] relative overflow-hidden group shadow-sm">
+                                        {data.logoUrl ? (
+                                            <div className="relative w-full h-full flex items-center justify-center p-4">
+                                                <img src={data.logoUrl} alt="Logo" className="max-h-24 object-contain brightness-110 shadow-2xl" />
+                                                <button onClick={() => setField('logoUrl', '')} className="absolute top-0 right-0 h-8 w-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <ImageUpload value={""} onChange={url => setField('logoUrl', url)} />
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Mini Logo Upload */}
@@ -293,12 +310,18 @@ function ConfiguracoesContent() {
                                         <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Logotipo Ícone (Variação)</Label>
                                         <span className="text-[9px] text-stone-600 dark:text-stone-600 italic">Quadrado</span>
                                     </div>
-                                    <ImageUpload 
-                                        value={data.logoMiniUrl || ""} 
-                                        onChange={url => setField('logoMiniUrl', url)} 
-                                        objectFit="contain"
-                                        className="h-40 bg-stone-50 dark:bg-stone-950/40 border-stone-100 dark:border-white/5"
-                                    />
+                                    <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-100 dark:border-white/5 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 min-h-[160px] relative overflow-hidden group shadow-sm">
+                                        {data.logoMiniUrl ? (
+                                            <div className="relative w-full h-full flex items-center justify-center p-4">
+                                                <img src={data.logoMiniUrl} alt="Logo Mini" className="max-h-20 w-20 object-contain brightness-110 shadow-2xl" />
+                                                <button onClick={() => setField('logoMiniUrl', '')} className="absolute top-0 right-0 h-8 w-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <X className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <ImageUpload value={""} onChange={url => setField('logoMiniUrl', url)} />
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
