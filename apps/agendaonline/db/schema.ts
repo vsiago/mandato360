@@ -296,3 +296,9 @@ export const servicesRelations = relations(services, ({ one }) => ({
         references: [categories.id],
     }),
 }));
+export const tenantsRelations = relations(tenants, ({ one }) => ({
+    businessType: one(businessTypes, {
+        fields: [tenants.businessTypeId],
+        references: [businessTypes.id],
+    }),
+}));

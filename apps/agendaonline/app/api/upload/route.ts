@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
         const result = await new Promise((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-                { folder: "agenda-online" },
+                { folder: "agenda-online", resource_type: "auto" },
                 (error, result) => {
                     if (error) reject(error);
                     else resolve(result);
@@ -31,8 +31,12 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json({ url: (result as any).secure_url });
-    } catch (error) {
-        console.error("Upload error:", error);
-        return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    } catch (error: any) {
+        console.error("Upload error details:", error);
+        return NextResponse.json({ 
+            error: "Upload failed", 
+            message: error.message || "Unknown error",
+            details: error
+        }, { status: 500 });
     }
 }

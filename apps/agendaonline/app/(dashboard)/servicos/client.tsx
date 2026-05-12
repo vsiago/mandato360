@@ -269,9 +269,11 @@ export default function ServicosClient({
 
                             <div className="flex items-end justify-between pt-4 border-t border-stone-100 dark:border-white/5">
                                 <div>
-                                    <div className="flex items-center gap-1.5 text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">
-                                        <Clock className="h-3 w-3" /> {service.duration} MIN
-                                    </div>
+                                    {!isAdvocacia && (
+                                        <div className="flex items-center gap-1.5 text-[10px] font-black text-stone-500 uppercase tracking-widest mb-1">
+                                            <Clock className="h-3 w-3" /> {service.duration} MIN
+                                        </div>
+                                    )}
                                     <div className="text-xl font-black text-brand-primary tracking-tight">
                                         R$ {service.price}
                                     </div>
@@ -411,25 +413,27 @@ export default function ServicosClient({
                                 className="h-12 bg-white dark:bg-stone-950/40 border-stone-200 dark:border-white/5 rounded-xl text-sm font-black text-brand-primary shadow-sm" placeholder="0.00" />
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Duração do Atendimento</Label>
-                        <div className="flex bg-stone-50 dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl p-1 gap-1">
-                            {[30, 45, 60, 90, 120].map(val => (
-                                <button
-                                    key={val}
-                                    onClick={() => setEditingService(prev => prev ? { ...prev, duration: val } : null)}
-                                    className={cn(
-                                        "flex-1 h-10 rounded-lg text-[10px] font-black transition-all",
-                                        editingService?.duration === val
-                                            ? "bg-brand-primary text-white shadow-lg"
-                                            : "text-stone-500 dark:text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 hover:bg-white dark:hover:bg-white/5"
-                                    )}
-                                >
-                                    {val}M
-                                </button>
-                            ))}
+                    {!isAdvocacia && (
+                        <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Duração do Atendimento</Label>
+                            <div className="flex bg-stone-50 dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl p-1 gap-1">
+                                {[30, 45, 60, 90, 120].map(val => (
+                                    <button
+                                        key={val}
+                                        onClick={() => setEditingService(prev => prev ? { ...prev, duration: val } : null)}
+                                        className={cn(
+                                            "flex-1 h-10 rounded-lg text-[10px] font-black transition-all",
+                                            editingService?.duration === val
+                                                ? "bg-brand-primary text-white shadow-lg"
+                                                : "text-stone-500 dark:text-stone-500 hover:text-stone-900 dark:hover:text-stone-300 hover:bg-white dark:hover:bg-white/5"
+                                        )}
+                                    >
+                                        {val}M
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Descrição Detalhada</Label>
                         <textarea

@@ -40,14 +40,22 @@ export function ImageUpload({ value, onChange, disabled, className }: ImageUploa
                 body: formData,
             })
 
-            if (!res.ok) throw new Error("Erro no upload")
-
             const data = await res.json()
+            
+            if (!res.ok) {
+                throw new Error(data.message || data.error || "Erro no upload")
+            }
+
+            if (!data.url) {
+                throw new Error("URL da imagem não retornada pelo servidor")
+            }
+            
             onChange(data.url)
             toast.success("Imagem enviada com sucesso!")
-        } catch (error) {
+        } catch (error: any) {
             console.error(error)
-            toast.error("Falha ao enviar a imagem.")
+            const errorMsg = error?.message || "Falha ao enviar a imagem."
+            toast.error(errorMsg)
         } finally {
             setIsUploading(false)
             if (fileInputRef.current) fileInputRef.current.value = ""

@@ -15,9 +15,12 @@ export default async function ServicosPage() {
         redirect("/login")
     }
 
-    // Find the tenant for this user (assume first tenant for now)
+    // Find the tenant for this user with its business type
     const userTenant = await db.query.tenants.findFirst({
-        where: eq(tenants.ownerId, session.user.id)
+        where: eq(tenants.ownerId, session.user.id),
+        with: {
+            businessType: true
+        }
     })
 
     if (!userTenant) {
@@ -66,7 +69,7 @@ export default async function ServicosPage() {
             initialServices={formattedServices}
             initialCategories={formattedCategories}
             tenantId={userTenant.id}
-            tenantSegmento={userTenant.segmento || ""}
+            tenantSegmento={userTenant.businessType?.slug || ""}
         />
     )
 }
