@@ -12,6 +12,7 @@ import type { TenantData } from "@/lib/tenant-types"
 import { toast } from "sonner"
 import { ImageUpload } from "@/components/ui/image-upload"
 import { cn } from "@/lib/utils"
+import { authClient, useSession } from "@/lib/auth-client"
 
 export default function ConfiguracoesPage() {
     return (
@@ -22,19 +23,29 @@ export default function ConfiguracoesPage() {
 }
 
 function ConfiguracoesContent() {
+    const { data: session } = useSession()
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const searchParams = useSearchParams()
-    const [activeTab, setActiveTab] = useState<"business" | "profile" | "brand" | "finance">("business")
+    const [activeTab, setActiveTab] = useState<"business" | "profile" | "brand" | "finance" | "account">("business")
 
     useEffect(() => {
         const tab = searchParams.get("tab") as any
-        if (tab && ["business", "profile", "brand", "finance"].includes(tab)) {
+        if (tab && ["business", "profile", "brand", "finance", "account"].includes(tab)) {
             setActiveTab(tab)
         }
     }, [searchParams])
 
     const [data, setData] = useState<TenantData | null>(null)
+
+    // Form states for Account Tab
+    const [newEmail, setNewEmail] = useState("")
+    const [emailLoading, setEmailLoading] = useState(false)
+    const [currentPassword, setCurrentPassword] = useState("")
+    const [newPassword, setNewPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const [passwordLoading, setPasswordLoading] = useState(false)
+    const [resendLoading, setResendLoading] = useState(false)
 
     useEffect(() => {
         getMyTenant().then(tenantData => {
@@ -75,7 +86,68 @@ function ConfiguracoesContent() {
         { key: "profile" as const, label: isAdvocacia ? "Advogado(a)" : "Profissional", icon: User },
         { key: "brand" as const, label: "Identidade", icon: Palette },
         { key: "finance" as const, label: "Financeiro", icon: CreditCard },
+        { key: "account" as const, label: "Segurança", icon: ShieldCheck },
     ]
+
+    const handleResendVerification = async () => {
+        if (!session?.user?.email) return
+        setResendLoading(true)
+        try {
+            await authClient.sendVerificationEmail({ email: session.user.email })
+            toast.success("E-mail de verificação reenviado! Verifique sua caixa de entrada.")
+        } catch (error: any) {
+            toast.error(error.message || "Erro ao enviar e-mail de verificação.")
+        } finally {
+            setResendLoading(false)
+        }
+    }
+
+    const handleChangeEmail = async () => {
+        if (!newEmail || !newEmail.includes("@")) {
+            return toast.error("Informe um e-mail válido.")
+        }
+        setEmailLoading(true)
+        try {
+            await authClient.changeEmail({
+                newEmail,
+                callbackURL: window.location.origin + "/configuracoes?tab=account",
+            })
+            toast.success("Verifique a caixa de entrada do novo e-mail para confirmar a alteração.")
+            setNewEmail("")
+        } catch (error: any) {
+            toast.error(error.message || "Erro ao alterar e-mail.")
+        } finally {
+            setEmailLoading(false)
+        }
+    }
+
+    const handleChangePassword = async () => {
+        if (!currentPassword || !newPassword) {
+            return toast.error("Preencha a senha atual e a nova senha.")
+        }
+        if (newPassword !== confirmPassword) {
+            return toast.error("A nova senha e a confirmação não conferem.")
+        }
+        if (newPassword.length < 8) {
+            return toast.error("A nova senha deve ter no mínimo 8 caracteres.")
+        }
+        setPasswordLoading(true)
+        try {
+            await authClient.changePassword({
+                newPassword,
+                currentPassword,
+                revokeOtherSessions: true,
+            })
+            toast.success("Senha alterada com sucesso!")
+            setCurrentPassword("")
+            setNewPassword("")
+            setConfirmPassword("")
+        } catch (error: any) {
+            toast.error(error.message || "Erro ao alterar senha. Verifique se a senha atual está correta.")
+        } finally {
+            setPasswordLoading(false)
+        }
+    }
 
     const setField = (key: keyof TenantData, value: any) => {
         setData(prev => prev ? { ...prev, [key]: value } : null)
@@ -458,6 +530,121 @@ function ConfiguracoesContent() {
                                         </div>
                                         <Button className="w-full bg-emerald-500 text-white rounded-xl h-11 text-xs font-black uppercase tracking-widest shadow-xl shadow-emerald-500/10">
                                             Copiar Chave
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {/* ── Tab: Account / Security ── */}
+                {activeTab === "account" && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-400">
+                        {session?.user && !session.user.emailVerified && (
+                            <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                                <div className="flex items-start gap-4">
+                                    <Info className="h-6 w-6 text-amber-500 shrink-0 mt-0.5 sm:mt-0" />
+                                    <div className="space-y-1">
+                                        <p className="text-sm font-bold text-amber-700 dark:text-amber-500">Confirme seu E-mail</p>
+                                        <p className="text-xs text-amber-600 dark:text-amber-500/70 leading-relaxed font-medium">
+                                            Seu e-mail atual ({session.user.email}) ainda não foi confirmado. Confirme para garantir a segurança da conta e receber notificações de agendamentos.
+                                        </p>
+                                    </div>
+                                </div>
+                                <Button 
+                                    onClick={handleResendVerification}
+                                    disabled={resendLoading}
+                                    className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-10 text-xs font-bold shrink-0 shadow-sm transition-all"
+                                >
+                                    {resendLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                    Reenviar E-mail
+                                </Button>
+                            </div>
+                        )}
+
+                        <div className="bg-white dark:bg-stone-900/40 backdrop-blur-md border border-stone-200 dark:border-white/[0.03] rounded-2xl p-5 lg:p-8 space-y-8 shadow-2xl">
+                            <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 lg:h-12 lg:w-12 rounded-xl bg-brand-primary/10 border border-brand-primary/20 flex items-center justify-center shrink-0 shadow-sm">
+                                    <ShieldCheck className="h-5 w-5 lg:h-6 lg:w-6 text-brand-primary" />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm lg:text-base font-bold text-stone-900 dark:text-white">Segurança e Acesso</h3>
+                                    <p className="text-[10px] lg:text-xs text-stone-500">Gerencie sua senha e e-mail de login</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                {/* Mudar Email */}
+                                <div className="space-y-6">
+                                    <div className="space-y-1 border-b border-stone-100 dark:border-white/5 pb-4">
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-stone-900 dark:text-white">Alterar E-mail</h4>
+                                        <p className="text-xs text-stone-500 font-medium">Seu e-mail atual é: <strong className="text-stone-700 dark:text-stone-300">{session?.user?.email}</strong></p>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Novo E-mail</Label>
+                                            <Input 
+                                                value={newEmail} 
+                                                onChange={e => setNewEmail(e.target.value)} 
+                                                placeholder="novo@email.com"
+                                                type="email"
+                                                className="h-12 bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white shadow-sm" 
+                                            />
+                                        </div>
+                                        <Button 
+                                            onClick={handleChangeEmail}
+                                            disabled={emailLoading}
+                                            className="w-full bg-stone-900 hover:bg-stone-800 dark:bg-white dark:hover:bg-stone-200 dark:text-stone-900 text-white rounded-xl h-11 text-xs font-bold transition-all shadow-sm"
+                                        >
+                                            {emailLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                            Solicitar Alteração
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {/* Mudar Senha */}
+                                <div className="space-y-6">
+                                    <div className="space-y-1 border-b border-stone-100 dark:border-white/5 pb-4">
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-stone-900 dark:text-white">Alterar Senha</h4>
+                                        <p className="text-xs text-stone-500 font-medium">Crie uma senha forte e segura.</p>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Senha Atual</Label>
+                                            <Input 
+                                                value={currentPassword} 
+                                                onChange={e => setCurrentPassword(e.target.value)} 
+                                                type="password"
+                                                className="h-12 bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white shadow-sm" 
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Nova Senha</Label>
+                                                <Input 
+                                                    value={newPassword} 
+                                                    onChange={e => setNewPassword(e.target.value)} 
+                                                    type="password"
+                                                    className="h-12 bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white shadow-sm" 
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] font-black uppercase tracking-widest text-stone-500">Confirmar Nova Senha</Label>
+                                                <Input 
+                                                    value={confirmPassword} 
+                                                    onChange={e => setConfirmPassword(e.target.value)} 
+                                                    type="password"
+                                                    className="h-12 bg-white dark:bg-stone-950/40 border border-stone-200 dark:border-white/5 rounded-xl text-sm font-bold text-stone-900 dark:text-white shadow-sm" 
+                                                />
+                                            </div>
+                                        </div>
+                                        <Button 
+                                            onClick={handleChangePassword}
+                                            disabled={passwordLoading}
+                                            className="w-full bg-brand-primary hover:bg-brand-gold text-white rounded-xl h-11 text-xs font-bold transition-all shadow-sm"
+                                        >
+                                            {passwordLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                            Atualizar Senha
                                         </Button>
                                     </div>
                                 </div>
