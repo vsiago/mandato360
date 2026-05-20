@@ -25,30 +25,49 @@ interface DefaultConfigParams {
 
 export function buildDefaultEditorConfig(params: DefaultConfigParams) {
     const isAdvocacia = params.nicheSlug === "advocacia"
+    const isBarbearia = params.nicheSlug === "barbearia"
 
+    // ─── Niche-specific hero text defaults ───
     const {
         name,
         heroImage,
         primaryColor,
         hoverColor,
-        heroHeadline = isAdvocacia
+        heroHeadline = isBarbearia
+            ? "Tradição e *Estilo* desde o primeiro corte"
+            : isAdvocacia
             ? "Advocacia com *excelência* e compromisso"
             : "Excelência em cada detalhe",
-        heroBadge = isAdvocacia
+        heroBadge = isBarbearia
+            ? "💈 BARBEARIA CLÁSSICA"
+            : isAdvocacia
             ? "⚖️ ESCRITÓRIO DE ADVOCACIA"
             : "✨ BEM-VINDO",
-        description = isAdvocacia
+        description = isBarbearia
+            ? "Mais do que um corte — uma experiência. Navalha artesanal, ambiente exclusivo e o cuidado que todo homem merece."
+            : isAdvocacia
             ? "Assessoria jurídica especializada para proteger seus direitos e patrimônio. Agende sua consulta."
             : "Seja muito bem-vindo ao nosso espaço. Agende seu horário e descubra uma experiência única.",
-        ctaText = isAdvocacia ? "Agendar Consulta" : "Agendar Horário",
-        servicesTitle = isAdvocacia ? "Áreas de *Atuação*" : "Nossa *Expertise*",
-        servicesSubtitle = isAdvocacia
+        ctaText = isBarbearia ? "Agendar Corte" : isAdvocacia ? "Agendar Consulta" : "Agendar Horário",
+        servicesTitle = isBarbearia
+            ? "Nossos *Serviços*"
+            : isAdvocacia ? "Áreas de *Atuação*" : "Nossa *Expertise*",
+        servicesSubtitle = isBarbearia
+            ? "Cortes clássicos, barbas impecáveis e tratamentos exclusivos para o homem moderno."
+            : isAdvocacia
             ? "Assessoria jurídica especializada para proteger seus direitos e patrimônio."
             : "Soluções personalizadas desenvolvidas para atender as suas necessidades com excelência."
     } = params
 
     // ─── Niche-specific plugin defaults ───
-    const trustBadges = isAdvocacia
+    const trustBadges = isBarbearia
+        ? [
+            { text: "Navalha Artesanal", icon: "Star" },
+            { text: "Ambiente Exclusivo", icon: "ShieldCheck" },
+            { text: "Tradição & Estilo", icon: "Award" },
+            { text: "Atendimento Premium", icon: "Heart" },
+        ]
+        : isAdvocacia
         ? [
             { text: "Advocacia Especializada", icon: "ShieldCheck" },
             { text: "Sigilo Profissional", icon: "ShieldCheck" },
@@ -60,7 +79,14 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             { text: "Ambiente Seguro", icon: "ShieldCheck" },
         ]
 
-    const faqItems = isAdvocacia
+    const faqItems = isBarbearia
+        ? [
+            { id: "1", question: "Preciso agendar ou posso ir sem hora?", answer: "Recomendamos sempre agendar para garantir seu horário. Use nosso sistema de agendamento online — é rápido e prático." },
+            { id: "2", question: "Quanto tempo leva um corte completo?", answer: "Um corte com barba leva em média 45 a 60 minutos. Corte simples, cerca de 30 minutos. Reservamos tempo suficiente para um trabalho impecável." },
+            { id: "3", question: "Vocês trabalham com barba na navalha?", answer: "Sim! A barba artesanal com navalha é nossa especialidade. Toalha quente, espuma cremosa e acabamento perfeito." },
+            { id: "4", question: "Aceitam cartão e Pix?", answer: "Sim, aceitamos todas as formas de pagamento: dinheiro, cartão de débito/crédito e Pix." },
+        ]
+        : isAdvocacia
         ? [
             { id: "1", question: "Como funciona a primeira consulta?", answer: "A primeira consulta é uma conversa para entendermos o seu caso, analisar documentos relevantes e traçar a melhor estratégia jurídica. Dura em média 50 minutos." },
             { id: "2", question: "Quais documentos preciso levar?", answer: "Depende do caso, mas recomendamos trazer documentos pessoais (RG e CPF), comprovante de residência, e quaisquer documentos relacionados ao caso (contratos, notificações, etc.)." },
@@ -71,7 +97,13 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             { id: "1", question: "Como agendar?", answer: "Clique no botão de agendamento e escolha seu serviço." },
         ]
 
-    const aboutDefaults = isAdvocacia
+    const aboutDefaults = isBarbearia
+        ? {
+            founder: { name: "", bio: "", role: "Barbeiro | Proprietário", imageUrl: "" },
+            badge: "Tradição em Cada Detalhe",
+            title: "A Arte da *Barbearia*",
+        }
+        : isAdvocacia
         ? {
             founder: { name: "", bio: "", role: "Advogado(a) | OAB", imageUrl: "" },
             badge: "Compromisso com a Justiça",
@@ -107,28 +139,39 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
         ? ["header", "hero", "trust", "services", "practiceAreas", "agendamento", "team", "about", "faq", "contact", "footer"]
         : ["header", "hero", "trust", "services", "agendamento", "about", "beforeAfter", "faq", "contact", "footer"]
 
+    // ─── Theme / Design System — Niche-aware defaults ───
+    const resolvedPrimary = isBarbearia ? "#c4956a" : primaryColor
+    const resolvedSecondary = isBarbearia ? "#0c0a08" : (hoverColor || "#0f172a")
+    const resolvedBg = isBarbearia ? "#0c0a08" : "#0f172a"
+    const resolvedText = "#ffffff"
+
+    const designSystemPreset = isBarbearia ? "classico" : "neutral"
+    const designSystemFonts = isBarbearia
+        ? { primary: "Playfair Display", secondary: "Cormorant Garamond" }
+        : { primary: "sans", secondary: "sans" }
+
     return {
         theme: {
             designSystem: {
-                preset: "neutral",
-                fonts: { primary: "sans", secondary: "sans" },
-                borderRadius: "md",
+                preset: designSystemPreset,
+                fonts: designSystemFonts,
+                borderRadius: isBarbearia ? "sm" : "md",
                 shadows: "subtle",
-                animations: false,
+                animations: isBarbearia ? true : false,
             },
             colors: {
-                primary: primaryColor,
-                secondary: hoverColor || "#0f172a",
-                accent: primaryColor,
-                background: "#0f172a",
-                text: "#ffffff",
+                primary: resolvedPrimary,
+                secondary: resolvedSecondary,
+                accent: isBarbearia ? "#d4a574" : resolvedPrimary,
+                background: resolvedBg,
+                text: resolvedText,
             },
             gradient: {
                 enabled: true,
-                angle: 135,
-                opacity: 40,
+                angle: isBarbearia ? 160 : 135,
+                opacity: isBarbearia ? 50 : 40,
                 stops: [
-                    { color: primaryColor, position: 0 },
+                    { color: resolvedPrimary, position: 0 },
                     { color: "transparent", position: 100 },
                 ],
             },
@@ -143,15 +186,22 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
                     { id: "about", label: "Sobre", href: "#about" },
                     { id: "contact", label: "Contato", href: "#contact" }
                 ]
+                : isBarbearia
+                ? [
+                    { id: "services", label: "Serviços", href: "#services" },
+                    { id: "agendamento", label: "Agendar", href: "#agendamento" },
+                    { id: "about", label: "Sobre", href: "#about" },
+                    { id: "contact", label: "Contato", href: "#contact" }
+                ]
                 : [
                     { id: "services", label: "Serviços", href: "#services" },
                     { id: "about", label: "Sobre", href: "#about" },
                     { id: "contact", label: "Contato", href: "#contact" }
                 ],
-            menuFontSize: 14,
-            menuSpacing: 32,
+            menuFontSize: isBarbearia ? 13 : 14,
+            menuSpacing: isBarbearia ? 36 : 32,
             menuStyle: "transparent",
-            backgroundColor: "#0f172a",
+            backgroundColor: resolvedBg,
             logoHeight: 32,
             gradient: {
                 enabled: false,
@@ -167,7 +217,7 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             scrolled: {
                 enabled: true,
                 height: 64,
-                backgroundColor: primaryColor,
+                backgroundColor: resolvedPrimary,
                 colors: {
                     logo: "#ffffff",
                     menu: "#ffffff",
@@ -182,7 +232,7 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             subtitle: "",
             description: description,
             ctaPrimary: ctaText,
-            ctaSecondary: isAdvocacia ? "Áreas de Atuação" : "Ver Serviços",
+            ctaSecondary: isBarbearia ? "Ver Serviços" : isAdvocacia ? "Áreas de Atuação" : "Ver Serviços",
             badge: heroBadge,
             images: {
                 desktop: heroImage,
@@ -194,8 +244,8 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
                 tablet: { x: 50, y: 50, scale: 100 },
                 mobile: { x: 50, y: 50, scale: 100 },
             },
-            vignette: { enabled: true, intensity: 40, color: "#000000" },
-            overlay: { enabled: true, color: "#000000", opacity: 30 },
+            vignette: { enabled: true, intensity: isBarbearia ? 55 : 40, color: "#000000" },
+            overlay: { enabled: true, color: isBarbearia ? "#1a1410" : "#000000", opacity: isBarbearia ? 40 : 30 },
             autoHeight: true,
             height: 600,
         },
@@ -225,7 +275,7 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             trust: {
                 badges: trustBadges,
                 autoplay: true,
-                speed: 25,
+                speed: isBarbearia ? 20 : 25,
             },
             services: {
                 title: servicesTitle,
@@ -239,16 +289,18 @@ export function buildDefaultEditorConfig(params: DefaultConfigParams) {
             beforeAfter: { items: [] },
             faq: { 
                 enabled: true,
-                title: "Perguntas *Frequentes*",
-                subtitle: isAdvocacia
+                title: isBarbearia ? "Dúvidas *Frequentes*" : "Perguntas *Frequentes*",
+                subtitle: isBarbearia
+                    ? "Tudo que você precisa saber antes da sua visita."
+                    : isAdvocacia
                     ? "Tire suas dúvidas sobre nossos serviços jurídicos."
                     : "Tire suas dúvidas sobre nossos serviços.",
                 items: faqItems,
             },
             contact: { info: { phone: "", whatsapp: "", address: "", instagram: "", mapEmbedUrl: "" } },
             agendamento: {
-                title: isAdvocacia ? "Agende sua *Consulta*" : "Agenda *Online*",
-                subtitle: isAdvocacia ? "Atendimento personalizado com hora marcada" : "Exclusividade e Precisão em cada detalhe",
+                title: isBarbearia ? "Agende seu *Horário*" : isAdvocacia ? "Agende sua *Consulta*" : "Agenda *Online*",
+                subtitle: isBarbearia ? "Escolha o serviço, o profissional e o melhor horário para você" : isAdvocacia ? "Atendimento personalizado com hora marcada" : "Exclusividade e Precisão em cada detalhe",
             },
         },
         sectionOrder,

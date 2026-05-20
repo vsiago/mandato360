@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Eye, EyeOff, LogIn, Sparkles, Star, ArrowRight, ShieldCheck, Zap } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
-import { PLANS, type PlanKey } from "@/lib/stripe"
+import { PLANS, type PlanKey } from "@/lib/asaas"
 import { motion, AnimatePresence } from "framer-motion"
 
 function LoginContent() {
@@ -137,7 +137,7 @@ function LoginContent() {
                             <div className="mt-8 pt-6 border-t border-stone-800/50 flex items-center justify-between">
                                 <span className="text-[10px] text-stone-500 font-bold uppercase tracking-widest leading-none">Acesso Seguro SSL</span>
                                 <div className="flex items-center gap-4 opacity-50 grayscale dark:invert">
-                                    <img src="/stripe-logo.svg" alt="Stripe" className="h-3" />
+                                    <ShieldCheck className="h-3 w-3" />
                                 </div>
                             </div>
                         </div>

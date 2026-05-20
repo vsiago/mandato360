@@ -325,7 +325,10 @@ export default function OnboardingPage() {
                                                     niches.map(niche => (
                                                         <button 
                                                             key={niche.id} 
-                                                            onClick={() => set("businessTypeId", niche.id)}
+                                                            onClick={() => {
+                                                                set("businessTypeId", niche.id);
+                                                                set("theme", getDefaultThemeForNiche(niche.slug));
+                                                            }}
                                                             className={cn(
                                                                 "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border text-center transition-all group",
                                                                 data.businessTypeId === niche.id

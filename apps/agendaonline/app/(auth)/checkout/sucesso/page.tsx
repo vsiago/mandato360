@@ -1,9 +1,8 @@
-import { stripe } from "@/lib/stripe";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { tenants } from "@/db/schema";
+import { tenants, subscriptions } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { CheckCircle2, PartyPopper, ArrowRight } from "lucide-react";
@@ -11,13 +10,9 @@ import { CheckCircle2, PartyPopper, ArrowRight } from "lucide-react";
 export default async function CheckoutSuccessPage({
     searchParams,
 }: {
-    searchParams: Promise<{ session_id?: string }>;
+    searchParams: Promise<{ subscription_id?: string }>;
 }) {
-    const { session_id } = await searchParams;
-
-    if (!session_id) {
-        return redirect("/#pricing");
-    }
+    const { subscription_id } = await searchParams;
 
     const session = await auth.api.getSession({
         headers: await headers(),
@@ -27,6 +22,11 @@ export default async function CheckoutSuccessPage({
         return redirect("/login");
     }
 
+    // Check subscription status from our DB
+    const sub = await db.query.subscriptions.findFirst({
+        where: eq(subscriptions.userId, session.user.id),
+    });
+
     // Check if user already has a tenant (onboarding completed)
     const userTenant = await db.query.tenants.findFirst({
         where: eq(tenants.ownerId, session.user.id),
@@ -35,25 +35,10 @@ export default async function CheckoutSuccessPage({
     const nextDestination = hasCompletedOnboarding ? "/painel" : "/onboarding";
     const nextLabel = hasCompletedOnboarding ? "Ir para o Painel" : "Criar meu site";
 
-    let checkoutStatus = "unknown";
-    let planName = "";
+    const isSuccess = sub && ["trialing", "active"].includes(sub.status);
+    const planName = sub?.plan || "";
 
-    try {
-        const checkoutSession = await stripe.checkout.sessions.retrieve(session_id);
-        checkoutStatus = checkoutSession.status || "unknown";
-
-        if (checkoutSession.subscription) {
-            const subId = typeof checkoutSession.subscription === "string"
-                ? checkoutSession.subscription
-                : checkoutSession.subscription.id;
-            const sub = await stripe.subscriptions.retrieve(subId);
-            planName = sub.metadata?.planName || "";
-        }
-    } catch {
-        checkoutStatus = "error";
-    }
-
-    if (checkoutStatus !== "complete") {
+    if (!isSuccess) {
         return (
             <div className="text-center max-w-md mx-auto py-12">
                 <div className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
@@ -64,7 +49,7 @@ export default async function CheckoutSuccessPage({
                     Algo deu errado
                 </h1>
                 <p className="text-sm text-stone-500 dark:text-stone-400 mb-8">
-                    Não conseguimos confirmar seu pagamento. Por favor, tente novamente ou entre em contato conosco.
+                    Não conseguimos confirmar sua assinatura. Por favor, tente novamente ou entre em contato conosco.
                 </p>
                 <Link href="/#pricing" className="btn-gold-solid rounded-full px-8 py-3 text-sm inline-block">
                     Tentar Novamente

@@ -561,22 +561,24 @@ function AccordionSection({
 }
 
 function ColorPickerItem({ label, color, onChange }: { label: string, color: string, onChange: (c: string) => void }) {
+  const safeColor = color || "#000000"
+  
   return (
     <div className="space-y-2">
       <Label className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">{label}</Label>
       <div className="relative group">
         <input
           type="color"
-          value={color}
+          value={safeColor}
           onChange={(e) => onChange(e.target.value)}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
         <div className="flex items-center gap-2 p-1.5 rounded-xl border border-border/50 bg-background hover:border-border transition-colors">
           <div 
             className="w-8 h-8 rounded-lg shadow-sm border border-white/5" 
-            style={{ backgroundColor: color }} 
+            style={{ backgroundColor: safeColor }} 
           />
-          <span className="text-[10px] font-mono text-muted-foreground/80 font-bold uppercase">{color}</span>
+          <span className="text-[10px] font-mono text-muted-foreground/80 font-bold uppercase">{safeColor}</span>
         </div>
       </div>
     </div>

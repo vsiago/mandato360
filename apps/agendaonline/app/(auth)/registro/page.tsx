@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Eye, EyeOff, UserPlus, Star, Sparkles, ArrowRight, CheckCircle2, ShieldCheck, Zap } from "lucide-react"
 import { authClient } from "@/lib/auth-client"
 import { toast } from "sonner"
-import { PLANS, type PlanKey } from "@/lib/stripe"
+import { PLANS, type PlanKey } from "@/lib/asaas"
 import { motion, AnimatePresence } from "framer-motion"
 
 function RegistroContent() {
@@ -352,9 +352,6 @@ function RegistroContent() {
                         <div className="flex items-center gap-1.5 grayscale opacity-50 dark:invert">
                             <ShieldCheck className="h-4 w-4" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">SSL Secure</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 grayscale opacity-50">
-                            <img src="/stripe-logo.svg" alt="Stripe" className="h-3.5 dark:invert" />
                         </div>
                     </div>
                 </div>

@@ -226,7 +226,7 @@ export default async function AssinaturaPage() {
                             <h4 className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Portal de Faturamento</h4>
                         </div>
                         <p className="text-[11px] text-stone-500 leading-relaxed font-medium">
-                            Precisando de nota fiscal ou históricos de cobrança? Acesse o portal seguro do Stripe para gerenciar seus dados financeiros.
+                            Precisando de nota fiscal ou históricos de cobrança? As cobranças são gerenciadas de forma segura pelo Asaas.
                         </p>
                     </div>
                 </div>

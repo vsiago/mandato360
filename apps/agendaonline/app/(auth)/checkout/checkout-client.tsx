@@ -1,12 +1,8 @@
 "use client"
 
 import { useCallback, useState } from "react"
-import { loadStripe } from "@stripe/stripe-js"
-import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js"
-import { CheckCircle2, ShieldCheck, Clock, ArrowLeft, Loader2, Star } from "lucide-react"
+import { CheckCircle2, ShieldCheck, Clock, ArrowLeft, Loader2, Star, CreditCard } from "lucide-react"
 import Link from "next/link"
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface PlanData {
     name: string
@@ -25,10 +21,14 @@ export default function CheckoutClient({
     planData: PlanData
 }) {
     const [error, setError] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
 
-    const fetchClientSecret = useCallback(async () => {
+    const handleCheckout = useCallback(async () => {
+        setIsLoading(true)
+        setError(null)
+
         try {
-            const res = await fetch("/api/stripe/checkout", {
+            const res = await fetch("/api/asaas/checkout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ plan }),
@@ -38,13 +38,20 @@ export default function CheckoutClient({
 
             if (!res.ok) {
                 setError(data.error || "Erro ao iniciar checkout")
-                throw new Error(data.error)
+                setIsLoading(false)
+                return
             }
 
-            return data.clientSecret
+            // If we have an invoice URL, redirect to Asaas payment page
+            if (data.invoiceUrl) {
+                window.location.href = data.invoiceUrl
+            } else {
+                // No invoice URL (trial with no upfront payment) — go to success
+                window.location.href = data.successUrl
+            }
         } catch (err: any) {
-            setError(err.message || "Erro ao conectar com o Stripe")
-            throw err
+            setError(err.message || "Erro ao conectar com o gateway de pagamento")
+            setIsLoading(false)
         }
     }, [plan])
 
@@ -114,7 +121,7 @@ export default function CheckoutClient({
                     <div className="flex flex-col gap-3">
                         <div className="flex items-center gap-3 text-[11px] text-stone-500 dark:text-stone-400">
                             <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                            <span>Pagamento 100% seguro processado pelo Stripe</span>
+                            <span>Pagamento 100% seguro via Asaas</span>
                         </div>
                         <div className="flex items-center gap-3 text-[11px] text-stone-500 dark:text-stone-400">
                             <Clock className="h-4 w-4 text-amber-500 shrink-0" />
@@ -123,14 +130,14 @@ export default function CheckoutClient({
                     </div>
                 </div>
 
-                {/* ── Right: Stripe Embedded Checkout ── */}
+                {/* ── Right: Payment Action ── */}
                 <div className="min-h-100">
                     <div className="mb-4">
                         <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-50">
-                            Dados de pagamento
+                            Confirmar assinatura
                         </h2>
                         <p className="text-xs text-stone-400 dark:text-stone-500 mt-1">
-                            Insira seus dados para iniciar o teste grátis
+                            Clique abaixo para prosseguir ao pagamento seguro
                         </p>
                     </div>
 
@@ -138,32 +145,67 @@ export default function CheckoutClient({
                         <div className="rounded-2xl border border-red-200/50 dark:border-red-800/30 bg-red-50/50 dark:bg-red-950/20 p-6 text-center">
                             <p className="text-sm text-red-600 dark:text-red-400 font-medium mb-4">{error}</p>
                             <button
-                                onClick={() => { setError(null); window.location.reload() }}
+                                onClick={() => { setError(null) }}
                                 className="btn-gold-solid rounded-full px-6 py-2 text-sm"
                             >
                                 Tentar novamente
                             </button>
                         </div>
                     ) : (
-                        <div className="rounded-2xl border border-stone-200/50 dark:border-stone-800/50 bg-white dark:bg-stone-900 overflow-hidden">
-                            <EmbeddedCheckoutProvider stripe={stripePromise} options={{ 
-                                fetchClientSecret,
-                                // @ts-ignore - Some Stripe JS versions expect appearance here for Embedded Checkout
-                                appearance: {
-                                    theme: 'night',
-                                    variables: {
-                                        colorPrimary: '#f59e0b',
-                                        colorBackground: '#0A0A0A',
-                                        colorText: '#f5f5f4',
-                                        colorDanger: '#ef4444',
-                                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                                        spacingUnit: '4px',
-                                        borderRadius: '16px',
-                                    }
-                                }
-                            }}>
-                                <EmbeddedCheckout className="min-h-87.5" />
-                            </EmbeddedCheckoutProvider>
+                        <div className="rounded-2xl border border-stone-200/50 dark:border-stone-800/50 bg-white dark:bg-stone-900 overflow-hidden p-8 space-y-8">
+                            {/* Payment info */}
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 p-5 bg-stone-50 dark:bg-stone-800/50 rounded-xl border border-stone-100 dark:border-stone-700/50">
+                                    <div className="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                                        <CreditCard className="h-6 w-6 text-amber-500" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                                            Pagamento flexível
+                                        </p>
+                                        <p className="text-xs text-stone-500 dark:text-stone-400">
+                                            Pague via Pix, cartão de crédito ou boleto
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-stone-500">Plano {planData.name}</span>
+                                        <span className="text-stone-700 dark:text-stone-300 font-medium">{planData.displayPrice}/mês</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-stone-500">Período de teste</span>
+                                        <span className="text-emerald-500 font-medium">7 dias grátis</span>
+                                    </div>
+                                    <div className="h-px bg-stone-100 dark:bg-stone-800" />
+                                    <div className="flex justify-between text-sm font-bold">
+                                        <span className="text-stone-700 dark:text-stone-300">Total agora</span>
+                                        <span className="text-emerald-600 dark:text-emerald-400 text-lg">R$ 0,00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* CTA */}
+                            <button
+                                onClick={handleCheckout}
+                                disabled={isLoading}
+                                className="w-full h-14 bg-amber-500 hover:bg-amber-600 dark:hover:bg-amber-400 text-white dark:text-stone-950 font-bold rounded-xl transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                            >
+                                {isLoading ? (
+                                    <>
+                                        <Loader2 className="h-5 w-5 animate-spin" />
+                                        Criando assinatura...
+                                    </>
+                                ) : (
+                                    `Iniciar 7 Dias Grátis no Plano ${planData.name}`
+                                )}
+                            </button>
+
+                            <div className="flex items-center justify-center gap-2 text-[10px] text-stone-400 dark:text-stone-500">
+                                <ShieldCheck className="h-3 w-3" />
+                                <span>Pagamento processado de forma segura pelo Asaas</span>
+                            </div>
                         </div>
                     )}
                 </div>

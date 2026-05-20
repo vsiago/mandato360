@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { PLANS, isValidPlan, type PlanKey } from "@/lib/stripe";
+import { PLANS, isValidPlan, type PlanKey } from "@/lib/asaas";
 import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
 import { eq } from "drizzle-orm";

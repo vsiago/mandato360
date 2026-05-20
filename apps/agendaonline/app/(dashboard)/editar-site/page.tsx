@@ -1,4 +1,4 @@
-"use client"
+"use client" // force rebuild
 
 import { useState, useEffect } from "react"
 import { getMyTenant, normalizeSlug } from "@/lib/tenant-api"

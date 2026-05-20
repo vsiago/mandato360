@@ -12,7 +12,7 @@ import { buildTenantConfig, configToTenantData } from "@/lib/tenant-config-build
 import { eq, and } from "drizzle-orm"
 import { headers } from "next/headers"
 import { buildDefaultEditorConfig } from "@/lib/default-editor-config"
-import { getHeroImageForNiche } from "@/src/themes"
+import { getHeroImageForNiche, getDefaultThemeForNiche } from "@/src/themes"
 
 /* ─── Helpers ─── */
 
@@ -248,7 +248,7 @@ export async function createTenantAction(data: Partial<TenantData>): Promise<{ s
             sectionStyles: dbValues.sectionStyles,
             responsiveOverrides: dbValues.responsiveOverrides,
             chat: dbValues.chat,
-            theme: data.theme || "neutro",
+            theme: data.theme || getDefaultThemeForNiche(btSlug),
             config: defaultConfig,
             onboardingCompleted: true,
             ownerId: session.user.id,

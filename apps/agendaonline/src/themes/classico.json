@@ -1,35 +1,35 @@
 {
   "id": "classico",
   "nome": "Clássico",
-  "descricao": "Elegante, atemporal e luxuoso. Foco em tipografia.",
+  "descricao": "Elegante, atemporal e luxuoso. Tipografia serifada vintage, tons quentes e sofisticação artesanal.",
   "emoji": "🏛️",
-  "preview": "#1C1917",
+  "preview": "#1a1410",
 
   "colors": {
     "light": {
       "primary": "#1C1917",
       "secondary": "#78716C",
       "accent": "#C4956A",
-      "background": "#FAFAF9",
-      "surface": "#F5F5F4",
+      "background": "#FAF8F5",
+      "surface": "#F2EDE8",
       "text": "#1C1917",
       "textMuted": "#78716C",
-      "border": "#292524"
+      "border": "#D6CFC7"
     },
     "dark": {
-      "primary": "#FAFAF9",
-      "secondary": "#A8A29E",
+      "primary": "#F5F0EB",
+      "secondary": "#A89F97",
       "accent": "#D4A574",
-      "background": "#0C0A09",
-      "surface": "#1C1917",
-      "text": "#FAFAF9",
-      "textMuted": "#A8A29E",
-      "border": "#44403C"
+      "background": "#0C0A08",
+      "surface": "#1A1410",
+      "text": "#F5F0EB",
+      "textMuted": "#A89F97",
+      "border": "#3D3530"
     }
   },
   "typography": {
     "heading": "Playfair Display",
-    "body": "Inter",
+    "body": "Cormorant Garamond",
     "headingWeight": "700",
     "bodyWeight": "400"
   },
@@ -48,7 +48,7 @@
     "hoverScale": true,
     "fadeIn": true,
     "staggerChildren": true,
-    "duration": "normal"
+    "duration": "slow"
   },
   "spacing": {
     "sectionPadding": "120px 0",
@@ -59,11 +59,13 @@
   "cssVariables": {
     "--theme-radius": "4px",
     "--theme-font-heading": "'Playfair Display', serif",
-    "--theme-font-body": "'Inter', sans-serif",
-    "--theme-shadow": "0 20px 60px rgba(0,0,0,0.05)",
-    "--theme-transition": "500ms cubic-bezier(0.2, 0, 0, 1)",
+    "--theme-font-body": "'Cormorant Garamond', serif",
+    "--theme-shadow": "0 20px 60px rgba(0,0,0,0.08)",
+    "--theme-transition": "600ms cubic-bezier(0.2, 0, 0, 1)",
     "--theme-btn-radius": "2px",
     "--theme-section-py": "120px",
-    "--theme-card-py": "40px"
+    "--theme-card-py": "40px",
+    "--theme-letter-spacing-heading": "-0.02em",
+    "--theme-letter-spacing-body": "0.01em"
   }
 }

@@ -1,6 +1,13 @@
 "use server"
 
-import { stripe, getPriceId, getPlanFromPriceId, PlanKey } from "@/lib/stripe";
+import {
+    createAsaasCustomer,
+    findAsaasCustomerByEmail,
+    inactivateAsaasSubscription,
+    reactivateAsaasSubscription,
+    cancelAsaasSubscription,
+    type PlanKey,
+} from "@/lib/asaas";
 import { db } from "@/db";
 import { subscriptions, tenants } from "@/db/schema";
 import { auth } from "@/lib/auth";
@@ -13,29 +20,37 @@ async function getSession() {
     });
 }
 
-async function getOrCreateStripeCustomer(userId: string, email: string, name: string, tenantId: string): Promise<string> {
+export async function getOrCreateAsaasCustomer(
+    userId: string,
+    email: string,
+    name: string,
+    tenantId: string
+): Promise<string> {
+    // Check if we already have a customer ID saved
     const existingSub = await db.query.subscriptions.findFirst({
         where: eq(subscriptions.userId, userId),
     });
 
-    if (existingSub?.stripeCustomerId) {
-        return existingSub.stripeCustomerId;
+    if (existingSub?.asaasCustomerId) {
+        return existingSub.asaasCustomerId;
     }
 
-    const customers = await stripe.customers.list({ email, limit: 1 });
-    if (customers.data.length > 0) {
-        return customers.data[0].id;
+    // Search by email in Asaas
+    const existing = await findAsaasCustomerByEmail(email);
+    if (existing) {
+        return existing.id;
     }
 
-    const customer = await stripe.customers.create({
-        email,
+    // Create new customer in Asaas
+    const customer = await createAsaasCustomer({
         name,
-        metadata: { userId, tenantId },
+        email,
+        externalReference: userId,
     });
     return customer.id;
 }
 
-export async function cancelSubscription() {
+export async function cancelSubscriptionAction() {
     const session = await getSession();
     if (!session?.user) throw new Error("Não autorizado");
 
@@ -44,9 +59,8 @@ export async function cancelSubscription() {
     });
     if (!sub) throw new Error("Nenhuma assinatura encontrada");
 
-    await stripe.subscriptions.update(sub.stripeSubscriptionId, {
-        cancel_at_period_end: true,
-    });
+    // Inactivate in Asaas (keeps subscription, stops billing)
+    await inactivateAsaasSubscription(sub.asaasSubscriptionId);
 
     await db.update(subscriptions)
         .set({ cancelAtPeriodEnd: true, updatedAt: new Date() })
@@ -55,7 +69,7 @@ export async function cancelSubscription() {
     return { success: true };
 }
 
-export async function resumeSubscription() {
+export async function resumeSubscriptionAction() {
     const session = await getSession();
     if (!session?.user) throw new Error("Não autorizado");
 
@@ -64,34 +78,14 @@ export async function resumeSubscription() {
     });
     if (!sub) throw new Error("Nenhuma assinatura encontrada");
 
-    await stripe.subscriptions.update(sub.stripeSubscriptionId, {
-        cancel_at_period_end: false,
-    });
+    // Reactivate in Asaas
+    await reactivateAsaasSubscription(sub.asaasSubscriptionId);
 
     await db.update(subscriptions)
         .set({ cancelAtPeriodEnd: false, updatedAt: new Date() })
         .where(eq(subscriptions.id, sub.id));
 
     return { success: true };
-}
-
-export async function createPortalSession() {
-    const session = await getSession();
-    if (!session?.user) throw new Error("Não autorizado");
-
-    const sub = await db.query.subscriptions.findFirst({
-        where: eq(subscriptions.userId, session.user.id),
-    });
-    if (!sub) throw new Error("Nenhuma assinatura encontrada");
-
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3002";
-
-    const portalSession = await stripe.billingPortal.sessions.create({
-        customer: sub.stripeCustomerId,
-        return_url: `${baseUrl}/painel/assinatura`,
-    });
-
-    return { url: portalSession.url };
 }
 
 export async function getSubscriptionStatus() {
