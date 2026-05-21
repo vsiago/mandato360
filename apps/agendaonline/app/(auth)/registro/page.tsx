@@ -58,8 +58,8 @@ function RegistroContent() {
     }
 
     return (
-        <div className="w-full max-w-5xl mx-auto sm:px-4">
-            <motion.div 
+        <main id="conteudo" className="w-full max-w-5xl mx-auto sm:px-4">
+            <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
@@ -201,22 +201,28 @@ function RegistroContent() {
                     )}
 
                     {/* Header */}
-                    <motion.div 
+                    <motion.header
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="mb-10"
+                        className="mb-8"
                     >
+                        <div className="mb-6 flex items-center gap-2 text-xs">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 font-bold uppercase tracking-wider">
+                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Etapa 1 de 3
+                            </span>
+                            <span className="text-stone-400 dark:text-stone-600">Criar conta · Personalizar site · Receber clientes</span>
+                        </div>
                         <h1 className="text-3xl sm:text-4xl font-semibold text-stone-900 dark:text-white mb-3 tracking-tight" style={{ fontFamily: 'var(--font-playfair)' }}>
-                            Crie sua conta
+                            Crie sua conta grátis
                         </h1>
                         <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed max-w-sm">
                             {selectedPlan
-                                ? `Experimente o ${selectedPlan.name} por 7 dias. Não cobraremos nada agora.`
-                                : "Comece a receber agendamentos online em minutos de forma profissional."
+                                ? `Experimente o ${selectedPlan.name} por 7 dias. Não cobramos nada hoje e você cancela em 1 clique.`
+                                : "Site profissional + agenda 24h em 3 minutos. 7 dias grátis, sem cartão."
                             }
                         </p>
-                    </motion.div>
+                    </motion.header>
 
                     {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
@@ -348,15 +354,23 @@ function RegistroContent() {
                         </p>
                     </motion.div>
 
-                    <div className="mt-10 flex items-center justify-center gap-6 grayscale opacity-40 dark:opacity-20 pointer-events-none sm:grayscale-0 sm:opacity-100">
-                        <div className="flex items-center gap-1.5 grayscale opacity-50 dark:invert">
+                    <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[10px] font-bold uppercase tracking-widest text-stone-400 dark:text-stone-600">
+                        <li className="flex items-center gap-1.5">
                             <ShieldCheck className="h-4 w-4" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">SSL Secure</span>
-                        </div>
-                    </div>
+                            <span>SSL · LGPD</span>
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500/70" />
+                            <span>Sem cartão</span>
+                        </li>
+                        <li className="flex items-center gap-1.5">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500/70" />
+                            <span>Cancele em 1 clique</span>
+                        </li>
+                    </ul>
                 </div>
             </motion.div>
-        </div>
+        </main>
     )
 }
 

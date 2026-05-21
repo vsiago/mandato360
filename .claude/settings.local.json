@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir \"apps\\\\agendaonline\\\\app\\\\para\" 2>nul; mkdir \"apps\\\\agendaonline\\\\app\\\\para\\\\[nicho]\" 2>nul; ls \"apps\\\\agendaonline\\\\app\\\\para\\\\[nicho]\" 2>nul)",
+      "Bash(ls \"C:\\\\Users\\\\iago-note\\\\.claude\\\\projects\\\\c--Users-iago-note-Documents-monorepo\\\\memory\\\\\" 2>nul)",
+      "Read(//c/Users/iago-note/.claude/projects/c--Users-iago-note-Documents-monorepo/**)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\iago-note\\Documents\\monorepo\\apps\\agendaonline\\app\\para"
+    ]
+  }
+}

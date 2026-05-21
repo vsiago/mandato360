@@ -1,0 +1,84 @@
+# Agenda Online
+
+> Plataforma brasileira que cria sites profissionais com agenda 24h integrada para salões de beleza, barbearias, clínicas de estética, estúdios de tatuagem, pet shops, nutricionistas e profissionais autônomos. Diferente de sistemas de agenda tradicionais (Trinks, Booksy), o Agenda Online entrega um site completo com a marca do cliente, não apenas um link de calendário.
+
+## O que é o Agenda Online
+
+O Agenda Online é um SaaS brasileiro que combina **site profissional + sistema de agendamento** em um único produto. O cliente cria seu site em 3 minutos (logo, fotos, serviços, preços) e recebe agendamentos automáticos 24h por dia, sem precisar responder WhatsApp manualmente.
+
+## Para quem é
+
+- Salões de beleza e cabeleireiros
+- Barbearias
+- Clínicas de estética
+- Estúdios de tatuagem
+- Pet shops e banho e tosa
+- Nutricionistas e consultórios
+- Manicures e podólogas
+- Maquiadores, designers de sobrancelha
+- Personal trainers e estúdios de pilates
+- Qualquer profissional autônomo que agenda horários
+
+## Principais recursos
+
+- **Site profissional com marca própria**: logo, cores, fotos, portfólio
+- **Agenda automática 24h**: clientes marcam sem intervenção humana
+- **Lembretes anti-falta no WhatsApp**: 24h antes e 1h antes
+- **Catálogo de serviços com preços**: transparência total
+- **Gestão de múltiplos profissionais**: cada um com sua agenda
+- **Link único para bio do Instagram**: seunome.agendaonline.app
+- **Portfólio antes/depois**: galeria visual que vende
+- **Histórico de clientes**: nome, telefone, frequência, serviços feitos
+- **Zero taxa por agendamento**: diferente de marketplaces como Booksy
+
+## Planos e preços
+
+- **Profissional — R$ 79/mês**: site, agenda 24h, lembretes, catálogo, link na bio
+- **Completo — R$ 119/mês**: tudo do Profissional + portfólio antes/depois, personalização avançada, relatórios, destaque em buscas, suporte VIP
+
+Ambos os planos têm **7 dias grátis sem cartão de crédito**.
+
+## Diferenciais vs concorrentes
+
+| Recurso | Sistemas tradicionais (Trinks, Booksy) | Agenda Online |
+|---|---|---|
+| Site próprio com sua marca | Não | Sim |
+| Portfólio antes/depois | Limitado | Sim |
+| Cliente precisa criar senha | Sim | Não |
+| Taxa por agendamento | 5–10% | R$ 0 |
+| Tempo para configurar | 1–2 dias | 3 minutos |
+| Personalização visual | Mínima | Total |
+
+## Como começar
+
+1. Acesse https://agendaonline.app/registro
+2. Crie sua conta gratuita (e-mail + senha, sem cartão)
+3. Personalize seu site em 3 minutos
+4. Compartilhe o link na bio do Instagram
+
+## Links principais
+
+- Site: https://agendaonline.app
+- Cadastro: https://agendaonline.app/registro
+- Planos: https://agendaonline.app/#pricing
+- FAQ: https://agendaonline.app/#faq
+
+## Páginas por nicho
+
+- Salão de beleza: https://agendaonline.app/para/salao-de-beleza
+- Barbearia: https://agendaonline.app/para/barbearia
+- Clínica de estética: https://agendaonline.app/para/clinica-estetica
+- Estúdio de tatuagem: https://agendaonline.app/para/estudio-tatuagem
+- Pet shop: https://agendaonline.app/para/petshop
+- Nutricionista: https://agendaonline.app/para/nutricionista
+- Manicure: https://agendaonline.app/para/manicure
+
+## Suporte e contato
+
+- Atendimento em português brasileiro
+- Suporte humano no plano Completo
+- Documentação e FAQ públicos
+
+## Tecnologia
+
+Plataforma web (Next.js), funciona em qualquer navegador moderno em celular, tablet ou computador. Sem necessidade de instalação de app pelo cliente ou pelo profissional.

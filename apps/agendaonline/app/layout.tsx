@@ -17,25 +17,29 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: "Agenda Online | O Melhor Agendamento Online via WhatsApp",
+  title: "Agenda Online | Site Profissional com Agenda Inclusa para seu Negócio",
   description:
-    "Transforme seu WhatsApp em uma máquina de agendamentos. Site profissional com agendamento automático para salões de beleza, clínicas de estética, barbearias, estúdios de tatuagem e mais.",
+    "Crie em 3 minutos o site da sua marca com agenda 24h, lembretes automáticos no WhatsApp e zero taxa por reserva. 7 dias grátis, sem cartão.",
   keywords: [
-    "agenda online", 
-    "agendamento salão de beleza", 
-    "sistema para salão", 
-    "gestão de salão", 
-    "agendamento whatsapp", 
-    "agenda estética", 
-    "barbearia agendamento",
-    "agendamento estúdio de tatuagem",
-    "sistema pet shop",
-    "agendamento para nutricionistas",
-    "site profissional para profissionais liberais"
+    "agenda online",
+    "site com agendamento online",
+    "criar site para salão de beleza",
+    "agenda online para barbearia",
+    "sistema de agendamento para salão",
+    "agenda para clínica de estética",
+    "agendamento online estúdio de tatuagem",
+    "agenda online pet shop",
+    "agenda online nutricionista",
+    "agenda online manicure",
+    "site profissional para profissional autônomo",
+    "lembrete de agendamento whatsapp",
+    "agenda online grátis",
   ],
-  authors: [{ name: "Agenda Online Team" }],
+  authors: [{ name: "Agenda Online" }],
   creator: "Agenda Online",
   publisher: "Agenda Online",
+  category: "business",
+  applicationName: "Agenda Online",
   formatDetection: {
     email: false,
     address: false,
@@ -44,11 +48,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://agendaonline.app"),
   alternates: {
     canonical: "/",
+    languages: {
+      "pt-BR": "/",
+    },
   },
   openGraph: {
-    title: "Agenda Online | Agendamento Profissional para seu Negócio",
+    title: "Agenda Online | Site profissional com agenda 24h inclusa",
     description:
-      "Transforme seu WhatsApp em uma máquina de agendamentos. Página profissional, moderna e focada em conversão para salões e clínicas.",
+      "Não é só uma agenda. É o site da sua marca. Pronto em 3 minutos, com agendamento automático e lembretes no WhatsApp. 7 dias grátis.",
     url: "https://agendaonline.app",
     siteName: "Agenda Online",
     images: [
@@ -56,7 +63,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Agenda Online - Agendamento via WhatsApp",
+        alt: "Agenda Online — site profissional com agenda 24h inclusa",
       },
     ],
     locale: "pt_BR",
@@ -64,9 +71,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Agenda Online | Agendamento via WhatsApp",
-    description: "Sua agenda profissional no WhatsApp em menos de 5 minutos.",
+    title: "Agenda Online | Site + agenda 24h em 3 minutos",
+    description: "O site da sua marca com agendamento automático e lembretes no WhatsApp. 7 dias grátis.",
     images: ["/og-image.png"],
+    creator: "@agendaonlineapp",
   },
   robots: {
     index: true,
@@ -83,6 +91,9 @@ export const metadata: Metadata = {
     icon: "/favicon.png",
     apple: "/favicon.png",
   },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
 }
 
 import { Toaster } from "../components/ui/sonner"
@@ -92,8 +103,55 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const organizationLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Agenda Online",
+    alternateName: "AgendaOnline",
+    url: "https://agendaonline.app",
+    logo: "https://agendaonline.app/logo-agenda-online.svg",
+    description:
+      "Plataforma brasileira que cria sites profissionais com agenda 24h integrada para salões, barbearias, clínicas de estética e profissionais autônomos.",
+    foundingDate: "2024",
+    areaServed: { "@type": "Country", name: "Brasil" },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      areaServed: "BR",
+      availableLanguage: "Portuguese",
+    },
+    sameAs: [
+      "https://instagram.com/agendaonlineapp",
+      "https://www.tiktok.com/@agendaonlineapp",
+    ],
+  }
+
+  const websiteLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Agenda Online",
+    url: "https://agendaonline.app",
+    inLanguage: "pt-BR",
+    publisher: { "@id": "https://agendaonline.app/#organization" },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://agendaonline.app/blog?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  }
+
   return (
     <html lang="pt-BR" className="scroll-smooth" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
+        />
+      </head>
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <TooltipProvider>

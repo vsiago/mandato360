@@ -9,6 +9,7 @@ import { HeroOutcomeUI } from "@/components/hero-outcome-ui"
 import { DashboardMockup } from "@/components/dashboard-mockup"
 import { FAQAEO } from "@/components/faq-aeo"
 import { WaitlistModal } from "@/components/waitlist-modal"
+import { HomeStructuredData } from "@/components/home-structured-data"
 
 function HomeContent() {
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
@@ -29,6 +30,7 @@ function HomeContent() {
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-50 font-sans selection:bg-amber-500/20 selection:text-amber-600 dark:selection:text-amber-300">
+      <HomeStructuredData />
 
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/40 dark:bg-stone-950/40 backdrop-blur-md border-b border-white/20 dark:border-stone-800/50">
