@@ -56,6 +56,28 @@ import type {
   SectionToolTab,
 } from "../types"
 import { resolveHero, hasOverride } from "../hooks/use-resolved-config"
+import type { FontFamily } from "../types"
+import { getFontStack, isSystemFont } from "../lib/font-utils"
+
+interface FontOption {
+  id: FontFamily | string
+  label: string
+  group: "system" | "google"
+  hint?: string
+}
+
+const fontOptions: FontOption[] = [
+  { id: "sans", label: "Sistema Sans", group: "system", hint: "Padrão moderno" },
+  { id: "serif", label: "Sistema Serif", group: "system", hint: "Clássico" },
+  { id: "mono", label: "Monospace", group: "system", hint: "Código" },
+  { id: "Playfair Display", label: "Playfair Display", group: "google", hint: "Editorial" },
+  { id: "Cormorant Garamond", label: "Cormorant Garamond", group: "google", hint: "Elegante" },
+  { id: "Lora", label: "Lora", group: "google", hint: "Leitura" },
+  { id: "Inter", label: "Inter", group: "google", hint: "Interface" },
+  { id: "Roboto", label: "Roboto", group: "google", hint: "Versátil" },
+  { id: "Montserrat", label: "Montserrat", group: "google", hint: "Geométrica" },
+  { id: "Oswald", label: "Oswald", group: "google", hint: "Condensada" },
+]
 
 const ICON_OPTIONS = [
   { id: "ArrowRight", icon: ArrowRight },
@@ -784,6 +806,320 @@ const GradientControls = ({
   )
 }
 
+function FontRow({
+  selected,
+  onClick,
+  font,
+  accentColor,
+}: {
+  selected: boolean
+  onClick: () => void
+  font: FontOption
+  accentColor: string
+}) {
+  const fontStack = getFontStack(font.id)
+  const isSerif = font.id === 'serif' || font.id === 'Playfair Display' || font.id === 'Cormorant Garamond' || font.id === 'Lora'
+  return (
+    <button
+      onClick={onClick}
+      type="button"
+      className={cn(
+        "group relative flex w-full items-center gap-3 rounded-xl border-2 px-3 py-2.5 text-left transition-all",
+        selected
+          ? "bg-card/60 shadow-sm"
+          : "border-border/40 bg-card/20 hover:border-border/70 hover:bg-card/40"
+      )}
+      style={selected ? { borderColor: accentColor, backgroundColor: `${accentColor}14` } : {}}
+      title={font.label}
+    >
+      <span
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border/40 bg-background/60 text-2xl text-foreground"
+        style={{ fontFamily: fontStack, fontStyle: isSerif ? 'italic' : 'normal' }}
+      >
+        Aa
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span
+          className="truncate text-sm font-semibold text-foreground"
+          style={{ fontFamily: fontStack }}
+        >
+          {font.label}
+        </span>
+        <span className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground/70">
+          <span className="rounded bg-muted/60 px-1 py-0.5 text-[9px] font-bold uppercase tracking-wider">
+            {font.group === "system" ? "Sistema" : "Google"}
+          </span>
+          {font.hint && <span className="truncate">{font.hint}</span>}
+        </span>
+      </span>
+      {selected && (
+        <span
+          className="ml-auto inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-black text-white"
+          style={{ backgroundColor: accentColor }}
+        >
+          <Check className="h-3 w-3" />
+        </span>
+      )}
+    </button>
+  )
+}
+
+/** Compact slider with live readout used inside the typography panel. */
+function TypographySlider({
+  label,
+  value,
+  display,
+  min,
+  max,
+  step,
+  onChange,
+  accentColor,
+  onReset,
+  resetVisible,
+}: {
+  label: string
+  value: number
+  display: string
+  min: number
+  max: number
+  step: number
+  onChange: (val: number) => void
+  accentColor: string
+  onReset?: () => void
+  resetVisible?: boolean
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+          {label}
+        </Label>
+        <div className="flex items-center gap-1.5">
+          <span
+            className="rounded-md bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] font-bold text-foreground/80"
+            style={{ color: accentColor }}
+          >
+            {display}
+          </span>
+          {resetVisible && onReset && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="rounded-md p-0.5 text-muted-foreground/60 transition-colors hover:text-foreground"
+              title="Resetar"
+            >
+              <RotateCcw className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="w-full cursor-pointer appearance-none accent-primary"
+        style={{ accentColor }}
+      />
+    </div>
+  )
+}
+
+function TypographyPanel({
+  config,
+  accentColor,
+  onUpdateFonts,
+  onUpdateCSSVariables,
+}: {
+  config: EditorConfig
+  accentColor: string
+  onUpdateFonts: (updates: { primary?: FontFamily | string; secondary?: FontFamily | string }) => void
+  onUpdateCSSVariables: (updates: Record<string, string>) => void
+}) {
+  const [target, setTarget] = useState<"primary" | "secondary">("primary")
+  const [query, setQuery] = useState("")
+  const [group, setGroup] = useState<"all" | "system" | "google">("all")
+
+  const primary = config.theme.designSystem?.fonts?.primary || "serif"
+  const secondary = config.theme.designSystem?.fonts?.secondary || "sans"
+  const selectedId = target === "primary" ? primary : secondary
+  const isPrimary = target === "primary"
+
+  const cssVars = config.theme.cssVariables || {}
+  const headingLs = parseFloat(cssVars["--theme-letter-spacing-heading"] || "0")
+  const bodyLs = parseFloat(cssVars["--theme-letter-spacing-body"] || "0")
+  const bodyLh = parseFloat(cssVars["--theme-line-height-body"] || "1.5")
+
+  const filteredFonts = fontOptions.filter((f) => {
+    if (group !== "all" && f.group !== group) return false
+    if (!query.trim()) return true
+    const q = query.toLowerCase()
+    return f.label.toLowerCase().includes(q) || String(f.id).toLowerCase().includes(q)
+  })
+
+  const previewFontStack = getFontStack(selectedId)
+  const previewIsSerif =
+    selectedId === "serif" ||
+    selectedId === "Playfair Display" ||
+    selectedId === "Cormorant Garamond" ||
+    selectedId === "Lora"
+  const previewLs = isPrimary ? `${headingLs}em` : `${bodyLs}em`
+  const previewLh = isPrimary ? 1.1 : bodyLh
+
+  return (
+    <div className="space-y-5 py-2">
+      {/* Live preview */}
+      <div
+        className="rounded-xl border border-border/40 bg-card/30 p-4"
+        style={{
+          fontFamily: previewFontStack,
+          letterSpacing: previewLs,
+          lineHeight: previewLh as any,
+        }}
+      >
+        <div
+          className="mb-1 text-[9px] font-bold uppercase tracking-widest text-muted-foreground/50"
+          style={{ fontFamily: "inherit", letterSpacing: "0.15em" }}
+        >
+          Pré-visualização
+        </div>
+        {isPrimary ? (
+          <div
+            className="text-2xl font-black leading-[1.05] text-foreground"
+            style={{ fontStyle: previewIsSerif ? "normal" : "normal" }}
+          >
+            Excelência em cada detalhe
+          </div>
+        ) : (
+          <div className="text-sm text-foreground/90">
+            Seja muito bem-vindo ao nosso espaço. Agende seu horário e descubra uma experiência única.
+          </div>
+        )}
+      </div>
+
+      {/* Heading vs Body target toggle */}
+      <div className="flex gap-1 rounded-lg border border-border/40 bg-muted/30 p-1">
+        <button
+          type="button"
+          onClick={() => setTarget("primary")}
+          className={cn(
+            "flex-1 rounded-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all",
+            isPrimary ? "shadow-sm" : "text-muted-foreground/70 hover:text-foreground"
+          )}
+          style={isPrimary ? { backgroundColor: `${accentColor}25`, color: accentColor } : undefined}
+        >
+          Títulos
+        </button>
+        <button
+          type="button"
+          onClick={() => setTarget("secondary")}
+          className={cn(
+            "flex-1 rounded-md px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all",
+            !isPrimary ? "shadow-sm" : "text-muted-foreground/70 hover:text-foreground"
+          )}
+          style={!isPrimary ? { backgroundColor: `${accentColor}25`, color: accentColor } : undefined}
+        >
+          Corpo
+        </button>
+      </div>
+
+      {/* Search + filter chips */}
+      <div className="space-y-2">
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar fonte…"
+          className="h-8 border-border/50 bg-background text-[11px]"
+        />
+        <div className="flex gap-1">
+          {(["all", "system", "google"] as const).map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGroup(g)}
+              className={cn(
+                "flex-1 rounded-md border px-2 py-1 text-[9px] font-bold uppercase tracking-wider transition-all",
+                group === g
+                  ? "border-transparent"
+                  : "border-border/40 text-muted-foreground/60 hover:text-foreground"
+              )}
+              style={group === g ? { backgroundColor: `${accentColor}20`, color: accentColor, borderColor: `${accentColor}40` } : undefined}
+            >
+              {g === "all" ? "Todas" : g === "system" ? "Sistema" : "Google"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Font list */}
+      <div className="space-y-1.5 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+        {filteredFonts.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-border/40 px-3 py-6 text-center text-[11px] text-muted-foreground/60">
+            Nenhuma fonte encontrada.
+          </div>
+        ) : (
+          filteredFonts.map((font) => (
+            <FontRow
+              key={font.id}
+              font={font}
+              selected={selectedId === font.id}
+              accentColor={accentColor}
+              onClick={() => onUpdateFonts({ [target]: font.id } as any)}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Fine-tuning sliders */}
+      <div className="space-y-4 border-t border-border/40 pt-4">
+        {isPrimary ? (
+          <TypographySlider
+            label="Espaçamento (títulos)"
+            value={headingLs}
+            display={`${headingLs.toFixed(2)} em`}
+            min={-0.1}
+            max={0.3}
+            step={0.01}
+            onChange={(v) => onUpdateCSSVariables({ "--theme-letter-spacing-heading": `${v}em` })}
+            accentColor={accentColor}
+            resetVisible={headingLs !== 0}
+            onReset={() => onUpdateCSSVariables({ "--theme-letter-spacing-heading": "0em" })}
+          />
+        ) : (
+          <>
+            <TypographySlider
+              label="Espaçamento (corpo)"
+              value={bodyLs}
+              display={`${bodyLs.toFixed(2)} em`}
+              min={-0.05}
+              max={0.2}
+              step={0.01}
+              onChange={(v) => onUpdateCSSVariables({ "--theme-letter-spacing-body": `${v}em` })}
+              accentColor={accentColor}
+              resetVisible={bodyLs !== 0}
+              onReset={() => onUpdateCSSVariables({ "--theme-letter-spacing-body": "0em" })}
+            />
+            <TypographySlider
+              label="Altura da linha (corpo)"
+              value={bodyLh}
+              display={bodyLh.toFixed(2)}
+              min={1}
+              max={2.5}
+              step={0.05}
+              onChange={(v) => onUpdateCSSVariables({ "--theme-line-height-body": String(v) })}
+              accentColor={accentColor}
+              resetVisible={bodyLh !== 1.5}
+              onReset={() => onUpdateCSSVariables({ "--theme-line-height-body": "1.5" })}
+            />
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const sectionTitle: Record<string, { title: string; desc: string }> = {
   header: { title: "Header", desc: "Menu de navegação" },
   hero: { title: "Hero (Banner Principal)", desc: "Edite o fundo e conteúdo" },
@@ -904,12 +1240,47 @@ export function EditorSidebar({
 
   // Core section updates
   const updateColors = (key: keyof EditorConfig["theme"]["colors"], value: string) => {
+    const headerUpdates = key === "primary" ? {
+      header: {
+        ...config.header,
+        scrolled: {
+          ...(config.header.scrolled || {}),
+          backgroundColor: value,
+        }
+      }
+    } : {}
+
     onConfigChange({
       theme: {
         ...config.theme,
         colors: { ...config.theme.colors, [key]: value },
         designSystem: { ...config.theme.designSystem, preset: "custom" },
       },
+      ...headerUpdates
+    })
+  }
+
+  const updateDesignSystem = (updates: Partial<EditorConfig["theme"]["designSystem"]>) => {
+    onConfigChange({
+      theme: {
+        ...config.theme,
+        designSystem: {
+          ...(config.theme.designSystem || { preset: 'custom', fonts: { primary: 'serif', secondary: 'sans' } }),
+          ...updates
+        }
+      }
+    })
+  }
+
+  const updateCSSVariables = (updates: Record<string, string>) => {
+    onConfigChange({
+      theme: {
+        ...config.theme,
+        cssVariables: {
+          ...(config.theme.cssVariables || {}),
+          ...updates
+        }
+      }
     })
   }
 
@@ -1632,6 +2003,30 @@ export function EditorSidebar({
         {/* â•â•â• APPEARANCE TAB â•â•â• */}
         {sectionToolTab === "appearance" && (
           <>
+        {/* Typography settings for specific active elements within this section */}
+        <AccordionItem
+          id="fonts"
+          icon={Type}
+          label="Tipografia"
+          isOpen={openAccordion === "fonts"}
+          accentColor={accentColor}
+          onToggle={toggleAccordion}
+        >
+          <TypographyPanel
+            config={config}
+            accentColor={accentColor}
+            onUpdateFonts={(updates) =>
+              updateDesignSystem({
+                fonts: {
+                  primary: config.theme.designSystem?.fonts?.primary || "serif",
+                  secondary: config.theme.designSystem?.fonts?.secondary || "sans",
+                  ...updates,
+                } as { primary: FontFamily; secondary: FontFamily },
+              })
+            }
+            onUpdateCSSVariables={updateCSSVariables}
+          />
+        </AccordionItem>
         {/* Layout & Behavior - Header */}
         {activeSection === "header" && (
           <AccordionItem

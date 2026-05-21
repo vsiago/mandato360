@@ -226,11 +226,17 @@ const themePresets: ThemePreset[] = [
   },
 ]
 
-const fontOptions: { id: FontFamily; label: string; preview: string }[] = [
-  { id: "sans", label: "Sans Serif", preview: "Aa" },
-  { id: "serif", label: "Serif", preview: "Aa" },
+const fontOptions: { id: FontFamily | string; label: string; preview: string }[] = [
+  { id: "sans", label: "Sistema Sans", preview: "Aa" },
+  { id: "serif", label: "Sistema Serif", preview: "Aa" },
   { id: "mono", label: "Monospace", preview: "Aa" },
-  { id: "display", label: "Display", preview: "Aa" },
+  { id: "Playfair Display", label: "Playfair Display", preview: "Aa" },
+  { id: "Cormorant Garamond", label: "C. Garamond", preview: "Aa" },
+  { id: "Inter", label: "Inter", preview: "Aa" },
+  { id: "Roboto", label: "Roboto", preview: "Aa" },
+  { id: "Montserrat", label: "Montserrat", preview: "Aa" },
+  { id: "Lora", label: "Lora", preview: "Aa" },
+  { id: "Oswald", label: "Oswald", preview: "Aa" },
 ]
 
 interface GlobalThemeSettingsProps {
@@ -240,7 +246,7 @@ interface GlobalThemeSettingsProps {
 }
 
 export function GlobalThemeSettings({ config, onConfigChange, accentColor = "#10b981" }: GlobalThemeSettingsProps) {
-  const [openSection, setOpenSection] = useState<string | null>(null)
+  const [openSection, setOpenSection] = useState<string | null>("fonts")
 
   if (!config?.theme) {
     return (
@@ -273,6 +279,13 @@ export function GlobalThemeSettings({ config, onConfigChange, accentColor = "#10
           angle: preset.gradient.angle,
         },
       },
+      header: {
+        ...config.header,
+        scrolled: {
+          ...(config.header.scrolled || {}),
+          backgroundColor: preset.colors.primary,
+        }
+      }
     })
   }
 
@@ -286,10 +299,30 @@ export function GlobalThemeSettings({ config, onConfigChange, accentColor = "#10
   }
 
   const updateColors = (updates: Partial<EditorConfig["theme"]["colors"]>) => {
+    const headerUpdates = updates.primary ? {
+      header: {
+        ...config.header,
+        scrolled: {
+          ...(config.header.scrolled || {}),
+          backgroundColor: updates.primary,
+        }
+      }
+    } : {}
+
     onConfigChange({
       theme: {
         ...config.theme,
         colors: { ...config.theme.colors, ...updates },
+      },
+      ...headerUpdates
+    })
+  }
+
+  const updateCSSVariables = (updates: Record<string, string>) => {
+    onConfigChange({
+      theme: {
+        ...config.theme,
+        cssVariables: { ...(config.theme.cssVariables || {}), ...updates },
       },
     })
   }
@@ -421,47 +454,7 @@ export function GlobalThemeSettings({ config, onConfigChange, accentColor = "#10
             </div>
           </AccordionSection>
 
-          {/* Typography Section */}
-          <AccordionSection
-            title="Tipografia"
-            icon={Type}
-            isOpen={openSection === "fonts"}
-            onToggle={() => setOpenSection(openSection === "fonts" ? null : "fonts")}
-            accentColor={accentColor}
-          >
-            <div className="space-y-6 py-2">
-              <div className="space-y-3">
-                <Label className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Títulos e Cabeçalhos</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {fontOptions.map((font) => (
-                    <FontButton
-                      key={font.id}
-                      selected={designSystem.fonts.primary === font.id}
-                      onClick={() => updateDesignSystem({ fonts: { ...designSystem.fonts, primary: font.id } })}
-                      font={font}
-                      accentColor={accentColor}
-                    />
-                  ))}
-                </div>
-              </div>
 
-              <div className="space-y-3">
-                <Label className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Corpo do Texto</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {fontOptions.map((font) => (
-                    <FontButton
-                      key={font.id}
-                      selected={designSystem.fonts.secondary === font.id}
-                      onClick={() => updateDesignSystem({ fonts: { ...designSystem.fonts, secondary: font.id } })}
-                      font={font}
-                      accentColor={accentColor}
-                      small
-                    />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </AccordionSection>
 
           {/* Border Radius Section */}
           <AccordionSection
@@ -585,7 +578,8 @@ function ColorPickerItem({ label, color, onChange }: { label: string, color: str
   )
 }
 
-function FontButton({ selected, onClick, font, accentColor, small }: { selected: boolean, onClick: () => void, font: { id: FontFamily, label: string, preview: string }, accentColor: string, small?: boolean }) {
+function FontButton({ selected, onClick, font, accentColor, small }: { selected: boolean, onClick: () => void, font: { id: FontFamily | string, label: string, preview: string }, accentColor: string, small?: boolean }) {
+  const isSystem = ['sans', 'serif', 'mono', 'display'].includes(font.id)
   return (
     <button
       onClick={onClick}
@@ -600,14 +594,14 @@ function FontButton({ selected, onClick, font, accentColor, small }: { selected:
       <span 
         className={cn("text-xl text-foreground mb-1", small && "text-lg")}
         style={{ 
-          fontFamily: `var(--font-${font.id})`,
-          fontStyle: font.id === 'serif' ? 'italic' : 'normal',
-          fontWeight: font.id === 'display' || font.id === 'mono' ? 'bold' : 'normal'
+          fontFamily: isSystem ? `var(--font-${font.id})` : `"${font.id}", sans-serif`,
+          fontStyle: font.id === 'serif' || font.id === 'Cormorant Garamond' || font.id === 'Lora' ? 'italic' : 'normal',
+          fontWeight: font.id === 'display' || font.id === 'mono' || font.id === 'Montserrat' ? 'bold' : 'normal'
         }}
       >
         {font.preview}
       </span>
-      <span className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest">{font.label}</span>
+      <span className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate w-full text-center">{font.label}</span>
     </button>
   )
 }

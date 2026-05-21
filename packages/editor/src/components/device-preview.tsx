@@ -40,6 +40,7 @@ import { resolveHero } from "../hooks/use-resolved-config"
 import { InlineToolbar } from "./inline-toolbar"
 import { renderMarkdown } from "../lib/markdown-renderer"
 import { SectionToolbar } from "./section-toolbar"
+import { getFontStack } from "../lib/font-utils"
 
 interface DevicePreviewProps {
   config: EditorConfig
@@ -50,9 +51,11 @@ interface DevicePreviewProps {
   accentColor?: string
   onConfigChange?: (config: any) => void
   onAccordionToggle?: (id: string) => void
+  onSectionToolTabChange?: (tab: "content" | "appearance") => void
   onSectionReorder?: (newOrder: string[]) => void
   onSectionDelete?: (id: string) => void
   onSectionSelect?: (id: string) => void
+  onTextElementSelect?: (id: string) => void
   placeholders?: {
     title?: string
     description?: string
@@ -60,13 +63,6 @@ interface DevicePreviewProps {
     ctaPrimary?: string
     ctaSecondary?: string
   }
-}
-
-const fontFamilyMap: Record<string, string> = {
-  sans: "var(--font-sans)",
-  serif: "var(--font-serif)",
-  mono: "var(--font-mono)",
-  display: "var(--font-display)",
 }
 
 const borderRadiusMap: Record<string, string> = {
@@ -86,10 +82,12 @@ export function DevicePreview({
   accentColor = "#10b981", 
   onConfigChange, 
   onAccordionToggle, 
+  onSectionToolTabChange,
   onSectionReorder,
   onSectionDelete,
   onSectionSelect,
-  placeholders 
+  onTextElementSelect,
+  placeholders
 }: DevicePreviewProps) {
   const [zoom, setZoom] = useState(100)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -306,8 +304,8 @@ export function DevicePreview({
     animations: true,
   }
 
-  const primaryFont = fontFamilyMap[designSystem.fonts?.primary || "serif"]
-  const secondaryFont = fontFamilyMap[designSystem.fonts?.secondary || "sans"]
+  const primaryFont = getFontStack(designSystem.fonts?.primary || "serif")
+  const secondaryFont = getFontStack(designSystem.fonts?.secondary || "sans")
   const btnRadius = borderRadiusMap[designSystem.borderRadius || "lg"]
 
   // Use hero-level gradient (device-aware) if present, otherwise fallback to theme gradient
@@ -371,7 +369,7 @@ export function DevicePreview({
 
   const themeVariables = {
     "--theme-card-radius": borderRadiusValues[designSystem.borderRadius || "lg"],
-    "--theme-btn-radius": designSystem.borderRadius === 'full' ? '9999px' : 
+    "--theme-btn-radius": designSystem.borderRadius === 'full' ? '9999px' :
                           designSystem.borderRadius === 'xl' ? '24px' :
                           designSystem.borderRadius === 'lg' ? '12px' :
                           designSystem.borderRadius === 'md' ? '8px' :
@@ -380,6 +378,10 @@ export function DevicePreview({
     "--theme-color-secondary": theme.colors.secondary,
     "--theme-color-background": theme.colors.background,
     "--theme-color-text": theme.colors.text,
+    "--theme-font-heading": primaryFont,
+    "--theme-font-body": secondaryFont,
+    // User-tunable typography vars from the global theme settings
+    ...(theme.cssVariables || {}),
   } as React.CSSProperties
 
   return (
@@ -674,6 +676,7 @@ export function DevicePreview({
                             setEditingField("hero.badge")
                             setTargetRect(rect)
                             setIsTyping(false)
+                            onTextElementSelect?.("hero")
                           }}
                           onStartTyping={() => setIsTyping(true)}
                           accentColor={accentColor}
@@ -694,6 +697,7 @@ export function DevicePreview({
                             setEditingField("hero.title")
                             setTargetRect(rect)
                             setIsTyping(false)
+                            onTextElementSelect?.("hero")
                           }}
                           onStartTyping={() => setIsTyping(true)}
                           accentColor={accentColor}
@@ -702,7 +706,11 @@ export function DevicePreview({
                             device === "desktop" && "text-6xl",
                             device === "tablet" && "text-4xl"
                           )}
-                          style={{ color: theme.colors.text, fontFamily: primaryFont }}
+                          style={{
+                            color: theme.colors.text,
+                            fontFamily: primaryFont,
+                            letterSpacing: 'var(--theme-letter-spacing-heading)'
+                          }}
                         >
                           {renderMarkdown(resolvedHero.title || placeholders?.title || "Por uma cidade de Resultados")}
                         </EditableText>
@@ -718,14 +726,20 @@ export function DevicePreview({
                             setEditingField("hero.description")
                             setTargetRect(rect)
                             setIsTyping(false)
+                            onTextElementSelect?.("hero")
                           }}
                           onStartTyping={() => setIsTyping(true)}
                           accentColor={accentColor}
                           className={cn(
-                            "mt-2 w-full text-sm leading-relaxed opacity-90",
+                            "mt-2 w-full text-sm opacity-90",
                             device === "desktop" && "mt-4 text-lg"
                           )}
-                          style={{ color: theme.colors.text, fontFamily: secondaryFont }}
+                          style={{
+                            color: theme.colors.text,
+                            fontFamily: secondaryFont,
+                            letterSpacing: 'var(--theme-letter-spacing-body)',
+                            lineHeight: 'var(--theme-line-height-body, 1.5)'
+                          }}
                         >
                           {renderMarkdown(resolvedHero.description || placeholders?.description || "Seja bem-vindo ao nosso espaço.")}
                         </EditableText>

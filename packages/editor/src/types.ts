@@ -5,7 +5,19 @@ import type { ComponentType } from "react"
 // ─── Device & Section Types ───
 export type DeviceType = "mobile" | "tablet" | "desktop"
 export type SectionType = "header" | "hero" | "footer"
-export type AccordionType = "theme" | "colors" | "image" | "position" | "effects" | "content" | "header-content" | "header-nav" | "header-layout" | "layout" | "button-primary" | "button-secondary"
+export type AccordionType =
+  | "image"
+  | "position"
+  | "layout"
+  | "colors"
+  | "fonts"
+  | "effects"
+  | "content"
+  | "header-layout"
+  | "header-content"
+  | "header-nav"
+  | "button-primary"
+  | "button-secondary"
 export type ThemePresetType = "neutral" | "classic" | "ruby" | "emerald" | "midnight" | "sunset" | "sunflower" | "custom"
 export type OrientationType = "left" | "center" | "right"
 export type FontFamily = "sans" | "serif" | "mono" | "display"
@@ -58,6 +70,7 @@ export interface ThemeConfig {
     muted: string
   }
   gradient: GradientConfig
+  cssVariables?: Record<string, string>
 }
 
 // ─── Header ───

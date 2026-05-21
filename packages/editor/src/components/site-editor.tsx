@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { cn } from "../lib/utils"
 import { useEditor } from "../hooks/use-editor"
 import { EditorHeader } from "./editor-header"
@@ -16,6 +16,7 @@ import { GlobalThemeSettings } from "./global-theme-settings"
 import { Settings, Layers, Palette } from "lucide-react"
 import { Button } from "./ui/button"
 import type { AccordionType, SectionToolTab } from "../types"
+import { buildGoogleFontsUrl } from "../lib/font-utils"
 
 export function SiteEditor({
   initialConfig,
@@ -45,13 +46,49 @@ export function SiteEditor({
   const [isThemeOpen, setIsThemeOpen] = useState(false)
   const [openAccordion, setOpenAccordion] = useState<AccordionType | null>(null)
   const [sectionToolTab, setSectionToolTab] = useState<SectionToolTab>("content")
+  const skipNextSectionResetRef = useRef(false)
 
   // Sync openAccordion when activeSection changes
   useEffect(() => {
+    // Skip if the change was caused by a text-element click that already
+    // chose the appearance tab + typography accordion intentionally.
+    if (skipNextSectionResetRef.current) {
+      skipNextSectionResetRef.current = false
+      return
+    }
     // We want accordions to start closed by default as per user request
     setOpenAccordion(null)
     setSectionToolTab("content") // Reset to content tab when section changes
   }, [editor.activeSection])
+
+  // Dynamically load Google Fonts referenced by the current typography selection
+  // so the editor preview matches what the public site renders.
+  const primaryFontId = editor.config.theme?.designSystem?.fonts?.primary
+  const secondaryFontId = editor.config.theme?.designSystem?.fonts?.secondary
+  useEffect(() => {
+    const url = buildGoogleFontsUrl([primaryFontId, secondaryFontId])
+    if (!url) return
+    const linkId = `editor-google-fonts-${url}`
+    if (document.getElementById(linkId)) return
+    const link = document.createElement("link")
+    link.id = linkId
+    link.rel = "stylesheet"
+    link.href = url
+    document.head.appendChild(link)
+  }, [primaryFontId, secondaryFontId])
+
+  // Clicking any editable text opens the global Typography panel in the sidebar.
+  const handleTextElementSelect = useCallback(
+    (sectionId: string) => {
+      if (editor.activeSection !== sectionId) {
+        skipNextSectionResetRef.current = true
+      }
+      editor.setActiveSection(sectionId)
+      setSectionToolTab("appearance")
+      setOpenAccordion("fonts")
+    },
+    [editor.activeSection, editor.setActiveSection],
+  )
 
   // ... (rest of the component)
 
@@ -191,9 +228,11 @@ export function SiteEditor({
             accentColor={accentColor}
             onConfigChange={editor.updateConfig}
             onAccordionToggle={(id) => setOpenAccordion(id as AccordionType)}
+            onSectionToolTabChange={setSectionToolTab}
             onSectionReorder={editor.reorderSections}
             onSectionDelete={editor.deleteSection}
             onSectionSelect={editor.setActiveSection}
+            onTextElementSelect={handleTextElementSelect}
             placeholders={placeholders}
           />
         </div>

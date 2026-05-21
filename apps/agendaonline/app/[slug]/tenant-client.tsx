@@ -155,6 +155,12 @@ export function TenantDisplay({ data, services, categories }: TenantClientProps)
         }
     }
     const themeCSSVars = generateThemeCSS(activeTheme, "light")
+    
+    // Apply editor overrides for CSS Variables (typography spacing etc)
+    if (editorTheme?.cssVariables) {
+        Object.assign(themeCSSVars, editorTheme.cssVariables)
+    }
+
     const rootVarStyles = Object.entries(themeCSSVars).map(([key, val]) => `${key}: ${val};`).join('\n')
 
     const googleFontsUrl = buildGoogleFontsUrl([fontHeading, fontBody])
