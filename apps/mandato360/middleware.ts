@@ -8,6 +8,11 @@ export default async function middleware(request: NextRequest) {
 		return NextResponse.redirect(new URL("/", request.url));
 	}
 
+	// Skip auth check for demo routes (public demo dashboard)
+	if (pathname.startsWith("/demo")) {
+		return NextResponse.next();
+	}
+
 	// Skip auth check for public/static routes to reduce DB queries
 	const isPublicRoute = !pathname.includes("/dashboard") && !pathname.startsWith("/master");
 	if (isPublicRoute) {
