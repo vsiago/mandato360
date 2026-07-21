@@ -7,6 +7,8 @@ import { getLeads, getLeadById, createLead, updateLead, deleteLead } from "./lea
 import { db } from "@/lib/db"
 import * as schema from "@/lib/db/schema"
 import { eq, desc } from "drizzle-orm"
+import { validateTenantAccess } from "@/lib/auth-utils"
+import { checkRateLimit, rateLimitPresets } from "@/lib/rate-limit"
 
 export async function getEleitoresByTenant(tenantSlug: string) {
   try {
@@ -15,6 +17,12 @@ export async function getEleitoresByTenant(tenantSlug: string) {
     });
 
     if (!tenantResult) return [];
+
+    // ✅ SECURITY: Validate tenant access
+    await validateTenantAccess(tenantResult.id, "readonly");
+
+    // ✅ SECURITY: Rate limiting
+    await checkRateLimit(rateLimitPresets.api);
 
     const result = await db.query.lead.findMany({
       where: eq(schema.lead.tenantId, tenantResult.id),
@@ -44,7 +52,7 @@ export async function getEleitoresByTenant(tenantSlug: string) {
     }));
   } catch (error) {
     console.error("Error fetching eleitores:", error);
-    return [];
+    throw error;
   }
 }
 
