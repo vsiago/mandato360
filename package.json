@@ -6,7 +6,9 @@
   "scripts": {
     "dev:mandato": "pnpm --filter mandato360 dev",
     "build:mandato": "pnpm --filter mandato360 build",
-    "install:all": "pnpm install"
+    "install:all": "pnpm install",
+    "setup": "tsx scripts/setup-demo.ts",
+    "start": "pnpm setup && pnpm dev:mandato"
   },
   "devDependencies": {
     "turbo": "^2.0.0"
