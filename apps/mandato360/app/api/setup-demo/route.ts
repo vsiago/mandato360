@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { hash } from "better-auth/crypto";
+import { hashPassword } from "better-auth/crypto";
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     if (!existingAdmin) {
       const adminId = "user-admin-" + Date.now();
-      const hashedPassword = await hash(adminPassword);
+      const hashedPassword = await hashPassword(adminPassword);
 
       await db.insert(schema.user).values({
         id: adminId,
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       });
     } else {
       // Update existing admin password
-      const hashedPassword = await hash(adminPassword);
+      const hashedPassword = await hashPassword(adminPassword);
       await db
         .update(schema.account)
         .set({ password: hashedPassword, updatedAt: now })
