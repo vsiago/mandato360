@@ -1,5 +1,0 @@
-{
-  "buildCommand": "cd apps/mandato360 && pnpm build",
-  "installCommand": "pnpm install",
-  "outputDirectory": "apps/mandato360/.next"
-}
