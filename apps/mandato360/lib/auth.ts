@@ -16,7 +16,9 @@ export const auth = betterAuth({
         "https://mandato360.com.br",
         "https://mandato360.vercel.app",
         "https://mandato360-flame.vercel.app",
-        "https://mandato360-*.vercel.app"
+        "https://mandato360-*.vercel.app",
+        "https://considered-affiliation-customize-levels.trycloudflare.com",
+        "https://*.trycloudflare.com"
     ],
 	emailAndPassword: {
 		enabled: true,
