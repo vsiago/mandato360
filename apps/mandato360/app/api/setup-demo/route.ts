@@ -1,35 +1,28 @@
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { hash } from "better-auth/crypto";
 
 export async function POST(request: Request) {
   try {
-    // Hash bcrypt para Admin@123456
-    // $2a$10$9LoIqJxl6b5cG5Fb4P9rO.32e1S4Hf1NYm5GcqCJfCcCeQpwE7qz6
-
-    const adminPasswordHash = "$2a$10$9LoIqJxl6b5cG5Fb4P9rO.32e1S4Hf1NYm5GcqCJfCcCeQpwE7qz6";
-    const demoPasswordHash = "$2a$10$1gA0h3Qqn5EHQ3T5r2H7r.8QzDT9yZEzVGCKXVJ2C5QKnZxBqR9xm";
-
     const now = new Date();
 
-    // Check if admin exists
+    // Admin user
+    const adminEmail = "admin@mandato360.com";
+    const adminPassword = "Admin@123456";
+
     const existingAdmin = await db.query.user.findFirst({
-      where: eq(schema.user.email, "admin@mandato360.com"),
+      where: eq(schema.user.email, adminEmail),
     });
 
-    if (existingAdmin) {
-      // Update password if needed
-      await db
-        .update(schema.account)
-        .set({ password: adminPasswordHash, updatedAt: now })
-        .where(eq(schema.account.userId, existingAdmin.id));
-    } else {
-      // Create admin user
+    if (!existingAdmin) {
       const adminId = "user-admin-" + Date.now();
+      const hashedPassword = await hash(adminPassword);
+
       await db.insert(schema.user).values({
         id: adminId,
         name: "Admin",
-        email: "admin@mandato360.com",
+        email: adminEmail,
         emailVerified: true,
         image: null,
         createdAt: now,
@@ -42,30 +35,35 @@ export async function POST(request: Request) {
         accountId: "admin",
         providerId: "credential",
         userId: adminId,
-        password: adminPasswordHash,
+        password: hashedPassword,
         createdAt: now,
         updatedAt: now,
       });
-    }
-
-    // Check if demo exists
-    const existingDemo = await db.query.user.findFirst({
-      where: eq(schema.user.email, "demo@mandato360.com"),
-    });
-
-    if (existingDemo) {
-      // Update password if needed
+    } else {
+      // Update existing admin password
+      const hashedPassword = await hash(adminPassword);
       await db
         .update(schema.account)
-        .set({ password: demoPasswordHash, updatedAt: now })
-        .where(eq(schema.account.userId, existingDemo.id));
-    } else {
-      // Create demo user
+        .set({ password: hashedPassword, updatedAt: now })
+        .where(eq(schema.account.userId, existingAdmin.id));
+    }
+
+    // Demo user
+    const demoEmail = "demo@mandato360.com";
+    const demoPassword = "Demo@123456";
+
+    const existingDemo = await db.query.user.findFirst({
+      where: eq(schema.user.email, demoEmail),
+    });
+
+    if (!existingDemo) {
       const demoId = "user-demo-" + Date.now();
+      const hashedPassword = await hash(demoPassword);
+
       await db.insert(schema.user).values({
         id: demoId,
         name: "Demo User",
-        email: "demo@mandato360.com",
+        email: demoEmail,
         emailVerified: true,
         image: null,
         createdAt: now,
@@ -78,10 +76,17 @@ export async function POST(request: Request) {
         accountId: "demo",
         providerId: "credential",
         userId: demoId,
-        password: demoPasswordHash,
+        password: hashedPassword,
         createdAt: now,
         updatedAt: now,
       });
+    } else {
+      // Update existing demo password
+      const hashedPassword = await hash(demoPassword);
+      await db
+        .update(schema.account)
+        .set({ password: hashedPassword, updatedAt: now })
+        .where(eq(schema.account.userId, existingDemo.id));
     }
 
     return Response.json(
@@ -90,12 +95,12 @@ export async function POST(request: Request) {
         message: "Users created/updated successfully",
         credentials: {
           admin: {
-            email: "admin@mandato360.com",
-            password: "Admin@123456",
+            email: adminEmail,
+            password: adminPassword,
           },
           demo: {
-            email: "demo@mandato360.com",
-            password: "Demo@123456",
+            email: demoEmail,
+            password: demoPassword,
           },
         },
       },
