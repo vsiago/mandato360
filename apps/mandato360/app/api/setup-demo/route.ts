@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     if (!existingDemo) {
       const demoId = "user-demo-" + Date.now();
-      const hashedPassword = await hash(demoPassword);
+      const hashedPassword = await hashPassword(demoPassword);
 
       await db.insert(schema.user).values({
         id: demoId,
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
       });
     } else {
       // Update existing demo password
-      const hashedPassword = await hash(demoPassword);
+      const hashedPassword = await hashPassword(demoPassword);
       await db
         .update(schema.account)
         .set({ password: hashedPassword, updatedAt: now })
