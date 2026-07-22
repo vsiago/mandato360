@@ -2,6 +2,7 @@
   "buildCommand": "pnpm --filter mandato360 build",
   "installCommand": "pnpm install",
   "outputDirectory": "apps/mandato360/.next",
-  "root": "apps/mandato360",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "monorepoRoot": true,
+  "monorepoRootLatest": true
 }
