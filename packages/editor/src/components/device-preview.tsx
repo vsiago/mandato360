@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { cn, hexToRgba } from "../lib/utils"
-import type { EditorConfig, DeviceType, EditorPlugin } from "../types"
+import type { EditorConfig, DeviceType, EditorPlugin, GradientStop } from "../types"
 import { 
   Heart, 
   Menu, 
@@ -316,7 +316,11 @@ export function DevicePreview({
         .join(", ")})`
     : undefined
 
-  const headerGradientStyle = `linear-gradient(${header.gradient.angle}deg, ${header.gradient.stops
+  // Config persistido pode ser parcial (ex.: __editorConfig gravado sem
+  // `header` na criacao do mandato) — sem este fallback, header.gradient
+  // undefined derrubava a pagina inteira do editor.
+  const headerGradient = header.gradient ?? { angle: 180, stops: [] as GradientStop[] }
+  const headerGradientStyle = `linear-gradient(${headerGradient.angle}deg, ${headerGradient.stops
     .map((stop) => `${hexToRgba(stop.color, stop.opacity ?? 100)} ${stop.position}%`)
     .join(", ")})`
 

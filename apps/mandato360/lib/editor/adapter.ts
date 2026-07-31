@@ -280,12 +280,45 @@ export function hasEditorConfig(site: SiteConfig): boolean {
   return !!(site as any).__editorConfig
 }
 
+function isPlainObject(value: unknown): value is Record<string, any> {
+  return !!value && typeof value === "object" && !Array.isArray(value)
+}
+
+/**
+ * Deep merge onde `override` vence, mas so nas chaves que ele de fato define.
+ * Arrays sao substituidos inteiros (nao mesclados por indice).
+ */
+function deepMerge<T>(base: T, override: any): T {
+  if (!isPlainObject(base) || !isPlainObject(override)) {
+    return override !== undefined ? override : base
+  }
+  const result: any = { ...base }
+  for (const key of Object.keys(override)) {
+    const overrideVal = override[key]
+    if (overrideVal === undefined) continue
+    const baseVal = (base as any)[key]
+    result[key] = isPlainObject(baseVal) && isPlainObject(overrideVal)
+      ? deepMerge(baseVal, overrideVal)
+      : overrideVal
+  }
+  return result
+}
+
 /**
  * Extract EditorConfig from a SiteConfig if it was saved by the new editor.
  * Falls back to conversion if not available.
+ *
+ * `raw` (__editorConfig) pode ser PARCIAL: a tela de criacao de mandato em
+ * app/master/tenants/page.tsx grava so `theme.colors` e `hero.images/gradient`,
+ * sem `header`/`footer`/`plugins`. Devolver `raw` direto deixava `header`
+ * undefined e derrubava o editor com "Cannot read properties of undefined
+ * (reading 'gradient')" em device-preview.tsx assim que o mandato era criado.
+ * Por isso sempre partimos de defaults completos (siteConfigToEditorConfig)
+ * e aplicamos o `raw` por cima, campo a campo.
  */
 export function extractEditorConfig(site: SiteConfig): EditorConfig {
+  const defaults = siteConfigToEditorConfig(site)
   const raw = (site as any).__editorConfig
-  if (raw) return raw as EditorConfig
-  return siteConfigToEditorConfig(site)
+  if (!raw) return defaults
+  return deepMerge(defaults, raw)
 }
