@@ -157,8 +157,12 @@ export const lead = pgTable("eleitor", {
     updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
-// ─── Backward compat: alias eleitor = lead ───
-export const eleitor = lead;
+// ATENCAO: nao reexporte esta tabela sob outro nome (ex.: `export const
+// eleitor = lead`). O Drizzle mapeia nome-do-banco -> nome-do-export para
+// registrar as relations; com dois exports para a mesma tabela o segundo
+// sobrescreve o primeiro e `db.query.lead` fica SEM relations, fazendo
+// qualquer `with: {...}` estourar "reading 'referencedTable'".
+// Para codigo legado, importe `lead` e renomeie no import.
 
 // ─── Demandas ───
 export const demanda = pgTable("demanda", {
@@ -302,6 +306,22 @@ export const tenantRelations = relations(tenant, ({ many }) => ({
     pesquisas: many(pesquisa),
 }));
 
+// tenantRelations declara many() para estas tres tabelas; sem o `one`
+// reciproco o Drizzle nao resolve a FK e derruba db.query.* com
+// "reading 'referencedTable'".
+export const tenantMemberRelations = relations(tenantMember, ({ one }) => ({
+    tenant: one(tenant, { fields: [tenantMember.tenantId], references: [tenant.id] }),
+    userRef: one(user, { fields: [tenantMember.userId], references: [user.id] }),
+}));
+
+export const legislativoRelations = relations(legislativo, ({ one }) => ({
+    tenant: one(tenant, { fields: [legislativo.tenantId], references: [tenant.id] }),
+}));
+
+export const publicacaoRelations = relations(publicacao, ({ one }) => ({
+    tenant: one(tenant, { fields: [publicacao.tenantId], references: [tenant.id] }),
+}));
+
 export const leadRelations = relations(lead, ({ one, many }) => ({
     tenant: one(tenant, { fields: [lead.tenantId], references: [tenant.id] }),
     // bairroRef: one(bairro, { fields: [lead.bairroId], references: [bairro.id] }),
@@ -341,7 +361,10 @@ export const agendaPublicaRelations = relations(agendaPublica, ({ one }) => ({
 export const indicacaoPopularRelations = relations(indicacaoPopular, ({ one }) => ({
     tenant: one(tenant, { fields: [indicacaoPopular.tenantId], references: [tenant.id] }),
     liderancaRef: one(lideranca, { fields: [indicacaoPopular.liderancaId], references: [lideranca.id] }),
-    // bairroRef: one(bairro, { fields: [indicacaoPopular.bairroId], references: [bairro.id] }),
+    // Contrapartida obrigatoria do `indicacoes: many(indicacaoPopular)` em
+    // bairroRelations. Sem este `one`, o Drizzle nao resolve a FK e QUALQUER
+    // query relacional (db.query.*) estoura "reading 'referencedTable'".
+    bairroRef: one(bairro, { fields: [indicacaoPopular.bairroId], references: [bairro.id] }),
 }));
 
 export const pesquisaRelations = relations(pesquisa, ({ one, many }) => ({

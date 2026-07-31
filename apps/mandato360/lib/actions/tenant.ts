@@ -1,7 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db";
-import { tenant, tenantMember, user, eleitor, demanda, lideranca, legislativo, publicacao, account, session } from "@/lib/db/schema";
+import { tenant, tenantMember, user, lead as eleitor, demanda, lideranca, legislativo, publicacao, account, session } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";

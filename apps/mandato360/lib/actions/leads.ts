@@ -40,7 +40,9 @@ export async function getLeads(tenantId: string, options?: { limit?: number; off
       limit: validated.limit,
       offset: validated.offset,
       with: {
-        bairroRef: true,
+        // bairroRef desativado: lead.bairroId nao existe (o bairro vem da
+        // coluna texto `bairro`). Pedir a relacao aqui derrubava getLeads
+        // inteiro com "reading 'referencedTable'". Mesmo padrao de liderancas.ts.
         liderancaRef: true,
       },
     });
@@ -61,7 +63,7 @@ export async function getLeadById(id: string, tenantId: string) {
 
     const result = await db.query.lead.findFirst({
       where: and(eq(lead.id, id), eq(lead.tenantId, tenantId)),
-      with: { bairroRef: true, liderancaRef: true }
+      with: { liderancaRef: true }
     });
 
     if (!result) {
