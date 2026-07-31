@@ -26,12 +26,14 @@ import {
 let T: TenantsDeTeste;
 
 beforeAll(async () => {
-  await loginReal();
   T = await criarTenantsDeTeste();
+  // Roda como usuario COMUM vinculado ao tenant A (nao como admin da
+  // plataforma): prova que um assessor de verdade consegue operar o sistema.
+  await loginReal({ email: T.membro.email, password: T.membro.senha });
 });
 
 afterAll(async () => {
-  if (T) await limparTenantsDeTeste([T.a.id, T.b.id]);
+  if (T) await limparTenantsDeTeste([T.a.id, T.b.id], T.membro.id);
   await fecharConexao();
 });
 

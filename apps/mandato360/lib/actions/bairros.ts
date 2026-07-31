@@ -3,8 +3,13 @@
 import { db } from "@/lib/db";
 import { bairro } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { validateTenantAccess, validateOwnership } from "@/lib/auth-utils";
+import { checkRateLimit, rateLimitPresets } from "@/lib/rate-limit";
 
 export async function getBairros(tenantId: string) {
+  await validateTenantAccess(tenantId, "readonly");
+  await checkRateLimit(rateLimitPresets.api);
+
   return await db.query.bairro.findMany({
     where: eq(bairro.tenantId, tenantId),
     orderBy: bairro.nome,
@@ -13,6 +18,9 @@ export async function getBairros(tenantId: string) {
 
 export async function createBairro(data: { tenantId: string; nome: string; zona?: string; observacoes?: string }) {
   try {
+    await validateTenantAccess(data.tenantId, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     const [result] = await db.insert(bairro).values(data).returning();
     return { success: true, data: result };
   } catch (error: any) {
@@ -22,6 +30,12 @@ export async function createBairro(data: { tenantId: string; nome: string; zona?
 
 export async function updateBairro(id: string, data: { nome?: string; zona?: string; observacoes?: string }) {
   try {
+    // A action so recebe o `id`: o tenant vem do proprio registro, senao
+    // qualquer um editaria bairro de outro mandato sabendo o UUID.
+    const existente = await db.query.bairro.findFirst({ where: eq(bairro.id, id) });
+    await validateOwnership(existente, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     const [result] = await db.update(bairro).set(data).where(eq(bairro.id, id)).returning();
     return { success: true, data: result };
   } catch (error: any) {
@@ -31,6 +45,10 @@ export async function updateBairro(id: string, data: { nome?: string; zona?: str
 
 export async function deleteBairro(id: string) {
   try {
+    const existente = await db.query.bairro.findFirst({ where: eq(bairro.id, id) });
+    await validateOwnership(existente, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     await db.delete(bairro).where(eq(bairro.id, id));
     return { success: true };
   } catch (error: any) {

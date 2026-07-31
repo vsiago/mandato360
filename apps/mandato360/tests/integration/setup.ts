@@ -64,7 +64,7 @@ vi.mock("next/cache", () => ({
 }));
 
 /** Faz login de verdade e guarda o cookie de sessao. */
-export async function loginReal(): Promise<string> {
+export async function loginReal(credenciais = TEST_CREDENTIALS): Promise<string> {
   const res = await fetch(`${APP_URL}/api/auth/sign-in/email`, {
     method: "POST",
     headers: {
@@ -72,7 +72,7 @@ export async function loginReal(): Promise<string> {
       // better-auth rejeita requisicao sem Origin (MISSING_OR_NULL_ORIGIN)
       Origin: APP_URL,
     },
-    body: JSON.stringify(TEST_CREDENTIALS),
+    body: JSON.stringify(credenciais),
   });
 
   if (!res.ok) {

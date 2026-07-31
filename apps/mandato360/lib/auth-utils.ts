@@ -5,7 +5,7 @@
 
 import { headers } from "next/headers";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import * as schema from "./db/schema";
 
 export type UserRole = "admin" | "assessor" | "readonly" | "user";
@@ -54,18 +54,36 @@ export async function getAuthContext(): Promise<AuthContext> {
     throw new Error("Unauthorized: No active session");
   }
 
-  // TODO: Fetch user's tenants from database
-  // For now, assume single tenant from user relationship
   const user = session.user;
+
+  // Tenants aos quais este usuario esta efetivamente vinculado.
+  const vinculos = await db.query.tenantMember.findMany({
+    where: eq(schema.tenantMember.userId, user.id),
+    columns: { tenantId: true },
+  });
 
   return {
     userId: user.id,
     email: user.email,
     role: (user.role as UserRole) || "user",
-    tenantId: null, // Will be set by the caller based on context
-    tenantIds: [], // Fetch from DB when multi-tenant support is needed
+    tenantId: null, // definido por validateTenantAccess conforme o contexto
+    tenantIds: vinculos.map((v) => v.tenantId),
   };
 }
+
+/** Papel dentro do tenant -> nivel na hierarquia de permissao. */
+const NIVEL_POR_PAPEL_NO_TENANT: Record<string, number> = {
+  owner: 3, // dono do mandato
+  admin: 3,
+  staff: 2, // assessor
+};
+
+const NIVEL_MINIMO: Record<UserRole, number> = {
+  admin: 3,
+  assessor: 2,
+  readonly: 1,
+  user: 0,
+};
 
 /**
  * Validate that user has access to a specific tenant
@@ -77,13 +95,10 @@ export async function validateTenantAccess(
 ): Promise<AuthContext> {
   const auth = await getAuthContext();
 
-  // TODO: Implement multi-tenant relationship validation
-  // For now, basic check
   if (!tenantId) {
     throw new Error("Invalid tenant ID");
   }
 
-  // Fetch tenant to verify it exists
   const tenant = await db.query.tenant.findFirst({
     where: eq(schema.tenant.id, tenantId as any),
   });
@@ -92,30 +107,45 @@ export async function validateTenantAccess(
     throw new Error("Tenant not found");
   }
 
-  // TODO: Check if user has relationship to this tenant
-  // const userTenant = await db.query.userTenant.findFirst({
-  //   where: and(
-  //     eq(schema.userTenant.userId, auth.userId),
-  //     eq(schema.userTenant.tenantId, tenantId)
-  //   ),
-  // });
+  // Admin da plataforma (role global) atravessa qualquer tenant — e o que
+  // sustenta as telas /master. Todo o resto precisa de vinculo explicito.
+  if (auth.role === "admin") {
+    return { ...auth, tenantId };
+  }
 
-  // if (!userTenant) {
-  //   throw new Error("Access denied to this tenant");
-  // }
+  const vinculo = await db.query.tenantMember.findFirst({
+    where: and(
+      eq(schema.tenantMember.userId, auth.userId),
+      eq(schema.tenantMember.tenantId, tenantId as any)
+    ),
+  });
 
-  // Role-based access control (future enhancement)
-  // const roleHierarchy: Record<UserRole, number> = {
-  //   admin: 3,
-  //   assessor: 2,
-  //   readonly: 1,
-  //   user: 0,
-  // };
-  // if (roleHierarchy[auth.role] < roleHierarchy[minRole]) {
-  //   throw new Error(`Insufficient permissions. Required: ${minRole}`);
-  // }
+  if (!vinculo) {
+    throw new Error("Access denied to this tenant");
+  }
+
+  const nivelDoUsuario = NIVEL_POR_PAPEL_NO_TENANT[vinculo.role ?? "staff"] ?? 0;
+  if (nivelDoUsuario < NIVEL_MINIMO[minRole]) {
+    throw new Error(`Insufficient permissions. Required: ${minRole}`);
+  }
 
   return { ...auth, tenantId };
+}
+
+/**
+ * Autoriza a partir do PROPRIO registro, quando a action so recebe o `id`.
+ * Busca o dono do registro e valida o acesso aquele tenant — impedindo que
+ * alguem edite/apague dado de outro mandato so por conhecer o UUID.
+ */
+export async function validateOwnership<T extends { tenantId: string }>(
+  registro: T | undefined | null,
+  minRole: UserRole = "assessor"
+): Promise<T> {
+  if (!registro) {
+    throw new Error("Registro nao encontrado");
+  }
+  await validateTenantAccess(registro.tenantId, minRole);
+  return registro;
 }
 
 /**

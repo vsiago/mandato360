@@ -3,7 +3,12 @@
 import { db } from "@/lib/db";
 import { legislativo } from "@/lib/db/schema";
 import { eq, and, desc } from "drizzle-orm";
+import { validateTenantAccess, validateOwnership } from "@/lib/auth-utils";
+import { checkRateLimit, rateLimitPresets } from "@/lib/rate-limit";
 
+// LEITURA PUBLICA POR DESIGN: a landing do mandato (app/[tenant]/page.tsx)
+// lista projetos de lei e indicacoes para qualquer visitante. Nao adicione
+// auth aqui — so nas escritas abaixo.
 export async function getLegislativo(tenantId: string, tipo?: "projeto_lei" | "indicacao" | "lei_aprovada") {
   try {
     const conditions = [eq(legislativo.tenantId, tenantId)];
@@ -31,6 +36,9 @@ export async function createLegislativo(data: {
 }) {
   const { visivelLanding, ...insertData } = data;
   try {
+    await validateTenantAccess(data.tenantId, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     const [result] = await db.insert(legislativo).values(insertData as any).returning();
     return { success: true, data: result };
   } catch (error: any) {
@@ -47,6 +55,10 @@ export async function updateLegislativo(id: string, data: Partial<{
   // visivelLanding: boolean;
 }>) {
   try {
+    const existente = await db.query.legislativo.findFirst({ where: eq(legislativo.id, id) });
+    await validateOwnership(existente, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     const [result] = await db.update(legislativo).set(data).where(eq(legislativo.id, id)).returning();
     return { success: true, data: result };
   } catch (error: any) {
@@ -56,6 +68,10 @@ export async function updateLegislativo(id: string, data: Partial<{
 
 export async function deleteLegislativo(id: string) {
   try {
+    const existente = await db.query.legislativo.findFirst({ where: eq(legislativo.id, id) });
+    await validateOwnership(existente, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     await db.delete(legislativo).where(eq(legislativo.id, id));
     return { success: true };
   } catch (error: any) {

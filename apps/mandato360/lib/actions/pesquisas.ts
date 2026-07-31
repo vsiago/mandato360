@@ -3,8 +3,13 @@
 import { db } from "@/lib/db";
 import { pesquisa, pesquisaResposta, type PesquisaPergunta } from "@/lib/db/schema";
 import { eq, desc, count } from "drizzle-orm";
+import { validateTenantAccess, validateOwnership } from "@/lib/auth-utils";
+import { checkRateLimit, rateLimitPresets } from "@/lib/rate-limit";
 
 export async function getPesquisas(tenantId: string) {
+  await validateTenantAccess(tenantId, "readonly");
+  await checkRateLimit(rateLimitPresets.api);
+
   return await db.query.pesquisa.findMany({
     where: eq(pesquisa.tenantId, tenantId),
     orderBy: desc(pesquisa.createdAt),
@@ -12,12 +17,17 @@ export async function getPesquisas(tenantId: string) {
 }
 
 export async function getPesquisaById(id: string) {
-  return await db.query.pesquisa.findFirst({
+  const result = await db.query.pesquisa.findFirst({
     where: eq(pesquisa.id, id),
     with: { respostas: true },
   });
+  // Traz as respostas dos eleitores: exige vinculo com o mandato dono.
+  await validateOwnership(result, "readonly");
+  return result;
 }
 
+// PUBLICA POR DESIGN: pagina /[tenant]/pesquisa/[id] responde a qualquer
+// visitante, e por isso so devolve pesquisa marcada como publica e ativa.
 export async function getPesquisaPublica(id: string) {
   const result = await db.query.pesquisa.findFirst({
     where: eq(pesquisa.id, id),
@@ -34,6 +44,9 @@ export async function createPesquisa(data: {
   publica?: boolean;
 }) {
   try {
+    await validateTenantAccess(data.tenantId, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     const [result] = await db.insert(pesquisa).values(data).returning();
     return { success: true, data: result };
   } catch (error: any) {
@@ -49,6 +62,10 @@ export async function updatePesquisa(id: string, data: Partial<{
   perguntas: PesquisaPergunta[];
 }>) {
   try {
+    const existente = await db.query.pesquisa.findFirst({ where: eq(pesquisa.id, id) });
+    await validateOwnership(existente, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     const [result] = await db.update(pesquisa).set({ ...data, updatedAt: new Date() }).where(eq(pesquisa.id, id)).returning();
     return { success: true, data: result };
   } catch (error: any) {
@@ -58,6 +75,10 @@ export async function updatePesquisa(id: string, data: Partial<{
 
 export async function deletePesquisa(id: string) {
   try {
+    const existente = await db.query.pesquisa.findFirst({ where: eq(pesquisa.id, id) });
+    await validateOwnership(existente, "assessor");
+    await checkRateLimit(rateLimitPresets.form);
+
     await db.delete(pesquisaResposta).where(eq(pesquisaResposta.pesquisaId, id));
     await db.delete(pesquisa).where(eq(pesquisa.id, id));
     return { success: true };
