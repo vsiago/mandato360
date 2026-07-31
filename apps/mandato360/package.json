@@ -13,7 +13,8 @@
     "test:integration": "vitest run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
     "db:drift": "node scripts/check-schema-drift.mjs && node scripts/check-notnull-drift.mjs",
-    "db:migrate": "node scripts/apply-migration.mjs"
+    "db:migrate": "node scripts/apply-migration.mjs",
+    "test:ui": "playwright test"
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
@@ -75,6 +76,7 @@
   },
   "devDependencies": {
     "@better-auth/utils": "^0.4.0",
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4.2.0",
     "@types/node": "^22",
     "@types/pg": "^8.20.0",

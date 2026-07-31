@@ -40,25 +40,13 @@ if (existente) {
   console.log(`Tenant criado: ${slug} (${tenantId})`);
 }
 
-const [admin] = await sql`SELECT id FROM "user" WHERE email = ${EMAIL_ADMIN}`;
-if (!admin) {
-  console.log(`AVISO: usuario ${EMAIL_ADMIN} nao encontrado; vinculo nao criado.`);
-} else {
-  const [vinculo] = await sql`
-    SELECT id FROM tenant_member WHERE "tenantId" = ${tenantId} AND "userId" = ${admin.id}`;
-  if (vinculo) {
-    console.log("Vinculo do admin ja existia.");
-  } else {
-    await sql`
-      INSERT INTO tenant_member ("tenantId", "userId", role)
-      VALUES (${tenantId}, ${admin.id}, 'owner')`;
-    console.log("Vinculo do admin criado (role: owner).");
-  }
-}
-
+// NAO vincular o superadmin como membro deste mandato: ele ja atravessa
+// qualquer tenant pelo papel global, e o vinculo faria a raiz "/" jogar o
+// dono da plataforma no dashboard de um vereador em vez de /master.
 console.log("");
 console.log("Acesse:");
-console.log(`  Painel : /${slug}/dashboard`);
-console.log(`  Site   : /${slug}`);
+console.log(`  Painel do mandato   : /${slug}/dashboard`);
+console.log(`  Site publico        : /${slug}`);
+console.log(`  Painel da plataforma: /master/tenants  (${EMAIL_ADMIN})`);
 
 await sql.end();

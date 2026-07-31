@@ -25,3 +25,7 @@ build/
 **/.pnpm-debug.log*
 **/tsconfig.tsbuildinfo
 .vercel
+
+# Playwright
+apps/mandato360/test-results/
+apps/mandato360/playwright-report/

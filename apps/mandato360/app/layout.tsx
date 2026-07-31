@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono, Outfit } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
 const inter = Inter({ 
@@ -63,6 +64,10 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} ${outfit.variable} font-sans antialiased`}>
         {children}
+        {/* Sem este Toaster montado, TODA chamada toast.* do app vira no-op:
+            erro de login, "Bairro criado!", falha ao salvar — nada aparece.
+            Nao remova. */}
+        <Toaster position="top-center" richColors closeButton />
         <Analytics />
       </body>
     </html>

@@ -16,7 +16,14 @@ export default async function Home() {
   }
 
 
-  // Find the first tenant the user belongs to
+  // O dono da plataforma vai para o painel administrativo, SEMPRE — mesmo
+  // que por algum motivo esteja vinculado a um mandato. Checar o vinculo
+  // antes disto jogava o superadmin no dashboard de um vereador.
+  if (session.user.role === "admin") {
+    redirect("/master/tenants")
+  }
+
+  // Demais usuarios: primeiro mandato ao qual pertencem.
   const member = await db
     .select({ slug: tenant.slug })
     .from(tenantMember)
@@ -28,10 +35,6 @@ export default async function Home() {
     redirect(`/${member[0].slug}/dashboard`)
   }
 
-  // Fallback if no tenant found
-  if (session.user.role === "admin") {
-    redirect("/master/tenants")
-  }
-  
-  redirect("/login") 
+  // Autenticado, mas sem mandato vinculado: nao ha para onde ir.
+  redirect("/sem-acesso")
 }

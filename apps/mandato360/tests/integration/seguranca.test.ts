@@ -166,6 +166,25 @@ describe("Area /master — restrita ao admin da plataforma", () => {
   });
 });
 
+describe("Superadmin nao deve ser membro de mandato", () => {
+  it("o admin da plataforma nao tem vinculo em tenant_member", async () => {
+    const admins = await db.query.user.findMany({
+      where: eq(schema.user.role, "admin"),
+      columns: { id: true, email: true },
+    });
+
+    for (const a of admins) {
+      const vinculos = await db.query.tenantMember.findMany({
+        where: eq(schema.tenantMember.userId, a.id),
+      });
+      expect(
+        vinculos.length,
+        `${a.email} e membro de ${vinculos.length} mandato(s): a raiz "/" vai jogar o dono da plataforma no dashboard de um vereador em vez de /master`
+      ).toBe(0);
+    }
+  });
+});
+
 describe("Validacao de entrada", () => {
   it("rejeita nome vazio", async () => {
     const r: any = await createLead({ tenantId: T.a.id, nome: "" });
