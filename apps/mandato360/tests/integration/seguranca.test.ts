@@ -16,6 +16,7 @@ import { createBairro, updateBairro, deleteBairro, getBairros } from "@/lib/acti
 import { createLead, getLeads } from "@/lib/actions/leads";
 import { createLegislativo, updateLegislativo } from "@/lib/actions/legislativo";
 import { createPesquisa, updatePesquisa } from "@/lib/actions/pesquisas";
+import { getAllTenants, createTenant, deleteTenant, updateTenantSiteAction } from "@/lib/actions/tenant";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -138,6 +139,30 @@ describe("Isolamento entre tenants — escrita cruzada", () => {
     });
     const r: any = await updatePesquisa(alvo.id, { titulo: "INVADIDO" });
     expect(r?.success, "editou pesquisa de outro tenant").not.toBe(true);
+  });
+});
+
+describe("Area /master — restrita ao admin da plataforma", () => {
+  it("usuario comum nao lista todos os mandatos", async () => {
+    await expect(getAllTenants()).rejects.toThrow();
+  });
+
+  it("usuario comum nao cria mandato", async () => {
+    const r: any = await createTenant({ name: "Invasao", slug: `invasao-${Date.now()}` });
+    expect(r?.success, "usuario comum criou um mandato").not.toBe(true);
+  });
+
+  it("usuario comum nao APAGA o mandato de outro", async () => {
+    const r: any = await deleteTenant(T.b.id);
+    expect(r?.success, "usuario comum apagou o mandato de outro").not.toBe(true);
+
+    const aindaExiste = await db.query.tenant.findFirst({ where: eq(schema.tenant.id, T.b.id) });
+    expect(aindaExiste, "o mandato do outro foi destruido").toBeTruthy();
+  });
+
+  it("usuario comum nao reescreve o site de outro mandato", async () => {
+    const r: any = await updateTenantSiteAction(T.b.slug, { colors: { primary: "#000000" } });
+    expect(r?.success, "reescreveu a landing de outro mandato").not.toBe(true);
   });
 });
 

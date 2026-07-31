@@ -59,6 +59,13 @@ export default async function middleware(request: NextRequest) {
 		return NextResponse.next();
 	}
 
+	// A area /master cadastra e REMOVE mandatos inteiros. Ter sessao nao
+	// basta: exige admin da plataforma. Sem isto, o assessor de um vereador
+	// abriria /master/tenants e apagaria o mandato de outro.
+	if (pathname.startsWith("/master") && session?.user?.role !== "admin") {
+		return NextResponse.redirect(new URL("/", request.url));
+	}
+
 	return NextResponse.next();
 }
 

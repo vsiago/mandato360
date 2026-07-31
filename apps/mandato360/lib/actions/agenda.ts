@@ -25,13 +25,17 @@ export async function getAgendas(tenantId: string) {
   }
 }
 
+/**
+ * PUBLICA POR DESIGN: alimenta a landing do mandato (app/[tenant]/page.tsx),
+ * que qualquer visitante abre sem estar logado. Exigir sessao aqui derruba o
+ * site do politico com 500.
+ *
+ * A protecao vem do proprio filtro: so devolve evento marcado como visivel e
+ * ainda por acontecer. Nao adicione validateTenantAccess.
+ */
 export async function getAgendasPublicas(tenantId: string) {
   try {
-    // ✅ SECURITY: Validate tenant access
-    await validateTenantAccess(tenantId, "readonly");
-
-    // ✅ SECURITY: Rate limiting
-    await checkRateLimit(rateLimitPresets.api);
+    await checkRateLimit(rateLimitPresets.publicApi);
 
     const now = new Date();
     return await db.query.agendaPublica.findMany({

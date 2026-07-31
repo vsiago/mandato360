@@ -133,6 +133,19 @@ export async function validateTenantAccess(
 }
 
 /**
+ * Exige ADMIN DA PLATAFORMA (superadmin) — quem opera a area /master e
+ * cadastra/remove mandatos. Nao confundir com "owner" de um tenant, que e
+ * dono do proprio mandato mas nao pode tocar no de outro.
+ */
+export async function requirePlatformAdmin(): Promise<AuthContext> {
+  const auth = await getAuthContext();
+  if (auth.role !== "admin") {
+    throw new Error("Acesso restrito ao administrador da plataforma");
+  }
+  return auth;
+}
+
+/**
  * Autoriza a partir do PROPRIO registro, quando a action so recebe o `id`.
  * Busca o dono do registro e valida o acesso aquele tenant — impedindo que
  * alguem edite/apague dado de outro mandato so por conhecer o UUID.

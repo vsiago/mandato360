@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { requirePlatformAdmin, validateTenantAccess } from "@/lib/auth-utils";
 
 export async function getTenantBySlug(slug: string) {
   try {
@@ -19,7 +20,9 @@ export async function getTenantBySlug(slug: string) {
   }
 }
 
+// Lista TODOS os mandatos da plataforma: exclusivo do superadmin.
 export async function getAllTenants() {
+  await requirePlatformAdmin();
   return await db.query.tenant.findMany();
 }
 
@@ -31,9 +34,11 @@ export async function createTenant(data: {
     fotoPerfilUrl?: string;
     biografia?: string;
     logoUrl?: string;
-    config?: string 
+    config?: string
 }) {
   try {
+    await requirePlatformAdmin();
+
     const result = await db.insert(tenant).values({
       name: data.name,
       slug: data.slug,
@@ -68,6 +73,9 @@ export async function createTenant(data: {
   ownerPassword: string;
 }) {
   try {
+    // Cadastra um mandato novo E cria o usuario dono dele: so o superadmin.
+    await requirePlatformAdmin();
+
     const authResult = await auth.api.signUpEmail({
       body: {
         email: data.ownerEmail,
@@ -154,6 +162,10 @@ export async function updateTenant(id: string, data: {
     destaques?: { text: string; icon?: string }[];
 }) {
   try {
+    // Edicao administrativa do mandato (inclusive slug): so o superadmin.
+    // O proprio vereador edita o site dele por updateTenantSiteAction.
+    await requirePlatformAdmin();
+
     const result = await db.update(tenant)
       .set({
         ...data,
@@ -174,6 +186,10 @@ export async function updateTenant(id: string, data: {
 
 export async function deleteTenant(id: string) {
   try {
+    // DESTRUTIVO: apaga o mandato e TODO o dado dele (eleitores, demandas,
+    // liderancas...). Restrito ao superadmin.
+    await requirePlatformAdmin();
+
     await db.transaction(async (tx) => {
       // Find all users that are members of this tenant before deleting
       const members = await tx.select({ userId: tenantMember.userId }).from(tenantMember).where(eq(tenantMember.tenantId, id));
@@ -214,6 +230,14 @@ export async function updateTenantSiteAction(slug: string, configData: any) {
     if (isModel) {
       return { success: false, error: "O vereador modelo não pode ser editado." };
     }
+
+    // O proprio mandato edita seu site — exige vinculo com ESTE tenant,
+    // senao qualquer um reescreveria a landing de outro vereador pelo slug.
+    const alvo = await db.query.tenant.findFirst({ where: eq(tenant.slug, slug) });
+    if (!alvo) {
+      return { success: false, error: "Mandato não encontrado." };
+    }
+    await validateTenantAccess(alvo.id, "admin");
 
     const [updated] = await db.update(tenant)
       .set({
